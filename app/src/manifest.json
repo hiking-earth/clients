@@ -1,0 +1,61 @@
+{
+    "name" : "徒步地球",
+    "appid" : "",
+    "description" : "基于 3D 地球的全球徒步路线发现与行前决策（客户端）",
+    "versionName" : "0.1.0",
+    "versionCode" : "1",
+    "transformPx" : false,
+    "app-plus" : {
+        "usingComponents" : true,
+        "nvueStyleCompiler" : "uni-app",
+        "compilerVersion" : 3,
+        "splashscreen" : {
+            "alwaysShowBeforeRender" : true,
+            "waiting" : true,
+            "autoclose" : true,
+            "delay" : 0
+        },
+        "modules" : {
+            "Geolocation" : {},
+            "Maps" : {}
+        },
+        "distribute" : {
+            "android" : {
+                "permissions" : [
+                    "<uses-permission android:name=\"android.permission.ACCESS_FINE_LOCATION\"/>",
+                    "<uses-permission android:name=\"android.permission.ACCESS_COARSE_LOCATION\"/>",
+                    "<uses-permission android:name=\"android.permission.ACCESS_BACKGROUND_LOCATION\"/>",
+                    "<uses-permission android:name=\"android.permission.VIBRATE\"/>",
+                    "<uses-permission android:name=\"android.permission.WAKE_LOCK\"/>",
+                    "<uses-permission android:name=\"android.permission.ACCESS_NETWORK_STATE\"/>",
+                    "<uses-permission android:name=\"android.permission.FOREGROUND_SERVICE\"/>",
+                    "<uses-permission android:name=\"android.permission.FOREGROUND_SERVICE_LOCATION\"/>"
+                ]
+            },
+            "ios" : {
+                "UIBackgroundModes" : ["location"],
+                "privacyDescription" : {
+                    "NSLocationWhenInUseUsageDescription" : "用于轨迹记录、沿轨迹导航与精准箭头指向",
+                    "NSLocationAlwaysAndWhenInUseUsageDescription" : "用于后台轨迹记录与导航中持续定位"
+                }
+            },
+            "sdkConfigs" : {
+                "maps" : {}
+            }
+        }
+    },
+    "quickapp" : {},
+    "mp-weixin" : {
+        "appid" : "",
+        "setting" : {
+            "urlCheck" : false,
+            "minified" : true
+        },
+        "usingComponents" : true,
+        "lazyCodeLoading" : "requiredComponents"
+    },
+    "uniStatistics" : {
+        "enable" : false
+    },
+    "vueVersion" : "3"
+}

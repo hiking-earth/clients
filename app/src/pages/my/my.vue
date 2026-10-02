@@ -1,0 +1,130 @@
+<template>
+  <scroll-view scroll-y class="page">
+    <!-- 账号 -->
+    <view class="account">
+      <view class="avatar">{{ nickname.slice(0, 1) }}</view>
+      <view class="acc-info">
+        <text class="nick">{{ nickname }}</text>
+        <text class="acc-sub">{{ openid ? `已登录 · ${openid.slice(0, 10)}…` : '微信一键登录后可用云同步/组队/社区' }}</text>
+      </view>
+      <button v-if="!openid" class="login" @click="login">登录</button>
+    </view>
+
+    <!-- 功能入口 -->
+    <view class="group">
+      <view class="row" @click="go('/pages/team/team')">
+        <text class="row-icon">👥</text><text class="row-name">组队会合</text><text class="row-go">›</text>
+      </view>
+      <view class="row" @click="go('/pages/gear/scan')">
+        <text class="row-icon">📷</text><text class="row-name">拍照识装备</text><text class="row-go">›</text>
+      </view>
+      <view class="row" @click="go('/pages/guide/guide')">
+        <text class="row-icon">🎒</text><text class="row-name">装备导购</text><text class="row-go">›</text>
+      </view>
+    </view>
+
+    <view class="group">
+      <view class="row" @click="syncAll">
+        <text class="row-icon">☁️</text><text class="row-name">云同步全部轨迹</text>
+        <text class="row-sub">{{ unsynced }} 条待同步</text><text class="row-go">›</text>
+      </view>
+      <view class="row" @click="offlineTip">
+        <text class="row-icon">🗺️</text><text class="row-name">离线地图包</text><text class="row-sub">M3 提供</text><text class="row-go">›</text>
+      </view>
+    </view>
+
+    <view class="group">
+      <view class="row" @click="about">
+        <text class="row-icon">ℹ️</text><text class="row-name">关于徒步地球</text><text class="row-go">›</text>
+      </view>
+    </view>
+
+    <view class="ver">徒步地球客户端 v0.1.0 · 上游 hiking-earth @ 3304520</view>
+  </scroll-view>
+</template>
+
+<script setup lang="ts">
+import { ref } from "vue";
+import { onShow } from "@dcloudio/uni-app";
+import { callCloud } from "@/services/cloud";
+import { listTracks, markSynced } from "@/services/tracks";
+
+const openid = ref("");
+const nickname = ref("未登录");
+const unsynced = ref(0);
+
+onShow(() => {
+  unsynced.value = listTracks().filter((t) => !t.synced).length;
+  const saved = uni.getStorageSync("he_openid");
+  if (saved) {
+    openid.value = saved;
+    nickname.value = "山友";
+  }
+});
+
+async function login() {
+  const res = await callCloud<{ openid: string; nickname: string }>("login");
+  if (res.ok && res.data) {
+    openid.value = res.data.openid;
+    nickname.value = res.data.nickname ?? "山友";
+    uni.setStorageSync("he_openid", res.data.openid);
+    uni.showToast({ title: "登录成功", icon: "success" });
+  } else {
+    uni.showToast({ title: "登录失败", icon: "none" });
+  }
+}
+
+async function syncAll() {
+  const list = listTracks().filter((t) => !t.synced);
+  if (list.length === 0) {
+    uni.showToast({ title: "没有待同步轨迹", icon: "none" });
+    return;
+  }
+  uni.showLoading({ title: "同步中" });
+  let okCount = 0;
+  for (const t of list) {
+    const res = await callCloud("track-sync", { track: t });
+    if (res.ok) {
+      markSynced(t.id);
+      okCount++;
+    }
+  }
+  uni.hideLoading();
+  unsynced.value = listTracks().filter((t) => !t.synced).length;
+  uni.showToast({ title: `已同步 ${okCount}/${list.length} 条`, icon: "none" });
+}
+
+function go(url: string) {
+  uni.navigateTo({ url });
+}
+
+function offlineTip() {
+  uni.showToast({ title: "离线地图包将在 M3 版本提供", icon: "none" });
+}
+
+function about() {
+  uni.showModal({
+    title: "徒步地球",
+    content: "以 3D 地球发现全球徒步路线。客户端候选版：不构成导航服务或许可，出行以属地公告为准。\\n上游：github.com/hiking-earth/hiking-earth",
+    showCancel: false,
+  });
+}
+</script>
+
+<style lang="scss" scoped>
+.page { min-height: 100vh; background: #0f141b; padding: 40rpx 32rpx; box-sizing: border-box; }
+.account { display: flex; align-items: center; background: #151d27; border-radius: 20rpx; padding: 32rpx 24rpx; }
+.avatar { width: 96rpx; height: 96rpx; border-radius: 50%; background: #1a2430; color: #b8f36b; display: flex; align-items: center; justify-content: center; font-size: 40rpx; font-weight: 700; }
+.acc-info { flex: 1; margin-left: 24rpx; display: flex; flex-direction: column; gap: 8rpx; }
+.nick { font-size: 32rpx; font-weight: 600; color: #eef4ea; }
+.acc-sub { font-size: 22rpx; color: #5c6a78; }
+.login { padding: 0 40rpx; height: 64rpx; line-height: 64rpx; background: #b8f36b; color: #0f141b; font-size: 26rpx; font-weight: 600; border-radius: 999rpx; }
+.group { margin-top: 28rpx; background: #151d27; border-radius: 20rpx; overflow: hidden; }
+.row { display: flex; align-items: center; padding: 28rpx 24rpx; border-bottom: 1rpx solid #1a2430; }
+.row:last-child { border-bottom: none; }
+.row-icon { font-size: 32rpx; width: 56rpx; }
+.row-name { flex: 1; font-size: 28rpx; color: #eef4ea; }
+.row-sub { font-size: 22rpx; color: #5c6a78; margin-right: 12rpx; }
+.row-go { font-size: 32rpx; color: #5c6a78; }
+.ver { margin-top: 48rpx; text-align: center; font-size: 20rpx; color: #445059; }
+</style>

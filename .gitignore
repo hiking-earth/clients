@@ -1,0 +1,21 @@
+# 依赖与工具
+node_modules/
+**/node_modules/
+
+# 构建产物
+app/dist/
+desktop/src-tauri/target/
+desktop/src-tauri/gen/
+
+# 系统
+.DS_Store
+
+# 密钥与环境（严禁入库）
+.env
+.env.*
+*.key
+*.pem
+
+# 编辑器
+.idea/
+.vscode/
