@@ -60,23 +60,26 @@ import type { Team, TeamMember } from "@shared/types/social";
 import type { TrackPoint } from "@shared/types/track";
 import { callCloud } from "@/services/cloud";
 import { startLocationUpdates, stopLocationUpdates } from "@/services/location";
+import { hasPrivacyConsent, onPrivacyChange } from "@/services/privacy";
 
 const REPORT_INTERVAL = 10000;
 
 const team = ref<(Team & { teamId?: string }) | null>(null);
 const inviteCode = ref("");
 const members = ref<TeamMember[]>([]);
-const myOpenid = ref("local-mock-user");
+const myOpenid = ref("");
 const sharing = ref(false);
 const myPos = ref<TrackPoint | null>(null);
 const membersWithDistance = ref<(TeamMember & { distanceText: string })[]>([]);
+const onMyLocation = (p: TrackPoint) => { myPos.value = p; };
 
 let reportTimer: ReturnType<typeof setInterval> | null = null;
 let pollTimer: ReturnType<typeof setInterval> | null = null;
 
 onLoad(async () => {
   const res = await callCloud<{ openid: string }>("login");
-  if (res.ok && res.data) myOpenid.value = res.data.openid;
+  if (!res.ok || !res.data) return;
+  myOpenid.value = res.data.openid;
   // 恢复上次队伍
   const saved = uni.getStorageSync("he_team");
   if (saved) {
@@ -85,8 +88,11 @@ onLoad(async () => {
 });
 
 onShow(() => { if (team.value) startPoll(); });
-onHide(() => stopPoll());
-onUnmounted(() => { stopPoll(); stopShare(); });
+onHide(() => { stopPoll(); stopShare(); });
+const unsubscribePrivacy = onPrivacyChange((consents) => {
+  if (!consents.location || !consents.teamLocation) stopShare();
+});
+onUnmounted(() => { unsubscribePrivacy(); stopPoll(); stopShare(); });
 
 async function createTeam() {
   const res = await callCloud<{ teamId: string; inviteCode: string }>("team-create", { name: "徒步小队" });
@@ -97,7 +103,6 @@ async function createTeam() {
     };
     uni.setStorageSync("he_team", JSON.stringify(team.value));
     startPoll();
-    startShare();
   } else {
     uni.showToast({ title: res.errMsg ?? "创建失败", icon: "none" });
   }
@@ -113,7 +118,6 @@ async function joinTeam() {
     team.value = res.data.team;
     uni.setStorageSync("he_team", JSON.stringify(team.value));
     startPoll();
-    startShare();
   } else {
     uni.showToast({ title: res.errMsg ?? "加入失败", icon: "none" });
   }
@@ -135,20 +139,38 @@ function leave() {
 }
 
 /* ---------- 位置上报 ---------- */
-function startShare() {
-  startLocationUpdates((p) => { myPos.value = p; });
+let shareGeneration = 0;
+let startingShare = false;
+async function startShare() {
+  if (sharing.value || startingShare || !team.value) return;
+  if (!hasPrivacyConsent("location") || !hasPrivacyConsent("teamLocation")) {
+    uni.showModal({ title: "需要先启用位置共享", content: "请在“我的 → 隐私设置”中启用定位和组队位置共享，再回来手动开启共享。", showCancel: false });
+    return;
+  }
+  startingShare = true;
+  const epoch = ++shareGeneration;
+  const ok = await startLocationUpdates(onMyLocation, "team");
+  if (epoch !== shareGeneration) return;
+  startingShare = false;
+  if (!ok) {
+    uni.showToast({ title: "定位未启动，未开启共享", icon: "none" });
+    return;
+  }
   sharing.value = true;
   reportTimer = setInterval(report, REPORT_INTERVAL);
 }
-
 function stopShare() {
+  shareGeneration++;
+  startingShare = false;
   sharing.value = false;
-  stopLocationUpdates();
+  myPos.value = null;
+  stopLocationUpdates(onMyLocation);
   if (reportTimer) clearInterval(reportTimer);
+  reportTimer = null;
 }
 
 async function report() {
-  if (!team.value || !myPos.value) return;
+  if (!sharing.value || !team.value || !myPos.value || !hasPrivacyConsent("teamLocation") || !hasPrivacyConsent("location")) return;
   await callCloud("team-report", {
     teamId: team.value.id,
     latitude: myPos.value.latitude,
@@ -158,11 +180,13 @@ async function report() {
 
 /* ---------- 成员轮询 + 距离计算 ---------- */
 function startPoll() {
+  stopPoll();
   poll();
   pollTimer = setInterval(poll, REPORT_INTERVAL);
 }
 function stopPoll() {
   if (pollTimer) clearInterval(pollTimer);
+  pollTimer = null;
 }
 
 async function poll() {

@@ -65,6 +65,7 @@
 import { ref } from "vue";
 import { ROUTES } from "@shared/data/routes.seed";
 import { callCloud } from "@/services/cloud";
+import { hasPrivacyConsent } from "@/services/privacy";
 
 type GearItem = { name: string; category: string };
 type GearResult = {
@@ -100,6 +101,14 @@ function chooseImage() {
 
 async function analyze() {
   if (!imagePath.value) return;
+  if (!hasPrivacyConsent("gearImageUpload")) {
+    uni.showModal({
+      title: "需要照片分析授权",
+      content: "识别会将你选择的照片发送到云端视觉模型。请先在“我的 → 隐私设置”中启用装备照片云端分析。",
+      showCancel: false,
+    });
+    return;
+  }
   analyzing.value = true;
   try {
     // 读图片为 base64（小程序/App 用 getFileSystemManager，H5 用 FileReader）

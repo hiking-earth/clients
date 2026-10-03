@@ -11,7 +11,8 @@
 		{ "path": "pages/track/detail", "style": { "navigationBarTitleText": "轨迹详情" } },
 		{ "path": "pages/guide/guide", "style": { "navigationBarTitleText": "装备导购" } },
 		{ "path": "pages/team/team", "style": { "navigationBarTitleText": "组队会合" } },
-		{ "path": "pages/gear/scan", "style": { "navigationBarTitleText": "拍照识装备" } }
+		{ "path": "pages/gear/scan", "style": { "navigationBarTitleText": "拍照识装备" } },
+		{ "path": "pages/my/privacy", "style": { "navigationBarTitleText": "隐私设置" } }
 	],
 	"globalStyle": {
 		"navigationBarTextStyle": "white",

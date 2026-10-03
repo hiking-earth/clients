@@ -42,6 +42,7 @@ import { onLoad } from "@dcloudio/uni-app";
 import { trackToGpx, type TrackRecord } from "@shared/types/track";
 import { deleteTrack, getTrack, markSynced } from "@/services/tracks";
 import { callCloud } from "@/services/cloud";
+import { hasPrivacyConsent } from "@/services/privacy";
 
 const track = ref<TrackRecord | null>(null);
 
@@ -108,6 +109,14 @@ function exportGpx() {
 }
 
 async function sync() {
+  if (!hasPrivacyConsent("trackCloudSync")) {
+    uni.showModal({
+      title: "需要轨迹备份授权",
+      content: "请先在“我的 → 隐私设置”中启用云端轨迹备份。",
+      showCancel: false,
+    });
+    return;
+  }
   uni.showLoading({ title: "同步中" });
   const res = await callCloud("track-sync", { track: track.value });
   uni.hideLoading();

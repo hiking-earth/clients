@@ -34,6 +34,9 @@
     </view>
 
     <view class="group">
+      <view class="row" @click="go('/pages/my/privacy')">
+        <text class="row-icon">🔒</text><text class="row-name">隐私设置</text><text class="row-go">›</text>
+      </view>
       <view class="row" @click="about">
         <text class="row-icon">ℹ️</text><text class="row-name">关于徒步地球</text><text class="row-go">›</text>
       </view>
@@ -48,6 +51,7 @@ import { ref } from "vue";
 import { onShow } from "@dcloudio/uni-app";
 import { callCloud } from "@/services/cloud";
 import { listTracks, markSynced } from "@/services/tracks";
+import { hasPrivacyConsent } from "@/services/privacy";
 
 const openid = ref("");
 const nickname = ref("未登录");
@@ -56,7 +60,7 @@ const unsynced = ref(0);
 onShow(() => {
   unsynced.value = listTracks().filter((t) => !t.synced).length;
   const saved = uni.getStorageSync("he_openid");
-  if (saved) {
+  if (saved && saved !== "local-mock-user") {
     openid.value = saved;
     nickname.value = "山友";
   }
@@ -70,11 +74,19 @@ async function login() {
     uni.setStorageSync("he_openid", res.data.openid);
     uni.showToast({ title: "登录成功", icon: "success" });
   } else {
-    uni.showToast({ title: "登录失败", icon: "none" });
+    uni.showToast({ title: res.errMsg ?? "登录失败", icon: "none" });
   }
 }
 
 async function syncAll() {
+  if (!hasPrivacyConsent("trackCloudSync")) {
+    uni.showModal({
+      title: "需要轨迹备份授权",
+      content: "仅在你手动同步时上传轨迹。请先在隐私设置中启用云端轨迹备份。",
+      showCancel: false,
+    });
+    return;
+  }
   const list = listTracks().filter((t) => !t.synced);
   if (list.length === 0) {
     uni.showToast({ title: "没有待同步轨迹", icon: "none" });

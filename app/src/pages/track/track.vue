@@ -44,6 +44,7 @@ import { onShow } from "@dcloudio/uni-app";
 import { haversineM } from "@shared/api/navigation-core";
 import type { TrackPoint, TrackRecord } from "@shared/types/track";
 import { startLocationUpdates, stopLocationUpdates } from "@/services/location";
+import { onPrivacyChange } from "@/services/privacy";
 import { listTracks, saveTrack } from "@/services/tracks";
 
 const state = ref<"idle" | "recording" | "paused">("idle");
@@ -59,6 +60,9 @@ let timer: ReturnType<typeof setInterval> | null = null;
 let lastAlt: number | null = null;
 
 onShow(() => { tracks.value = listTracks(); });
+const unsubscribePrivacy = onPrivacyChange((consents) => {
+  if (!consents.location && state.value === "recording") pause();
+});
 
 function onPoint(p: TrackPoint) {
   const last = points.value[points.value.length - 1];
@@ -79,7 +83,7 @@ function onPoint(p: TrackPoint) {
 async function start() {
   const ok = await startLocationUpdates(onPoint);
   if (!ok) {
-    uni.showToast({ title: "定位启动失败，请检查权限", icon: "none" });
+    uni.showToast({ title: "请启用隐私设置中的定位并授权", icon: "none" });
     return;
   }
   state.value = "recording";
@@ -96,7 +100,7 @@ function pause() {
 }
 
 async function resume() {
-  await startLocationUpdates(onPoint);
+  if (!(await startLocationUpdates(onPoint))) return;
   state.value = "recording";
 }
 
@@ -142,6 +146,7 @@ function formatDate(ts: number): string {
 }
 
 onUnmounted(() => {
+  unsubscribePrivacy();
   if (state.value === "recording") stopLocationUpdates(onPoint);
   if (timer) clearInterval(timer);
 });

@@ -1,89 +1,138 @@
-/**
- * 定位与罗盘封装（uni 标准 API，App / 小程序均可用，无需 uts 插件）
- * - 持续定位：uni.startLocationUpdate + uni.onLocationChange（WGS84）
- * - 设备航向：uni.onCompassChange（地磁 + 系统融合）
- */
+/** Foreground location and compass subscriptions, with immediate consent revocation. */
 import type { TrackPoint } from "@shared/types/track";
 import { HeadingFilter } from "@shared/api/navigation-core";
+import { hasPrivacyConsent, onPrivacyChange } from "@/services/privacy";
 
 export type LocationCallback = (p: TrackPoint) => void;
 export type HeadingCallback = (deg: number) => void;
+type Purpose = "navigation" | "team";
+const locations = new Map<LocationCallback, Purpose>();
+const headings = new Set<HeadingCallback>();
+const filter = new HeadingFilter(0.2);
+let running = false;
+let compassRunning = false;
+let generation = 0;
+let pollTimer: ReturnType<typeof setInterval> | undefined;
+let pending: Promise<boolean> | undefined;
+let settle: ((ok: boolean) => void) | undefined;
 
-const locCallbacks = new Set<LocationCallback>();
-const headingCallbacks = new Set<HeadingCallback>();
-const headingFilter = new HeadingFilter(0.2);
-let locationStarted = false;
-let compassStarted = false;
-
-function toTrackPoint(res: any): TrackPoint {
-  return {
-    latitude: res.latitude,
-    longitude: res.longitude,
-    altitude: res.altitude ?? res.verticalAccuracy != null ? res.altitude : undefined,
-    speed: res.speed,
-    accuracy: res.horizontalAccuracy ?? res.accuracy,
-    timestamp: Date.now(),
+function allowed(purpose: Purpose): boolean {
+  return hasPrivacyConsent("location") && (purpose !== "team" || hasPrivacyConsent("teamLocation"));
+}
+function deliver(res: any) {
+  const point: TrackPoint = {
+    latitude: res.latitude, longitude: res.longitude,
+    altitude: res.altitude ?? undefined, speed: res.speed,
+    accuracy: res.horizontalAccuracy ?? res.accuracy, timestamp: Date.now(),
   };
+  locations.forEach((purpose, cb) => { if (allowed(purpose)) cb(point); });
+}
+const locationListener = (res: any) => { if (running) deliver(res); };
+const compassListener = (res: any) => {
+  if (!compassRunning || !hasPrivacyConsent("location")) return;
+  const value = filter.push(res.direction);
+  headings.forEach((cb) => cb(value));
+};
+function shutdown() {
+  generation++;
+  running = false;
+  if (pollTimer !== undefined) clearInterval(pollTimer);
+  pollTimer = undefined;
+  uni.offLocationChange?.(locationListener);
+  uni.stopLocationUpdate?.({ complete: () => {} });
+  settle?.(false);
+  settle = undefined;
+  pending = undefined;
 }
 
-/** 开始持续定位（前台）。返回是否成功启动。 */
-export function startLocationUpdates(cb: LocationCallback): Promise<boolean> {
-  locCallbacks.add(cb);
-  if (locationStarted) return Promise.resolve(true);
-  return new Promise((resolve) => {
-    uni.startLocationUpdate({
-      type: "wgs84",
-      success: () => {
-        locationStarted = true;
-        uni.onLocationChange((res: any) => {
-          const p = toTrackPoint(res);
-          locCallbacks.forEach((fn) => fn(p));
+export async function startLocationUpdates(cb: LocationCallback, purpose: Purpose = "navigation"): Promise<boolean> {
+  if (!allowed(purpose)) return false;
+  locations.set(cb, purpose);
+  if (running) return true;
+  if (!pending) {
+    const epoch = ++generation;
+    const operation = new Promise<boolean>((resolve) => {
+      settle = resolve;
+      const valid = () => epoch === generation && locations.size > 0;
+      const finish = (ok: boolean) => {
+        if (!valid()) { resolve(false); return; }
+        running = ok;
+        if (!ok) locations.clear();
+        resolve(ok);
+      };
+      const poll = () => {
+        if (!valid()) return;
+        uni.getLocation({
+          type: "wgs84",
+          success: (res: any) => { if (valid()) deliver(res); },
+          fail: () => { if (valid()) { locations.clear(); shutdown(); } },
         });
-        resolve(true);
-      },
-      fail: (err) => {
-        console.warn("[location] startLocationUpdate 失败", err);
-        // 降级：单次定位轮询
-        locationStarted = true;
-        const poll = () => {
-          uni.getLocation({
-            type: "wgs84",
-            success: (res: any) => locCallbacks.forEach((fn) => fn(toTrackPoint(res))),
-          });
-        };
-        poll();
-        setInterval(poll, 3000);
-        resolve(true);
-      },
+      };
+      const fallback = () => {
+        uni.getLocation({
+          type: "wgs84",
+          success: (res: any) => {
+            if (!valid()) { resolve(false); return; }
+            finish(true);
+            deliver(res);
+            if (valid()) pollTimer = setInterval(poll, 3000);
+          },
+          fail: () => finish(false),
+        });
+      };
+      if (typeof uni.startLocationUpdate !== "function") { fallback(); return; }
+      uni.startLocationUpdate({
+        type: "wgs84",
+        success: () => {
+          if (!valid()) {
+            // A newer start owns the platform stream; never stop it here.
+            if (!running && !pending) uni.stopLocationUpdate?.({ complete: () => {} });
+            resolve(false);
+            return;
+          }
+          finish(true);
+          uni.onLocationChange(locationListener);
+        },
+        fail: (err: any) => {
+          if (!valid()) { resolve(false); return; }
+          // Permission denial must not be treated as a successful start.
+          if (/not support|not implemented|不支持/i.test(err?.errMsg ?? "")) fallback();
+          else finish(false);
+        },
+      });
     });
-  });
+    pending = operation;
+    void operation.then(() => {
+      if (pending === operation) { pending = undefined; settle = undefined; }
+    });
+  }
+  const ok = await pending;
+  return !!ok && locations.has(cb) && allowed(purpose);
 }
 
 export function stopLocationUpdates(cb?: LocationCallback): void {
-  if (cb) locCallbacks.delete(cb);
-  if (locCallbacks.size === 0 && locationStarted) {
-    uni.stopLocationUpdate?.({ complete: () => {} });
-    uni.offLocationChange?.(() => {});
-    locationStarted = false;
-  }
+  if (cb) locations.delete(cb);
+  else locations.clear();
+  if (!locations.size) shutdown();
 }
-
-/** 开始罗盘（回调为滤波后的平滑航向，0=正北） */
 export function startCompass(cb: HeadingCallback): void {
-  headingCallbacks.add(cb);
-  if (compassStarted) return;
-  compassStarted = true;
-  headingFilter.reset();
-  uni.onCompassChange((res: any) => {
-    const smooth = headingFilter.push(res.direction);
-    headingCallbacks.forEach((fn) => fn(smooth));
-  });
+  if (!hasPrivacyConsent("location")) return;
+  headings.add(cb);
+  if (compassRunning) return;
+  compassRunning = true;
+  filter.reset();
+  uni.onCompassChange(compassListener);
 }
-
 export function stopCompass(cb?: HeadingCallback): void {
-  if (cb) headingCallbacks.delete(cb);
-  if (headingCallbacks.size === 0 && compassStarted) {
-    uni.offCompassChange?.(() => {});
-    compassStarted = false;
+  if (cb) headings.delete(cb);
+  else headings.clear();
+  if (!headings.size && compassRunning) {
+    uni.offCompassChange?.(compassListener);
+    compassRunning = false;
   }
 }
+onPrivacyChange(() => {
+  locations.forEach((purpose, cb) => { if (!allowed(purpose)) locations.delete(cb); });
+  if (!locations.size) shutdown();
+  if (!hasPrivacyConsent("location")) stopCompass();
+});

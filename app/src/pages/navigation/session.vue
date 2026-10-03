@@ -35,7 +35,7 @@
 
       <view v-if="offRoute && !memberMode" class="offroute">⚠ 已偏离轨迹 {{ Math.round(offRouteDist) }} m，请回到路线</view>
       <view v-if="finished" class="finished-banner">{{ memberMode ? '🎉 已会合' : '🎉 已到达终点' }}</view>
-      <view v-if="!hasFix" class="nofix">正在获取定位…请确认已授权位置权限</view>
+      <view v-if="!hasFix" class="nofix">正在获取定位…请先在“我的 → 隐私设置”启用导航定位，并按系统提示授权</view>
       <view v-else-if="memberMode && !memberPos" class="nofix">等待队友位置上报…</view>
     </view>
 
@@ -183,10 +183,16 @@ const compassMarks = [
   ...[30, 60, 120, 150, 210, 240, 300, 330].map((deg) => ({ label: "·", deg, cardinal: false })),
 ];
 
-function boot() {
+const onHeading = (deg: number) => { heading.value = deg; };
+let disposed = false;
+async function boot() {
+  if (!(await startLocationUpdates(onLocation)) || disposed) {
+    stopLocationUpdates(onLocation);
+    if (!disposed) uni.showToast({ title: "请启用隐私设置中的定位并授权", icon: "none" });
+    return;
+  }
   uni.setKeepScreenOn?.({ keepScreenOn: true });
-  startCompass((deg) => { heading.value = deg; });
-  startLocationUpdates(onLocation);
+  startCompass(onHeading);
   timer = setInterval(() => {
     const s = Math.floor((Date.now() - startedAt.value) / 1000);
     elapsedText.value = `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
@@ -273,11 +279,17 @@ async function triggerSos() {
     uni.showToast({ title: "暂无定位，无法上报", icon: "none" });
     return;
   }
+  const confirmed = await new Promise<boolean>((resolve) => uni.showModal({
+    title: "上传求助位置？",
+    content: "将当前位置保存到云端求助记录。目前不会自动通知联系人或救援机构；紧急情况请直接拨打当地求救电话。",
+    success: (result) => resolve(result.confirm === true), fail: () => resolve(false),
+  }));
+  if (!confirmed) return;
   const res = await callCloud("sos-trigger", {
     latitude: p.latitude, longitude: p.longitude, message: `导航「${navTitle.value}」中触发`,
   });
   if (res.ok) {
-    uni.showModal({ title: "SOS 已上报", content: "位置已发送给紧急联系人和队友（演示环境为本地记录）。", showCancel: false });
+    uni.showModal({ title: "SOS 已上报", content: "求助记录已保存到云端。尚未接通联系人通知或救援服务，请直接电话求助。", showCancel: false });
   } else {
     uni.showToast({ title: "上报失败：" + res.errMsg, icon: "none" });
   }
@@ -291,8 +303,9 @@ function quit() {
 }
 
 onUnmounted(() => {
-  stopCompass();
-  stopLocationUpdates();
+  disposed = true;
+  stopCompass(onHeading);
+  stopLocationUpdates(onLocation);
   if (timer) clearInterval(timer);
   if (memberTimer) clearInterval(memberTimer);
   uni.setKeepScreenOn?.({ keepScreenOn: false });
