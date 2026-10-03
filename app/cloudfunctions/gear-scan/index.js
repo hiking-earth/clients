@@ -1,5 +1,8 @@
 // gear-scan：拍照识别装备 → 视觉大模型识别 → 返回装备清单 + 补充建议 + 使用要点 + 打包清单
 //
+// 本函数零第三方依赖（Node 20 运行时原生 fetch），wx-server-sdk 相关能力未使用，故不引入，
+// 避免云端依赖安装失败导致容器启动即退出（statusCode 443）。
+//
 // 配置（云函数环境变量，缺一不可，未配置时返回明确错误）：
 //   LLM_BASE_URL  如 https://api.deepseek.com 或 https://dashscope.aliyuncs.com/compatible-mode
 //   LLM_API_KEY   对应平台 key（个人从开放平台申请，严禁写进代码库）
@@ -7,9 +10,6 @@
 //
 // 请求：{ image: base64, routeId?, routeName? }
 // 响应：{ items:[{name,category}], missing:[{name,reason}], usage:[...], plan:[{name}] }
-const cloud = require("wx-server-sdk");
-cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
-
 const BASE = process.env.LLM_BASE_URL || "";
 const KEY = process.env.LLM_API_KEY || "";
 const MODEL = process.env.LLM_MODEL || "qwen-vl-plus";
@@ -32,12 +32,19 @@ exports.main = async (event) => {
   // base64 体积保护（约 10MB）
   if (image.length > 14 * 1024 * 1024) return { errMsg: "图片过大，请压缩后重试" };
 
+  // 识别图片真实 MIME（按 magic bytes），避免 jpeg 声明发 png 数据被模型拒收
+  let mime = "image/jpeg";
+  if (image.startsWith("iVBORw0KGgo")) mime = "image/png";
+  else if (image.startsWith("/9j/")) mime = "image/jpeg";
+  else if (image.startsWith("UklGR")) mime = "image/webp";
+  else if (image.startsWith("R0lGOD")) mime = "image/gif";
+
   const userText = routeName
     ? `目标路线：${routeName}。请识别照片中的装备并给出该路线的装备规划。`
     : "请识别照片中的装备并给出一般一日徒步的装备规划。";
 
   try {
-    const resp = await fetch(`${BASE.replace(/\/$/, "")}/v1/chat/completions`, {
+    const resp = await fetch(`${BASE.replace(/\/$/, "")}/chat/completions`, {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${KEY}` },
       body: JSON.stringify({
@@ -48,15 +55,18 @@ exports.main = async (event) => {
             role: "user",
             content: [
               { type: "text", text: userText },
-              { type: "image_url", image_url: { url: `data:image/jpeg;base64,${image}` } },
+              { type: "image_url", image_url: { url: `data:${mime};base64,${image}` } },
             ],
           },
         ],
         temperature: 0.2,
-        max_tokens: 1500,
+        max_tokens: 1024, // 智谱上限 1024
       }),
     });
-    if (!resp.ok) return { errMsg: `模型服务错误 ${resp.status}` };
+    if (!resp.ok) {
+      const body = await resp.text().catch(() => "");
+      return { errMsg: `模型服务错误 ${resp.status}: ${body.slice(0, 300)}` };
+    }
     const json = await resp.json();
     const text = json.choices?.[0]?.message?.content ?? "";
     // 提取 JSON（模型可能包裹 ```json）
