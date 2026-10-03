@@ -39,6 +39,11 @@
     ],
     "category": "Travel",
     "shortDescription": "徒步地球桌面端",
-    "longDescription": "以 3D 地球发现全球徒步路线的桌面客户端（包裹网页端，随网页版自动更新）。"
+    "longDescription": "以 3D 地球发现全球徒步路线的桌面客户端（包裹网页端，随网页版自动更新）。",
+    "windows": {
+      "wix": {
+        "language": "zh-CN"
+      }
+    }
   }
 }

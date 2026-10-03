@@ -42,7 +42,7 @@ export function initCloud(): void {
 export async function callCloud<T = any>(name: string, data: Record<string, any> = {}): Promise<CloudResult<T>> {
   const consent = { "track-sync": "trackCloudSync", "gear-scan": "gearImageUpload", "team-report": "teamLocation", "sos-trigger": "location" } as const;
   const key = consent[name as keyof typeof consent];
-  if (key && (!hasPrivacyConsent(key) || (name === "team-report" && !hasPrivacyConsent("location")))) {
+  if (key && !(name === "sos-trigger" && data.action === "resolve") && (!hasPrivacyConsent(key) || (name === "team-report" && !hasPrivacyConsent("location")))) {
     return { ok: false, errMsg: "相关数据授权已关闭，请在隐私设置中启用。" };
   }
   initCloud();

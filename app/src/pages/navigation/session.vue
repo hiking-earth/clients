@@ -285,17 +285,19 @@ async function triggerSos() {
     uni.showToast({ title: "暂无定位，无法上报", icon: "none" });
     return;
   }
+  let savedTeamId = teamId.value;
+  if (!savedTeamId) { try { savedTeamId = JSON.parse(uni.getStorageSync("he_team") || "null")?.id ?? ""; } catch {} }
   const confirmed = await new Promise<boolean>((resolve) => uni.showModal({
     title: "上传求助位置？",
-    content: "将当前位置保存到云端求助记录。目前不会自动通知联系人或救援机构；紧急情况请直接拨打当地求救电话。",
+    content: savedTeamId ? "将当前位置保存到云端，并在队友打开组队页面时显示求助信号。没有短信或系统推送，不会联系救援机构；紧急情况请直接拨打当地求救电话。" : "将当前位置保存到云端求助记录。当前没有队伍，不会通知联系人或救援机构；紧急情况请直接拨打当地求救电话。",
     success: (result) => resolve(result.confirm === true), fail: () => resolve(false),
   }));
   if (!confirmed) return;
   const res = await callCloud("sos-trigger", {
-    latitude: p.latitude, longitude: p.longitude, message: `导航「${navTitle.value}」中触发`,
+    teamId: savedTeamId, latitude: p.latitude, longitude: p.longitude, message: `导航「${navTitle.value}」中触发`,
   });
   if (res.ok) {
-    uni.showModal({ title: "SOS 已上报", content: "求助记录已保存到云端。尚未接通联系人通知或救援服务，请直接电话求助。", showCancel: false });
+    uni.showModal({ title: "SOS 已上报", content: savedTeamId ? "求助记录已保存，队友打开组队页面时可见。没有后台推送或救援接警，请直接电话求助。" : "求助记录已保存，但当前无人接收。请直接电话求助。", showCancel: false });
   } else {
     uni.showToast({ title: "上报失败：" + res.errMsg, icon: "none" });
   }

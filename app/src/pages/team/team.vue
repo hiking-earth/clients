@@ -31,6 +31,10 @@
         <view class="share-on off" @click="stopShare">停止</view>
       </view>
 
+      <view v-for="a in alerts" :key="a.id" class="share-tip">
+        <text>{{ a.openid === myOpenid ? '你已发出求助信号' : '队友发出求助信号' }}：{{ a.message }} · {{ freshness(a.triggeredAt) }}</text>
+        <button v-if="a.openid === myOpenid" size="mini" @click="resolveSos">解除</button>
+      </view>
       <!-- 成员列表：实时距离 -->
       <scroll-view scroll-y class="members">
         <view v-for="m in membersWithDistance" :key="m.openid" class="member" @click="rendezvous(m)">
@@ -66,6 +70,8 @@ const REPORT_INTERVAL = 10000;
 
 const team = ref<(Team & { teamId?: string }) | null>(null);
 const inviteCode = ref("");
+type Alert = { id: string; openid: string; message: string; triggeredAt: number };
+const alerts = ref<Alert[]>([]);
 const members = ref<TeamMember[]>([]);
 const myOpenid = ref("");
 const sharing = ref(false);
@@ -138,6 +144,7 @@ function leave() {
       stopPoll();
       team.value = null;
       members.value = [];
+      alerts.value = [];
       uni.removeStorageSync("he_team");
     },
   });
@@ -208,10 +215,11 @@ function stopPoll() {
 async function poll() {
   if (!team.value) return;
   const id = team.value.id;
-  const res = await callCloud<{ members: TeamMember[] }>("team-locations", { teamId: id });
+  const res = await callCloud<{ members: TeamMember[]; alerts: Alert[] }>("team-locations", { teamId: id });
   if (team.value?.id !== id) return;
   if (res.ok && res.data) {
     members.value = res.data.members;
+    alerts.value = res.data.alerts ?? [];
     membersWithDistance.value = res.data.members.map((m) => {
       const d = myPos.value && fresh(m)
         ? haversineM(myPos.value, { latitude: m.latitude!, longitude: m.longitude! })
@@ -241,6 +249,11 @@ function rendezvous(m: TeamMember) {
   });
 }
 
+async function resolveSos() {
+  const res = await callCloud("sos-trigger", { action: "resolve" });
+  if (res.ok) await poll();
+  else uni.showToast({ title: res.errMsg ?? "解除失败", icon: "none" });
+}
 function copyCode() {
   uni.setClipboardData({ data: team.value!.inviteCode });
 }

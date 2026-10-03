@@ -12,7 +12,9 @@ exports.main = async (event) => {
   const me = await db.collection("team_members").where({ teamId, openid: OPENID }).limit(1).get();
   if (me.data.length === 0) return { errMsg: "不是本队成员" };
   const res = await db.collection("team_members").where({ teamId }).limit(100).get();
+  const alerts = await db.collection("sos_events").where({ teamId, status: "active", triggeredAt: db.command.gt(Date.now() - 60 * 60 * 1000) }).orderBy("triggeredAt", "desc").limit(10).get();
   return {
+    alerts: alerts.data.map(a => ({ id: a._id, openid: a.openid, message: a.message, triggeredAt: a.triggeredAt })),
     members: res.data.map((m) => ({
       teamId: m.teamId,
       openid: m.openid,
