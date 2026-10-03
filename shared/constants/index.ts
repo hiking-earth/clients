@@ -21,5 +21,5 @@ export const MAP = {
   offRouteThresholdM: 30,
 } as const;
 
-/** 云开发环境 id：占位，需在微信公众平台开通后替换 */
-export const CLOUD_ENV = "hiking-earth-prod";
+/** 云开发环境 id（用户提供，2026-10-03） */
+export const CLOUD_ENV = "cloud1-d9g4fl3fu2491914f";
