@@ -28,8 +28,9 @@
         <text class="row-icon">☁️</text><text class="row-name">云同步全部轨迹</text>
         <text class="row-sub">{{ unsynced }} 条待同步</text><text class="row-go">›</text>
       </view>
+      <view class="row" @click="go('/pages/track/cloud')"><text class="row-icon">☁️</text><text class="row-name">恢复与管理云端轨迹</text><text class="row-go">›</text></view>
       <view class="row" @click="offlineTip">
-        <text class="row-icon">🗺️</text><text class="row-name">离线地图包</text><text class="row-sub">M3 提供</text><text class="row-go">›</text>
+        <text class="row-icon">🗺️</text><text class="row-name">离线数据说明</text><text class="row-sub">本机轨迹</text><text class="row-go">›</text>
       </view>
     </view>
 
@@ -111,7 +112,7 @@ function go(url: string) {
 }
 
 function offlineTip() {
-  uni.showToast({ title: "离线地图包将在 M3 版本提供", icon: "none" });
+  uni.showModal({ title: "离线数据", content: "已保存和导入的轨迹保存在本机，箭头导航使用设备定位。地图底图仍需要网络；当前未提供离线地形地图下载。", showCancel: false });
 }
 
 function about() {

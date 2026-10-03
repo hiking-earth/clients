@@ -21,12 +21,12 @@
           <text class="mark-text" :class="{ cardinal: mark.cardinal }">{{ mark.label }}</text>
         </view>
         <!-- 目标箭头：类苹果查找 -->
-        <view class="arrow" :style="{ transform: `rotate(${arrowAngle}deg)` }">
+        <view v-if="hasFix && (!memberMode || memberPos)" class="arrow" :style="{ transform: `rotate(${arrowAngle}deg)` }">
           <view class="arrow-body"></view>
           <view class="arrow-head"></view>
         </view>
         <!-- 中心信息 -->
-        <view class="center">
+        <view v-if="hasFix && (!memberMode || memberPos)" class="center">
           <text class="dist">{{ formatDistance(targetDistance) }}</text>
           <text class="bearing">{{ Math.round(targetBearing) }}°</text>
           <text class="wp">{{ memberMode ? `与 ${memberName} 相向而行` : `路径点 ${waypointIndex + 1}/${path.length}` }}</text>
@@ -73,6 +73,8 @@
 </template>
 
 <script setup lang="ts">
+import { toMapPoint } from "@shared/api/coordinates";
+import { isNavigable } from "@shared/types/route";
 import { computed, onUnmounted, ref } from "vue";
 import { onLoad } from "@dcloudio/uni-app";
 import { ROUTES } from "@shared/data/routes.seed";
@@ -84,6 +86,7 @@ import { MAP } from "@shared/constants";
 import { startCompass, stopCompass, startLocationUpdates, stopLocationUpdates } from "@/services/location";
 import { getTrack } from "@/services/tracks";
 import { callCloud } from "@/services/cloud";
+import { onPrivacyChange } from "@/services/privacy";
 import type { TrackPoint } from "@shared/types/track";
 
 /* ---------- 数据源：路线 / 我的轨迹 / 会合队友 ---------- */
@@ -112,13 +115,13 @@ onLoad((q) => {
   }
   if (q?.routeId) {
     const r = ROUTES.find((x) => x.id === q.routeId);
-    if (r) {
+    if (r && isNavigable(r)) {
       navTitle.value = r.name;
       path.value = r.path.map(([longitude, latitude]) => ({ latitude, longitude }));
     }
   } else if (q?.trackId) {
     const t = getTrack(q.trackId);
-    if (t) {
+    if (t && !t.points.slice(1).some(p => p.segmentStart)) {
       navTitle.value = t.name;
       path.value = t.points.map((p) => ({ latitude: p.latitude, longitude: p.longitude }));
     }
@@ -136,11 +139,12 @@ onLoad((q) => {
 });
 
 async function pollMember() {
-  const res = await callCloud<{ members: { openid: string; latitude: number; longitude: number }[] }>(
+  const res = await callCloud<{ members: { openid: string; latitude: number; longitude: number; updatedAt: number }[] }>(
     "team-locations", { teamId: teamId.value },
   );
   const m = res.data?.members?.find((x) => x.openid === memberId.value);
-  if (m) memberPos.value = { latitude: m.latitude, longitude: m.longitude };
+  memberPos.value = m && Number.isFinite(m.latitude) && Number.isFinite(m.longitude) && m.updatedAt > 0 && Date.now() - m.updatedAt <= 60000 ? { latitude: m.latitude, longitude: m.longitude } : null;
+  if (!memberPos.value) finished.value = false;
   // 会合模式下如果已有双方位置，立即刷新指向
   if (memberPos.value && position.value) updateMemberNav(position.value);
 }
@@ -150,6 +154,7 @@ const mode = ref<"arrow" | "map">("arrow");
 const heading = ref(0);
 const position = ref<TrackPoint | null>(null);
 const hasFix = computed(() => position.value !== null);
+const unsubscribePrivacy = onPrivacyChange(c => { if (!c.location) { position.value = null; finished.value = false; } });
 const targetBearing = ref(0);
 const targetDistance = ref(0);
 const waypointIndex = ref(0);
@@ -251,7 +256,7 @@ function updateMemberNav(p: TrackPoint) {
 }
 
 /* ---------- 地图模式数据 ---------- */
-const mapCenter = computed(() => position.value ?? path.value[0] ?? null);
+const mapCenter = computed(() => { const p = position.value ?? path.value[0]; return p ? toMapPoint(p) : null; });
 const mapScale = computed(() => {
   if (targetDistance.value < 200) return 17;
   if (targetDistance.value < 1000) return 15;
@@ -259,15 +264,16 @@ const mapScale = computed(() => {
 });
 const mapMarkers = computed(() => {
   if (path.value.length === 0) return [];
-  const end = path.value[path.value.length - 1];
+  const end = toMapPoint(path.value[path.value.length - 1]);
+  const first = toMapPoint(path.value[0]);
   return [
-    { id: 1, latitude: path.value[0].latitude, longitude: path.value[0].longitude, title: "起点", width: 24, height: 24 },
+    { id: 1, latitude: first.latitude, longitude: first.longitude, title: "起点", width: 24, height: 24 },
     { id: 2, latitude: end.latitude, longitude: end.longitude, title: "终点", width: 24, height: 24 },
   ];
 });
 const mapPolyline = computed(() => [
   {
-    points: path.value.map((p) => ({ latitude: p.latitude, longitude: p.longitude })),
+    points: path.value.map(toMapPoint),
     color: "#b8f36b", width: 4, arrowLine: true,
   },
 ]);
@@ -304,6 +310,7 @@ function quit() {
 
 onUnmounted(() => {
   disposed = true;
+  unsubscribePrivacy();
   stopCompass(onHeading);
   stopLocationUpdates(onLocation);
   if (timer) clearInterval(timer);

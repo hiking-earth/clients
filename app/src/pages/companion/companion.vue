@@ -1,7 +1,7 @@
 <template>
   <view class="page">
     <scroll-view scroll-y class="list">
-      <view v-for="p in posts" :key="p.id" class="card">
+      <view v-for="p in posts" :key="p.id" class="card" @longpress="reportPost(p)">
         <view class="card-head">
           <text class="nick">{{ p.nickname }}</text>
           <text class="date">{{ p.departDate }} 出发</text>
@@ -17,7 +17,7 @@
           >{{ joined(p) ? '已报名' : p.members.length >= p.maxMembers ? '已满员' : '报名' }}</view>
         </view>
       </view>
-      <view v-if="posts.length === 0" class="empty">还没有约伴帖，来发第一条</view>
+      <view v-if="posts.length === 0" class="empty">{{ loadError || "还没有约伴帖，来发第一条" }}</view>
       <view class="notice">社区内容经机审过滤；请勿发布他人位置等敏感信息。发现违规可长按帖子举报。</view>
     </scroll-view>
 
@@ -53,7 +53,8 @@ import { callCloud } from "@/services/cloud";
 const posts = ref<CompanionPost[]>([]);
 const showForm = ref(false);
 const submitting = ref(false);
-const myOpenid = ref("local-mock-user");
+const myOpenid = ref("");
+const loadError = ref("");
 const form = ref({ title: "", content: "", departDate: "", maxMembers: 4, routeId: "" });
 
 const routeNames = ROUTES.map((r) => r.name);
@@ -61,8 +62,11 @@ const routeNames = ROUTES.map((r) => r.name);
 onShow(load);
 
 async function load() {
+  const login = await callCloud<{ openid: string }>("login");
+  myOpenid.value = login.ok ? login.data?.openid ?? "" : "";
   const res = await callCloud<{ posts: CompanionPost[] }>("companion-list");
-  if (res.ok && res.data) posts.value = res.data.posts;
+  if (res.ok && res.data) { posts.value = res.data.posts; loadError.value = ""; }
+  else { posts.value = []; loadError.value = res.errMsg ?? "加载失败"; }
 }
 
 function routeName(id?: string): string {
@@ -81,11 +85,19 @@ async function join(p: CompanionPost) {
   if (joined(p) || p.members.length >= p.maxMembers) return;
   const res = await callCloud("companion-join", { postId: p.id });
   if (res.ok) {
-    p.members.push(myOpenid.value);
+    await load();
     uni.showToast({ title: "已报名", icon: "success" });
   } else {
     uni.showToast({ title: "报名失败", icon: "none" });
   }
+}
+
+function reportPost(p: CompanionPost) {
+  uni.showActionSheet({ itemList: ["垃圾广告", "人身攻击或违法内容", "泄露个人信息", "其他违规内容"], success: async (r) => {
+    const reasons = ["垃圾广告", "人身攻击或违法内容", "泄露个人信息", "其他违规内容"];
+    const result = await callCloud("companion-report", { postId: p.id, reason: reasons[r.tapIndex] });
+    uni.showToast({ title: result.ok ? "举报已提交，等待处理" : result.errMsg ?? "举报失败", icon: "none" });
+  } });
 }
 
 async function submit() {

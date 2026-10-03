@@ -8,8 +8,8 @@ export type TeamMember = {
   openid: string;
   nickname: string;
   avatarUrl?: string;
-  latitude: number;
-  longitude: number;
+  latitude: number | null;
+  longitude: number | null;
   updatedAt: number;
   isLeader: boolean;
 };

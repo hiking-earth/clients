@@ -4,5 +4,6 @@ cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 
 exports.main = async () => {
   const { OPENID } = cloud.getWXContext();
+  if (!OPENID) return { errMsg: "请先在微信小程序登录" };
   return { openid: OPENID, nickname: "山友" };
 };

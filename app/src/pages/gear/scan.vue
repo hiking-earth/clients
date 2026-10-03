@@ -63,6 +63,7 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
+declare const plus: any;
 import { ROUTES } from "@shared/data/routes.seed";
 import { callCloud } from "@/services/cloud";
 import { hasPrivacyConsent } from "@/services/privacy";
@@ -100,7 +101,7 @@ function chooseImage() {
 }
 
 async function analyze() {
-  if (!imagePath.value) return;
+  if (!imagePath.value || analyzing.value) return;
   if (!hasPrivacyConsent("gearImageUpload")) {
     uni.showModal({
       title: "需要照片分析授权",
@@ -111,7 +112,7 @@ async function analyze() {
   }
   analyzing.value = true;
   try {
-    // 读图片为 base64（小程序/App 用 getFileSystemManager，H5 用 FileReader）
+    // 小程序文件系统、App 原生文件读取、H5 FileReader 分别处理。
     const base64 = await readAsBase64(imagePath.value);
     const res = await callCloud<GearResult>("gear-scan", {
       image: base64,
@@ -126,6 +127,8 @@ async function analyze() {
     } else {
       uni.showToast({ title: res.errMsg ?? "识别失败", icon: "none" });
     }
+  } catch (e) {
+    uni.showToast({ title: e instanceof Error ? e.message : "图片读取或识别失败", icon: "none" });
   } finally {
     analyzing.value = false;
   }
@@ -137,6 +140,7 @@ function readAsBase64(path: string): Promise<string> {
     fetch(path)
       .then((r) => r.blob())
       .then((blob) => {
+        if (blob.size > 4 * 1024 * 1024) throw new Error("请选择 4 MB 以内的照片");
         const reader = new FileReader();
         reader.onload = () => resolve(String(reader.result).split(",")[1]);
         reader.onerror = reject;
@@ -144,7 +148,18 @@ function readAsBase64(path: string): Promise<string> {
       })
       .catch(reject);
     // #endif
-    // #ifndef H5
+    // #ifdef APP-PLUS
+    plus.io.resolveLocalFileSystemURL(path, (entry: any) => {
+      entry.file((file: any) => {
+        if (file.size > 4 * 1024 * 1024) { reject(new Error("请选择 4 MB 以内的照片")); return; }
+        const reader = new plus.io.FileReader();
+        reader.onload = (e: any) => resolve(String(e.target.result).split(",")[1]);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      }, reject);
+    }, reject);
+    // #endif
+    // #ifdef MP-WEIXIN
     uni.getFileSystemManager().readFile({
       filePath: path,
       encoding: "base64",

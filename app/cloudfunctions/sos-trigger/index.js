@@ -1,12 +1,13 @@
-// sos-trigger：一键求救。记录事件；若用户在队伍中，标记队伍告警（队友轮询可见）。
-// 紧急联系人短信/电话通知需要企业资质与运营商通道，个人主体阶段先做到队内告警。
+// 保存用户主动提交的求助位置；尚未接通联系人通知或救援调度。
 const cloud = require("wx-server-sdk");
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();
 
 exports.main = async (event) => {
   const { OPENID } = cloud.getWXContext();
+  if (!OPENID) return { errMsg: "请先在微信小程序登录" };
   const { latitude, longitude, message = "" } = event;
+  if (!Number.isFinite(latitude) || Math.abs(latitude) > 90 || !Number.isFinite(longitude) || Math.abs(longitude) > 180) return { errMsg: "求助坐标无效" };
   const doc = {
     openid: OPENID,
     latitude, longitude,

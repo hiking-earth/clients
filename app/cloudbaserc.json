@@ -80,6 +80,26 @@
       "timeout": 60,
       "memorySize": 256,
       "description": "一次性初始化 6 个数据库集合"
+    },
+    {
+      "name": "team-leave",
+      "timeout": 10,
+      "memorySize": 256
+    },
+    {
+      "name": "team-stop",
+      "timeout": 10,
+      "memorySize": 256
+    },
+    {
+      "name": "companion-report",
+      "timeout": 10,
+      "memorySize": 256
+    },
+    {
+      "name": "track-manage",
+      "timeout": 20,
+      "memorySize": 256
     }
   ]
 }

@@ -52,7 +52,7 @@ export const STATUS_COLORS: Record<RouteStatus, string> = {
 
 /** 路线是否允许进入导航（与上游规则一致：关闭/不展示轨迹的路线禁用导航） */
 export function isNavigable(route: HikingRoute): boolean {
-  if (route.status === "永久关闭" || route.status === "临时关闭") return false;
-  if (route.trackMode === "不展示轨迹") return false;
+  if (route.status !== "开放中") return false;
+  if (!route.trackMode || route.trackMode === "不展示轨迹" || route.trackMode === "认知示意") return false;
   return route.path.length >= 2;
 }

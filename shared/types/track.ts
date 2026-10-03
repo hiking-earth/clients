@@ -4,6 +4,10 @@
  */
 
 export type TrackPoint = {
+  /** 暂停或中断后的新段起点，避免跨段连线 */
+  segmentStart?: boolean;
+  /** 导入文件缺少时间时不将本机占位时间导出成实测数据 */
+  timeEstimated?: boolean;
   /** 纬度（WGS84） */
   latitude: number;
   /** 经度（WGS84） */
@@ -27,6 +31,8 @@ export type TrackRecord = {
   points: TrackPoint[];
   /** 累计里程（米） */
   distanceM: number;
+  /** 实际记录用时，不含暂停 */
+  activeDurationMs?: number;
   /** 累计爬升（米） */
   ascentM: number;
   /** 累计下降（米） */
@@ -43,10 +49,10 @@ export type TrackRecord = {
 /** GPX 导出的最小单元，保持与 TrackPoint 一对一 */
 export function trackToGpx(track: TrackRecord): string {
   const trkpts = track.points
-    .map((p) => {
-      const time = new Date(p.timestamp).toISOString();
+    .map((p, index) => {
+      const time = p.timeEstimated ? "" : `<time>${new Date(p.timestamp).toISOString()}</time>`;
       const ele = p.altitude != null ? `<ele>${p.altitude.toFixed(1)}</ele>` : "";
-      return `      <trkpt lat="${p.latitude.toFixed(7)}" lon="${p.longitude.toFixed(7)}">${ele}<time>${time}</time></trkpt>`;
+      return `${index > 0 && p.segmentStart ? "    </trkseg>\n    <trkseg>\n" : ""}      <trkpt lat="${p.latitude.toFixed(7)}" lon="${p.longitude.toFixed(7)}">${ele}${time}</trkpt>`;
     })
     .join("\n");
   return `<?xml version="1.0" encoding="UTF-8"?>

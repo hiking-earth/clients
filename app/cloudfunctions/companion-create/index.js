@@ -5,8 +5,12 @@ const db = cloud.database();
 
 exports.main = async (event) => {
   const { OPENID } = cloud.getWXContext();
+  if (!OPENID) return { errMsg: "请先在微信小程序登录" };
   const { title = "", content = "", departDate = "", maxMembers = 4, routeId = "", nickname = "山友" } = event;
 
+  if (typeof title !== "string" || !title.trim() || title.length > 60 || typeof content !== "string" || !content.trim() || content.length > 1000) return { errMsg: "标题须为 1–60 字，内容须为 1–1000 字" };
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(departDate) || Number.isNaN(Date.parse(departDate)) || new Date(departDate).toISOString().slice(0, 10) !== departDate) return { errMsg: "请填写有效出发日期" };
+  if (!Number.isInteger(maxMembers) || maxMembers < 2 || maxMembers > 50) return { errMsg: "人数须为 2–50 的整数" };
   // 内容安全机审：违规直接拒发
   try {
     await cloud.openapi.security.msgSecCheck({ content: `${title}\n${content}` });

@@ -4,88 +4,321 @@
       "name": "companion_posts",
       "description": "约伴帖（UGC，发布前机审）",
       "schema": [
-        ["openid", "String", "发布人 openid"],
-        ["nickname", "String", "昵称"],
-        ["routeId", "String", "关联路线 id"],
-        ["title", "String", "标题"],
-        ["content", "String", "内容"],
-        ["departDate", "String", "出发日期"],
-        ["maxMembers", "Number", "人数上限"],
-        ["members", "Array", "已报名 openid"],
-        ["createdAt", "Number", "创建时间戳"],
-        ["status", "String", "open/full/closed"]
+        [
+          "openid",
+          "String",
+          "发布人 openid"
+        ],
+        [
+          "nickname",
+          "String",
+          "昵称"
+        ],
+        [
+          "routeId",
+          "String",
+          "关联路线 id"
+        ],
+        [
+          "title",
+          "String",
+          "标题"
+        ],
+        [
+          "content",
+          "String",
+          "内容"
+        ],
+        [
+          "departDate",
+          "String",
+          "出发日期"
+        ],
+        [
+          "maxMembers",
+          "Number",
+          "人数上限"
+        ],
+        [
+          "members",
+          "Array",
+          "已报名 openid"
+        ],
+        [
+          "createdAt",
+          "Number",
+          "创建时间戳"
+        ],
+        [
+          "status",
+          "String",
+          "open/full/closed"
+        ]
       ],
-      "rule": { "read": true, "write": false }
+      "rule": {
+        "read": false,
+        "write": false
+      }
     },
     {
       "name": "teams",
       "description": "组队",
       "schema": [
-        ["name", "String", "队名"],
-        ["inviteCode", "String", "6 位邀请码"],
-        ["createdBy", "String", "创建人 openid"],
-        ["createdAt", "Number", "创建时间戳"],
-        ["active", "Boolean", "是否激活"]
+        [
+          "name",
+          "String",
+          "队名"
+        ],
+        [
+          "inviteCode",
+          "String",
+          "6 位邀请码"
+        ],
+        [
+          "createdBy",
+          "String",
+          "创建人 openid"
+        ],
+        [
+          "createdAt",
+          "Number",
+          "创建时间戳"
+        ],
+        [
+          "active",
+          "Boolean",
+          "是否激活"
+        ]
       ],
-      "rule": { "read": false, "write": false }
+      "rule": {
+        "read": false,
+        "write": false
+      }
     },
     {
       "name": "team_members",
       "description": "队员实时位置（敏感个人信息，覆盖式更新，不留历史）",
       "schema": [
-        ["teamId", "String", "队伍 id"],
-        ["openid", "String", "队员 openid"],
-        ["nickname", "String", "昵称"],
-        ["latitude", "Number", "纬度"],
-        ["longitude", "Number", "经度"],
-        ["updatedAt", "Number", "更新时间戳"],
-        ["isLeader", "Boolean", "是否队长"]
+        [
+          "teamId",
+          "String",
+          "队伍 id"
+        ],
+        [
+          "openid",
+          "String",
+          "队员 openid"
+        ],
+        [
+          "nickname",
+          "String",
+          "昵称"
+        ],
+        [
+          "latitude",
+          "Number",
+          "纬度"
+        ],
+        [
+          "longitude",
+          "Number",
+          "经度"
+        ],
+        [
+          "updatedAt",
+          "Number",
+          "更新时间戳"
+        ],
+        [
+          "isLeader",
+          "Boolean",
+          "是否队长"
+        ]
       ],
-      "rule": { "read": false, "write": false }
+      "rule": {
+        "read": false,
+        "write": false
+      }
     },
     {
       "name": "sos_events",
       "description": "一键求救事件",
       "schema": [
-        ["openid", "String", "发起人"],
-        ["latitude", "Number", "纬度"],
-        ["longitude", "Number", "经度"],
-        ["message", "String", "附言"],
-        ["triggeredAt", "Number", "触发时间"],
-        ["resolvedAt", "Number", "解除时间"],
-        ["status", "String", "active/resolved"]
+        [
+          "openid",
+          "String",
+          "发起人"
+        ],
+        [
+          "latitude",
+          "Number",
+          "纬度"
+        ],
+        [
+          "longitude",
+          "Number",
+          "经度"
+        ],
+        [
+          "message",
+          "String",
+          "附言"
+        ],
+        [
+          "triggeredAt",
+          "Number",
+          "触发时间"
+        ],
+        [
+          "resolvedAt",
+          "Number",
+          "解除时间"
+        ],
+        [
+          "status",
+          "String",
+          "active/resolved"
+        ]
       ],
-      "rule": { "read": false, "write": false }
+      "rule": {
+        "read": false,
+        "write": false
+      }
     },
     {
       "name": "tracks",
       "description": "云同步轨迹（仅本人可读，云函数控制）",
       "schema": [
-        ["owner", "String", "归属 openid"],
-        ["trackId", "String", "本地轨迹 id"],
-        ["name", "String", "轨迹名"],
-        ["routeId", "String", "关联路线"],
-        ["points", "Array", "轨迹点"],
-        ["distanceM", "Number", "里程"],
-        ["ascentM", "Number", "爬升"],
-        ["startedAt", "Number", "开始时间"],
-        ["endedAt", "Number", "结束时间"],
-        ["syncedAt", "Number", "同步时间"]
+        [
+          "owner",
+          "String",
+          "归属 openid"
+        ],
+        [
+          "trackId",
+          "String",
+          "本地轨迹 id"
+        ],
+        [
+          "name",
+          "String",
+          "轨迹名"
+        ],
+        [
+          "routeId",
+          "String",
+          "关联路线"
+        ],
+        [
+          "points",
+          "Array",
+          "轨迹点"
+        ],
+        [
+          "distanceM",
+          "Number",
+          "里程"
+        ],
+        [
+          "ascentM",
+          "Number",
+          "爬升"
+        ],
+        [
+          "startedAt",
+          "Number",
+          "开始时间"
+        ],
+        [
+          "endedAt",
+          "Number",
+          "结束时间"
+        ],
+        [
+          "syncedAt",
+          "Number",
+          "同步时间"
+        ]
       ],
-      "rule": { "read": false, "write": false }
+      "rule": {
+        "read": false,
+        "write": false
+      }
     },
     {
       "name": "guide_items",
       "description": "装备导购条目（运营维护）",
       "schema": [
-        ["title", "String", "标题"],
-        ["category", "String", "分类"],
-        ["summary", "String", "简介"],
-        ["image", "String", "图片"],
-        ["link", "String", "第三方跳转链接"],
-        ["priceHint", "String", "价格参考"]
+        [
+          "title",
+          "String",
+          "标题"
+        ],
+        [
+          "category",
+          "String",
+          "分类"
+        ],
+        [
+          "summary",
+          "String",
+          "简介"
+        ],
+        [
+          "image",
+          "String",
+          "图片"
+        ],
+        [
+          "link",
+          "String",
+          "第三方跳转链接"
+        ],
+        [
+          "priceHint",
+          "String",
+          "价格参考"
+        ]
       ],
-      "rule": { "read": true, "write": false }
+      "rule": {
+        "read": false,
+        "write": false
+      }
+    },
+    {
+      "name": "community_reports",
+      "description": "举报，仅管理端处理",
+      "schema": [
+        [
+          "reporter",
+          "String",
+          "举报人"
+        ],
+        [
+          "postId",
+          "String",
+          "帖子"
+        ],
+        [
+          "reason",
+          "String",
+          "原因"
+        ],
+        [
+          "createdAt",
+          "Number",
+          "时间"
+        ],
+        [
+          "status",
+          "String",
+          "pending/resolved"
+        ]
+      ],
+      "rule": {
+        "read": false,
+        "write": false
+      }
     }
   ]
 }

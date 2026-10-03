@@ -1,0 +1,53 @@
+<template>
+  <view class="page">
+    <text class="title">导入 GPX 轨迹</text>
+    <text class="hint">轨迹保存在本机。最多 5 MB、20000 个点；保留分段，不会自动上传。</text>
+    <!-- #ifdef H5 -->
+    <button @click="chooseFile">选择 GPX 文件</button>
+    <!-- #endif -->
+    <!-- #ifdef MP-WEIXIN -->
+    <button @click="chooseWechatFile">从聊天文件选择 GPX</button>
+    <!-- #endif -->
+    <textarea v-model="source" :maxlength="5242880" class="source" placeholder="也可以粘贴 GPX 文件内容（以 <gpx 开始的 XML）" />
+    <text v-if="error" class="error">{{ error }}</text>
+    <button @click="save">导入并保存</button>
+  </view>
+</template>
+<script setup lang="ts">
+import { ref } from 'vue';
+import { importGpx } from '@/services/gpx';
+import { saveTrack } from '@/services/tracks';
+const source = ref('');
+const error = ref('');
+function save() {
+  try { const track = importGpx(source.value); saveTrack(track); uni.redirectTo({ url: `/pages/track/detail?id=${track.id}` }); }
+  catch (e) { error.value = e instanceof Error ? e.message : '导入失败，文件未保存'; }
+}
+// #ifdef H5
+function chooseFile() {
+  const input = document.createElement('input'); input.type = 'file'; input.accept = '.gpx,application/gpx+xml';
+  input.onchange = async () => {
+    const file = input.files?.[0]; if (!file) return;
+    if (file.size > 5 * 1024 * 1024) { error.value = '文件超过 5 MB'; return; }
+    try { source.value = await file.text(); error.value = ''; } catch { error.value = '文件读取失败'; }
+  };
+  input.click();
+}
+// #endif
+// #ifdef MP-WEIXIN
+function chooseWechatFile() {
+  uni.chooseMessageFile({ count: 1, type: 'file', extension: ['gpx'], success: (r) => {
+    if (r.tempFiles[0].size > 5 * 1024 * 1024) { error.value = '文件超过 5 MB'; return; }
+    uni.getFileSystemManager().readFile({ filePath: r.tempFiles[0].path, encoding: 'utf8', success: r => { source.value = String(r.data); error.value = ''; }, fail: () => { error.value = '文件读取失败'; } });
+  } });
+}
+// #endif
+</script>
+<style scoped>
+.page { padding: 32rpx; color: #eef4ea; background: #0f141b; min-height: 100vh; }
+.title { display: block; font-size: 36rpx; }
+.hint { display: block; color: #8a97a5; margin: 24rpx 0; }
+.source { background: #151d27; padding: 24rpx; box-sizing: border-box; width: 100%; height: 450rpx; margin: 24rpx 0; }
+.error { display: block; color: #ff7b72; margin: 16rpx 0; }
+button { background: #b8f36b; color: #0f141b; }
+</style>

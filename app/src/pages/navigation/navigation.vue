@@ -34,7 +34,7 @@
       </view>
 
       <view class="notice">
-        提示：候选版路线轨迹多为「认知示意」级，导航仅作方向参考；高风险或未核验路线请以属地公告和实地路况为准。
+        内置路线目前多为认知示意，不提供沿线导航。你可以导入有可靠来源的连续 GPX 或使用自己的实录轨迹。
       </view>
     </scroll-view>
   </view>
@@ -51,7 +51,7 @@ import type { TrackRecord } from "@shared/types/track";
 const tracks = ref<TrackRecord[]>([]);
 
 onShow(() => {
-  tracks.value = listTracks().filter((t) => t.state === "finished" && t.points.length >= 2);
+  tracks.value = listTracks().filter((t) => t.state === "finished" && t.points.length >= 2 && !t.points.slice(1).some(p => p.segmentStart));
 });
 
 const navigableRoutes = computed(() => ROUTES.filter(isNavigable));

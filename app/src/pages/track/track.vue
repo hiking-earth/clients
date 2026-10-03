@@ -12,7 +12,7 @@
       <view class="controls">
         <button v-if="state === 'idle'" class="btn start" @click="start">开始记录</button>
         <template v-else-if="state === 'recording'">
-          <button class="btn pause" @click="pause">暂停</button>
+          <button class="btn pause" @click="pause()">暂停</button>
           <button class="btn stop" @click="finish">结束</button>
         </template>
         <template v-else-if="state === 'paused'">
@@ -20,9 +20,10 @@
           <button class="btn stop" @click="finish">结束</button>
         </template>
       </view>
-      <text v-if="state !== 'idle'" class="hint">{{ state === 'recording' ? '记录中…屏幕可锁屏（App 端需后台定位权限）' : '已暂停' }} · {{ points.length }} 个轨迹点</text>
+      <text v-if="state !== 'idle'" class="hint">{{ state === 'recording' ? '记录中…请保持应用在前台' : '已暂停' }} · {{ points.length }} 个轨迹点</text>
     </view>
 
+    <button @click="openImport">导入 GPX</button>
     <!-- 历史轨迹 -->
     <scroll-view scroll-y class="list">
       <view class="group-title">我的轨迹（{{ tracks.length }}）</view>
@@ -40,101 +41,152 @@
 
 <script setup lang="ts">
 import { onUnmounted, ref } from "vue";
-import { onShow } from "@dcloudio/uni-app";
+import { onShow, onHide } from "@dcloudio/uni-app";
 import { haversineM } from "@shared/api/navigation-core";
 import type { TrackPoint, TrackRecord } from "@shared/types/track";
 import { startLocationUpdates, stopLocationUpdates } from "@/services/location";
 import { onPrivacyChange } from "@/services/privacy";
-import { listTracks, saveTrack } from "@/services/tracks";
+import { listTracks, saveTrack, loadDraft, saveDraft, clearDraft } from "@/services/tracks";
 
 const state = ref<"idle" | "recording" | "paused">("idle");
 const points = ref<TrackPoint[]>([]);
 const distanceM = ref(0);
 const ascentM = ref(0);
+const descentM = ref(0);
 const elapsedText = ref("0:00");
 const speedText = ref("0.0");
 const tracks = ref<TrackRecord[]>([]);
 
 let startedAt = 0;
+let activeMs = 0;
+let resumedAt = 0;
+let segmentStart = true;
+let starting = false;
+let disposed = false;
+let generation = 0;
 let timer: ReturnType<typeof setInterval> | null = null;
 let lastAlt: number | null = null;
 
 onShow(() => { tracks.value = listTracks(); });
+const draft = loadDraft();
+if (draft) {
+  points.value = draft.points;
+  distanceM.value = draft.distanceM;
+  ascentM.value = draft.ascentM;
+  descentM.value = draft.descentM;
+  startedAt = draft.startedAt;
+  activeMs = draft.activeDurationMs ?? 0;
+  state.value = "paused";
+  updateElapsed();
+}
+function duration() { return activeMs + (resumedAt ? Date.now() - resumedAt : 0); }
+function updateElapsed() {
+  const s = Math.floor(duration() / 1000);
+  elapsedText.value = `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+}
+function record(status: TrackRecord["state"]): TrackRecord {
+  return {
+    id: `t-${startedAt}`, name: `徒步 ${formatDate(startedAt)}`,
+    points: points.value, distanceM: distanceM.value, ascentM: ascentM.value,
+    descentM: descentM.value, activeDurationMs: duration(), startedAt,
+    state: status, synced: false,
+  };
+}
+function persist() {
+  if (state.value === "idle") return;
+  try { saveDraft(record("paused")); }
+  catch { pause(false); uni.showToast({ title: "存储空间不足，记录已暂停", icon: "none" }); }
+}
+onHide(() => {
+  if (state.value === "recording") pause();
+  else if (starting) { generation++; stopLocationUpdates(onPoint); }
+});
 const unsubscribePrivacy = onPrivacyChange((consents) => {
   if (!consents.location && state.value === "recording") pause();
 });
 
 function onPoint(p: TrackPoint) {
+  if (state.value !== "recording") return;
+  if (![p.latitude, p.longitude, p.timestamp].every(Number.isFinite) || Math.abs(p.latitude) > 90 || Math.abs(p.longitude) > 180) return;
   const last = points.value[points.value.length - 1];
-  if (last) {
+  if (last && !segmentStart) {
     const d = haversineM(last, p);
     if (d < 2) return;         // 静止抖动过滤
     if (d > 100) return;       // 跳点过滤
     distanceM.value += d;
   }
-  if (p.altitude != null) {
+  if (segmentStart) { p = { ...p, segmentStart: true }; lastAlt = null; segmentStart = false; }
+  if (p.altitude != null && Number.isFinite(p.altitude)) {
     if (lastAlt != null && p.altitude > lastAlt) ascentM.value += p.altitude - lastAlt;
+    if (lastAlt != null && p.altitude < lastAlt) descentM.value += lastAlt - p.altitude;
     lastAlt = p.altitude;
   }
   speedText.value = ((p.speed ?? 0) * 3.6).toFixed(1);
   points.value.push(p);
+  persist();
 }
 
-async function start() {
+async function begin() {
+  if (starting || state.value === "recording") return;
+  starting = true;
+  const epoch = ++generation;
   const ok = await startLocationUpdates(onPoint);
+  starting = false;
+  if (disposed || epoch !== generation) { stopLocationUpdates(onPoint); return; }
   if (!ok) {
     uni.showToast({ title: "请启用隐私设置中的定位并授权", icon: "none" });
     return;
   }
+  if (!startedAt) startedAt = Date.now();
+  resumedAt = Date.now();
+  segmentStart = true;
   state.value = "recording";
-  startedAt = Date.now();
-  timer = setInterval(() => {
-    const s = Math.floor((Date.now() - startedAt) / 1000);
-    elapsedText.value = `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
-  }, 1000);
+  if (timer) clearInterval(timer);
+  let ticks = 0;
+  timer = setInterval(() => { updateElapsed(); if (++ticks % 5 === 0) persist(); }, 1000);
+  persist();
 }
-
-function pause() {
+async function start() { await begin(); }
+async function resume() { await begin(); }
+function pause(store = true) {
+  generation++;
+  activeMs = duration();
+  resumedAt = 0;
   state.value = "paused";
   stopLocationUpdates(onPoint);
-}
-
-async function resume() {
-  if (!(await startLocationUpdates(onPoint))) return;
-  state.value = "recording";
-}
-
-function finish() {
-  stopLocationUpdates(onPoint);
   if (timer) clearInterval(timer);
-  if (points.value.length >= 2) {
-    const now = new Date();
-    const rec: TrackRecord = {
-      id: `t-${startedAt}`,
-      name: `徒步 ${now.getMonth() + 1}月${now.getDate()}日 ${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`,
-      points: points.value,
-      distanceM: distanceM.value,
-      ascentM: ascentM.value,
-      descentM: 0,
-      startedAt,
-      endedAt: Date.now(),
-      state: "finished",
-      synced: false,
-    };
-    saveTrack(rec);
-    tracks.value = listTracks();
-    uni.showToast({ title: "轨迹已保存", icon: "success" });
-  } else {
-    uni.showToast({ title: "轨迹点太少，未保存", icon: "none" });
+  timer = null;
+  speedText.value = "0.0";
+  updateElapsed();
+  if (store) persist();
+}
+function finish() {
+  pause();
+  if (points.value.length < 2) {
+    uni.showModal({ title: "轨迹点不足", content: "至少需要两个点。继续记录，或放弃本次记录。", confirmText: "继续记录", cancelText: "放弃", success: (r) => { if (!r.confirm) reset(); } });
+    return;
   }
+  try {
+    saveTrack({ ...record("finished"), endedAt: Date.now() });
+    tracks.value = listTracks();
+    reset();
+    uni.showToast({ title: "轨迹已保存", icon: "success" });
+  } catch {
+    uni.showToast({ title: "保存失败，草稿已保留", icon: "none" });
+  }
+}
+function reset() {
+  clearDraft();
   state.value = "idle";
   points.value = [];
-  distanceM.value = 0;
-  ascentM.value = 0;
+  distanceM.value = ascentM.value = descentM.value = 0;
+  startedAt = activeMs = resumedAt = 0;
   elapsedText.value = "0:00";
   speedText.value = "0.0";
   lastAlt = null;
 }
+
+function openImport() { uni.navigateTo({ url: "/pages/track/import" }); }
 
 function goDetail(id: string) {
   uni.navigateTo({ url: `/pages/track/detail?id=${id}` });
@@ -146,8 +198,10 @@ function formatDate(ts: number): string {
 }
 
 onUnmounted(() => {
+  disposed = true;
+  generation++;
   unsubscribePrivacy();
-  if (state.value === "recording") stopLocationUpdates(onPoint);
+  if (state.value !== "idle") pause();
   if (timer) clearInterval(timer);
 });
 </script>

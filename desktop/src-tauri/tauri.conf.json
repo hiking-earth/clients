@@ -24,9 +24,18 @@
   },
   "bundle": {
     "active": true,
-    "targets": ["dmg", "msi", "appimage", "deb"],
+    "targets": [
+      "dmg",
+      "msi",
+      "appimage",
+      "deb"
+    ],
     "icon": [
-      "icons/icon.png"
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
     ],
     "category": "Travel",
     "shortDescription": "徒步地球桌面端",

@@ -74,6 +74,7 @@ const membersWithDistance = ref<(TeamMember & { distanceText: string })[]>([]);
 const onMyLocation = (p: TrackPoint) => { myPos.value = p; };
 
 let reportTimer: ReturnType<typeof setInterval> | null = null;
+let remoteQueue: Promise<unknown> = Promise.resolve();
 let pollTimer: ReturnType<typeof setInterval> | null = null;
 
 onLoad(async () => {
@@ -83,7 +84,7 @@ onLoad(async () => {
   // 恢复上次队伍
   const saved = uni.getStorageSync("he_team");
   if (saved) {
-    team.value = JSON.parse(saved);
+    try { team.value = JSON.parse(saved); startPoll(); } catch { uni.removeStorageSync("he_team"); }
   }
 });
 
@@ -127,9 +128,13 @@ function leave() {
   uni.showModal({
     title: "退出队伍？",
     content: "退出后停止位置共享",
-    success: (r) => {
-      if (!r.confirm) return;
+    success: async (r) => {
+      if (!r.confirm || !team.value) return;
+      const teamId = team.value.id;
       stopShare();
+      await remoteQueue;
+      const result = await callCloud("team-leave", { teamId });
+      if (!result.ok) { uni.showToast({ title: result.errMsg ?? "退出失败，请重试", icon: "none" }); return; }
       stopPoll();
       team.value = null;
       members.value = [];
@@ -160,6 +165,8 @@ async function startShare() {
   reportTimer = setInterval(report, REPORT_INTERVAL);
 }
 function stopShare() {
+  const wasSharing = sharing.value;
+  const teamId = team.value?.id;
   shareGeneration++;
   startingShare = false;
   sharing.value = false;
@@ -167,15 +174,24 @@ function stopShare() {
   stopLocationUpdates(onMyLocation);
   if (reportTimer) clearInterval(reportTimer);
   reportTimer = null;
+  if (wasSharing && teamId) {
+    remoteQueue = remoteQueue.catch(() => {}).then(async () => {
+      const res = await callCloud("team-stop", { teamId });
+      if (!res.ok) uni.showToast({ title: "本机已停止共享；云端位置清理失败，最多一分钟后不再展示", icon: "none" });
+    });
+  }
 }
 
 async function report() {
   if (!sharing.value || !team.value || !myPos.value || !hasPrivacyConsent("teamLocation") || !hasPrivacyConsent("location")) return;
-  await callCloud("team-report", {
-    teamId: team.value.id,
-    latitude: myPos.value.latitude,
-    longitude: myPos.value.longitude,
+  const epoch = shareGeneration;
+  const payload = { teamId: team.value.id, latitude: myPos.value.latitude, longitude: myPos.value.longitude };
+  remoteQueue = remoteQueue.catch(() => {}).then(async () => {
+    if (!sharing.value || epoch !== shareGeneration) return;
+    const res = await callCloud("team-report", payload);
+    if (!res.ok && epoch === shareGeneration) { stopShare(); uni.showToast({ title: res.errMsg ?? "上报失败，共享已停止", icon: "none" }); }
   });
+  await remoteQueue;
 }
 
 /* ---------- 成员轮询 + 距离计算 ---------- */
@@ -191,19 +207,25 @@ function stopPoll() {
 
 async function poll() {
   if (!team.value) return;
-  const res = await callCloud<{ members: TeamMember[] }>("team-locations", { teamId: team.value.id });
+  const id = team.value.id;
+  const res = await callCloud<{ members: TeamMember[] }>("team-locations", { teamId: id });
+  if (team.value?.id !== id) return;
   if (res.ok && res.data) {
     members.value = res.data.members;
     membersWithDistance.value = res.data.members.map((m) => {
-      const d = myPos.value
-        ? haversineM(myPos.value, { latitude: m.latitude, longitude: m.longitude })
+      const d = myPos.value && fresh(m)
+        ? haversineM(myPos.value, { latitude: m.latitude!, longitude: m.longitude! })
         : NaN;
-      return { ...m, distanceText: isNaN(d) ? "定位中" : formatDistance(d) };
+      return { ...m, distanceText: isNaN(d) ? "暂无有效位置" : formatDistance(d) };
     });
   }
 }
 
+function fresh(m: TeamMember): boolean {
+  return Number.isFinite(m.latitude) && Number.isFinite(m.longitude) && m.updatedAt > 0 && Date.now() - m.updatedAt <= 60000;
+}
 function freshness(ts: number): string {
+  if (!ts) return "未共享位置";
   const s = Math.floor((Date.now() - ts) / 1000);
   if (s < 60) return "刚刚在线";
   if (s < 3600) return `${Math.floor(s / 60)} 分钟前`;
@@ -213,6 +235,7 @@ function freshness(ts: number): string {
 /** 会合：箭头导航到队友实时位置 */
 function rendezvous(m: TeamMember) {
   if (m.openid === myOpenid.value) return;
+  if (!fresh(m)) { uni.showToast({ title: "队友位置已过期，暂时不能导航", icon: "none" }); return; }
   uni.navigateTo({
     url: `/pages/navigation/session?mode=member&teamId=${team.value!.id}&memberId=${m.openid}&name=${encodeURIComponent(m.nickname)}`,
   });

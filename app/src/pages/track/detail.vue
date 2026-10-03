@@ -37,6 +37,7 @@
 </template>
 
 <script setup lang="ts">
+import { toMapPoint } from "@shared/api/coordinates";
 import { computed, ref } from "vue";
 import { onLoad } from "@dcloudio/uni-app";
 import { trackToGpx, type TrackRecord } from "@shared/types/track";
@@ -44,6 +45,8 @@ import { deleteTrack, getTrack, markSynced } from "@/services/tracks";
 import { callCloud } from "@/services/cloud";
 import { hasPrivacyConsent } from "@/services/privacy";
 
+declare const plus: any;
+declare const wx: any;
 const track = ref<TrackRecord | null>(null);
 
 onLoad((q) => {
@@ -60,20 +63,22 @@ onLoad((q) => {
 const center = computed(() => {
   const pts = track.value!.points;
   const mid = pts[Math.floor(pts.length / 2)];
-  return { latitude: mid.latitude, longitude: mid.longitude };
+  return toMapPoint(mid);
 });
 
-const polyline = computed(() => [
-  {
-    points: track.value!.points.map((p) => ({ latitude: p.latitude, longitude: p.longitude })),
-    color: "#b8f36b", width: 4, arrowLine: true,
-  },
-]);
+const polyline = computed(() => {
+  const segments: { latitude: number; longitude: number }[][] = [];
+  for (const p of track.value!.points) {
+    if (!segments.length || p.segmentStart) segments.push([]);
+    segments[segments.length - 1].push(toMapPoint(p));
+  }
+  return segments.filter(s => s.length >= 2).map(points => ({ points, color: "#b8f36b", width: 4, arrowLine: true }));
+});
 
 const markers = computed(() => {
   const pts = track.value!.points;
-  const first = pts[0];
-  const last = pts[pts.length - 1];
+  const first = toMapPoint(pts[0]);
+  const last = toMapPoint(pts[pts.length - 1]);
   return [
     { id: 1, latitude: first.latitude, longitude: first.longitude, title: "起点", width: 24, height: 24 },
     { id: 2, latitude: last.latitude, longitude: last.longitude, title: "终点", width: 24, height: 24 },
@@ -82,12 +87,13 @@ const markers = computed(() => {
 
 const durationText = computed(() => {
   const t = track.value!;
-  if (!t.endedAt) return "-";
-  const s = Math.floor((t.endedAt - t.startedAt) / 1000);
+  if (!t.endedAt || t.points.every(p => p.timeEstimated)) return "-";
+  const s = Math.floor((t.activeDurationMs ?? (t.endedAt - t.startedAt)) / 1000);
   return `${Math.floor(s / 3600)}h${Math.floor((s % 3600) / 60)}m`;
 });
 
 function navAlong() {
+  if (track.value!.points.slice(1).some(p => p.segmentStart)) { uni.showModal({ title: "轨迹包含中断", content: "分段之间没有路径记录，暂不提供跨段导航。请导入连续轨迹。", showCancel: false }); return; }
   uni.navigateTo({ url: `/pages/navigation/session?trackId=${track.value!.id}` });
 }
 
@@ -99,12 +105,29 @@ function exportGpx() {
   a.href = URL.createObjectURL(blob);
   a.download = `${track.value!.name}.gpx`;
   a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
   // #endif
-  // #ifndef H5
-  uni.setClipboardData({
-    data: gpx,
-    success: () => uni.showToast({ title: "GPX 已复制到剪贴板", icon: "none" }),
-  });
+  // #ifdef MP-WEIXIN
+  const fileName = `track-${Date.now()}.gpx`;
+  const filePath = `${wx.env.USER_DATA_PATH}/${fileName}`;
+  wx.getFileSystemManager().writeFile({ filePath, data: gpx, encoding: "utf8", success: () => {
+    if (typeof wx.shareFileMessage === "function") wx.shareFileMessage({ filePath, fileName, fail: () => uni.showToast({ title: "文件分享未完成，可重试导出", icon: "none" }) });
+    else uni.setClipboardData({ data: gpx });
+  }, fail: () => uni.showToast({ title: "GPX 文件保存失败", icon: "none" }) });
+  // #endif
+  // #ifdef APP-PLUS
+  const fail = () => uni.showToast({ title: "GPX 保存或打开失败，可重试导出", icon: "none" });
+  plus.io.requestFileSystem(plus.io.PRIVATE_DOCUMENTS, (fs: any) => {
+    fs.root.getFile(`track-${Date.now()}.gpx`, { create: true }, (entry: any) => {
+      entry.createWriter((writer: any) => {
+        writer.onerror = fail;
+        writer.onwrite = () => plus.runtime.openFile(entry.toLocalURL(), {}, () => {
+          uni.showModal({ title: "GPX 已保存到应用目录", content: "系统未找到可打开 GPX 的应用。可复制文件内容后另存为 .gpx。", confirmText: "复制内容", success: r => { if (r.confirm) uni.setClipboardData({ data: gpx }); } });
+        });
+        writer.write(gpx);
+      }, fail);
+    }, fail);
+  }, fail);
   // #endif
 }
 
@@ -132,7 +155,7 @@ async function sync() {
 function remove() {
   uni.showModal({
     title: "删除该轨迹？",
-    content: "删除后不可恢复",
+    content: "删除本机轨迹后不可恢复；已上传的云端副本不会随之删除。",
     success: (r) => {
       if (r.confirm) {
         deleteTrack(track.value!.id);
