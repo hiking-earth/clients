@@ -24,6 +24,7 @@
 </template>
 
 <script setup lang="ts">
+import { saveNativeGpx } from '@/services/files';
 import { activeOfflineLayer } from '@/services/offline';
 const offlineLayer = activeOfflineLayer();
 import TrackCanvas from '@/components/TrackCanvas.vue';
@@ -112,18 +113,8 @@ async function exportGpx() {
   }, fail: () => uni.showToast({ title: "GPX 文件保存失败", icon: "none" }) });
   // #endif
   // #ifdef APP-PLUS
-  const fail = () => uni.showToast({ title: "GPX 保存或打开失败，可重试导出", icon: "none" });
-  plus.io.requestFileSystem(plus.io.PRIVATE_DOCUMENTS, (fs: any) => {
-    fs.root.getFile(`track-${Date.now()}.gpx`, { create: true }, (entry: any) => {
-      entry.createWriter((writer: any) => {
-        writer.onerror = fail;
-        writer.onwrite = () => plus.runtime.openFile(entry.toLocalURL(), {}, () => {
-          uni.showModal({ title: "GPX 已保存到应用目录", content: "系统未找到可打开 GPX 的应用。可复制文件内容后另存为 .gpx。", confirmText: "复制内容", success: r => { if (r.confirm) uni.setClipboardData({ data: gpx }); } });
-        });
-        writer.write(gpx);
-      }, fail);
-    }, fail);
-  }, fail);
+  try { const saved = await saveNativeGpx(track.value!.name, gpx); if (saved) uni.showToast({ title: 'GPX已保存', icon: 'success' }); }
+  catch (e) { uni.showToast({ title: e instanceof Error ? e.message : 'GPX保存失败', icon: 'none' }); }
   // #endif
 }
 

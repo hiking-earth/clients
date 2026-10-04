@@ -3,12 +3,14 @@
   <view v-for="layer in layers" :key="layer.id" class="card"><text class="title">{{ layer.name }}</text><text class="hint">{{ layer.attribution }} · {{ layer.license }} · {{ (layer.bytes/1024).toFixed(0) }} KB</text><button @click="activate(layer.id)">{{ active === layer.id ? '正在使用' : '用于轨迹与导航示意' }}</button><button @click="remove(layer.id)">删除资料</button></view>
   <TrackCanvas v-if="preview" :points="[]" :layers="preview.paths" :attribution="preview.attribution" />
   <text class="title">导入资料</text>
+  <!-- #ifdef APP-PLUS --><button @click="chooseNative">从系统文件选择</button><!-- #endif -->
   <!-- #ifdef H5 --><button @click="choose">选择 JSON 资料</button><!-- #endif -->
   <!-- #ifdef MP-WEIXIN --><button @click="chooseWechat">从聊天文件选择 JSON</button><!-- #endif -->
   <textarea v-model="source" :maxlength="5242880" placeholder="粘贴离线资料JSON内容" class="input" /><button @click="save">导入并保存</button><text class="hint">{{ message }}</text>
   <text class="hint">格式：format=hiking-earth-offline-v1，name、attribution、license均必填，geometry为GeoJSON FeatureCollection；支持LineString/MultiLineString/Polygon/MultiPolygon。每份最多5 MB、50000点，总量8 MB。导入后不会上传。</text>
 </scroll-view></template>
 <script setup lang="ts">
+import { chooseNativeText } from '@/services/files';
 import { computed, ref } from 'vue';
 import { onShow } from '@dcloudio/uni-app';
 import TrackCanvas from '@/components/TrackCanvas.vue';
@@ -20,6 +22,7 @@ onShow(load);
 function activate(id: string) { selectOfflineLayer(id); load(); }
 function remove(id: string) { uni.showModal({ title: '删除离线资料', content: '删除这份本机资料？不影响轨迹文件。', success: r => { if (r.confirm) { try { deleteOfflineLayer(id); load(); } catch { message.value = '删除失败'; } } } }); }
 function save() { try { const layer = importOfflineLayer(source.value); selectOfflineLayer(layer.id); source.value = ''; load(); message.value = '已保存到本机'; } catch (e) { message.value = e instanceof Error ? e.message : '导入失败'; } }
+async function chooseNative() { try { const text = await chooseNativeText(); if (text !== null) source.value = text; } catch (e) { message.value = e instanceof Error ? e.message : '文件读取失败'; } }
 // #ifdef H5
 function choose() {
   const input = document.createElement('input'); input.type = 'file'; input.accept = '.json,.geojson,application/json';

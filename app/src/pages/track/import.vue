@@ -2,6 +2,7 @@
   <view class="page">
     <text class="title">导入 GPX 轨迹</text>
     <text class="hint">轨迹保存在本机。最多 5 MB、20000 个点；保留分段，不会自动上传。</text>
+    <!-- #ifdef APP-PLUS --><button @click="chooseNative">从系统文件选择</button><!-- #endif -->
     <!-- #ifdef H5 -->
     <button @click="chooseFile">选择 GPX 文件</button>
     <!-- #endif -->
@@ -14,6 +15,7 @@
   </view>
 </template>
 <script setup lang="ts">
+import { chooseNativeText } from '@/services/files';
 import { ref } from 'vue';
 import { isDesktop, chooseDesktopGpx } from '@/services/desktop';
 import { importGpx } from '@/services/gpx';
@@ -24,6 +26,7 @@ function save() {
   try { const track = importGpx(source.value); saveTrack(track); uni.redirectTo({ url: `/pages/track/detail?id=${track.id}` }); }
   catch (e) { error.value = e instanceof Error ? e.message : '导入失败，文件未保存'; }
 }
+async function chooseNative() { try { const text = await chooseNativeText(); if (text !== null) source.value = text; } catch (e) { error.value = e instanceof Error ? e.message : '文件读取失败'; } }
 // #ifdef H5
 async function chooseFile() {
   if (isDesktop()) {

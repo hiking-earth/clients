@@ -1,0 +1,6 @@
+export function chooseTextFile(success: (text: string) => void, cancel: () => void, fail: (message: string) => void): void {
+  HikingFiles.choose(success, cancel, fail);
+}
+export function saveTextFile(name: string, text: string, success: () => void, cancel: () => void, fail: (message: string) => void): void {
+  HikingFiles.save(name, text, success, cancel, fail);
+}

@@ -23,3 +23,6 @@ desktop/src-tauri/gen/
 
 # Generated bundled desktop frontend
 desktop/client-dist/
+
+# Separate website Git worktree; tracked in its own repository
+/web/
