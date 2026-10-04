@@ -33,6 +33,6 @@ for offset in range(0,5000,1000):
     print('source page',offset,'records',len(records),flush=True)
     if not result.get('exceededTransferLimit'):break
     time.sleep(2)
-if not records:raise SystemExit('No usable records; retained previous snapshot')
+if not seen:raise SystemExit('No usable source records; retained previous snapshot')
 snapshot={'schemaVersion':1,'generatedAt':now,'attribution':'USDA Forest Service','license':'USDA source terms; retain attribution and source metadata','licenseUrl':'https://data.fs.usda.gov/geodata/edw/datasets.php?xmlKeyword=recreation','sourceUrl':SOURCE,'coverage':'Latest 5000 eligible source segments plus retained earlier records; grouped by trail identity, not a complete US inventory','routes':list(records.values())}
 dest=ROOT/'shared/data/catalog/usfs.json';temp=dest.with_suffix('.tmp');temp.write_text(json.dumps(snapshot,ensure_ascii=False,indent=2)+'\n');os.replace(temp,dest);print('USFS discovered routes',len(records),flush=True)

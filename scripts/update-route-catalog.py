@@ -36,7 +36,15 @@ def main():
                 if item.get('type')!='relation' or not tags.get('name') or 'lon' not in center or 'lat' not in center: continue
                 rid=f"osm-relation-{item['id']}"
                 records[rid]={'id':rid,'name':tags.get('name:zh') or tags['name'],'originalName':tags['name'],'region':region,'center':[center['lon'],center['lat']], 'sourceUrl':f"https://www.openstreetmap.org/relation/{item['id']}", 'sourceTags':{k:v for k,v in tags.items() if k in ('distance','ascent','descent','network','operator','website','description','access','ref')},'fetchedAt':now,'status':'待核验'}; count+=1
-            counts[region]=count; cursors[region]=now
+            counts[region]=count
+            # Use the source replication watermark rather than local wall time:
+            # lagging source data must not advance a cursor past unseen edits.
+            watermark=data.get('osm3s',{}).get('timestamp_osm_base')
+            if watermark:
+                parsed=datetime.datetime.fromisoformat(watermark.replace('Z','+00:00'))
+                if parsed.tzinfo is None: raise ValueError('Source watermark has no timezone')
+                cursors[region]=(parsed-datetime.timedelta(minutes=10)).astimezone(datetime.timezone.utc).isoformat(timespec='seconds').replace('+00:00','Z')
+            # Without a source watermark keep the old cursor; replaying is safe.
         except Exception as exc:
             failures.append({'region':region,'error':str(exc)}); print(region, 'retained previous snapshot:',str(exc),flush=True)
         time.sleep(3)
