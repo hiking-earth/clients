@@ -22,10 +22,13 @@ def main():
     parser = argparse.ArgumentParser(); parser.add_argument('--regions', nargs='+', choices=list(REGIONS), default=list(REGIONS)); parser.add_argument('--limit', type=int, default=1000)
     args = parser.parse_args(); dest=ROOT/'shared/data/catalog/osm.json'
     previous=json.loads(dest.read_text()) if dest.exists() else {'routes':[]}
-    records={r['id']:r for r in previous['routes']}; now=datetime.datetime.now(datetime.timezone.utc).isoformat(); failures=[]; counts={}
+    records={r['id']:r for r in previous['routes']}; now=datetime.datetime.now(datetime.timezone.utc).isoformat(); failures=[]; counts={}; cursors=previous.get('sourceCursors',{})
     for region in args.regions:
         bbox=','.join(str(v) for v in REGIONS[region])
-        query=f'[out:json][timeout:45];relation["type"="route"]["route"~"^(hiking|foot)$"]["name"]({bbox});out tags center {max(1,min(args.limit,5000))};'
+        since=cursors.get(region)
+        incremental=f'(newer:"{since}")' if since else ''
+        output_limit='' if since else str(max(1,min(args.limit,5000)))
+        query=f'[out:json][timeout:45];relation["type"="route"]["route"~"^(hiking|foot)$"]["name"]({bbox}){incremental};out tags center {output_limit};'
         try:
             data=fetch(query); count=0
             for item in data.get('elements',[]):
@@ -33,12 +36,12 @@ def main():
                 if item.get('type')!='relation' or not tags.get('name') or 'lon' not in center or 'lat' not in center: continue
                 rid=f"osm-relation-{item['id']}"
                 records[rid]={'id':rid,'name':tags.get('name:zh') or tags['name'],'originalName':tags['name'],'region':region,'center':[center['lon'],center['lat']], 'sourceUrl':f"https://www.openstreetmap.org/relation/{item['id']}", 'sourceTags':{k:v for k,v in tags.items() if k in ('distance','ascent','descent','network','operator','website','description','access','ref')},'fetchedAt':now,'status':'待核验'}; count+=1
-            counts[region]=count
+            counts[region]=count; cursors[region]=now
         except Exception as exc:
             failures.append({'region':region,'error':str(exc)}); print(region, 'retained previous snapshot:',str(exc),flush=True)
         time.sleep(3)
     if not counts: raise SystemExit('All sources failed; catalog left unchanged')
-    snapshot={'schemaVersion':1,'generatedAt':now,'license':'ODbL-1.0','attribution':'© OpenStreetMap contributors','licenseUrl':'https://www.openstreetmap.org/copyright','coverage':counts,'failures':failures,'routes':sorted(records.values(),key=lambda r:r['id'])}
+    snapshot={'schemaVersion':1,'generatedAt':now,'license':'ODbL-1.0','attribution':'© OpenStreetMap contributors','licenseUrl':'https://www.openstreetmap.org/copyright','coverage':counts,'sourceCursors':cursors,'failures':failures,'routes':sorted(records.values(),key=lambda r:r['id'])}
     dest.parent.mkdir(parents=True,exist_ok=True); temp=dest.with_suffix('.tmp'); temp.write_text(json.dumps(snapshot,ensure_ascii=False,indent=2)+'\n'); os.replace(temp,dest)
-    print(json.dumps({'catalogCount':len(records),'coverage':counts,'failures':len(failures)},ensure_ascii=False))
+    print(json.dumps({'catalogCount':len(records),'coverage':counts,'sourceCursors':cursors,'failures':len(failures)},ensure_ascii=False))
 if __name__=='__main__': main()
