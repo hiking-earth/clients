@@ -2,6 +2,7 @@
   <scroll-view scroll-y class="page">
     <button @click="go('/pages/my/route-review')">官方路线审核（管理员）</button>
     <button @click="go('/pages/route/news')">官方户外公告</button>
+    <button @click="go('/pages/my/import')">迁移旧网页日记与留言</button>
     <!-- 账号 -->
     <view class="account">
       <view class="avatar">{{ nickname.slice(0, 1) }}</view>

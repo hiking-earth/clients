@@ -185,4 +185,4 @@ const CANDIDATE_ROUTES: HikingRoute[] = ([
   { id: "qinglongshan", name: "古荥·青龙山徒步候选线", region: "河南 · 郑州", center: [113.48, 34.91], distance: "待核验", ascent: "待核验", duration: "半日–1 天", difficulty: "入门", bestSeason: "春 · 秋", bestSeasons: ["春", "秋"], packStyle: "轻装", overnight: "无过夜", surface: "未铺装", scenery: ["丘陵", "古道", "近郊"] },
 ] as CandidateSeed[]).map(candidateRoute);
 
-export const ROUTES: HikingRoute[] = [...CORE_ROUTES, ...CANDIDATE_ROUTES];
+export const ROUTES: HikingRoute[] = [...CORE_ROUTES, ...CANDIDATE_ROUTES].map(route=>({...route,image:"/static/original-mountain-reference.png",imageCredit:"徒步地球原创几何示意 · 非路线实景"}));

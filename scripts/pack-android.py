@@ -1,0 +1,16 @@
+#!/usr/bin/env python3
+"""Prepare a private config using the existing signing identity and submit HBuilder pack.
+Requires an imported project and a logged-in HBuilderX, not a password in arguments.
+"""
+import argparse,json,pathlib,os,subprocess
+ROOT=pathlib.Path(__file__).resolve().parents[1];p=argparse.ArgumentParser();p.add_argument('--hbuilder',default='/Applications/HBuilderX.app/Contents/MacOS/cli');p.add_argument('--signing-config',required=True);p.add_argument('--private-output',required=True);p.add_argument('--project',default=str(ROOT/'app'));a=p.parse_args();source=pathlib.Path(a.signing_config).resolve();output=pathlib.Path(a.private_output).resolve()
+if output==source or ROOT in output.parents:raise SystemExit('Use a new private config outside the repository')
+config=json.loads(source.read_text());config['project']=str(pathlib.Path(a.project).resolve());config['platform']='android';config['safemode']=True
+if config.get('android',{}).get('packagename')!='earth.hiking.app':raise SystemExit('Unexpected upgrade package identity')
+if not pathlib.Path(config['android'].get('certfile','')).is_file():raise SystemExit('Signing certificate missing')
+output.parent.mkdir(parents=True,exist_ok=True);os.chmod(output.parent,0o700)
+fd=os.open(output,os.O_WRONLY|os.O_CREAT|os.O_EXCL,0o600)
+with os.fdopen(fd,'w') as f:json.dump(config,f,ensure_ascii=False)
+# HBuilder may include download URLs in its output; inspect locally and never persist secrets.
+subprocess.run([a.hbuilder,'pack','--config',str(output),'--project',config['project'],'--platform','android','--safemode','true'],check=True)
+print('Submitted Android build. Query HBuilder pack status and verify package identity/signature before release.')

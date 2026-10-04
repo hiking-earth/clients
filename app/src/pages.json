@@ -136,6 +136,12 @@
       "style": {
         "navigationBarTitleText": "官方户外公告"
       }
+    },
+    {
+      "path": "pages/my/import",
+      "style": {
+        "navigationBarTitleText": "迁移旧资料"
+      }
     }
   ],
   "globalStyle": {

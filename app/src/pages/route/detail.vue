@@ -1,6 +1,6 @@
 <template>
   <scroll-view scroll-y class="page" v-if="route">
-    <image class="banner" :src="route.image" mode="aspectFill" />
+    <image v-if="route.image" class="banner" :src="route.image" mode="aspectFill" />
     <view class="body">
       <view class="head">
         <view class="dot" :style="{ background: STATUS_COLORS[route.status] }"></view>
