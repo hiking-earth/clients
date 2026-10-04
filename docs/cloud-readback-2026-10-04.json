@@ -39,7 +39,7 @@
     "name": "team-locations",
     "sourceMatches": true,
     "downloadExit": 0,
-    "localSha256": "7c38638aac4bb718d759beb16375396e487923f230676a6160efa396673c7401"
+    "localSha256": "bc3d2c59fc27cbae2a4ed5faf5020c240f02c7a5aca08855ab4adceb3c9d6d55"
   },
   {
     "name": "track-sync",
@@ -75,7 +75,7 @@
     "name": "sos-trigger",
     "sourceMatches": true,
     "downloadExit": 0,
-    "localSha256": "efa73142f3ffbbb9c6a9c2543f4035add12cc8207239950fcfc190dd0fc15aae"
+    "localSha256": "70793ff4654aae4f96822c6d8dc831d38b9cecc23693a28485b8f07f7c06f607"
   },
   {
     "name": "init-db",

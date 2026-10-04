@@ -4,6 +4,7 @@ node_modules/
 
 # 构建产物
 app/dist/
+desktop/dist/
 desktop/src-tauri/target/
 desktop/src-tauri/gen/
 
