@@ -3,6 +3,7 @@
 <!-- #ifndef H5 --><map v-if="online" :latitude="nativeCenter.latitude" :longitude="nativeCenter.longitude" :polyline="nativeLines" :markers="nativeMarkers" :scale="14" :show-location="false" :style="{height:height+'px',width:'100%'}" @error="mapError" /><!-- #endif -->
 <TrackCanvas v-if="!online" :points="points" :position="position" :height="height" :layers="layers" :attribution="attribution" /></view></template>
 <script setup lang="ts">
+import {prepareMapViewer} from '@/services/map-viewer';
 import {computed,nextTick,onUnmounted,ref,watch} from 'vue';import {toMapPoint} from '@shared/api/coordinates';import TrackCanvas from './TrackCanvas.vue';
 // #ifdef H5
 import {Map as LibreMap,NavigationControl,LngLatBounds, setWorkerUrl,type GeoJSONSource} from 'maplibre-gl';
@@ -24,12 +25,13 @@ function disableOnline(){online.value=false;
  // #endif
 }
 async function enableOnline(){
+ const answer=await uni.showModal({title:'显示在线地图',content:'地图服务会收到当前视野的瓦片请求。是否继续？'});if(!answer.confirm)return;
  // #ifdef APP-PLUS
- if(import.meta.env.VITE_NATIVE_MAP_READY!=='true'){error.value='当前原生包尚未配置地图 SDK 凭据，请先使用离线资料。';return;}
+ prepareMapViewer(props.points,props.position);uni.navigateTo({url:'/pages/map/viewer'});return;
  // #endif
- const answer=await uni.showModal({title:'显示在线地图',content:'地图服务会收到当前视野的瓦片请求。是否继续？'});if(!answer.confirm)return;online.value=true;error.value='';
+ online.value=true;error.value='';
  // #ifdef H5
- await nextTick();try{map=new LibreMap({container:containerId,style:'https://tiles.openfreemap.org/styles/liberty',center:[props.position?.longitude||props.points[0]?.longitude||104,props.position?.latitude||props.points[0]?.latitude||35],zoom:13,attributionControl:{compact:false}});map.addControl(new NavigationControl());map.on('load',()=>{if(!map)return;map.addSource('local-lines',{type:'geojson',data:{type:'FeatureCollection',features:[]}});map.addLayer({id:'local-lines',type:'line',source:'local-lines',paint:{'line-color':'#b8f36b','line-width':4}});map.addSource('local-position',{type:'geojson',data:{type:'FeatureCollection',features:[]}});map.addLayer({id:'local-position',type:'circle',source:'local-position',paint:{'circle-radius':6,'circle-color':'#65c7ff','circle-stroke-color':'white','circle-stroke-width':2}});updateMap();const bounds=new LngLatBounds();props.points.forEach(p=>bounds.extend([p.longitude,p.latitude]));if(!bounds.isEmpty())map.fitBounds(bounds,{padding:32,maxZoom:16});});map.on('error',()=>{error.value='部分在线地图资料未加载，可切回离线资料。';});}catch{mapError();}
+ await nextTick();try{map=new LibreMap({container:containerId,style:'https://tiles.openfreemap.org/styles/liberty',center:[props.position?.longitude??props.points[0]?.longitude??104,props.position?.latitude??props.points[0]?.latitude??35],zoom:13,attributionControl:{compact:false}});map.addControl(new NavigationControl());map.on('load',()=>{if(!map)return;map.addSource('local-lines',{type:'geojson',data:{type:'FeatureCollection',features:[]}});map.addLayer({id:'local-lines',type:'line',source:'local-lines',paint:{'line-color':'#b8f36b','line-width':4}});map.addSource('local-position',{type:'geojson',data:{type:'FeatureCollection',features:[]}});map.addLayer({id:'local-position',type:'circle',source:'local-position',paint:{'circle-radius':6,'circle-color':'#65c7ff','circle-stroke-color':'white','circle-stroke-width':2}});updateMap();const bounds=new LngLatBounds();props.points.forEach(p=>bounds.extend([p.longitude,p.latitude]));if(!bounds.isEmpty())map.fitBounds(bounds,{padding:32,maxZoom:16});});map.on('error',()=>{error.value='部分在线地图资料未加载，可切回离线资料。';});}catch{mapError();}
  // #endif
 }
 // #ifdef H5

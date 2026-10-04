@@ -1,4 +1,6 @@
 const cloud = require('wx-server-sdk');
+const crypto = require('crypto');
+const notificationId = value => crypto.createHash('sha256').update(value).digest('hex');
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database({ throwOnNotFound: false });
 exports.main = async event => {
@@ -20,8 +22,10 @@ exports.main = async event => {
     return db.runTransaction(async tx => {
       const ref = tx.collection('companion_posts').doc(event.postId), post = (await ref.get()).data;
       if (!post || post.status !== 'pending' || (post.joinVersion || 0) !== event.version) return { errMsg: '帖子已改变，请刷新' };
+      if(event.action==='approve' && post.routeId){const review=(await tx.collection('route_reviews').doc(notificationId(post.routeId)).get()).data;if(!review||review.status!=='开放中'||!Number.isFinite(review.expiresAt)||review.expiresAt<=Date.now())return {errMsg:'关联路线开放核验已失效，请先更新资料或让发起人取消关联'};}
       const status = event.action === 'reject' ? 'hidden' : post.pendingDesiredStatus === 'closed' ? 'closed' : (post.members || []).length >= post.maxMembers ? 'full' : 'open';
       await ref.update({ data: { status, moderatedAt: Date.now(), moderatedBy: OPENID, joinVersion: (post.joinVersion || 0) + 1 } });
+      await tx.collection('user_notifications').doc(notificationId(`post-review:${event.postId}:${post.joinVersion||0}`)).set({data:{owner:post.openid,title:event.action==='approve'?'约伴活动审核通过':'约伴活动未通过审核',postId:event.postId,read:false,createdAt:Date.now()}});
       return { handled: true };
     });
   }
@@ -35,6 +39,7 @@ exports.main = async event => {
       if (post) await postRef.update({ data: { status: 'hidden', joinVersion: (post.joinVersion || 0) + 1, moderatedAt: Date.now() } });
     }
     await ref.update({ data: { status: event.action === 'hide' ? 'hidden' : 'dismissed', handledBy: OPENID, handledAt: Date.now() } });
+    await tx.collection('user_notifications').doc(notificationId(`report-result:${event.reportId}`)).set({data:{owner:report.reporter,title:event.action==='hide'?'举报已处理，相关活动已隐藏':'举报已处理，未采取隐藏措施',postId:report.postId,read:false,createdAt:Date.now()}});
     return { handled: true };
   });
 };

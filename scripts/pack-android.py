@@ -8,6 +8,7 @@ if output==source or ROOT in output.parents:raise SystemExit('Use a new private 
 config=json.loads(source.read_text());config['project']=str(pathlib.Path(a.project).resolve());config['platform']='android';config['safemode']=True
 if config.get('android',{}).get('packagename')!='earth.hiking.app':raise SystemExit('Unexpected upgrade package identity')
 if not pathlib.Path(config['android'].get('certfile','')).is_file():raise SystemExit('Signing certificate missing')
+subprocess.run(['node',str(ROOT/'app/scripts/build-map-viewer.cjs')],cwd=ROOT/'app',check=True)
 output.parent.mkdir(parents=True,exist_ok=True);os.chmod(output.parent,0o700)
 fd=os.open(output,os.O_WRONLY|os.O_CREAT|os.O_EXCL,0o600)
 with os.fdopen(fd,'w') as f:json.dump(config,f,ensure_ascii=False)
