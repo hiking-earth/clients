@@ -8,10 +8,10 @@ const db = cloud.database({ throwOnNotFound: false });
 const derive = promisify(crypto.scrypt);
 const SESSION_MS = 7 * 24 * 60 * 60 * 1000;
 const MAX_BODY = 6 * 1024 * 1024;
-const handlers = new Set(['companion-create', 'companion-list', 'companion-join',
+const handlers = new Set(['route-manage', 'social-manage', 'companion-create', 'companion-list', 'companion-join',
   'companion-report', 'companion-manage', 'team-manage', 'library-manage', 'community-moderate', 'team-create', 'team-join', 'team-leave', 'team-stop',
   'team-report', 'team-locations', 'track-sync', 'track-manage', 'sos-trigger', 'guide-list']);
-const publicHandlers = new Set(['companion-list', 'guide-list']);
+const publicHandlers = new Set(['route-manage', 'companion-list', 'guide-list']);
 const hash = value => crypto.createHash('sha256').update(value).digest('hex');
 const random = () => crypto.randomBytes(32).toString('hex');
 function fail(message, status = 400, code) { const e = new Error(message); e.status = status; e.code = code; throw e; }

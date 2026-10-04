@@ -29,6 +29,7 @@ export function saveTrack(track: TrackRecord): void {
 }
 
 export function deleteTrack(id: string): void {
+  setTrackAutoSyncExcluded(id, true);
   uni.setStorageSync(KEY, JSON.stringify(listTracks().filter((t) => t.id !== id)));
 }
 
@@ -57,4 +58,20 @@ function validRecord(t: any): t is TrackRecord {
   return t && typeof t.id === "string" && typeof t.name === "string" && Array.isArray(t.points)
     && [t.startedAt, t.distanceM, t.ascentM, t.descentM].every(Number.isFinite)
     && t.points.every((p: any) => p && Number.isFinite(p.latitude) && Math.abs(p.latitude) <= 90 && Number.isFinite(p.longitude) && Math.abs(p.longitude) <= 180 && Number.isFinite(p.timestamp));
+}
+
+// A local deletion remains local, including when automatic cloud restore runs.
+export function trackAutoSyncExcluded(id:string):boolean {
+  const owner=String(uni.getStorageSync('he_openid')||'');
+  const items=uni.getStorageSync(`he_track_sync_excluded:${owner}`);
+  return Array.isArray(items)&&items.includes(id);
+}
+export function setTrackAutoSyncExcluded(id:string,value:boolean):void {
+  const owner=String(uni.getStorageSync('he_openid')||'');
+  const key=`he_track_sync_excluded:${owner}`;const raw=uni.getStorageSync(key);
+  const items=new Set<string>(Array.isArray(raw)?raw:[]);
+  if(value)items.add(id);else items.delete(id);uni.setStorageSync(key,[...items]);
+}
+export function hasRecordingDraft():boolean {
+  try {const raw=uni.getStorageSync(DRAFT_KEY);const track=typeof raw==='string'?JSON.parse(raw):raw;return validRecord(track)&&track.state==='recording';}catch{return false;}
 }

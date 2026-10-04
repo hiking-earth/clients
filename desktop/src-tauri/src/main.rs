@@ -32,9 +32,39 @@ async fn save_gpx(name: String, content: String) -> Result<bool, String> {
     temporary.persist(file.path()).map_err(|_| "无法完成保存，请检查文件权限".to_string())?;
     Ok(true)
 }
+
+use std::sync::Mutex;
+use tauri_plugin_updater::{Update, UpdaterExt};
+#[derive(Default)]
+struct PendingUpdate(Mutex<Option<Update>>);
+#[derive(serde::Serialize)]
+struct UpdateInfo { version: String, notes: String }
+#[tauri::command]
+async fn check_app_update(app: tauri::AppHandle, pending: tauri::State<'_, PendingUpdate>) -> Result<Option<UpdateInfo>, String> {
+    let update = app.updater_builder().timeout(std::time::Duration::from_secs(30)).build()
+        .map_err(|_| "更新服务不可用".to_string())?.check().await.map_err(|_| "无法检查更新，请稍后重试".to_string())?;
+    let info = update.as_ref().map(|u| UpdateInfo { version: u.version.clone(), notes: u.body.clone().unwrap_or_default() });
+    *pending.0.lock().map_err(|_| "更新状态不可用".to_string())? = update;
+    Ok(info)
+}
+#[tauri::command]
+async fn install_app_update(version: String, pending: tauri::State<'_, PendingUpdate>) -> Result<(), String> {
+    let update = {
+        let mut locked = pending.0.lock().map_err(|_| "更新状态不可用".to_string())?;
+        if locked.as_ref().map(|u| u.version.as_str()) != Some(version.as_str()) { return Err("更新已变化，请重新检查".into()); }
+        locked.take().ok_or("请先检查更新")?
+    };
+    update.download_and_install(|_, _| {}, || {}).await.map_err(|_| "更新失败，签名或网络校验未通过；现有版本保持不变".to_string())?;
+    Ok(())
+}
+#[tauri::command]
+fn restart_app(app: tauri::AppHandle) { app.restart(); }
+
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![choose_gpx, save_gpx])
+        .plugin(tauri_plugin_updater::Builder::new().build())
+        .manage(PendingUpdate::default())
+        .invoke_handler(tauri::generate_handler![choose_gpx, save_gpx, check_app_update, install_app_update, restart_app])
         .run(tauri::generate_context!())
         .expect("运行徒步地球桌面端失败");
 }

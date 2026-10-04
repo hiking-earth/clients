@@ -46,7 +46,7 @@ exports.deleteAccount = async (db, account, tokenHash) => {
     });
     if (--budget <= 0) return { complete: false };
   }
-  for (const [collection, field] of [['user_libraries', 'owner'], ['tracks', 'owner'], ['sos_events', 'openid'], ['companion_posts', 'openid'], ['community_reports', 'reporter'], ['teams', 'createdBy']]) {
+  for (const [collection, field] of [['user_documents','owner'], ['team_messages','owner'], ['user_notifications','owner'], ['user_libraries', 'owner'], ['tracks', 'owner'], ['sos_events', 'openid'], ['companion_posts', 'openid'], ['community_reports', 'reporter'], ['teams', 'createdBy']]) {
     const rows = (await db.collection(collection).where({ [field]: account.identity }).limit(budget).get()).data;
     for (const row of rows) {
       await db.collection(collection).doc(row._id).remove();

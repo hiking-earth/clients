@@ -112,6 +112,30 @@
       "style": {
         "navigationBarTitleText": "离线资料"
       }
+    },
+    {
+      "path": "pages/my/updates",
+      "style": {
+        "navigationBarTitleText": "同步与更新"
+      }
+    },
+    {
+      "path": "pages/companion/social",
+      "style": {
+        "navigationBarTitleText": "日记、留言与队内消息"
+      }
+    },
+    {
+      "path": "pages/my/route-review",
+      "style": {
+        "navigationBarTitleText": "官方路线审核"
+      }
+    },
+    {
+      "path": "pages/route/news",
+      "style": {
+        "navigationBarTitleText": "官方户外公告"
+      }
     }
   ],
   "globalStyle": {

@@ -5,6 +5,10 @@ const db = cloud.database();
 
 const COLLECTIONS = [
   "user_libraries",
+  "user_documents",
+  "route_reviews",
+  "team_messages",
+  "user_notifications",
   "client_accounts",
   "client_sessions",
   "client_rate_limits",

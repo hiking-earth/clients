@@ -1,5 +1,7 @@
 <template>
   <scroll-view scroll-y class="page">
+    <button @click="go('/pages/my/route-review')">官方路线审核（管理员）</button>
+    <button @click="go('/pages/route/news')">官方户外公告</button>
     <!-- 账号 -->
     <view class="account">
       <view class="avatar">{{ nickname.slice(0, 1) }}</view>
@@ -11,6 +13,7 @@
     </view>
 
     <!-- 功能入口 -->
+    <view class="group"><view class="row" @click="go('/pages/companion/social')"><text class="row-icon">✎</text><text class="row-name">云端日记、队聊与通知</text><text class="row-go">›</text></view></view>
     <view class="group"><view class="row" @click="go('/pages/library/library')"><text class="row-icon">♡</text><text class="row-name">收藏与行程</text><text class="row-go">›</text></view></view>
     <view class="group">
       <view class="row" @click="go('/pages/account/account')"><text class="row-icon">👤</text><text class="row-name">统一账号与账号管理</text><text class="row-go">›</text></view>
@@ -36,6 +39,7 @@
       </view>
     </view>
 
+    <view class="group"><view class="row" @click="go('/pages/my/updates')"><text class="row-icon">↻</text><text class="row-name">自动同步与版本更新</text><text class="row-go">›</text></view></view>
     <view class="group">
       <view class="row" @click="go('/pages/my/privacy')">
         <text class="row-icon">🔒</text><text class="row-name">隐私设置</text><text class="row-go">›</text>
@@ -45,7 +49,7 @@
       </view>
     </view>
 
-    <view class="ver">徒步地球客户端 v0.1.0 · 上游 hiking-earth @ 3304520</view>
+    <view class="ver">徒步地球客户端 v0.2.0 · 全端客户端</view>
   </scroll-view>
 </template>
 

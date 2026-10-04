@@ -14,4 +14,4 @@ export function toggleFavorite(id: string): boolean {
   writeLibrary(data); return !exists;
 }
 export function libraryVersion(): number { return Number(uni.getStorageSync(`he_library_version:${uni.getStorageSync('he_openid') || ''}`) || 0); }
-export function setLibraryVersion(version: number): void { uni.setStorageSync(`he_library_version:${uni.getStorageSync('he_openid') || ''}`, version); }
+export function setLibraryVersion(version: number): void { const owner=uni.getStorageSync('he_openid') || '';uni.setStorageSync(`he_library_version:${owner}`, version);uni.setStorageSync(`he_library_baseline:${owner}`,JSON.stringify(readLibrary())); }

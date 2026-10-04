@@ -12,7 +12,7 @@
       <view class="cell"><text class="v">{{ track.points.length }}</text><text class="k">轨迹点</text></view>
     </view>
 
-    <TrackCanvas :layers="offlineLayer?.paths || []" :attribution="offlineLayer?.attribution || ''" :points="track.points" />
+    <RouteMap :layers="offlineLayer?.paths || []" :attribution="offlineLayer?.attribution || ''" :points="track.points" />
 
     <view class="actions">
       <button class="btn primary" @click="navAlong">沿此轨迹导航</button>
@@ -27,7 +27,7 @@
 import { saveNativeGpx } from '@/services/files';
 import { activeOfflineLayer } from '@/services/offline';
 const offlineLayer = activeOfflineLayer();
-import TrackCanvas from '@/components/TrackCanvas.vue';
+import RouteMap from '@/components/RouteMap.vue';
 import { isDesktop, saveDesktopGpx } from '@/services/desktop';
 import { toMapPoint } from "@shared/api/coordinates";
 import { computed, ref } from "vue";

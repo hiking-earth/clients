@@ -1,3 +1,4 @@
+import { CLIENT_API_URL } from '@shared/constants';
 import { stopBackgroundRecording } from '@/services/background';
 import { listTracks, saveTrack } from '@/services/tracks';
 import { stopCompass, stopLocationUpdates } from '@/services/location';
@@ -6,7 +7,7 @@ export type AccountProfile = { openid: string; nickname: string; username: strin
 export type AccountSession = AccountProfile & { token: string; expiresAt: number };
 export type AccountResponse<T> = { ok: boolean; data?: T; errMsg?: string; code?: string };
 const SESSION_KEY = 'he_account_session_v1';
-const API_URL = String(import.meta.env.VITE_CLIENT_API_URL || '').replace(/\/$/, '');
+const API_URL = String(import.meta.env.VITE_CLIENT_API_URL || CLIENT_API_URL).replace(/\/$/, '');
 const subscribers = new Set<() => void>();
 
 export function accountApiConfigured(): boolean { return /^https:\/\//.test(API_URL); }

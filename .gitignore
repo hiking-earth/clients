@@ -26,3 +26,5 @@ desktop/client-dist/
 
 # Separate website Git worktree; tracked in its own repository
 /web/
+
+/site-release/

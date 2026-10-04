@@ -6,6 +6,10 @@ on:
   push:
     tags: ["v*"]
   workflow_dispatch:
+  workflow_call:
+    secrets:
+      TAURI_SIGNING_PRIVATE_KEY:
+        required: true
 
 permissions:
   contents: write
@@ -59,6 +63,9 @@ jobs:
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ""
+          VITE_CLIENT_API_URL: ${{ vars.CLIENT_API_URL }}
         with:
           projectPath: desktop
           args: --verbose --target ${{ matrix.target }} --bundles ${{ matrix.bundles }}
@@ -66,6 +73,7 @@ jobs:
           releaseName: "徒步地球桌面端 ${{ github.ref_name }}"
           releaseBody: "本地完整客户端候选版本，包含轨迹和账号/组队/社区页面；正式发布前需统一验收。"
           releaseCommitish: ${{ github.sha }}
+          includeUpdaterJson: true
           releaseDraft: true
           prerelease: false
 

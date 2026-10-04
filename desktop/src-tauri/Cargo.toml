@@ -1,6 +1,6 @@
 [package]
 name = "hiking-earth-desktop"
-version = "0.1.0"
+version = "0.2.0"
 description = "徒步地球桌面端（Tauri 壳）"
 edition = "2021"
 
@@ -13,6 +13,7 @@ serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 rfd = "0.15"
 tempfile = "3"
+tauri-plugin-updater = "2"
 
 [profile.release]
 lto = true

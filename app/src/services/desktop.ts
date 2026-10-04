@@ -20,3 +20,20 @@ export async function saveDesktopGpx(name: string, content: string): Promise<boo
   // #endif
   throw new Error('当前平台不支持桌面文件保存');
 }
+export async function checkDesktopUpdate(): Promise<{version:string;notes:string} | null> {
+  // #ifdef H5
+  if(isDesktop())return (window as DesktopWindow).__TAURI__!.core.invoke('check_app_update');
+  // #endif
+  throw new Error('当前平台不是桌面客户端');
+}
+export async function installDesktopUpdate(version:string): Promise<void> {
+  // #ifdef H5
+  if(isDesktop())return (window as DesktopWindow).__TAURI__!.core.invoke('install_app_update',{version});
+  // #endif
+  throw new Error('当前平台不是桌面客户端');
+}
+export async function restartDesktop(): Promise<void> {
+  // #ifdef H5
+  if(isDesktop())return (window as DesktopWindow).__TAURI__!.core.invoke('restart_app');
+  // #endif
+}

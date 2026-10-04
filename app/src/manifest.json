@@ -2,8 +2,8 @@
   "name": "徒步地球",
   "appid": "__UNI__93C5C2F",
   "description": "基于 3D 地球的全球徒步路线发现与行前决策（客户端）",
-  "versionName": "0.1.0",
-  "versionCode": "1",
+  "versionName": "0.2.0",
+  "versionCode": "20",
   "transformPx": false,
   "app-plus": {
     "usingComponents": true,
@@ -26,7 +26,8 @@
           "<uses-permission android:name=\"android.permission.ACCESS_COARSE_LOCATION\"/>",
           "<uses-permission android:name=\"android.permission.VIBRATE\"/>",
           "<uses-permission android:name=\"android.permission.WAKE_LOCK\"/>",
-          "<uses-permission android:name=\"android.permission.ACCESS_NETWORK_STATE\"/>"
+          "<uses-permission android:name=\"android.permission.ACCESS_NETWORK_STATE\"/>",
+          "<uses-permission android:name=\"android.permission.REQUEST_INSTALL_PACKAGES\"/>"
         ],
         "minSdkVersion": 21,
         "targetSdkVersion": 35

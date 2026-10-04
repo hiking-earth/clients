@@ -45,10 +45,12 @@
       <button v-if="navigable" class="btn primary" @click="startNav">开始导航</button>
       <button v-else class="btn disabled" disabled>该路线不开放导航</button>
     </view>
-  </scroll-view>
+  <button v-if="route" @click="openSocial">路线留言与日记</button>
+    </scroll-view>
 </template>
 
 <script setup lang="ts">
+function openSocial(){if(route.value)uni.navigateTo({url:`/pages/companion/social?tab=comments&routeId=${encodeURIComponent(route.value.id)}`});}
 import { readLibrary, toggleFavorite } from '@/services/library';
 import { computed, ref } from "vue";
 import { onLoad } from "@dcloudio/uni-app";

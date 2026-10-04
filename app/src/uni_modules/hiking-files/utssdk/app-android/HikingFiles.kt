@@ -5,6 +5,19 @@ import java.io.ByteArrayOutputStream
 import java.nio.ByteBuffer
 import java.nio.charset.CodingErrorAction
 object HikingFiles {
+    fun verifyApk(context: Context, path: String, expectedHash: String, expectedSize: Long): Boolean {
+        val file = java.io.File(path).canonicalFile
+        val roots = listOfNotNull(java.io.File(context.applicationInfo.dataDir), context.getExternalFilesDir(null), context.externalCacheDir)
+        require(roots.any { file.path.startsWith(it.canonicalPath + java.io.File.separator) })
+        require(file.isFile && expectedSize in 1..(200L * 1024 * 1024) && file.length() == expectedSize)
+        val digest = java.security.MessageDigest.getInstance("SHA-256")
+        java.io.FileInputStream(file).use { input ->
+            val buffer = ByteArray(65536)
+            while (true) { val size = input.read(buffer); if (size < 0) break; digest.update(buffer, 0, size) }
+        }
+        return digest.digest().joinToString("") { "%02x".format(it.toInt() and 255) } == expectedHash
+    }
+
     fun write(context: Context, uri: Uri, text: String) {
         val bytes = text.toByteArray(Charsets.UTF_8)
         if (bytes.size > 5 * 1024 * 1024) throw IllegalArgumentException("文件超过5 MB")

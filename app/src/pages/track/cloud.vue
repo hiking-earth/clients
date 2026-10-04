@@ -16,7 +16,7 @@
 import { ref } from 'vue';
 import { onLoad } from '@dcloudio/uni-app';
 import { callCloud } from '@/services/cloud';
-import { getTrack, saveTrack } from '@/services/tracks';
+import { getTrack, saveTrack, setTrackAutoSyncExcluded } from '@/services/tracks';
 import type { TrackRecord } from '@shared/types/track';
 type Row = { trackId: string; name: string; distanceM: number };
 const rows = ref<Row[]>([]), busy = ref(false), error = ref(''), hasMore = ref(false);
@@ -41,6 +41,7 @@ async function restore(id: string) {
     const res = await callCloud<{ track: TrackRecord }>('track-manage', { action: 'get', trackId: id });
     if (!res.ok || !res.data) throw new Error(res.errMsg ?? '恢复失败');
     saveTrack(res.data.track);
+    setTrackAutoSyncExcluded(id,false);
     uni.showToast({ title: '已恢复到本机', icon: 'success' });
   } catch (e) { error.value = e instanceof Error ? e.message : '保存失败'; }
   finally { busy.value = false; }
@@ -51,6 +52,7 @@ async function remove(id: string) {
   const res = await callCloud('track-manage', { action: 'delete', trackId: id });
   busy.value = false;
   if (!res.ok) { error.value = res.errMsg ?? '删除失败'; return; }
+  setTrackAutoSyncExcluded(id,true);
   const local = getTrack(id); if (local) saveTrack({ ...local, synced: false });
   reload();
 }

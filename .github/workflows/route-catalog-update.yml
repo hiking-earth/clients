@@ -26,7 +26,17 @@ jobs:
         id: osm
         timeout-minutes: 25
         continue-on-error: true
-        run: python scripts/update-route-catalog.py --limit 1000
+        run: python scripts/backfill-osm-catalog.py --tiles 8
+      - name: Collect Hong Kong AFCD trails
+        id: hk
+        timeout-minutes: 5
+        continue-on-error: true
+        run: python scripts/update-hk-catalog.py
+      - name: Collect official announcements
+        id: content
+        timeout-minutes: 3
+        continue-on-error: true
+        run: python scripts/update-official-content.py
       - name: Record collection outcomes
         if: always()
         env:
@@ -39,14 +49,14 @@ jobs:
       - name: Publish changed snapshot
         if: ${{ !cancelled() }}
         run: |
-          git add shared/data/catalog/
+          git add shared/data/catalog/ shared/data/content/ shared/data/offline/
           if git diff --cached --quiet; then exit 0; fi
           git config user.name 'hiking-earth-catalog[bot]'
           git config user.email 'catalog@users.noreply.github.com'
           git commit -m 'data: refresh sourced hiking discovery catalogs'
           git push
       - name: Report complete collection failure
-        if: ${{ !cancelled() && steps.usda.outcome == 'failure' && steps.osm.outcome == 'failure' }}
+        if: ${{ !cancelled() && steps.usda.outcome == 'failure' && steps.osm.outcome == 'failure' && steps.hk.outcome == 'failure' && steps.content.outcome == 'failure' }}
         run: |
-          echo "Both collectors failed; previous snapshots retained."
+          echo "All collectors failed; previous snapshots retained."
           exit 1

@@ -44,3 +44,9 @@ export function saveTextFile(name: string, text: string, success: () => void, ca
     intent.putExtra(Intent.EXTRA_TITLE, name); activity.startActivityForResult(intent, 7354);
   } catch (e) { choosing = false; UTSAndroid.offAppActivityResult(callback); fail('系统文件保存界面无法打开'); }
 }
+
+export function verifyApk(path: string, hash: string, size: number): boolean {
+  const context = UTSAndroid.getAppContext();
+  if (context == null) return false;
+  try { return HikingFiles.verifyApk(context, path, hash, size.toLong()); } catch(e) { return false; }
+}

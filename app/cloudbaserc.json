@@ -128,6 +128,18 @@
       "name": "community-moderate",
       "timeout": 30,
       "memorySize": 256
+    },
+    {
+      "name": "social-manage",
+      "timeout": 30,
+      "memorySize": 256,
+      "runtime": "Nodejs20.19"
+    },
+    {
+      "name": "route-manage",
+      "timeout": 30,
+      "memorySize": 256,
+      "runtime": "Nodejs20.19"
     }
   ]
 }

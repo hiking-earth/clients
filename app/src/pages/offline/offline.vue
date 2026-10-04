@@ -2,6 +2,7 @@
   <text class="title">离线资料</text><text class="hint">本机轨迹可离线查看。本页可导入你有权使用的WGS84 GeoJSON道路或边界资料，不下载商业地图瓦片，不含地形高程。</text>
   <view v-for="layer in layers" :key="layer.id" class="card"><text class="title">{{ layer.name }}</text><text class="hint">{{ layer.attribution }} · {{ layer.license }} · {{ (layer.bytes/1024).toFixed(0) }} KB</text><button @click="activate(layer.id)">{{ active === layer.id ? '正在使用' : '用于轨迹与导航示意' }}</button><button @click="remove(layer.id)">删除资料</button></view>
   <TrackCanvas v-if="preview" :points="[]" :layers="preview.paths" :attribution="preview.attribution" />
+  <text class="title">官方参考资料</text><button :disabled="downloading" @click="downloadHk">{{downloading ? '下载中…' : '下载香港郊野公园官方步道参考线'}}</button><text class="hint">来源：香港政府渔农自然护理署 / DATA.GOV.HK。参考线不包含底图、高程或当前开放许可；下载后可离线叠加查看。</text>
   <text class="title">导入资料</text>
   <!-- #ifdef APP-PLUS --><button @click="chooseNative">从系统文件选择</button><!-- #endif -->
   <!-- #ifdef H5 --><button @click="choose">选择 JSON 资料</button><!-- #endif -->
@@ -15,6 +16,8 @@ import { computed, ref } from 'vue';
 import { onShow } from '@dcloudio/uni-app';
 import TrackCanvas from '@/components/TrackCanvas.vue';
 import { offlineLayers, importOfflineLayer, deleteOfflineLayer, selectOfflineLayer } from '@/services/offline';
+const downloading=ref(false);
+async function downloadHk(){if(downloading.value)return;downloading.value=true;message.value='';try{const text=await new Promise<string>((resolve,reject)=>uni.request({url:'https://raw.githubusercontent.com/hiking-earth/clients/main/shared/data/offline/hk-afcd.json',timeout:30000,success:r=>r.statusCode===200?resolve(typeof r.data==='string'?r.data:JSON.stringify(r.data)):reject(new Error('官方资料暂不可用')),fail:()=>reject(new Error('下载失败，已有资料保留'))}));const layer=importOfflineLayer(text);selectOfflineLayer(layer.id);load();message.value='官方参考线已保存，可离线查看';}catch(e:any){message.value=e.message;}finally{downloading.value=false;}}
 const layers = ref(offlineLayers()), active = ref(String(uni.getStorageSync('he_offline_active') || '')), source = ref(''), message = ref('');
 const preview = computed(() => layers.value.find(p => p.id === active.value));
 function load() { layers.value = offlineLayers(); active.value = String(uni.getStorageSync('he_offline_active') || ''); }

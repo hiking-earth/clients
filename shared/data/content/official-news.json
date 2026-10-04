@@ -1,0 +1,1851 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-10-04T16:19:24.493673+00:00",
+  "items": [
+    {
+      "id": "nps-grand-canyon-news-485c2b07d6297b12b3d7",
+      "title": "Modified Fall Operations Begin at Grand Canyon’s North Rim Oct. 15",
+      "url": "https://www.nps.gov/grca/learn/news/modified-fall-operations-north-rim-2026.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2026-09-30T04:56:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-dd84ccc42336dddeaabc",
+      "title": "Grand Canyon National Park Announces Projected Dates for Restoring Water to South Rim",
+      "url": "https://www.nps.gov/grca/learn/news/grand-canyon-national-park-announces-projected-dates-for-restoring-water-to-south-rim.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2026-09-19T07:42:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-1034cab5abff662589be",
+      "title": "Crews Assessing New Damage Following Second Flash Flood Event at Grand Canyon National Park",
+      "url": "https://www.nps.gov/grca/learn/news/crews-assessing-new-damage-following-second-flash-flood-event-at-grand-canyon-national-park.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2026-09-17T08:33:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-e8c122492e1bbf1ec665",
+      "title": "Grand Canyon National Park Announces Recovery and Repair Plan Following Flash Flood",
+      "url": "https://www.nps.gov/grca/learn/news/grand-canyon-national-park-announces-recovery-and-repair-plan-following-flash-flood.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2026-09-08T16:02:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-563591a89b51ebb136fd",
+      "title": "Grand Canyon National Park Expands Inner Canyon Closures Following August 29 Flash Flood",
+      "url": "https://www.nps.gov/grca/learn/news/grand-canyon-national-park-expands-inner-canyon-closures-following-august-29-flash-flood.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2026-09-03T10:42:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-458bc0884a00f872f69e",
+      "title": "Two Deceased Hikers Recovered and Identified Following Flash Flood",
+      "url": "https://www.nps.gov/grca/learn/news/two-deceased-hikers-recovered-and-identified-following-flash-flood.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2026-09-01T10:07:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-b1c5c7334754b3761b22",
+      "title": "Grand Canyon National Park to Close Overnight Hotel Accommodations Beginning August 31",
+      "url": "https://www.nps.gov/grca/learn/news/grand-canyon-national-park-to-close-overnight-hotel-accommodations-beginning-august-31.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2026-08-30T13:17:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-cfdf9297a4402ae18ce6",
+      "title": "Public Assistance Requested to Account for Individuals Following Grand Canyon Flash Flood",
+      "url": "https://www.nps.gov/grca/learn/news/public-assistance-requested-to-account-for-individuals-following-grand-canyon-flash-flood.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2026-08-30T08:07:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-5e991f92d664e148f215",
+      "title": "Significant Flash Flooding Closes Phantom Ranch and North Kaibab Trail",
+      "url": "https://www.nps.gov/grca/learn/news/significant-flash-flooding-closes-phantom-ranch-and-north-kaibab-trail.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2026-08-30T04:27:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-1af7050e91440069b309",
+      "title": "South Rim Services Expand as Water Conservation Measures Continue at Grand Canyon National Park",
+      "url": "https://www.nps.gov/grca/learn/news/water-conservation-measures-ease-on-south-rim-august-2026.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2026-08-20T11:37:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-5a53e3c812411b544f92",
+      "title": "Increased Water Restrictions Take Effect August 13 at Grand Canyon National Park",
+      "url": "https://www.nps.gov/grca/learn/news/greater-water-conservation-measures-aug-13-2026.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2026-08-12T06:12:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-332deaff9a9f33d63fdc",
+      "title": "Grand Canyon National Park Implements South Rim Water Conservation Measures Following Transcanyon Waterline Break",
+      "url": "https://www.nps.gov/grca/learn/news/water-conservation-measures-initiated-august-2026.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2026-08-05T07:55:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-a8f92b7cf1d061e08901",
+      "title": "Missing hiker located on North Rim of Grand Canyon National Park",
+      "url": "https://www.nps.gov/grca/learn/news/missing-hiker-located-north-rim-july-2026.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2026-07-23T05:10:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-d81622ed87511ef083df",
+      "title": "Search underway for missing hiker on Grand Canyon's North Rim",
+      "url": "https://www.nps.gov/grca/learn/news/missing-person-search-north-rim-july-2026.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2026-07-22T09:54:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-7c0cef5c9982ce14cf83",
+      "title": "Grand Canyon National Park Eases South Rim Fire Restrictions",
+      "url": "https://www.nps.gov/grca/learn/news/fire-restrictions-eased-for-south-rim-july-2026.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2026-07-18T12:25:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-dd00f6f6b789d9785516",
+      "title": "Grand Canyon National Park Seeks Public Comment on Draft Programmatic Agreement for Fire Management Plan",
+      "url": "https://www.nps.gov/grca/learn/news/public-comment-on-draft-programmatic-agreement-for-fire-management-plan.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2026-07-16T07:44:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-f520c79e24356dc9fe23",
+      "title": "Grand Canyon seeks public assistance identifying visitor involved in damage to Hopi headpiece",
+      "url": "https://www.nps.gov/grca/learn/news/grand-canyon-seeks-public-assistance-identifying-visitor-involved-in-damage-to-hopi-headpiece.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2026-07-01T11:30:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-4185c1a5ad437be8a30e",
+      "title": "U.S. Wildland Fire Service responding to wildfire below North Rim",
+      "url": "https://www.nps.gov/grca/learn/news/u-s-wildland-fire-service-responding-to-wildfire-below-north-rim.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2026-06-30T11:30:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-9ef1a6bafb42c08501bd",
+      "title": "Grand Canyon National Park to lift summer trail closures for Transcanyon Waterline Replacement Project",
+      "url": "https://www.nps.gov/grca/learn/news/grand-canyon-national-park-to-lift-summer-trail-closures-for-transcanyon-waterline-replacement-project.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2026-06-23T05:27:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-1a334c4ef959678167fc",
+      "title": "Three Apparent Heat-Related Deaths on Trips in Inner Canyon of Grand Canyon National Park",
+      "url": "https://www.nps.gov/grca/learn/news/three-apparent-heat-related-deaths-on-trips-in-inner-canyon-of-grand-canyon-national-park.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2026-06-19T09:53:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-136c20faa869806eab31",
+      "title": "Grand Canyon National Park Warns Hikers to Avoid the Inner Canyon Between 10 a.m. and 4 p.m.",
+      "url": "https://www.nps.gov/grca/learn/news/grand-canyon-national-park-warns-hikers-to-avoid-the-inner-canyon-between-10-a-m-and-4-p-m.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2026-06-18T06:18:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-69da54a19eeafdccb3f2",
+      "title": "Grand Canyon National Park Seeks Public Input on Wooden Ballast Bridge Replacement Project",
+      "url": "https://www.nps.gov/grca/learn/news/wooden-ballast-bridge-public-comment.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2026-06-10T04:08:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-25de9db7f0b6e676f4ed",
+      "title": "Hiker Dies of Heat-Related Illness on Bright Angel Trail in Grand Canyon National Park",
+      "url": "https://www.nps.gov/grca/learn/news/hiker-fatality-bright-angel-trail-june-2026.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2026-06-06T05:33:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-f8a096dfbe58baec300a",
+      "title": "Lipan Point to Temporarily Close for Rehabilitation Project",
+      "url": "https://www.nps.gov/grca/learn/news/lipan-point-closure-2026.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2026-06-03T08:01:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-38a7929c0c7f59944cfb",
+      "title": "National Park Service Approves Plan to Modernize Water System Serving the North Rim and Inner Canyon at Grand Canyon National Park",
+      "url": "https://www.nps.gov/grca/learn/news/north-rim-lrf-fonsi-signed.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2026-05-28T08:47:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-f6b37ab0a6f71b281165",
+      "title": "Grand Canyon National Park Launches Conservation K-9 Pilot Project to Reduce Human-Wildlife Conflicts",
+      "url": "https://www.nps.gov/grca/learn/news/conservation-k9-blue.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2026-05-28T04:49:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-50e069a562778c29670f",
+      "title": "National Park Service Welcomes Visitors Back to the North Rim for the 2026 Summer Season",
+      "url": "https://www.nps.gov/orgs/1207/05-21-2026-grca-north-rim-reopening.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2026-05-21T11:00:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-ad17168679fa51bdc45a",
+      "title": "Missing Person Recovered Below the Rim Near Verkamp’s Visitor Center",
+      "url": "https://www.nps.gov/grca/learn/news/missing-person-recovered-below-the-rim-near-verkamp-s-visitor-center.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2026-05-12T01:27:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-c21da0b7c7e5b208b556",
+      "title": "Grand Canyon National Park Hosts 36th Annual Grand Canyon Star Party, June 6–13",
+      "url": "https://www.nps.gov/grca/learn/news/grand-canyon-national-park-hosts-36th-annual-grand-canyon-star-party-2026.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2026-05-06T06:37:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-dffb36a770a5cb121a6d",
+      "title": "Grand Canyon National Park Rangers Seek Information to Help Identify Individual Connected to Missing Person Investigation",
+      "url": "https://www.nps.gov/grca/learn/news/rangers-seek-information-to-help-identify-individual-connected-to-missing-person-investigation.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2026-05-01T12:52:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-d86df0e61d4e7cf00a79",
+      "title": "Grand Canyon National Park Seeks Public Assistance in Locating Missing Person",
+      "url": "https://www.nps.gov/grca/learn/news/missing-person-sandarsh-krishna-april-2026.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2026-04-29T07:53:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-afb156b0b9a83887080f",
+      "title": "North Kaibab Trail Access Changes Begin October 15 for Transcanyon Waterline Project Work",
+      "url": "https://www.nps.gov/grca/learn/news/north-kaibab-trail-access-changes-oct-15-2026.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2026-04-29T05:54:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-90aee9a6718ee868bd82",
+      "title": "South Rim Services Expand as Water Conservation Measures Continue at Grand Canyon National Park",
+      "url": "https://www.nps.gov/grca/learn/news/south-rim-services-expand-as-water-conservation-measures-continue.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2026-04-27T09:39:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-39906cf345b8fd48dc7f",
+      "title": "Grand Canyon National Park to Gradually Ease Water Conservation Measures Beginning April 17",
+      "url": "https://www.nps.gov/grca/learn/news/water-conservation-measures-ease-beginning-april-17.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2026-04-16T07:39:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-853732e021c06808f9f4",
+      "title": "Grand Canyon National Park to Implement Additional Water Conservation Measures Beginning April 11",
+      "url": "https://www.nps.gov/grca/learn/news/additional-water-conservation-measures-april-11.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2026-04-08T07:09:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-0bdf8eabdb7d3505e9e1",
+      "title": "Grand Canyon National Park announces increased water restrictions effective April 1",
+      "url": "https://www.nps.gov/grca/learn/news/grand-canyon-national-park-announces-increased-water-restrictions-effective-april-1.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2026-03-31T11:24:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-4d842a18738ae4db623d",
+      "title": "Water Conservation Measures Implemented on the South Rim of Grand Canyon National Park",
+      "url": "https://www.nps.gov/grca/learn/news/water-conservation-measures-implemented-on-the-south-rim-of-grand-canyon-national-park-march-2026.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2026-03-30T11:34:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-08534d43365632a0ff50",
+      "title": "Grand Canyon National Park Announces 2026 North Rim Summer Season Access",
+      "url": "https://www.nps.gov/grca/learn/news/2026-north-rim-summer-season-access.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2026-03-25T04:26:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-0bd471f3c832ab660a4a",
+      "title": "Grand Canyon National Park Seeks Input on North Rim Water System",
+      "url": "https://www.nps.gov/grca/learn/news/grand-canyon-national-park-seeks-input-on-north-rim-water-system.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2026-03-06T07:37:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-2d5ccc18b6ffcbd4f37f",
+      "title": "Boater Fatality on the Colorado River at Hance Rapid",
+      "url": "https://www.nps.gov/grca/learn/news/boater-fatality-at-hance-rapid.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2026-02-23T08:39:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-e330b9fe934d1a5795dd",
+      "title": "Water Conservation Measures Implemented on the South Rim of Grand Canyon National Park — Feb. 2026",
+      "url": "https://www.nps.gov/grca/learn/news/water-conservations-implemented-feb-2026.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2026-02-23T07:01:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-d1b22f0612d1569db49c",
+      "title": "Lower North Kaibab Trail Reopens March 4 Following Dragon Bravo Fire; Additional Areas Reopen in Kaibab National Forest",
+      "url": "https://www.nps.gov/grca/learn/news/lower-north-kaibab-trail-reopening-march4-2026.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2026-02-03T03:49:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-0950804395507e57fdb0",
+      "title": "Grand Canyon National Park Announces 2027 Noncommercial River Trip Lottery Period",
+      "url": "https://www.nps.gov/grca/learn/news/noncommercial-river-lottery-announced-2027.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2026-02-02T03:16:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-7836754774d9046f1a3e",
+      "title": "Grand Canyon National Park plans adaptive reopening of North Rim in summer 2026",
+      "url": "https://www.nps.gov/grca/learn/news/north-rim-reopening-2026.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2026-01-28T05:13:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-1b2d852c7149d9c6bac4",
+      "title": "Grand Canyon National Park Receives Highway Safety Grant Funding",
+      "url": "https://www.nps.gov/grca/learn/news/gohs-2025-grants.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2026-01-16T10:34:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-e504e276f2a542761a18",
+      "title": "Grand Canyon National Park announces updates to construction schedule for 2026",
+      "url": "https://www.nps.gov/grca/learn/news/tcwl-trail-schedule-2026.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2025-12-17T06:26:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-ff9fb888a0771a4e17f2",
+      "title": "Grand Canyon National Park to reopen South Rim hotels Dec. 17 ahead of holiday season",
+      "url": "https://www.nps.gov/grca/learn/news/south-rim-lodging-reopens-dec-2025.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2025-12-15T05:56:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-2e61a7da680e7d2dcd42",
+      "title": "Grand Canyon National Park to Temporarily Close Overnight Hotel Accommodations Beginning December 6",
+      "url": "https://www.nps.gov/grca/learn/news/additional-water-restrictions-december-2025.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2025-12-02T09:13:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-6ecb3339858e8160d98a",
+      "title": "Grand Canyon National Park’s North Rim to Close for the Season on November 14",
+      "url": "https://www.nps.gov/grca/learn/news/north-rim-seasonal-closure-2025.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2025-11-13T02:44:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-820b90af6967d36c86f6",
+      "title": "Grand Canyon News Release - Grand Canyon National Park Announces Increased Water and Fire Restrictions During Infrastructure Work",
+      "url": "https://www.nps.gov/grca/learn/news/water-and-fire-restrictions-increase-31-october-2025.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2025-10-31T10:34:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-0251b34397bca343defb",
+      "title": "Grand Canyon News Release - Phantom Ranch and Bright Angel Campground to Reopen Nov. 1",
+      "url": "https://www.nps.gov/grca/learn/news/pr-bacg-reopen-1-november-2025.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2025-10-31T10:25:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-dd1fd4601e9905c1ba8c",
+      "title": "Grand Canyon National Park Announces Inner Canyon Trail and Campground Reopenings, Closures, and Safety Updates",
+      "url": "https://www.nps.gov/grca/learn/news/trail-status-updates-fall-2025.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2025-09-30T11:34:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-bb5f259d169e768131a6",
+      "title": "Grand Canyon News Release - Grand Canyon South Rim Implements Water Conservation Measures",
+      "url": "https://www.nps.gov/grca/learn/news/water-conservation-measures-initiated-sept29-2025.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2025-09-29T05:41:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-d852971a7dd211ba762e",
+      "title": "Grand Canyon National Park Announces Partial Reopening of North Rim on Oct. 1 Following Dragon Bravo Fire",
+      "url": "https://www.nps.gov/grca/learn/news/north-rim-partial-reopening-oct-2025.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2025-09-25T09:27:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-03a734714724cb5544ef",
+      "title": "Body Recovered After Vehicle Drives Over Grand Canyon Rim",
+      "url": "https://www.nps.gov/grca/learn/news/body-recovery-south-kaibab-trailhead-september-2025.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2025-09-08T07:56:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-9a54961c2ecd75b958b4",
+      "title": "Stage 2 fire restrictions to be lifted at Grand Canyon National Park",
+      "url": "https://www.nps.gov/grca/learn/news/fire-restrictions-lifted-sept-2025.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2025-09-03T06:39:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-6144a06abb02b4feae70",
+      "title": "BAER teams complete Soil Burn Severity map for Dragon Bravo Fire",
+      "url": "https://www.nps.gov/grca/learn/news/doi-usfs-soil-burn-severity-map-available.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2025-08-24T05:38:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-88160a6262461c88bc26",
+      "title": "Grand Canyon National Park eases water restrictions",
+      "url": "https://www.nps.gov/grca/learn/news/easing-water-restrictions-august-2025.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2025-08-22T10:17:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-b77f56a4a5c7f06626eb",
+      "title": "DOI Burned Area Emergency Response Team begins to assess post-fire impacts at Grand Canyon National Park",
+      "url": "https://www.nps.gov/grca/learn/news/baer-team-arrives-to-grand-canyon.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2025-08-22T06:36:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-b4385f60c3edd4b710eb",
+      "title": "Grand Canyon National Park Reopens Portions of South Rim Corridor Trails",
+      "url": "https://www.nps.gov/grca/learn/news/south-rim-corridor-trails-partially-reopened.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2025-08-19T20:00:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-e7e3dd3b6402baadfb95",
+      "title": "Additional Water Restrictions Implemented at the South Rim",
+      "url": "https://www.nps.gov/grca/learn/news/additional-water-restrictions-august-9-2025.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2025-08-08T11:38:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-77e907f8e743205c7a5d",
+      "title": "Grand Canyon South Rim Implements Water Conservation Measures",
+      "url": "https://www.nps.gov/grca/learn/news/water-restrictions-south-rim-august-2025.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2025-08-05T10:10:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-ed1c7114ae0e2d9db2f1",
+      "title": "National Park Service Seeks Information on Missing Person at Grand Canyon National Park",
+      "url": "https://www.nps.gov/grca/learn/news/gibbs-missing-person.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2025-07-29T07:09:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-c9a6a4f3c866791c1249",
+      "title": "Stage 2 Fire Restrictions Begin Thursday, July 17 at Grand Canyon National Park",
+      "url": "https://www.nps.gov/grca/learn/news/stage-2-fire-restrictions-july-2025.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2025-07-17T06:49:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-45a1f3e8a09ef988e630",
+      "title": "Grand Canyon National Park Update on Dragon Bravo Fire",
+      "url": "https://www.nps.gov/grca/learn/news/dragon-bravo-fire-update-july-13-2025.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2025-07-13T07:28:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-0c7eebe4e93d2e6089c0",
+      "title": "Chlorine Gas Released as North Rim Water Treatment Facility is Impacted by Dragon Fire",
+      "url": "https://www.nps.gov/grca/learn/news/chlorine-gas-leak-july-2025.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2025-07-13T02:31:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-db90ee736d55a7e89d0f",
+      "title": "Grand Canyon National Park Temporarily Closes North Rim Due to White Sage Fire",
+      "url": "https://www.nps.gov/grca/learn/news/north-rim-closure-white-sage-fire.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2025-07-10T15:55:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-9436aa1ae4c1cb3f0fe7",
+      "title": "Hiker Fatality on South Kaibab Trail at Grand Canyon National Park",
+      "url": "https://www.nps.gov/grca/learn/news/hiker-fatality-south-kaibab-july-2025.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2025-07-09T07:06:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-a40aa793a5b4c6a6ceec",
+      "title": "Grand Canyon National Park Provides Update on North Rim Power Outage and Lodge Services",
+      "url": "https://www.nps.gov/grca/learn/news/update-to-north-rim-power-outage.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2025-06-04T10:58:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-bcf36e7b8254461513c5",
+      "title": "Grand Canyon National Park Hosts 35th Annual Grand Canyon Star Party—June 21-28",
+      "url": "https://www.nps.gov/grca/learn/news/grand-canyon-star-party-2025.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2025-06-02T11:22:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-c502658ac7e567834ff6",
+      "title": "Hiker Fatality Along North Kaibab Trail—May 2025",
+      "url": "https://www.nps.gov/grca/learn/news/hiker-fatality-along-north-kaibab-trail-may-2025.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2025-05-19T06:55:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-04bd378c2033e6799b04",
+      "title": "North Rim of Grand Canyon opens May 15 for 2025 season",
+      "url": "https://www.nps.gov/grca/learn/news/north-rim-opens-may-15-for-2025-season.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2025-04-21T10:20:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-f01422aa3fd81593aed9",
+      "title": "Grand Canyon National Park announces updates to construction closure schedule and planned re-opening updates for 2025",
+      "url": "https://www.nps.gov/grca/learn/news/tcwl-trail_closure-modifications-2025.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2025-04-09T08:39:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-861db94bd9745a55a329",
+      "title": "Grand Canyon National Park to Implement New Campground Fees",
+      "url": "https://www.nps.gov/grca/learn/news/campground-fee-rate-change-may-2025.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2025-04-01T04:59:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-6908b3e39f137a30379e",
+      "title": "Grand Canyon National Park Announces 2026 Noncommercial River Trip Lottery Period",
+      "url": "https://www.nps.gov/grca/learn/news/non-commercial-river-lottery-announced-2026.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2025-02-01T05:43:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-8b5a3e97aca871135abb",
+      "title": "Grand Canyon National Park Seeks Public Comment on Proposed Fee Increase for Non-Commercial River Trips",
+      "url": "https://www.nps.gov/grca/learn/news/proposed-fee-increase-noncommercial-river-trips.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2024-12-30T03:58:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-61bbf8afcb00d916c01c",
+      "title": "National Park Service Conducts Search for Missing Woman at Grand Canyon National Park",
+      "url": "https://www.nps.gov/grca/learn/news/nps-conducts-missing-person-search-at-grand-canyon-december-2024.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2024-12-19T03:56:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-69d010fce62ff3561750",
+      "title": "Fire Managers Planning for Prescribed Fire Operations on the North Rim this Week",
+      "url": "https://www.nps.gov/grca/learn/news/prescribed-fire-beginning-dec10-north-rim.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2024-12-09T07:16:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-a225d1eabf0b5797cd5c",
+      "title": "Additional Water Restrictions Implemented at the South Rim-Dec. 2024",
+      "url": "https://www.nps.gov/grca/learn/news/additional-water-conservation-measures-south-rim-december-2024.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2024-12-06T05:03:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-7612eb2627f36239b857",
+      "title": "Grand Canyon National Park Initiates Water Conservation Measures—Nov. 26, 2024",
+      "url": "https://www.nps.gov/grca/learn/news/grand-canyon-national-park-initiates-water-conservation-measures-nov-26-2024.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2024-11-26T04:51:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-6ea275af1931b8b0edef",
+      "title": "Grand Canyon National Park Receives NHTSA Grant Funding from Arizona Governor’s Office of Highway Safety",
+      "url": "https://www.nps.gov/grca/learn/news/rangers-receive-azgohs-funding-2024.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2024-11-21T08:32:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-b1703cf9eacf0771920d",
+      "title": "Grand Canyon National Park Seeks Public Comment on Proposed Campground Fee Increase",
+      "url": "https://www.nps.gov/grca/learn/news/public-comment-on-proposed-campground-fee-increase-november-2024.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2024-11-14T04:58:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-5ca5973fc60939908c1f",
+      "title": "North Kaibab and North Rim Grand Canyon Fire Managers Begin Fall Prescribed Fire Operations",
+      "url": "https://www.nps.gov/grca/learn/news/north-zone-prescribed-burn-operations-fall-2024.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2024-10-04T08:08:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-4fa06de2a3466974023f",
+      "title": "Grand Canyon National Park’s North Rim to Begin Day-Use Operations on October 16, 2024",
+      "url": "https://www.nps.gov/grca/learn/news/north-rim-transitions-to-day-use-oct-16-2024.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2024-10-03T05:46:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-34af81aa7dae6d17ea92",
+      "title": "Watch California condors take their first flights in the wild during the 28th annual public condor release, in-person and live-streamed!",
+      "url": "https://www.nps.gov/grca/learn/news/condor-release-2024.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2024-09-17T06:20:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-a796fc0bdfdb773fc550",
+      "title": "100 Bison Successfully Relocated from Grand Canyon’s North Rim",
+      "url": "https://www.nps.gov/grca/learn/news/100-bison-transferred-from-north-rim-2024.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2024-09-16T08:48:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-e76810bdf1046b972c79",
+      "title": "Grand Canyon National Park seeks public comment on proposed backcountry fee increase",
+      "url": "https://www.nps.gov/grca/learn/news/proposed-backcountry-fee-increase-may-2025.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2024-09-13T09:43:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-e3005919a0883ff71911",
+      "title": "﻿ Grand Canyon National Park Eases Water Restrictions",
+      "url": "https://www.nps.gov/grca/learn/news/transition-to-stage-2-water-restrictions.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2024-09-12T07:37:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-6efd5ddcc6ea19ceb1d5",
+      "title": "Tourism to Grand Canyon National Park contributed $768 million to local economy in 2023",
+      "url": "https://www.nps.gov/grca/learn/news/visitor-spending-2023-report.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2024-09-11T01:46:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-df88841e24d85a25ca09",
+      "title": "Body of Missing Boater Found in Colorado River at Grand Canyon-Sep. 2024",
+      "url": "https://www.nps.gov/grca/learn/news/missing-boater-located-september-2024.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2024-09-10T07:52:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-05acacef0b44e1196a92",
+      "title": "Fatality along the Colorado River in Grand Canyon National Park",
+      "url": "https://www.nps.gov/grca/learn/news/fatality-at-ponchos-kitchen-september-2024.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2024-09-09T11:14:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-07cbd5309006610092d4",
+      "title": "Grand Canyon National Park to Reopen South Rim Hotels September 5",
+      "url": "https://www.nps.gov/grca/learn/news/transition-to-stage-3-september-5.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2024-09-03T07:41:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-a5442ed908be636dfecc",
+      "title": "Grand Canyon National Park to Temporarily Close Overnight Hotel Accommodations Beginning August 29",
+      "url": "https://www.nps.gov/grca/learn/news/temporary-closure-of-hotel-accomodations.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2024-09-01T06:00:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-2443f504179d5c329b33",
+      "title": "Hiker Fatality near Thunder River Trail in Grand Canyon National Park",
+      "url": "https://www.nps.gov/grca/learn/news/hiker-fatality-near-thunder-river-trail-aug-2024.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2024-08-29T11:25:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-3ef7c70afeab09b11476",
+      "title": "Grand Canyon National Park Seeks Public Review and Comment on Park Section 106 Programmatic Agreement",
+      "url": "https://www.nps.gov/grca/learn/news/grand-canyon-section-106-programmatic-agreement.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2024-08-29T08:26:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-feaa4485cae86f236715",
+      "title": "Fatality on the Colorado River at Fossil Rapid",
+      "url": "https://www.nps.gov/grca/learn/news/fatality-at-fossil-rapid-august-2024.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2024-08-27T04:46:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-bf6d7ed05cc61e53cb24",
+      "title": "Grand Canyon National Park Reports Discovery of Deceased Individual Following Flash Flood",
+      "url": "https://www.nps.gov/grca/learn/news/recovery-of-chenoa-nickerson.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2024-08-25T13:42:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-c13eac9febd0cd4ad9ba",
+      "title": "Search and Rescue Operations Underway for Missing Person Following Flash Flood at Havasu Creek",
+      "url": "https://www.nps.gov/grca/learn/news/missing-person-havasu-creek-august-2024.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2024-08-23T06:29:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-620fe328cbdf4de2d7e6",
+      "title": "Additional Water Restrictions Implemented at the South Rim; North Rim begins Water Conservation Measures",
+      "url": "https://www.nps.gov/grca/learn/news/additional-water-conservation-measures-implemented-august-2024.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2024-08-22T07:28:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-news-26fe1d68aa6e72045ceb",
+      "title": "Grand Canyon National Park Initiates Water Conservation Measures",
+      "url": "https://www.nps.gov/grca/learn/news/water-conservation-measures-reimplemented-aug132024.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2024-08-13T12:50:00-05:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷",
+      "sourceUrl": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "fetchedAt": "2026-10-04T16:19:21.953044+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-news"
+    },
+    {
+      "id": "nps-grand-canyon-backcountry-259d64299faf2f9d88ac",
+      "title": "Drinking Water outside the Cross-Canyon Corridor - updated May 17, 2024",
+      "url": "https://www.nps.gov/grca/planyourvisit/trail-closures.htm",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "industry": "开放管理",
+      "importance": "中",
+      "publishedAt": "2024-05-17T21:30:00+00:00",
+      "sourceLabel": "美国国家公园管理局 · 大峡谷步道公告",
+      "sourceUrl": "https://www.nps.gov/grca/planyourvisit/upload/grca-backcountry.xml",
+      "fetchedAt": "2026-10-04T16:19:24.493158+00:00",
+      "verified": true,
+      "sourceId": "nps-grand-canyon-backcountry"
+    }
+  ],
+  "sources": [
+    {
+      "id": "nps-grand-canyon-news",
+      "label": "美国国家公园管理局 · 大峡谷",
+      "url": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "lastSuccess": "2026-10-04T16:19:21.957755+00:00",
+      "lastError": null
+    },
+    {
+      "id": "nps-grand-canyon-backcountry",
+      "label": "美国国家公园管理局 · 大峡谷步道公告",
+      "url": "https://www.nps.gov/grca/planyourvisit/upload/grca-backcountry.xml",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "lastSuccess": "2026-10-04T16:19:24.493631+00:00",
+      "lastError": null
+    }
+  ],
+  "notice": "官方公告索引；查看原文确认生效范围，不据此自动开放路线。"
+}

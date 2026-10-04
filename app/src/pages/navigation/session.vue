@@ -41,7 +41,7 @@
 
     <!-- 地图模式 -->
     <view v-else class="map-wrap">
-      <TrackCanvas :layers="offlineLayer?.paths || []" :attribution="offlineLayer?.attribution || ''" :points="path" :position="position" :height="400" />
+      <RouteMap :layers="offlineLayer?.paths || []" :attribution="offlineLayer?.attribution || ''" :points="path" :position="position" :height="400" />
       <view class="map-hud">
         <text>距下一路径点 {{ formatDistance(targetDistance) }}</text>
         <text v-if="offRoute" class="hud-warn">偏航 {{ Math.round(offRouteDist) }} m</text>
@@ -61,7 +61,7 @@
 <script setup lang="ts">
 import { activeOfflineLayer } from '@/services/offline';
 const offlineLayer = activeOfflineLayer();
-import TrackCanvas from '@/components/TrackCanvas.vue';
+import RouteMap from '@/components/RouteMap.vue';
 import { toMapPoint } from "@shared/api/coordinates";
 import { isNavigable } from "@shared/types/route";
 import { computed, onUnmounted, ref } from "vue";
