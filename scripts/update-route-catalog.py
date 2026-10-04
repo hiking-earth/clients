@@ -22,7 +22,7 @@ def main():
     parser = argparse.ArgumentParser(); parser.add_argument('--regions', nargs='+', choices=list(REGIONS), default=list(REGIONS)); parser.add_argument('--limit', type=int, default=1000)
     args = parser.parse_args(); dest=ROOT/'shared/data/catalog/osm.json'
     previous=json.loads(dest.read_text()) if dest.exists() else {'routes':[]}
-    records={r['id']:r for r in previous['routes']}; now=datetime.datetime.now(datetime.timezone.utc).isoformat(); failures=[]; counts={}; cursors=previous.get('sourceCursors',{})
+    records={r['id']:r for r in previous['routes']}; now=datetime.datetime.now(datetime.timezone.utc).isoformat(timespec='seconds').replace('+00:00','Z'); failures=[]; counts={}; cursors=previous.get('sourceCursors',{})
     for region in args.regions:
         bbox=','.join(str(v) for v in REGIONS[region])
         since=cursors.get(region)
