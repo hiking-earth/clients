@@ -18,7 +18,7 @@ exports.main = async event => {
       const prior = await tx.collection('teams').doc(teamId).get();
       if (prior.data) { collision = true; return; }
       await tx.collection('teams').doc(teamId).set({ data: { name: String(event.name || '徒步小队').slice(0, 20), inviteCode, createdBy: OPENID, createdAt: Date.now(), active: true, memberCount: 1 } });
-      await tx.collection('team_members').doc(memberId).set({ data: { teamId, openid: OPENID, nickname: '山友', latitude: null, longitude: null, updatedAt: 0, isLeader: true } });
+      await tx.collection('team_members').doc(memberId).set({ data: { teamId, openid: OPENID, nickname: String(event.nickname || '山友').slice(0, 24), latitude: null, longitude: null, updatedAt: 0, isLeader: true } });
     });
     if (!collision) return { teamId, inviteCode };
   }

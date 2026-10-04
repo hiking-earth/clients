@@ -5,13 +5,15 @@
       <view class="avatar">{{ nickname.slice(0, 1) }}</view>
       <view class="acc-info">
         <text class="nick">{{ nickname }}</text>
-        <text class="acc-sub">{{ openid ? `已登录 · ${openid.slice(0, 10)}…` : '微信一键登录后可用云同步/组队/社区' }}</text>
+        <text class="acc-sub">{{ openid ? '已登录，可使用云端功能' : '登录后可用云同步、组队与社区' }}</text>
       </view>
       <button v-if="!openid" class="login" @click="login">登录</button>
     </view>
 
     <!-- 功能入口 -->
+    <view class="group"><view class="row" @click="go('/pages/library/library')"><text class="row-icon">♡</text><text class="row-name">收藏与行程</text><text class="row-go">›</text></view></view>
     <view class="group">
+      <view class="row" @click="go('/pages/account/account')"><text class="row-icon">👤</text><text class="row-name">统一账号与账号管理</text><text class="row-go">›</text></view>
       <view class="row" @click="go('/pages/team/team')">
         <text class="row-icon">👥</text><text class="row-name">组队会合</text><text class="row-go">›</text>
       </view>
@@ -29,8 +31,8 @@
         <text class="row-sub">{{ unsynced }} 条待同步</text><text class="row-go">›</text>
       </view>
       <view class="row" @click="go('/pages/track/cloud')"><text class="row-icon">☁️</text><text class="row-name">恢复与管理云端轨迹</text><text class="row-go">›</text></view>
-      <view class="row" @click="offlineTip">
-        <text class="row-icon">🗺️</text><text class="row-name">离线数据说明</text><text class="row-sub">本机轨迹</text><text class="row-go">›</text>
+      <view class="row" @click="go('/pages/offline/offline')">
+        <text class="row-icon">🗺️</text><text class="row-name">离线资料管理</text><text class="row-sub">本机轨迹</text><text class="row-go">›</text>
       </view>
     </view>
 
@@ -53,6 +55,7 @@ import { onShow } from "@dcloudio/uni-app";
 import { callCloud } from "@/services/cloud";
 import { listTracks, markSynced } from "@/services/tracks";
 import { hasPrivacyConsent } from "@/services/privacy";
+import { accountSession } from '@/services/account';
 
 const openid = ref("");
 const nickname = ref("未登录");
@@ -60,14 +63,22 @@ const unsynced = ref(0);
 
 onShow(() => {
   unsynced.value = listTracks().filter((t) => !t.synced).length;
+  const session = accountSession();
   const saved = uni.getStorageSync("he_openid");
-  if (saved && saved !== "local-mock-user") {
+  openid.value = ''; nickname.value = '未登录';
+  if (session) { openid.value = session.openid; nickname.value = session.nickname; }
+  // #ifdef MP-WEIXIN
+  else if (saved && saved !== "local-mock-user" && !String(saved).startsWith("account:")) {
     openid.value = saved;
     nickname.value = "山友";
   }
+  // #endif
 });
 
 async function login() {
+  // #ifndef MP-WEIXIN
+  go('/pages/account/account'); return;
+  // #endif
   const res = await callCloud<{ openid: string; nickname: string }>("login");
   if (res.ok && res.data) {
     openid.value = res.data.openid;

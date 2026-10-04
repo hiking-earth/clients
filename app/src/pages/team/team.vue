@@ -19,6 +19,7 @@
           <text class="team-name">{{ team.name }}</text>
           <text class="team-code" @click="copyCode">邀请码 {{ team.inviteCode }} · 点按复制</text>
         </view>
+        <view v-if="team.createdBy === myOpenid" class="leave" @click="manageTeam">管理</view>
         <view class="leave" @click="leave">退出</view>
       </view>
 
@@ -37,7 +38,7 @@
       </view>
       <!-- 成员列表：实时距离 -->
       <scroll-view scroll-y class="members">
-        <view v-for="m in membersWithDistance" :key="m.openid" class="member" @click="rendezvous(m)">
+        <view v-for="m in membersWithDistance" :key="m.openid" class="member" @click="rendezvous(m)" @longpress="manageMember(m)">
           <view class="avatar">{{ m.nickname.slice(0, 1) }}</view>
           <view class="m-info">
             <text class="m-name">{{ m.nickname }}<text v-if="m.isLeader" class="leader">队长</text><text v-if="m.openid === myOpenid" class="me">我</text></text>
@@ -62,6 +63,7 @@ import { onLoad, onShow, onHide } from "@dcloudio/uni-app";
 import { formatDistance, haversineM } from "@shared/api/navigation-core";
 import type { Team, TeamMember } from "@shared/types/social";
 import type { TrackPoint } from "@shared/types/track";
+import { onAccountChange } from '@/services/account';
 import { callCloud } from "@/services/cloud";
 import { startLocationUpdates, stopLocationUpdates } from "@/services/location";
 import { hasPrivacyConsent, onPrivacyChange } from "@/services/privacy";
@@ -99,7 +101,11 @@ onHide(() => { stopPoll(); stopShare(); });
 const unsubscribePrivacy = onPrivacyChange((consents) => {
   if (!consents.location || !consents.teamLocation) stopShare();
 });
-onUnmounted(() => { unsubscribePrivacy(); stopPoll(); stopShare(); });
+const unsubscribeAccount = onAccountChange(() => {
+  stopShare(); stopPoll(); team.value = null; members.value = []; alerts.value = [];
+  membersWithDistance.value = []; myOpenid.value = String(uni.getStorageSync('he_openid') || '');
+});
+onUnmounted(() => { unsubscribePrivacy(); unsubscribeAccount(); stopPoll(); stopShare(); });
 
 async function createTeam() {
   const res = await callCloud<{ teamId: string; inviteCode: string }>("team-create", { name: "徒步小队" });
@@ -215,9 +221,11 @@ function stopPoll() {
 async function poll() {
   if (!team.value) return;
   const id = team.value.id;
-  const res = await callCloud<{ members: TeamMember[]; alerts: Alert[] }>("team-locations", { teamId: id });
+  const res = await callCloud<{ members: TeamMember[]; alerts: Alert[]; team: Team }>("team-locations", { teamId: id });
   if (team.value?.id !== id) return;
   if (res.ok && res.data) {
+    team.value = res.data.team;
+    uni.setStorageSync('he_team', JSON.stringify(team.value));
     members.value = res.data.members;
     alerts.value = res.data.alerts ?? [];
     membersWithDistance.value = res.data.members.map((m) => {
@@ -226,6 +234,10 @@ async function poll() {
         : NaN;
       return { ...m, distanceText: isNaN(d) ? "暂无有效位置" : formatDistance(d) };
     });
+  } else if (res.errMsg === '队伍已解散' || res.errMsg === '不是本队成员') {
+    stopShare(); stopPoll(); team.value = null; members.value = []; alerts.value = [];
+    membersWithDistance.value = []; uni.removeStorageSync('he_team');
+    uni.showToast({ title: res.errMsg, icon: 'none' });
   }
 }
 
@@ -253,6 +265,32 @@ async function resolveSos() {
   const res = await callCloud("sos-trigger", { action: "resolve" });
   if (res.ok) await poll();
   else uni.showToast({ title: res.errMsg ?? "解除失败", icon: "none" });
+}
+function manageTeam() {
+  if (!team.value || team.value.createdBy !== myOpenid.value) return;
+  uni.showActionSheet({ itemList: ['修改队名', '解散队伍'], success: choice => {
+    if (choice.tapIndex === 0) uni.showModal({ title: '修改队名', editable: true, placeholderText: team.value?.name, success: async result => {
+      if (result.confirm) await manage('rename', { name: result.content });
+    } });
+    else uni.showModal({ title: '解散队伍', content: '关闭邀请码，停止所有成员的位置共享。', success: async result => {
+      if (result.confirm) await manage('disband');
+    } });
+  } });
+}
+function manageMember(member: TeamMember) {
+  if (!team.value || team.value.createdBy !== myOpenid.value || member.openid === myOpenid.value) return;
+  uni.showActionSheet({ itemList: ['移交队长', '移除成员'], success: choice => {
+    const action = choice.tapIndex === 0 ? 'transfer' : 'remove';
+    uni.showModal({ title: action === 'transfer' ? '移交队长' : '移除成员', content: `确认对“${member.nickname}”执行此操作？`, success: async result => {
+      if (result.confirm) await manage(action, { memberId: member.openid });
+    } });
+  } });
+}
+async function manage(action: string, data: Record<string, unknown> = {}) {
+  if (!team.value) return;
+  const result = await callCloud('team-manage', { teamId: team.value.id, action, ...data });
+  if (!result.ok) { uni.showToast({ title: result.errMsg || '操作失败', icon: 'none' }); return; }
+  await poll();
 }
 function copyCode() {
   uni.setClipboardData({ data: team.value!.inviteCode });

@@ -3,6 +3,9 @@ import type { TrackPoint } from "@shared/types/track";
 import { HeadingFilter } from "@shared/api/navigation-core";
 import { hasPrivacyConsent, onPrivacyChange } from "@/services/privacy";
 
+declare const plus: any;
+let nativeWatch: number | undefined;
+
 export type LocationCallback = (p: TrackPoint) => void;
 export type HeadingCallback = (deg: number) => void;
 type Purpose = "navigation" | "team";
@@ -36,6 +39,10 @@ const compassListener = (res: any) => {
 function shutdown() {
   generation++;
   running = false;
+  // #ifdef APP-PLUS
+  if (nativeWatch !== undefined) plus.geolocation.clearWatch(nativeWatch);
+  nativeWatch = undefined;
+  // #endif
   if (pollTimer !== undefined) clearInterval(pollTimer);
   pollTimer = undefined;
   uni.offLocationChange?.(locationListener);
@@ -80,6 +87,17 @@ export async function startLocationUpdates(cb: LocationCallback, purpose: Purpos
           fail: () => finish(false),
         });
       };
+      // #ifdef APP-PLUS
+      nativeWatch = plus.geolocation.watchPosition((res: any) => {
+        if (!valid()) return;
+        if (!running) finish(true);
+        deliver({ ...res.coords, horizontalAccuracy: res.coords.accuracy });
+      }, () => { if (valid()) { finish(false); locations.clear(); shutdown(); } }, {
+        provider: 'system', coordsType: 'wgs84', geocode: false,
+        enableHighAccuracy: true, timeout: 15000, maximumAge: 1000,
+      });
+      return;
+      // #endif
       if (typeof uni.startLocationUpdate !== "function") { fallback(); return; }
       uni.startLocationUpdate({
         type: "wgs84",

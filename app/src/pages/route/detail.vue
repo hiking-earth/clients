@@ -7,7 +7,8 @@
         <text class="status">{{ route.status }}</text>
         <text class="region">{{ route.region }}</text>
       </view>
-      <text class="name">{{ route.name }}</text>
+<text class="name">{{ route.name }}</text>
+      <button @click="favorite">{{ favorited ? '取消收藏' : '收藏路线' }}</button>
 
       <view class="grid">
         <view class="cell"><text class="cell-v">{{ route.distance }}</text><text class="cell-k">里程</text></view>
@@ -48,16 +49,20 @@
 </template>
 
 <script setup lang="ts">
+import { readLibrary, toggleFavorite } from '@/services/library';
 import { computed, ref } from "vue";
 import { onLoad } from "@dcloudio/uni-app";
 import { ROUTES } from "@shared/data/routes.seed";
 import { STATUS_COLORS, isNavigable, type HikingRoute } from "@shared/types/route";
 
 const route = ref<HikingRoute | null>(null);
+const favorited = ref(false);
+function favorite() { if (route.value) { try { favorited.value = toggleFavorite(route.value.id); } catch (e) { uni.showToast({ title: String(e), icon: 'none' }); } } }
 
 onLoad((q) => {
   const id = q?.id as string;
   route.value = ROUTES.find((r) => r.id === id) ?? null;
+  favorited.value = readLibrary().favorites.includes(id);
   if (route.value) uni.setNavigationBarTitle({ title: route.value.name });
 });
 

@@ -5,6 +5,7 @@ import path from "node:path";
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [uni()],
+  base: process.env.VITE_DESKTOP === "true" ? "./" : "/",
   resolve: {
     alias: {
       // Monorepo 共享层：shared/（类型 / 导航算法 / 常量 / 种子数据）

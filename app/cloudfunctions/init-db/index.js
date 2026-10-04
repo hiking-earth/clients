@@ -4,6 +4,10 @@ cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();
 
 const COLLECTIONS = [
+  "user_libraries",
+  "client_accounts",
+  "client_sessions",
+  "client_rate_limits",
   "community_reports",
   "companion_posts",  // 约伴帖（机审后发布）
   "teams",            // 组队

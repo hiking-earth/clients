@@ -100,6 +100,34 @@
       "name": "track-manage",
       "timeout": 20,
       "memorySize": 256
+    },
+    {
+      "name": "companion-manage",
+      "timeout": 30,
+      "memorySize": 256
+    },
+    {
+      "name": "team-manage",
+      "timeout": 30,
+      "memorySize": 256
+    },
+    {
+      "name": "client-api",
+      "timeout": 120,
+      "memorySize": 512,
+      "runtime": "Nodejs20.19",
+      "installDependency": true,
+      "description": "跨端账号与业务HTTP网关"
+    },
+    {
+      "name": "library-manage",
+      "timeout": 20,
+      "memorySize": 256
+    },
+    {
+      "name": "community-moderate",
+      "timeout": 30,
+      "memorySize": 256
     }
   ]
 }

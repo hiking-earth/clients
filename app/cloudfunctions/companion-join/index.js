@@ -9,7 +9,7 @@ exports.main = async event => {
   for (let attempt = 0; attempt < 3; attempt++) {
     const post = (await db.collection('companion_posts').doc(event.postId).get()).data;
     if (!post) return { errMsg: '帖子不存在' };
-    if (post.status === 'closed') return { errMsg: '报名已关闭' };
+    if (!['open', 'full'].includes(post.status)) return { errMsg: '报名已关闭' };
     if (post.members.includes(OPENID)) return { joined: true };
     if (post.members.length >= post.maxMembers) return { errMsg: '已满员' };
     const members = [...post.members, OPENID];

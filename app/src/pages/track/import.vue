@@ -15,6 +15,7 @@
 </template>
 <script setup lang="ts">
 import { ref } from 'vue';
+import { isDesktop, chooseDesktopGpx } from '@/services/desktop';
 import { importGpx } from '@/services/gpx';
 import { saveTrack } from '@/services/tracks';
 const source = ref('');
@@ -24,7 +25,12 @@ function save() {
   catch (e) { error.value = e instanceof Error ? e.message : '导入失败，文件未保存'; }
 }
 // #ifdef H5
-function chooseFile() {
+async function chooseFile() {
+  if (isDesktop()) {
+    try { const text = await chooseDesktopGpx(); if (text !== null) { source.value = text; error.value = ''; } }
+    catch (e) { error.value = String(e); }
+    return;
+  }
   const input = document.createElement('input'); input.type = 'file'; input.accept = '.gpx,application/gpx+xml';
   input.onchange = async () => {
     const file = input.files?.[0]; if (!file) return;

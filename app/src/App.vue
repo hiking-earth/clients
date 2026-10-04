@@ -1,7 +1,8 @@
 <script setup lang="ts">
+import { stopBackgroundRecording } from '@/services/background';
 import { onLaunch, onShow, onHide } from "@dcloudio/uni-app";
 onLaunch(() => {
-  console.log("App Launch");
+  stopBackgroundRecording();
 });
 onShow(() => {
   console.log("App Show");

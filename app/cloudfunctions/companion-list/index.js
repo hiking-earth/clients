@@ -1,13 +1,14 @@
-// companion-list：约伴帖列表（按时间倒序，取最近 50 条）
-const cloud = require("wx-server-sdk");
+const cloud = require('wx-server-sdk');
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();
-
 exports.main = async () => {
-  const res = await db
-    .collection("companion_posts")
-    .orderBy("createdAt", "desc")
-    .limit(50)
-    .get();
-  return { posts: res.data.map((p) => ({ ...p, id: p._id })) };
+  const { OPENID } = cloud.getWXContext();
+  const res = await db.collection('companion_posts').where({ status: db.command.in(['open', 'full', 'closed']) }).orderBy('createdAt', 'desc').limit(50).get();
+  return { posts: res.data.map(p => ({ id: p._id, openid: p.openid === OPENID ? OPENID : '',
+    nickname: p.nickname, routeId: p.routeId, title: p.title, content: p.content,
+    departDate: p.departDate, maxMembers: p.maxMembers, memberCount: (p.members || []).length,
+    // Public listing never exposes all participants' account identifiers.
+    members: OPENID && (p.members || []).includes(OPENID) ? [OPENID] : [],
+    createdAt: p.createdAt, status: p.status,
+  })) };
 };

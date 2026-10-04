@@ -32,6 +32,7 @@ import { getPrivacyConsents, setPrivacyConsent, type PrivacyConsentKey, type Pri
 const consents = ref<PrivacyConsents>(getPrivacyConsents());
 const options: { key: PrivacyConsentKey; title: string; description: string }[] = [
   { key: "location", title: "导航与轨迹定位", description: "在使用导航和轨迹记录时读取当前位置；关闭后这些功能不可用。" },
+  { key: "backgroundLocation", title: "原生后台轨迹记录", description: "仅手机原生端，开始记录后在锁屏或切换应用时继续读取位置。本地缓存，不自动上传；需要系统后台定位和持续通知权限。" },
   { key: "teamLocation", title: "组队位置共享", description: "仅在队伍中主动开启共享后，向队友发送当前坐标；停止共享或退出队伍后停止发送。" },
   { key: "trackCloudSync", title: "云端轨迹备份", description: "仅在你手动同步时上传轨迹；关闭后轨迹保留在本机。" },
   { key: "gearImageUpload", title: "装备照片云端分析", description: "仅在你主动开始识别时，将所选照片发送到云端视觉模型。" },

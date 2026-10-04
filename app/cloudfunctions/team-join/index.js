@@ -21,7 +21,7 @@ exports.main = async event => {
       if ((await tx.collection('team_members').doc(memberId).get()).data) return;
       const count = Number.isFinite(current.memberCount) ? current.memberCount : oldCount;
       if (count >= 100) { error = '队伍人数已达 100 人上限'; return; }
-      await tx.collection('team_members').doc(memberId).set({ data: { teamId: team._id, openid: OPENID, nickname: '山友', latitude: null, longitude: null, updatedAt: 0, isLeader: false } });
+      await tx.collection('team_members').doc(memberId).set({ data: { teamId: team._id, openid: OPENID, nickname: String(event.nickname || '山友').slice(0, 24), latitude: null, longitude: null, updatedAt: 0, isLeader: false } });
       await tx.collection('teams').doc(team._id).update({ data: { memberCount: count + 1 } });
     });
     if (error) return { errMsg: error };

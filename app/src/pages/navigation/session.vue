@@ -41,21 +41,7 @@
 
     <!-- 地图模式 -->
     <view v-else class="map-wrap">
-      <!-- #ifndef H5 -->
-      <map
-        v-if="mapCenter"
-        class="map"
-        :latitude="mapCenter.latitude"
-        :longitude="mapCenter.longitude"
-        :scale="mapScale"
-        :markers="mapMarkers"
-        :polyline="mapPolyline"
-        show-location
-      ></map>
-      <!-- #endif -->
-      <!-- #ifdef H5 -->
-      <view class="map-h5-tip">H5 预览未配置地图 key，真机/小程序内显示腾讯地图</view>
-      <!-- #endif -->
+      <TrackCanvas :layers="offlineLayer?.paths || []" :attribution="offlineLayer?.attribution || ''" :points="path" :position="position" :height="400" />
       <view class="map-hud">
         <text>距下一路径点 {{ formatDistance(targetDistance) }}</text>
         <text v-if="offRoute" class="hud-warn">偏航 {{ Math.round(offRouteDist) }} m</text>
@@ -73,6 +59,9 @@
 </template>
 
 <script setup lang="ts">
+import { activeOfflineLayer } from '@/services/offline';
+const offlineLayer = activeOfflineLayer();
+import TrackCanvas from '@/components/TrackCanvas.vue';
 import { toMapPoint } from "@shared/api/coordinates";
 import { isNavigable } from "@shared/types/route";
 import { computed, onUnmounted, ref } from "vue";

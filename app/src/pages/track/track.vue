@@ -20,7 +20,7 @@
           <button class="btn stop" @click="finish">结束</button>
         </template>
       </view>
-      <text v-if="state !== 'idle'" class="hint">{{ state === 'recording' ? '记录中…请保持应用在前台' : '已暂停' }} · {{ points.length }} 个轨迹点</text>
+      <text v-if="state !== 'idle'" class="hint">{{ state === 'recording' ? backgroundOn ? '后台记录已开启' : '记录中…请保持应用在前台' : '已暂停' }} · {{ points.length }} 个轨迹点</text>
     </view>
 
     <button @click="openImport">导入 GPX</button>
@@ -40,6 +40,9 @@
 </template>
 
 <script setup lang="ts">
+import { beginBackground, stopBackgroundRecording, backgroundRecording, backgroundSupported, pendingBackground, acknowledgeBackgroundPoints } from '@/services/background';
+import { onAccountChange } from '@/services/account';
+import { hasPrivacyConsent } from '@/services/privacy';
 import { onUnmounted, ref } from "vue";
 import { onShow, onHide } from "@dcloudio/uni-app";
 import { haversineM } from "@shared/api/navigation-core";
@@ -56,6 +59,8 @@ const descentM = ref(0);
 const elapsedText = ref("0:00");
 const speedText = ref("0.0");
 const tracks = ref<TrackRecord[]>([]);
+const backgroundOn = ref(false);
+let flushingBackground = false;
 
 let startedAt = 0;
 let activeMs = 0;
@@ -67,7 +72,7 @@ let generation = 0;
 let timer: ReturnType<typeof setInterval> | null = null;
 let lastAlt: number | null = null;
 
-onShow(() => { tracks.value = listTracks(); });
+onShow(() => { tracks.value = listTracks(); if (backgroundRecording()) flushBackground(); });
 const draft = loadDraft();
 if (draft) {
   points.value = draft.points;
@@ -77,6 +82,15 @@ if (draft) {
   startedAt = draft.startedAt;
   activeMs = draft.activeDurationMs ?? 0;
   state.value = "paused";
+  stopBackgroundRecording();
+  const buffered = pendingBackground();
+  if (buffered.session === `t-${startedAt}` && buffered.points.length) {
+    // Restore saved native points only; recording stays paused after a restart.
+    const last = points.value[points.value.length - 1]?.timestamp || startedAt;
+    const end = Math.max(last, ...buffered.points.map(p => p.timestamp));
+    activeMs += Math.max(0, end - last);
+    state.value = 'recording'; flushBackground(); state.value = 'paused';
+  }
   updateElapsed();
 }
 function duration() { return activeMs + (resumedAt ? Date.now() - resumedAt : 0); }
@@ -93,22 +107,26 @@ function record(status: TrackRecord["state"]): TrackRecord {
   };
 }
 function persist() {
-  if (state.value === "idle") return;
-  try { saveDraft(record("paused")); }
-  catch { pause(false); uni.showToast({ title: "存储空间不足，记录已暂停", icon: "none" }); }
+  if (state.value === "idle") return false;
+  try { saveDraft(record("paused")); return true; }
+  catch { pause(false); uni.showToast({ title: "存储空间不足，记录已暂停", icon: "none" }); return false; }
 }
 onHide(() => {
-  if (state.value === "recording") pause();
+  if (state.value === "recording" && !backgroundRecording()) pause();
   else if (starting) { generation++; stopLocationUpdates(onPoint); }
 });
 const unsubscribePrivacy = onPrivacyChange((consents) => {
-  if (!consents.location && state.value === "recording") pause();
+  if ((!consents.location || (backgroundOn.value && !consents.backgroundLocation)) && state.value === "recording") pause();
 });
 
 function onPoint(p: TrackPoint) {
   if (state.value !== "recording") return;
   if (![p.latitude, p.longitude, p.timestamp].every(Number.isFinite) || Math.abs(p.latitude) > 90 || Math.abs(p.longitude) > 180) return;
   const last = points.value[points.value.length - 1];
+  if (last && p.timestamp <= last.timestamp) return;
+  if (p.accuracy != null && p.accuracy > 60) return;
+  if (points.value.length >= 20000) { pause(); uni.showToast({ title: '已达20000点，请先结束保存再开始新轨迹', icon: 'none' }); return; }
+  if (last && !segmentStart && p.timestamp - last.timestamp > 60000 && haversineM(last, p) > 100) segmentStart = true;
   if (last && !segmentStart) {
     const d = haversineM(last, p);
     if (d < 2) return;         // 静止抖动过滤
@@ -123,9 +141,26 @@ function onPoint(p: TrackPoint) {
   }
   speedText.value = ((p.speed ?? 0) * 3.6).toFixed(1);
   points.value.push(p);
-  persist();
+  if (!flushingBackground) persist();
 }
 
+function flushBackground() {
+  if (flushingBackground || state.value !== 'recording') return;
+  const buffered = pendingBackground();
+  if (buffered.session !== `t-${startedAt}` || !buffered.points.length) return;
+  flushingBackground = true;
+  try {
+    const ordered = [...buffered.points].sort((a, b) => a.timestamp - b.timestamp);
+    let processed = 0;
+    for (const point of ordered) {
+      if (state.value !== 'recording') break;
+      onPoint(point);
+      if (state.value !== 'recording') break;
+      processed = point.timestamp;
+    }
+    if (persist() && processed) acknowledgeBackgroundPoints(processed);
+  } finally { flushingBackground = false; }
+}
 async function begin() {
   if (starting || state.value === "recording") return;
   starting = true;
@@ -145,10 +180,24 @@ async function begin() {
   let ticks = 0;
   timer = setInterval(() => { updateElapsed(); if (++ticks % 5 === 0) persist(); }, 1000);
   persist();
+  if (backgroundSupported() && hasPrivacyConsent('backgroundLocation')) {
+    let startingNative = true;
+    let failureMessage = '';
+    const native = beginBackground(`t-${startedAt}`, flushBackground, message => {
+      failureMessage = message;
+      if (!startingNative) { backgroundOn.value = false; pause(); uni.showToast({ title: message, icon: 'none' }); }
+    });
+    startingNative = false;
+    backgroundOn.value = native;
+    if (native) stopLocationUpdates(onPoint);
+    else uni.showToast({ title: failureMessage || '后台未启动，目前仅在前台记录', icon: 'none' });
+  }
 }
 async function start() { await begin(); }
 async function resume() { await begin(); }
 function pause(store = true) {
+  stopBackgroundRecording(); backgroundOn.value = false;
+  if (store && !flushingBackground) flushBackground();
   generation++;
   activeMs = duration();
   resumedAt = 0;
@@ -197,10 +246,11 @@ function formatDate(ts: number): string {
   return `${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
 }
 
+const unsubscribeAccount = onAccountChange(() => { if (state.value === 'recording') pause(); });
 onUnmounted(() => {
   disposed = true;
   generation++;
-  unsubscribePrivacy();
+  unsubscribePrivacy(); unsubscribeAccount();
   if (state.value !== "idle") pause();
   if (timer) clearInterval(timer);
 });

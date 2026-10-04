@@ -20,3 +20,6 @@ desktop/src-tauri/gen/
 # 编辑器
 .idea/
 .vscode/
+
+# Generated bundled desktop frontend
+desktop/client-dist/

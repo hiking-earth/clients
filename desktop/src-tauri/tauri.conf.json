@@ -4,7 +4,9 @@
   "version": "0.1.0",
   "identifier": "earth.hiking.desktop",
   "build": {
-    "frontendDist": "../shell"
+    "frontendDist": "../client-dist",
+    "beforeBuildCommand": "node scripts/prepare-client.mjs",
+    "beforeDevCommand": "node scripts/prepare-client.mjs"
   },
   "app": {
     "windows": [
@@ -15,12 +17,13 @@
         "height": 800,
         "minWidth": 960,
         "minHeight": 640,
-        "url": "https://hiking-earth.hiking-earth.workers.dev/"
+        "url": "index.html"
       }
     ],
     "security": {
       "csp": null
-    }
+    },
+    "withGlobalTauri": true
   },
   "bundle": {
     "active": true,
@@ -39,7 +42,7 @@
     ],
     "category": "Travel",
     "shortDescription": "徒步地球桌面端",
-    "longDescription": "以 3D 地球发现全球徒步路线的桌面客户端（包裹网页端，随网页版自动更新）。",
+    "longDescription": "本地完整客户端：路线发现、轨迹导入导出、账号、组队与社区。",
     "windows": {
       "wix": {
         "language": "zh-CN"

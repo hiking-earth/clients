@@ -88,6 +88,30 @@
       "style": {
         "navigationBarTitleText": "云端轨迹"
       }
+    },
+    {
+      "path": "pages/account/account",
+      "style": {
+        "navigationBarTitleText": "账号管理"
+      }
+    },
+    {
+      "path": "pages/library/library",
+      "style": {
+        "navigationBarTitleText": "收藏与行程"
+      }
+    },
+    {
+      "path": "pages/moderation/moderation",
+      "style": {
+        "navigationBarTitleText": "社区举报处理"
+      }
+    },
+    {
+      "path": "pages/offline/offline",
+      "style": {
+        "navigationBarTitleText": "离线资料"
+      }
     }
   ],
   "globalStyle": {

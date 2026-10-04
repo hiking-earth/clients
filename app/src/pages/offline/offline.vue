@@ -1,0 +1,36 @@
+<template><scroll-view scroll-y class="page">
+  <text class="title">离线资料</text><text class="hint">本机轨迹可离线查看。本页可导入你有权使用的WGS84 GeoJSON道路或边界资料，不下载商业地图瓦片，不含地形高程。</text>
+  <view v-for="layer in layers" :key="layer.id" class="card"><text class="title">{{ layer.name }}</text><text class="hint">{{ layer.attribution }} · {{ layer.license }} · {{ (layer.bytes/1024).toFixed(0) }} KB</text><button @click="activate(layer.id)">{{ active === layer.id ? '正在使用' : '用于轨迹与导航示意' }}</button><button @click="remove(layer.id)">删除资料</button></view>
+  <TrackCanvas v-if="preview" :points="[]" :layers="preview.paths" :attribution="preview.attribution" />
+  <text class="title">导入资料</text>
+  <!-- #ifdef H5 --><button @click="choose">选择 JSON 资料</button><!-- #endif -->
+  <!-- #ifdef MP-WEIXIN --><button @click="chooseWechat">从聊天文件选择 JSON</button><!-- #endif -->
+  <textarea v-model="source" :maxlength="5242880" placeholder="粘贴离线资料JSON内容" class="input" /><button @click="save">导入并保存</button><text class="hint">{{ message }}</text>
+  <text class="hint">格式：format=hiking-earth-offline-v1，name、attribution、license均必填，geometry为GeoJSON FeatureCollection；支持LineString/MultiLineString/Polygon/MultiPolygon。每份最多5 MB、50000点，总量8 MB。导入后不会上传。</text>
+</scroll-view></template>
+<script setup lang="ts">
+import { computed, ref } from 'vue';
+import { onShow } from '@dcloudio/uni-app';
+import TrackCanvas from '@/components/TrackCanvas.vue';
+import { offlineLayers, importOfflineLayer, deleteOfflineLayer, selectOfflineLayer } from '@/services/offline';
+const layers = ref(offlineLayers()), active = ref(String(uni.getStorageSync('he_offline_active') || '')), source = ref(''), message = ref('');
+const preview = computed(() => layers.value.find(p => p.id === active.value));
+function load() { layers.value = offlineLayers(); active.value = String(uni.getStorageSync('he_offline_active') || ''); }
+onShow(load);
+function activate(id: string) { selectOfflineLayer(id); load(); }
+function remove(id: string) { uni.showModal({ title: '删除离线资料', content: '删除这份本机资料？不影响轨迹文件。', success: r => { if (r.confirm) { try { deleteOfflineLayer(id); load(); } catch { message.value = '删除失败'; } } } }); }
+function save() { try { const layer = importOfflineLayer(source.value); selectOfflineLayer(layer.id); source.value = ''; load(); message.value = '已保存到本机'; } catch (e) { message.value = e instanceof Error ? e.message : '导入失败'; } }
+// #ifdef H5
+function choose() {
+  const input = document.createElement('input'); input.type = 'file'; input.accept = '.json,.geojson,application/json';
+  input.onchange = async () => { const file = input.files?.[0]; if (!file) return; if (file.size > 5*1024*1024) { message.value = '资料超过5 MB'; return; } try { source.value = await file.text(); } catch { message.value = '读取失败'; } }; input.click();
+}
+// #endif
+// #ifdef MP-WEIXIN
+function chooseWechat() { uni.chooseMessageFile({ count: 1, type: 'file', extension: ['json','geojson'], success: r => {
+  const file = r.tempFiles[0]; if (file.size > 5*1024*1024) { message.value = '资料超过5 MB'; return; }
+  uni.getFileSystemManager().readFile({ filePath: file.path, encoding: 'utf8', success: r => { source.value = String(r.data); }, fail: () => { message.value = '读取失败'; } });
+} }); }
+// #endif
+</script>
+<style scoped>.page{height:100vh;padding:24px 20px;box-sizing:border-box;background:#0f141b;color:#eef4ea}.title{display:block;font-size:20px}.hint{display:block;font-size:13px;color:#8a97a5;line-height:1.7;margin:12px 0}.card{padding:16px;border-radius:12px;background:#151d27;margin-bottom:16px}.input{width:100%;height:220px;box-sizing:border-box;padding:12px;background:#202b37;margin:16px 0}button{background:#b8f36b;margin:12px 0;font-size:14px}</style>

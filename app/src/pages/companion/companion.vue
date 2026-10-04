@@ -6,27 +6,29 @@
           <text class="nick">{{ p.nickname }}</text>
           <text class="date">{{ p.departDate }} 出发</text>
         </view>
-        <text class="title">{{ p.title }}</text>
+        <text class="title">{{ p.title }}{{ p.status === 'closed' ? ' · 已关闭' : '' }}</text>
         <text class="content">{{ p.content }}</text>
         <view class="card-foot">
-          <text class="members">{{ p.members.length }}/{{ p.maxMembers }} 人</text>
+          <text class="members">{{ (p.memberCount ?? p.members.length) }}/{{ p.maxMembers }} 人</text>
           <text v-if="routeName(p.routeId)" class="route">{{ routeName(p.routeId) }}</text>
           <view
-            class="join" :class="{ full: p.members.length >= p.maxMembers || joined(p) }"
+            class="join" :class="{ full: (p.memberCount ?? p.members.length) >= p.maxMembers || joined(p) }"
             @click="join(p)"
-          >{{ joined(p) ? '已报名' : p.members.length >= p.maxMembers ? '已满员' : '报名' }}</view>
+          >{{ p.status === 'closed' ? '已关闭' : joined(p) ? '已报名' : (p.memberCount ?? p.members.length) >= p.maxMembers ? '已满员' : '报名' }}</view>
         </view>
+        <button v-if="myOpenid && p.openid === myOpenid" size="mini" @click="managePost(p)">管理活动</button>
+        <button v-else-if="joined(p)" size="mini" @click="cancelJoin(p)">取消报名</button>
       </view>
       <view v-if="posts.length === 0" class="empty">{{ loadError || "还没有约伴帖，来发第一条" }}</view>
       <view class="notice">社区内容经机审过滤；请勿发布他人位置等敏感信息。发现违规可长按帖子举报。</view>
     </scroll-view>
 
-    <view class="fab" @click="showForm = true">＋ 发约伴</view>
+    <view class="fab" @click="newPost">＋ 发约伴</view>
 
     <!-- 发帖弹窗 -->
     <view v-if="showForm" class="mask" @click="showForm = false">
       <view class="form" @click.stop>
-        <text class="form-title">发约伴</text>
+        <text class="form-title">{{ editingId ? '编辑约伴' : '发约伴' }}</text>
         <input v-model="form.title" class="input" placeholder="标题（如：武功山两日轻装）" placeholder-class="ph" />
         <textarea v-model="form.content" class="textarea" placeholder="时间、集合点、强度要求…" placeholder-class="ph" />
         <input v-model="form.departDate" class="input" placeholder="出发日期 YYYY-MM-DD" placeholder-class="ph" />
@@ -36,7 +38,7 @@
         </picker>
         <view class="form-actions">
           <button class="btn ghost" @click="showForm = false">取消</button>
-          <button class="btn primary" :disabled="submitting" @click="submit">发布</button>
+          <button class="btn primary" :disabled="submitting" @click="submit">{{ editingId ? '保存' : '发布' }}</button>
         </view>
       </view>
     </view>
@@ -52,6 +54,7 @@ import { callCloud } from "@/services/cloud";
 
 const posts = ref<CompanionPost[]>([]);
 const showForm = ref(false);
+const editingId = ref('');
 const submitting = ref(false);
 const myOpenid = ref("");
 const loadError = ref("");
@@ -82,7 +85,7 @@ function onPickRoute(e: any) {
 }
 
 async function join(p: CompanionPost) {
-  if (joined(p) || p.members.length >= p.maxMembers) return;
+  if (p.status === 'closed' || joined(p) || (p.memberCount ?? p.members.length) >= p.maxMembers) return;
   const res = await callCloud("companion-join", { postId: p.id });
   if (res.ok) {
     await load();
@@ -92,6 +95,31 @@ async function join(p: CompanionPost) {
   }
 }
 
+function newPost() {
+  editingId.value = ''; form.value = { title: '', content: '', departDate: '', maxMembers: 4, routeId: '' }; showForm.value = true;
+}
+async function cancelJoin(post: CompanionPost) {
+  uni.showModal({ title: '取消报名', content: '确认退出该活动？', success: async result => {
+    if (result.confirm) await changePost(post, 'leave');
+  } });
+}
+function managePost(post: CompanionPost) {
+  const labels = ['编辑活动', post.status === 'closed' ? '重新开放报名' : '关闭报名', '删除活动'];
+  uni.showActionSheet({ itemList: labels, success: choice => {
+    if (choice.tapIndex === 0) {
+      editingId.value = post.id; form.value = { title: post.title, content: post.content, departDate: post.departDate, maxMembers: post.maxMembers, routeId: post.routeId || '' }; showForm.value = true; return;
+    }
+    const action = choice.tapIndex === 2 ? 'delete' : post.status === 'closed' ? 'reopen' : 'close';
+    uni.showModal({ title: labels[choice.tapIndex], content: action === 'delete' ? '删除后活动内容不再展示。此操作无法恢复。' : '确认更新报名状态？', success: async result => {
+      if (result.confirm) await changePost(post, action);
+    } });
+  } });
+}
+async function changePost(post: CompanionPost, action: string) {
+  const result = await callCloud('companion-manage', { postId: post.id, action });
+  if (result.ok) await load();
+  uni.showToast({ title: result.ok ? '已更新' : result.errMsg || '操作失败', icon: 'none' });
+}
 function reportPost(p: CompanionPost) {
   uni.showActionSheet({ itemList: ["垃圾广告", "人身攻击或违法内容", "泄露个人信息", "其他违规内容"], success: async (r) => {
     const reasons = ["垃圾广告", "人身攻击或违法内容", "泄露个人信息", "其他违规内容"];
@@ -107,9 +135,10 @@ async function submit() {
   }
   submitting.value = true;
   // 内容安全机审（云函数内 security.msgSecCheck）
-  const res = await callCloud("companion-create", {
+  const res = await callCloud(editingId.value ? 'companion-manage' : 'companion-create', {
+    ...(editingId.value ? { postId: editingId.value, action: 'edit' } : {}),
     ...form.value,
-    nickname: "山友",
+    nickname: uni.getStorageSync('he_nickname') || '山友',
   });
   submitting.value = false;
   if (res.ok) {

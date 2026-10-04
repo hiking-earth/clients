@@ -12,20 +12,7 @@
       <view class="cell"><text class="v">{{ track.points.length }}</text><text class="k">轨迹点</text></view>
     </view>
 
-    <!-- 轨迹地图 -->
-    <!-- #ifndef H5 -->
-    <map
-      class="map"
-      :latitude="center.latitude"
-      :longitude="center.longitude"
-      :scale="13"
-      :polyline="polyline"
-      :markers="markers"
-    ></map>
-    <!-- #endif -->
-    <!-- #ifdef H5 -->
-    <view class="map-h5-tip">H5 预览未配置地图 key，真机/小程序内显示轨迹地图</view>
-    <!-- #endif -->
+    <TrackCanvas :layers="offlineLayer?.paths || []" :attribution="offlineLayer?.attribution || ''" :points="track.points" />
 
     <view class="actions">
       <button class="btn primary" @click="navAlong">沿此轨迹导航</button>
@@ -37,6 +24,10 @@
 </template>
 
 <script setup lang="ts">
+import { activeOfflineLayer } from '@/services/offline';
+const offlineLayer = activeOfflineLayer();
+import TrackCanvas from '@/components/TrackCanvas.vue';
+import { isDesktop, saveDesktopGpx } from '@/services/desktop';
 import { toMapPoint } from "@shared/api/coordinates";
 import { computed, ref } from "vue";
 import { onLoad } from "@dcloudio/uni-app";
@@ -97,9 +88,14 @@ function navAlong() {
   uni.navigateTo({ url: `/pages/navigation/session?trackId=${track.value!.id}` });
 }
 
-function exportGpx() {
+async function exportGpx() {
   const gpx = trackToGpx(track.value!);
   // #ifdef H5
+  if (isDesktop()) {
+    try { const saved = await saveDesktopGpx(track.value!.name, gpx); if (saved) uni.showToast({ title: 'GPX已保存', icon: 'success' }); }
+    catch (e) { uni.showToast({ title: String(e), icon: 'none' }); }
+    return;
+  }
   const blob = new Blob([gpx], { type: "application/gpx+xml" });
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);

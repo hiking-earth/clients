@@ -1,11 +1,12 @@
 /**
  * 云开发服务封装。
  * - 微信小程序内走 wx.cloud（免鉴权登录）
- * - H5 / App 尚未接入真实鉴权，云操作明确返回失败。
+ * - H5 / App 通过配置的 HTTPS 网关使用统一账号；未配置时明确返回失败。
  * 云环境 id 在 shared/constants CLOUD_ENV。
  */
 import { hasPrivacyConsent } from "@/services/privacy";
 import { CLOUD_ENV } from "@shared/constants";
+import { accountApiConfigured, accountRequest, accountSession } from '@/services/account';
 
 declare const wx: any;
 
@@ -16,13 +17,13 @@ let inited = false;
 export function cloudAvailable(): boolean {
   // #ifdef MP-WEIXIN
   try {
-    return typeof wx !== "undefined" && !!wx.cloud;
+    return typeof wx !== "undefined" && !!wx.cloud || accountApiConfigured();
   } catch {
     return false;
   }
   // #endif
   // #ifndef MP-WEIXIN
-  return false;
+  return accountApiConfigured();
   // #endif
 }
 
@@ -45,6 +46,12 @@ export async function callCloud<T = any>(name: string, data: Record<string, any>
   if (key && !(name === "sos-trigger" && data.action === "resolve") && (!hasPrivacyConsent(key) || (name === "team-report" && !hasPrivacyConsent("location")))) {
     return { ok: false, errMsg: "相关数据授权已关闭，请在隐私设置中启用。" };
   }
+  // A unified account takes precedence even inside the mini-program. Otherwise
+  // keep its original trusted WeChat context; identities are never client input.
+  if (accountSession()) return accountRequest<T>(name, data);
+  // #ifndef MP-WEIXIN
+  return accountRequest<T>(name, data);
+  // #endif
   initCloud();
   if (cloudAvailable() && inited) {
     // #ifdef MP-WEIXIN

@@ -47,6 +47,10 @@ jobs:
         with:
           workspaces: desktop/src-tauri
 
+      - name: 安装客户端依赖
+        working-directory: app
+        run: npm ci
+
       - name: 安装 Tauri CLI
         working-directory: desktop
         run: npm ci
@@ -60,7 +64,7 @@ jobs:
           args: --verbose --target ${{ matrix.target }} --bundles ${{ matrix.bundles }}
           tagName: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || format('desktop-{0}', github.run_number) }}
           releaseName: "徒步地球桌面端 ${{ github.ref_name }}"
-          releaseBody: "Tauri 壳包裹网页端（https://hiking-earth.hiking-earth.workers.dev/），网页更新即桌面端更新。"
+          releaseBody: "本地完整客户端候选版本，包含轨迹和账号/组队/社区页面；正式发布前需统一验收。"
           releaseCommitish: ${{ github.sha }}
           releaseDraft: true
           prerelease: false
