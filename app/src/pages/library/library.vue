@@ -21,7 +21,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { onShow } from '@dcloudio/uni-app';
-import { ROUTES } from '@shared/data/routes.seed';
+import { ROUTES } from '@/services/route-catalog';
 import { readLibrary, writeLibrary, toggleFavorite, libraryVersion, setLibraryVersion } from '@/services/library';
 import type { Library } from '@/services/library';
 import { callCloud } from '@/services/cloud';

@@ -66,7 +66,7 @@ import { toMapPoint } from "@shared/api/coordinates";
 import { isNavigable } from "@shared/types/route";
 import { computed, onUnmounted, ref } from "vue";
 import { onLoad } from "@dcloudio/uni-app";
-import { ROUTES } from "@shared/data/routes.seed";
+import { ROUTES } from "@/services/route-catalog";
 import type { LatLng } from "@shared/api/navigation-core";
 import {
   arrowDeg, bearingDeg, formatDistance, haversineM, nextWaypoint, offRouteDistanceM,

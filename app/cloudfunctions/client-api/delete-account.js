@@ -42,7 +42,7 @@ exports.deleteAccount = async (db, account, tokenHash) => {
       if (!latest) return;
       const members = (latest.members || []).filter(id => id !== account.identity);
       await postRef.update({ data: { members, joinVersion: (latest.joinVersion || 0) + 1,
-        status: latest.status === 'closed' || latest.status === 'deleted' ? latest.status : members.length >= latest.maxMembers ? 'full' : 'open' } });
+        status: !['open', 'full'].includes(latest.status) ? latest.status : members.length >= latest.maxMembers ? 'full' : 'open' } });
     });
     if (--budget <= 0) return { complete: false };
   }

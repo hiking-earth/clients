@@ -64,7 +64,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 declare const plus: any;
-import { ROUTES } from "@shared/data/routes.seed";
+import { ROUTES } from "@/services/route-catalog";
 import { callCloud } from "@/services/cloud";
 import { hasPrivacyConsent } from "@/services/privacy";
 

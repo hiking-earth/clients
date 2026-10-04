@@ -1,11 +1,13 @@
 <script setup lang="ts">
+import { refreshRouteCatalog } from '@/services/route-catalog';
 import { stopBackgroundRecording } from '@/services/background';
 import { onLaunch, onShow, onHide } from "@dcloudio/uni-app";
 onLaunch(() => {
   stopBackgroundRecording();
+  refreshRouteCatalog();
 });
 onShow(() => {
-  console.log("App Show");
+  refreshRouteCatalog();
 });
 onHide(() => {
   console.log("App Hide");

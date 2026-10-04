@@ -6,7 +6,7 @@
           <text class="nick">{{ p.nickname }}</text>
           <text class="date">{{ p.departDate }} 出发</text>
         </view>
-        <text class="title">{{ p.title }}{{ p.status === 'closed' ? ' · 已关闭' : '' }}</text>
+        <text class="title">{{ p.title }}{{ p.status === 'pending' ? ' · 待审核' : p.status === 'closed' ? ' · 已关闭' : '' }}</text>
         <text class="content">{{ p.content }}</text>
         <view class="card-foot">
           <text class="members">{{ (p.memberCount ?? p.members.length) }}/{{ p.maxMembers }} 人</text>
@@ -14,13 +14,13 @@
           <view
             class="join" :class="{ full: (p.memberCount ?? p.members.length) >= p.maxMembers || joined(p) }"
             @click="join(p)"
-          >{{ p.status === 'closed' ? '已关闭' : joined(p) ? '已报名' : (p.memberCount ?? p.members.length) >= p.maxMembers ? '已满员' : '报名' }}</view>
+          >{{ p.status === 'pending' ? '待审核' : p.status === 'closed' ? '已关闭' : joined(p) ? '已报名' : (p.memberCount ?? p.members.length) >= p.maxMembers ? '已满员' : '报名' }}</view>
         </view>
         <button v-if="myOpenid && p.openid === myOpenid" size="mini" @click="managePost(p)">管理活动</button>
         <button v-else-if="joined(p)" size="mini" @click="cancelJoin(p)">取消报名</button>
       </view>
       <view v-if="posts.length === 0" class="empty">{{ loadError || "还没有约伴帖，来发第一条" }}</view>
-      <view class="notice">社区内容经机审过滤；请勿发布他人位置等敏感信息。发现违规可长按帖子举报。</view>
+      <view class="notice">社区内容发布前需要审核；请勿发布他人位置等敏感信息。发现违规可长按帖子举报。</view>
     </scroll-view>
 
     <view class="fab" @click="newPost">＋ 发约伴</view>
@@ -48,7 +48,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { onShow } from "@dcloudio/uni-app";
-import { ROUTES } from "@shared/data/routes.seed";
+import { ROUTES } from "@/services/route-catalog";
 import type { CompanionPost } from "@shared/types/social";
 import { callCloud } from "@/services/cloud";
 
@@ -85,7 +85,7 @@ function onPickRoute(e: any) {
 }
 
 async function join(p: CompanionPost) {
-  if (p.status === 'closed' || joined(p) || (p.memberCount ?? p.members.length) >= p.maxMembers) return;
+  if (!['open', 'full'].includes(p.status) || joined(p) || (p.memberCount ?? p.members.length) >= p.maxMembers) return;
   const res = await callCloud("companion-join", { postId: p.id });
   if (res.ok) {
     await load();
@@ -144,7 +144,7 @@ async function submit() {
   if (res.ok) {
     showForm.value = false;
     form.value = { title: "", content: "", departDate: "", maxMembers: 4, routeId: "" };
-    uni.showToast({ title: "已发布", icon: "success" });
+    uni.showToast({ title: res.data?.reviewPending || res.data?.status === 'pending' ? '已提交，等待审核' : '已发布', icon: 'success' });
     load();
   } else {
     uni.showToast({ title: res.errMsg ?? "发布失败", icon: "none" });

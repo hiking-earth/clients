@@ -54,7 +54,7 @@ export type CompanionPost = {
   /** Public listing includes only the current user in members. */
   memberCount?: number;
   createdAt: number;
-  status: "open" | "full" | "closed" | "deleted";
+  status: "open" | "full" | "closed" | "deleted" | "pending" | "hidden";
 };
 
 /** 装备导购条目（个人主体导购模式，跳第三方成交） */

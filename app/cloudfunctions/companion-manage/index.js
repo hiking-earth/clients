@@ -15,7 +15,7 @@ exports.main = async event => {
     if (!Number.isInteger(maxMembers) || maxMembers < 2 || maxMembers > 50) return { errMsg: '人数须为2–50的整数' };
     const prior = (await db.collection('companion_posts').doc(event.postId).get()).data;
     if (!prior || prior.openid !== OPENID) return { errMsg: '只能编辑自己发布的帖子' };
-    try { await cloud.openapi.security.msgSecCheck({ content: `${title}\n${content}` }); }
+    if (!OPENID.startsWith('account:')) try { await cloud.openapi.security.msgSecCheck({ content: `${title}\n${content}` }); }
     catch { return { errMsg: '内容未通过审核，请修改后再提交' }; }
     edits = { title: title.trim(), content: content.trim(), departDate, maxMembers, routeId: String(event.routeId || '').slice(0, 120) };
   }
@@ -34,11 +34,12 @@ exports.main = async event => {
       return { left: true };
     }
     if (!owner) return { errMsg: '仅发起人可以管理该活动' };
+    if (post.status === 'pending' && ['close', 'reopen'].includes(event.action)) return { errMsg: '请等待审核完成，或删除活动' };
     if (event.action === 'edit' && edits.maxMembers < members.length) return { errMsg: '人数上限不能少于已报名人数' };
-    const status = event.action === 'delete' ? 'deleted' : event.action === 'close' ? 'closed'
+    const status = event.action === 'delete' ? 'deleted' : event.action === 'edit' && OPENID.startsWith('account:') ? 'pending' : event.action === 'close' ? 'closed'
       : event.action === 'edit' && post.status === 'closed' ? 'closed'
       : members.length >= (edits?.maxMembers || post.maxMembers) ? 'full' : 'open';
-    await ref.update({ data: { ...edits, status, joinVersion: version, updatedAt: Date.now(),
+    await ref.update({ data: { ...edits, status, ...(status === 'pending' ? { pendingDesiredStatus: post.status === 'closed' ? 'closed' : post.pendingDesiredStatus || 'open' } : {}), joinVersion: version, updatedAt: Date.now(),
       ...(event.action === 'delete' ? { title: '', content: '', members: [], nickname: '', routeId: '', deletedAt: Date.now() } : {}) } });
     return { updated: true, status };
   });

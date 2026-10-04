@@ -13,7 +13,17 @@ exports.main = async event => {
       reports.push({ id: row._id, postId: row.postId, reason: row.reason, createdAt: row.createdAt,
         post: post ? { title: post.title, content: post.content, nickname: post.nickname, status: post.status } : null });
     }
-    return { reports };
+    const pending = (await db.collection('companion_posts').where({ status: 'pending' }).orderBy('createdAt', 'asc').limit(50).get()).data;
+    return { reports, posts: pending.map(p => ({ id: p._id, title: p.title, content: p.content, nickname: p.nickname, createdAt: p.createdAt, version: p.joinVersion || 0 })) };
+  }
+  if (['approve', 'reject'].includes(event.action) && typeof event.postId === 'string') {
+    return db.runTransaction(async tx => {
+      const ref = tx.collection('companion_posts').doc(event.postId), post = (await ref.get()).data;
+      if (!post || post.status !== 'pending' || (post.joinVersion || 0) !== event.version) return { errMsg: '帖子已改变，请刷新' };
+      const status = event.action === 'reject' ? 'hidden' : post.pendingDesiredStatus === 'closed' ? 'closed' : (post.members || []).length >= post.maxMembers ? 'full' : 'open';
+      await ref.update({ data: { status, moderatedAt: Date.now(), moderatedBy: OPENID, joinVersion: (post.joinVersion || 0) + 1 } });
+      return { handled: true };
+    });
   }
   if (!['dismiss', 'hide'].includes(event.action) || typeof event.reportId !== 'string' || !event.reportId) return { errMsg: '操作无效' };
   return db.runTransaction(async tx => {

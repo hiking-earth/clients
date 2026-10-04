@@ -43,7 +43,7 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import { onShow } from "@dcloudio/uni-app";
-import { ROUTES } from "@shared/data/routes.seed";
+import { ROUTES } from "@/services/route-catalog";
 import { isNavigable } from "@shared/types/route";
 import { listTracks } from "@/services/tracks";
 import type { TrackRecord } from "@shared/types/track";

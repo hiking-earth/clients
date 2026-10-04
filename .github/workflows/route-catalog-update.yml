@@ -1,0 +1,33 @@
+name: Refresh public hiking catalog
+on:
+  schedule:
+    - cron: '17 */6 * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: route-catalog-update
+  cancel-in-progress: false
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Collect USDA source records
+        run: python scripts/update-usfs-catalog.py
+      - name: Collect OSM source records
+        timeout-minutes: 25
+        continue-on-error: true
+        run: python scripts/update-route-catalog.py --limit 1000
+      - name: Publish changed snapshot
+        run: |
+          git add shared/data/catalog/
+          if git diff --cached --quiet; then exit 0; fi
+          git config user.name 'hiking-earth-catalog[bot]'
+          git config user.email 'catalog@users.noreply.github.com'
+          git commit -m 'data: refresh OSM hiking discovery catalog'
+          git push

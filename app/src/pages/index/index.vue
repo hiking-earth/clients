@@ -4,6 +4,8 @@
     <view class="hero">
       <text class="hero-title">徒步地球</text>
       <text class="hero-sub">以 3D 地球发现全球徒步路线 · 客户端</text>
+      <text class="hero-sub">{{ ROUTES.length }} 条路线档案 · 新收录路线开放状态待核验</text>
+      <text class="hero-sub">路线数据 © OpenStreetMap contributors · ODbL</text>
       <view class="search-box">
         <input v-model="keyword" class="search-input" placeholder="搜索路线 / 地区 / 景观" placeholder-class="ph" confirm-type="search" />
       </view>
@@ -32,7 +34,7 @@
     <!-- 路线卡片 -->
     <scroll-view scroll-y class="list">
       <view
-        v-for="r in filtered" :key="r.id"
+        v-for="r in filtered.slice(0, visibleCount)" :key="r.id"
         class="card"
         @click="goDetail(r.id)"
       >
@@ -54,6 +56,7 @@
           <text v-if="isNavigable(r)" class="tag nav">可导航</text>
         </view>
       </view>
+      <button v-if="filtered.length > visibleCount" @click="visibleCount += 50">加载更多（共 {{ filtered.length }} 条）</button>
       <view v-if="filtered.length === 0" class="empty">没有匹配的路线</view>
       <view class="disclaimer">候选版本，不构成导航服务或许可；出行以属地公告为准</view>
     </scroll-view>
@@ -61,14 +64,16 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
-import { ROUTES } from "@shared/data/routes.seed";
+import { computed, ref, watch } from "vue";
+import { ROUTES } from "@/services/route-catalog";
 import { STATUS_COLORS, isNavigable, type RouteStatus, type Season } from "@shared/types/route";
 
 const keyword = ref("");
+const visibleCount = ref(50);
 const statusFilter = ref<RouteStatus | "">("");
 const seasonFilter = ref<Season | "">("");
 
+watch([keyword, statusFilter, seasonFilter], () => { visibleCount.value = 50; });
 const statusChips: (RouteStatus | "")[] = ["", "开放中", "待核验", "即将开放", "临时关闭"];
 const seasonChips: (Season | "")[] = ["", "春", "夏", "秋", "冬"];
 

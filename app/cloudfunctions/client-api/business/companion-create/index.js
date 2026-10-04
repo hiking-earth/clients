@@ -11,8 +11,10 @@ exports.main = async (event) => {
   if (typeof title !== "string" || !title.trim() || title.length > 60 || typeof content !== "string" || !content.trim() || content.length > 1000) return { errMsg: "标题须为 1–60 字，内容须为 1–1000 字" };
   if (!/^\d{4}-\d{2}-\d{2}$/.test(departDate) || Number.isNaN(Date.parse(departDate)) || new Date(departDate).toISOString().slice(0, 10) !== departDate) return { errMsg: "请填写有效出发日期" };
   if (!Number.isInteger(maxMembers) || maxMembers < 2 || maxMembers > 50) return { errMsg: "人数须为 2–50 的整数" };
-  // 内容安全机审：违规直接拒发
-  try {
+  // Unified accounts do not have a WeChat OpenID. Queue for authorized
+  // review instead of pretending that WeChat-only checks succeeded.
+  const reviewPending = OPENID.startsWith("account:");
+  if (!reviewPending) try {
     await cloud.openapi.security.msgSecCheck({ content: `${title}\n${content}` });
   } catch (e) {
     return { errMsg: "内容未通过安全审核，请修改后再发" };
@@ -28,8 +30,8 @@ exports.main = async (event) => {
     maxMembers: Math.min(Math.max(Number(maxMembers) || 4, 1), 50),
     members: [OPENID],
     createdAt: Date.now(),
-    status: "open",
+    status: reviewPending ? "pending" : "open",
   };
   const res = await db.collection("companion_posts").add({ data: doc });
-  return { id: res._id, ...doc };
+  return { id: res._id, ...doc, reviewPending };
 };

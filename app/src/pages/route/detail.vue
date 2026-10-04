@@ -52,7 +52,7 @@
 import { readLibrary, toggleFavorite } from '@/services/library';
 import { computed, ref } from "vue";
 import { onLoad } from "@dcloudio/uni-app";
-import { ROUTES } from "@shared/data/routes.seed";
+import { ROUTES } from "@/services/route-catalog";
 import { STATUS_COLORS, isNavigable, type HikingRoute } from "@shared/types/route";
 
 const route = ref<HikingRoute | null>(null);
