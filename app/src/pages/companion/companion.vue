@@ -17,27 +17,30 @@
           >{{ p.status === 'pending' ? '待审核' : p.status === 'closed' ? '已关闭' : joined(p) ? '已报名' : (p.memberCount ?? p.members.length) >= p.maxMembers ? '已满员' : '报名' }}</view>
         </view>
         <button v-if="myOpenid && p.openid === myOpenid" size="mini" @click="managePost(p)">管理活动</button>
+        <button v-if="myOpenid && p.openid === myOpenid" size="mini" @click="contacts(p)">查看报名联系信息</button>
         <button v-else-if="joined(p)" size="mini" @click="cancelJoin(p)">取消报名</button>
       </view>
       <view v-if="posts.length === 0" class="empty">{{ loadError || "还没有约伴帖，来发第一条" }}</view>
       <view class="notice">社区内容发布前需要审核；请勿发布他人位置等敏感信息。发现违规可长按帖子举报。</view>
     </scroll-view>
 
+    <view v-if="joiningPost" class="mask" @click="cancelRegistration"><view class="form" @click.stop><text class="form-title">活动报名</text><text>{{joiningPost.title}}</text><input v-model="birth" class="input" placeholder="出生日期 YYYY-MM-DD（不保存完整生日）" /><input v-model="emergency" maxlength="200" class="input" placeholder="紧急联系人姓名与电话" /><view><switch :checked="guardian" @change="guardian=$event.detail.value" /><text>未成年人由监护人填写并确认</text></view><view><switch :checked="contactConsent" @change="contactConsent=$event.detail.value" /><text>同意将紧急联系信息提供给活动发起人，取消报名后删除</text></view><button :disabled="submitting" @click="submitRegistration">确认报名</button><button @click="cancelRegistration">取消</button></view></view>
     <view class="fab" @click="newPost">＋ 发约伴</view>
 
     <!-- 发帖弹窗 -->
-    <view v-if="showForm" class="mask" @click="showForm = false">
+    <view v-if="showForm" class="mask" @click="cancelForm">
       <view class="form" @click.stop>
         <text class="form-title">{{ editingId ? '编辑约伴' : '发约伴' }}</text>
         <input v-model="form.title" class="input" placeholder="标题（如：武功山两日轻装）" placeholder-class="ph" />
         <textarea v-model="form.content" class="textarea" placeholder="时间、集合点、强度要求…" placeholder-class="ph" />
         <input v-model="form.departDate" class="input" placeholder="出发日期 YYYY-MM-DD" placeholder-class="ph" />
+        <view v-if="!editingId"><input v-model="birth" class="input" placeholder="出生日期 YYYY-MM-DD（用于成年人判断，不保存完整生日）" /><input v-model="emergency" maxlength="200" class="input" placeholder="紧急联系人姓名与电话" /><switch :checked="contactConsent" @change="contactConsent=$event.detail.value" /><text>同意保存本人紧急联系信息，仅本人及发起人可访问</text></view>
         <input v-model.number="form.maxMembers" type="number" class="input" placeholder="人数上限" placeholder-class="ph" />
         <picker mode="selector" :range="routeNames" @change="onPickRoute">
           <view class="input picker">{{ form.routeId ? routeName(form.routeId) : '关联路线（可选）' }}</view>
         </picker>
         <view class="form-actions">
-          <button class="btn ghost" @click="showForm = false">取消</button>
+          <button class="btn ghost" @click="cancelForm">取消</button>
           <button class="btn primary" :disabled="submitting" @click="submit">{{ editingId ? '保存' : '发布' }}</button>
         </view>
       </view>
@@ -47,11 +50,15 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import { onShow } from "@dcloudio/uni-app";
+import { onShow, onHide, onUnload } from "@dcloudio/uni-app";
 import { ROUTES } from "@/services/route-catalog";
 import type { CompanionPost } from "@shared/types/social";
 import { callCloud } from "@/services/cloud";
 
+const birth=ref(''),emergency=ref(''),contactConsent=ref(false),guardian=ref(false),joiningPost=ref<CompanionPost|null>(null);
+let creationId=`post-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+function clearSensitive(){birth.value='';emergency.value='';contactConsent.value=false;guardian.value=false;}
+function cancelRegistration(){joiningPost.value=null;clearSensitive();}
 const posts = ref<CompanionPost[]>([]);
 const showForm = ref(false);
 const editingId = ref('');
@@ -62,6 +69,9 @@ const form = ref({ title: "", content: "", departDate: "", maxMembers: 4, routeI
 
 const routeNames = ROUTES.map((r) => r.name);
 
+function cancelForm(){showForm.value=false;clearSensitive();}
+onHide(()=>{cancelRegistration();cancelForm();});
+onUnload(()=>{cancelRegistration();cancelForm();});
 onShow(load);
 
 async function load() {
@@ -84,18 +94,12 @@ function onPickRoute(e: any) {
   form.value.routeId = ROUTES[e.detail.value]?.id ?? "";
 }
 
-async function join(p: CompanionPost) {
-  if (!['open', 'full'].includes(p.status) || joined(p) || (p.memberCount ?? p.members.length) >= p.maxMembers) return;
-  const res = await callCloud("companion-join", { postId: p.id });
-  if (res.ok) {
-    await load();
-    uni.showToast({ title: "已报名", icon: "success" });
-  } else {
-    uni.showToast({ title: "报名失败", icon: "none" });
-  }
-}
+function join(p:CompanionPost){if(!['open','full'].includes(p.status)||joined(p)||(p.memberCount??p.members.length)>=p.maxMembers)return;clearSensitive();joiningPost.value=p;}
+async function submitRegistration(){if(!joiningPost.value||submitting.value)return;submitting.value=true;try{const res=await callCloud('companion-join',{postId:joiningPost.value.id,birth:birth.value,emergency:emergency.value,guardianConfirmed:guardian.value,contactConsent:contactConsent.value,nickname:uni.getStorageSync('he_nickname')||'山友'});if(!res.ok){uni.showToast({title:res.errMsg||'报名失败',icon:'none'});return;}cancelRegistration();await load();uni.showToast({title:'已报名',icon:'success'});}finally{submitting.value=false;}}
+async function contacts(p:CompanionPost){const owner=String(uni.getStorageSync('he_openid')||'');const res=await callCloud<{items:{nickname?:string;emergency:string;adult:boolean;guardianConfirmed:boolean}[]}>('companion-manage',{action:'registrations',postId:p.id});if(owner!==String(uni.getStorageSync('he_openid')||''))return;if(!res.ok||!res.data){uni.showToast({title:res.errMsg||'读取失败',icon:'none'});return;}uni.showModal({title:'报名联系信息（仅发起人）',content:res.data.items.map((r,i)=>`${i+1}. ${r.nickname||'山友'}：${r.emergency}；${r.adult?'成年人':'未成年 / 监护人已确认'}`).join('\n')||'当前没有报名联系信息',showCancel:false});}
 
 function newPost() {
+  clearSensitive();creationId=`post-${Date.now()}-${Math.random().toString(36).slice(2)}`;
   editingId.value = ''; form.value = { title: '', content: '', departDate: '', maxMembers: 4, routeId: '' }; showForm.value = true;
 }
 async function cancelJoin(post: CompanionPost) {
@@ -138,11 +142,12 @@ async function submit() {
   const res = await callCloud(editingId.value ? 'companion-manage' : 'companion-create', {
     ...(editingId.value ? { postId: editingId.value, action: 'edit' } : {}),
     ...form.value,
+    id:creationId,birth:birth.value,emergency:emergency.value,contactConsent:contactConsent.value,
     nickname: uni.getStorageSync('he_nickname') || '山友',
   });
   submitting.value = false;
   if (res.ok) {
-    showForm.value = false;
+    showForm.value = false;clearSensitive();
     form.value = { title: "", content: "", departDate: "", maxMembers: 4, routeId: "" };
     uni.showToast({ title: res.data?.reviewPending || res.data?.status === 'pending' ? '已提交，等待审核' : '已发布', icon: 'success' });
     load();

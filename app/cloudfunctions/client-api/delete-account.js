@@ -15,6 +15,7 @@ exports.deleteAccount = async (db, account, tokenHash) => {
   });
   if (waiting) return { complete: false, waiting: true };
   await db.collection('team_members').where({ openid: account.identity }).update({ data: { latitude: null, longitude: null, updatedAt: 0 } });
+  await db.collection('companion_posts').where({openid:account.identity}).update({data:{status:'deleting'}});
   let budget = 100;
   const ownTeams = (await db.collection('teams').where({ createdBy: account.identity, active: true }).limit(100).get()).data;
   for (const team of ownTeams) {
@@ -49,6 +50,7 @@ exports.deleteAccount = async (db, account, tokenHash) => {
   for (const [collection, field] of [['user_documents','owner'], ['team_messages','owner'], ['user_notifications','owner'], ['user_libraries', 'owner'], ['tracks', 'owner'], ['sos_events', 'openid'], ['companion_posts', 'openid'], ['community_reports', 'reporter'], ['teams', 'createdBy']]) {
     const rows = (await db.collection(collection).where({ [field]: account.identity }).limit(budget).get()).data;
     for (const row of rows) {
+      if(collection==='companion_posts'){const registrations=(await db.collection('user_documents').where({kind:'registration',postId:row._id}).limit(budget).get()).data;for(const registration of registrations){await db.collection('user_documents').doc(registration._id).remove();if(--budget<=0)return {complete:false};}}
       await db.collection(collection).doc(row._id).remove();
       if (--budget <= 0) return { complete: false };
     }

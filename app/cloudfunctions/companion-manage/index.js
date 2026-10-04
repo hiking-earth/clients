@@ -5,8 +5,9 @@ exports.main = async event => {
   const { OPENID } = cloud.getWXContext();
   if (!OPENID) return { errMsg: '请先登录' };
   if (typeof event.postId !== 'string' || !event.postId) return { errMsg: '帖子无效' };
-  const actions = ['leave', 'close', 'reopen', 'delete', 'edit'];
+  const actions = ['registrations', 'leave', 'close', 'reopen', 'delete', 'edit'];
   if (!actions.includes(event.action)) return { errMsg: '操作无效' };
+  if(event.action==='registrations'){const post=(await db.collection('companion_posts').doc(event.postId).get()).data;if(!post||post.openid!==OPENID||['hidden','deleted','deleting'].includes(post.status)||Date.parse(post.departDate+'T23:59:59+08:00')+30*86400000<Date.now())return {errMsg:'仅发起人在有效活动中可查看报名联系信息'};const rows=(await db.collection('user_documents').where({kind:'registration',postId:event.postId}).limit(50).get()).data;return {items:rows.map(({owner,...r})=>({id:r._id,nickname:r.nickname,adult:r.adult,guardianConfirmed:r.guardianConfirmed,emergency:r.emergency,createdAt:r.createdAt}))};}
   let edits;
   if (event.action === 'edit') {
     const { title, content, departDate, maxMembers } = event;
@@ -22,7 +23,7 @@ exports.main = async event => {
   return db.runTransaction(async tx => {
     const ref = tx.collection('companion_posts').doc(event.postId);
     const post = (await ref.get()).data;
-    if (!post || post.status === 'deleted' || post.status === 'hidden') return { errMsg: '帖子已删除或不存在' };
+    if (!post || ['deleted','hidden','deleting'].includes(post.status)) return { errMsg: '帖子已删除或不存在' };
     const members = Array.isArray(post.members) ? post.members : [];
     const owner = post.openid === OPENID;
     const version = (post.joinVersion || 0) + 1;
@@ -30,17 +31,28 @@ exports.main = async event => {
       if (owner) return { errMsg: '发起人请关闭或删除活动' };
       const remaining = members.filter(id => id !== OPENID);
       await ref.update({ data: { members: remaining, _members_count: remaining.length, joinVersion: version,
-        status: post.status === 'closed' ? 'closed' : remaining.length >= post.maxMembers ? 'full' : 'open' } });
+        status: ['closed','pending'].includes(post.status) ? post.status : remaining.length >= post.maxMembers ? 'full' : 'open' } });
+      const id=require('crypto').createHash('sha256').update(`${OPENID}:registration:${event.postId}`).digest('hex');if((await tx.collection('user_documents').doc(id).get()).data)await tx.collection('user_documents').doc(id).remove();
       return { left: true };
     }
     if (!owner) return { errMsg: '仅发起人可以管理该活动' };
     if (post.status === 'pending' && ['close', 'reopen'].includes(event.action)) return { errMsg: '请等待审核完成，或删除活动' };
     if (event.action === 'edit' && edits.maxMembers < members.length) return { errMsg: '人数上限不能少于已报名人数' };
-    const status = event.action === 'delete' ? 'deleted' : event.action === 'edit' && OPENID.startsWith('account:') ? 'pending' : event.action === 'close' ? 'closed'
+    if(event.action==='reopen'&&Date.parse(post.departDate+'T23:59:59+08:00')+30*86400000<Date.now())return {errMsg:'活动已归档，请创建新活动'};
+    if (['edit','reopen'].includes(event.action)) {
+      const routeId = edits ? edits.routeId : post.routeId;
+      if (routeId) {
+        const id = require('crypto').createHash('sha256').update(routeId).digest('hex');
+        const review = (await tx.collection('route_reviews').doc(id).get()).data;
+        if (!review || review.status !== '开放中' || !Number.isFinite(review.expiresAt) || review.expiresAt <= Date.now()) return { errMsg: '关联路线的官方开放核验已失效，请更新核验或取消关联' };
+      }
+    }
+    const status = event.action === 'delete' ? 'deleted' : event.action === 'edit' && (OPENID.startsWith('account:') || post.status === 'pending') ? 'pending' : event.action === 'close' ? 'closed'
       : event.action === 'edit' && post.status === 'closed' ? 'closed'
       : members.length >= (edits?.maxMembers || post.maxMembers) ? 'full' : 'open';
     await ref.update({ data: { ...edits, status, ...(status === 'pending' ? { pendingDesiredStatus: post.status === 'closed' ? 'closed' : post.pendingDesiredStatus || 'open' } : {}), joinVersion: version, updatedAt: Date.now(),
       ...(event.action === 'delete' ? { title: '', content: '', members: [], nickname: '', routeId: '', deletedAt: Date.now() } : {}) } });
+    if(event.action==='delete'){const rows=(await tx.collection('user_documents').where({kind:'registration',postId:event.postId}).limit(50).get()).data;for(const row of rows)await tx.collection('user_documents').doc(row._id).remove();}
     return { updated: true, status };
   });
 };

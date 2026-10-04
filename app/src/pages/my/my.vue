@@ -58,7 +58,7 @@
 import { ref } from "vue";
 import { onShow } from "@dcloudio/uni-app";
 import { callCloud } from "@/services/cloud";
-import { listTracks, markSynced } from "@/services/tracks";
+import { listTracks, getTrack, markSynced } from "@/services/tracks";
 import { hasPrivacyConsent } from "@/services/privacy";
 import { accountSession } from '@/services/account';
 
@@ -110,10 +110,14 @@ async function syncAll() {
     return;
   }
   uni.showLoading({ title: "同步中" });
+  const owner=String(uni.getStorageSync("he_openid")||"");
   let okCount = 0;
   for (const t of list) {
-    const res = await callCloud("track-sync", { track: t });
-    if (res.ok) {
+    if(owner!==String(uni.getStorageSync("he_openid")||"")||!hasPrivacyConsent("trackCloudSync"))break;
+    const snapshot=JSON.stringify(t);
+    const res = await callCloud("track-sync", { track: JSON.parse(snapshot) });
+    if(owner!==String(uni.getStorageSync("he_openid")||"")||!hasPrivacyConsent("trackCloudSync"))break;
+    if (res.ok && JSON.stringify(getTrack(t.id))===snapshot) {
       markSynced(t.id);
       okCount++;
     }

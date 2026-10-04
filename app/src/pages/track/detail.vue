@@ -128,8 +128,11 @@ async function sync() {
     return;
   }
   uni.showLoading({ title: "同步中" });
+  const owner=String(uni.getStorageSync("he_openid")||"");
+  const snapshot=JSON.stringify(track.value);
   const res = await callCloud("track-sync", { track: track.value });
   uni.hideLoading();
+  if(owner!==String(uni.getStorageSync("he_openid")||"")||!hasPrivacyConsent("trackCloudSync")||JSON.stringify(getTrack(track.value!.id))!==snapshot)return;
   if (res.ok) {
     markSynced(track.value!.id);
     track.value = getTrack(track.value!.id);

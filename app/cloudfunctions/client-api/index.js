@@ -11,7 +11,7 @@ const MAX_BODY = 6 * 1024 * 1024;
 const handlers = new Set(['route-manage', 'social-manage', 'companion-create', 'companion-list', 'companion-join',
   'companion-report', 'companion-manage', 'team-manage', 'library-manage', 'community-moderate', 'team-create', 'team-join', 'team-leave', 'team-stop',
   'team-report', 'team-locations', 'track-sync', 'track-manage', 'sos-trigger', 'guide-list']);
-const publicHandlers = new Set(['route-manage', 'companion-list', 'guide-list']);
+const publicHandlers = new Set(['companion-list', 'guide-list']);
 const hash = value => crypto.createHash('sha256').update(value).digest('hex');
 const random = () => crypto.randomBytes(32).toString('hex');
 function fail(message, status = 400, code) { const e = new Error(message); e.status = status; e.code = code; throw e; }
@@ -147,7 +147,7 @@ async function dispatch(action, data, token, remoteAddress) {
   if (action === 'auth.register') return register(data, remoteAddress);
   if (action === 'auth.sign-in') return newSession(await credentials(data));
   if (action === 'auth.recover') return recover(data);
-  if (publicHandlers.has(action)) {
+  if (publicHandlers.has(action)||(action==='route-manage'&&data.action==='list')) {
     const identity = token ? (await verifiedSession(token)).identity : '';
     return withIdentity(identity, () => require(`./business/${action}`).main(data));
   }

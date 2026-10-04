@@ -15,5 +15,16 @@ for name in a.functions:
  command=base+['fn','code','update',name,'-e',a.env,'--json']
  result=subprocess.run(command,cwd=ROOT/'app',capture_output=True,text=True)
  if result.returncode:raise SystemExit('Source deployment failed for '+name+'; inspect local CLI diagnostic without sharing credentials.')
- print('Deployed source:',name,'Prior version retained:',backup/name,flush=True)
+ readback=backup/(name+'-readback')
+ result=subprocess.run(base+['fn','code','download',name,str(readback),'-e',a.env,'--json'],cwd=ROOT/'app',capture_output=True,text=True)
+ if result.returncode:raise SystemExit('Remote source readback failed for '+name)
+ import hashlib
+ source=ROOT/'app/cloudfunctions'/name
+ for file in source.rglob('*'):
+  relative=file.relative_to(source)
+  if not file.is_file() or 'node_modules' in relative.parts:continue
+  matches=[candidate for candidate in readback.rglob(relative.name) if candidate.is_file() and str(candidate.relative_to(readback)).endswith(str(relative))]
+  expected=hashlib.sha256(file.read_bytes()).digest()
+  if not any(hashlib.sha256(candidate.read_bytes()).digest()==expected for candidate in matches):raise SystemExit('Remote content mismatch for '+name+'/'+str(relative))
+ print('Deployed and remote files verified:',name,'Prior version retained:',backup/name,flush=True)
 print('Deployment commands succeeded; verify remote file hashes and perform unified acceptance separately.')

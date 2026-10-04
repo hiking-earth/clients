@@ -42,17 +42,20 @@ function removePlan(id: string) { uni.showModal({ title: '删除行程', content
 async function push() {
   if (busy.value) return; busy.value = true;
   const owner = String(uni.getStorageSync('he_openid') || '');
-  try { const result = await callCloud<{ version: number }>('library-manage', { action: 'save', ...library.value, version: libraryVersion() });
+  const snapshot=JSON.parse(JSON.stringify(library.value)) as Library;
+  try { const result = await callCloud<{ version: number }>('library-manage', { action: 'save', ...snapshot, version: libraryVersion() });
     if (owner !== String(uni.getStorageSync('he_openid') || '')) return;
-    if (result.ok && result.data) { setLibraryVersion(result.data.version); message.value = '云端资料已保存'; } else message.value = result.errMsg || '保存失败';
+    if (result.ok && result.data) { setLibraryVersion(result.data.version,snapshot); message.value = '云端资料已保存'; } else message.value = result.errMsg || '保存失败';
   } finally { busy.value = false; }
 }
 function pull() {
   uni.showModal({ title: '恢复云端资料', content: '用当前账号的云端收藏与行程替换本机资料。', success: async choice => {
     if (!choice.confirm || busy.value) return; busy.value = true;
     const owner = String(uni.getStorageSync('he_openid') || '');
+    const original=JSON.stringify(readLibrary());
     try { const result = await callCloud<Library & { version: number }>('library-manage', { action: 'get' });
       if (owner !== String(uni.getStorageSync('he_openid') || '')) return;
+      if(JSON.stringify(readLibrary())!==original){message.value='本机资料已变化，请重新确认恢复';return;}
       if (result.ok && result.data) { writeLibrary({ favorites: result.data.favorites, plans: result.data.plans }); setLibraryVersion(result.data.version); library.value = readLibrary(); message.value = '已恢复'; }
       else message.value = result.errMsg || '恢复失败';
     } catch { message.value = '本机保存失败'; } finally { busy.value = false; }

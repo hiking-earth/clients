@@ -35,7 +35,7 @@ export function deleteTrack(id: string): void {
 
 export function markSynced(id: string): void {
   const t = getTrack(id);
-  if (t) saveTrack({ ...t, synced: true });
+  if (t) {saveTrack({ ...t, synced: true });setTrackAutoSyncExcluded(id,false); }
 }
 
 // 恢复时只恢复为暂停；不得在启动应用时自动取得定位权限。

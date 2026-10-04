@@ -11,14 +11,21 @@ exports.main=async event=>{
  if(!OPENID||!admins.has(OPENID))return {errMsg:'需要管理员权限'};
  if(event.action!=='save'||typeof event.routeId!=='string'||event.routeId.length>128||!statuses.includes(event.status))return {errMsg:'路线审核格式无效'};
  let source;try{source=new URL(event.sourceUrl);}catch{return {errMsg:'需提供官方资料链接'};}
- const allowed=String(process.env.HIKING_OFFICIAL_DOMAINS||'').split(',').map(x=>x.trim().toLowerCase()).filter(Boolean);
+ const defaultDomains='nps.gov,hiking.gov.hk,afcd.gov.hk,portal.csdi.gov.hk,dengfeng.gov.cn,dpm.org.cn,lmsk.cn,bmy.com.cn,shaolin.org.cn';
+ const allowed=String(process.env.HIKING_OFFICIAL_DOMAINS||defaultDomains).split(',').map(x=>x.trim().toLowerCase()).filter(Boolean);
  if(source.protocol!=='https:'||source.username||source.password||!allowed.some(domain=>source.hostname===domain||source.hostname.endsWith('.'+domain)))return {errMsg:'该来源域名尚未配置为官方资料源'};
  if(typeof event.summary!=='string'||event.summary.length>3000||typeof event.riskNotice!=='string'||event.riskNotice.length>3000)return {errMsg:'资料内容格式无效'};
  const checkedAt=Date.parse(event.checkedAt);if(!Number.isFinite(checkedAt)||checkedAt>Date.now()||checkedAt<Date.now()-30*86400000)return {errMsg:'开放资料须为最近30天核验记录'};
  const expiresAt=Math.min(checkedAt+7*86400000,Date.now()+7*86400000);
  if(event.status==='开放中'&&expiresAt<=Date.now())return {errMsg:'开放状态资料已过期，请重新核验'};
+ let track=null;
+ if(event.track){
+  const t=event.track;let url;try{url=new URL(t.sourceUrl);}catch{return {errMsg:'轨迹需提供可追溯来源链接'};}
+  if(url.protocol!=='https:'||url.username||url.password||!allowed.some(domain=>url.hostname===domain||url.hostname.endsWith('.'+domain))||typeof t.license!=='string'||!t.license.trim()||t.license.length>1000||t.continuityConfirmed!==true||!Array.isArray(t.path)||t.path.length<2||t.path.length>20000||!t.path.every(p=>Array.isArray(p)&&p.length===2&&p.every(Number.isFinite)&&Math.abs(p[0])<=180&&Math.abs(p[1])<=90))return {errMsg:'轨迹需有效许可、连续性确认与2至20000个WGS84点'};
+  track={sourceUrl:url.href,license:t.license.trim(),path:t.path,verifiedAt:new Date(checkedAt).toISOString()};
+ }
  const id=crypto.createHash('sha256').update(event.routeId).digest('hex');
  return db.runTransaction(async tx=>{const ref=tx.collection('route_reviews').doc(id);const prior=(await ref.get()).data;
   if(event.version!==(prior?.version||0))return {errMsg:'另一管理员已修改，请刷新后重试'};
-  await ref.set({data:{routeId:event.routeId,status:event.status,sourceUrl:source.href,summary:event.summary,riskNotice:event.riskNotice,checkedAt:new Date(checkedAt).toISOString(),expiresAt,updatedAt:Date.now(),reviewedBy:OPENID,version:(prior?.version||0)+1}});return {saved:true,version:(prior?.version||0)+1};});
+  await ref.set({data:{routeId:event.routeId,status:event.status,sourceUrl:source.href,summary:event.summary,riskNotice:event.riskNotice,checkedAt:new Date(checkedAt).toISOString(),expiresAt,updatedAt:Date.now(),track,reviewedBy:OPENID,version:(prior?.version||0)+1}});return {saved:true,version:(prior?.version||0)+1};});
 };

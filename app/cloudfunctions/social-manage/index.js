@@ -20,7 +20,7 @@ exports.main=async event=>{
   if(action==='diaries.list'){
    const query=event.public?{kind:'diary',visibility:'public',status:'approved'}:{kind:'diary',owner:OPENID};
    const rows=(await db.collection('user_documents').where(query).orderBy('updatedAt','desc').skip(page*20).limit(20).get()).data;
-   return {items:rows.map(({owner,...row})=>({...row,mine:owner===OPENID})),hasMore:rows.length===20};
+   return {items:rows.map(({owner,reviewedBy,...row})=>({...row,mine:owner===OPENID})),hasMore:rows.length===20};
   }
   if(action==='comments.create'||action==='diaries.save'){
    if(!text(event.id,128)||!text(event.routeId,128)||!text(event.body,5000))return {errMsg:'内容或路线格式无效'};
@@ -42,7 +42,7 @@ exports.main=async event=>{
    const rows=(await db.collection('team_messages').where({teamId:event.teamId}).orderBy('createdAt','desc').skip(page*30).limit(30).get()).data;
    // Re-check membership after the read so revoked members do not receive a fresh page.
    await member(event.teamId,OPENID);
-   return {items:rows.map(({owner,...row})=>({...row,mine:owner===OPENID})),hasMore:rows.length===30};
+   return {items:rows.map(({owner,reviewedBy,...row})=>({...row,mine:owner===OPENID})),hasMore:rows.length===30};
   }
   if(action==='messages.send'){
    if(!text(event.teamId,128)||!text(event.id,128)||!text(event.body,1000))return {errMsg:'消息格式无效'};
