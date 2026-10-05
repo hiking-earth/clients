@@ -1,23 +1,24 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-05T05:34:30Z",
+  "generatedAt": "2026-10-05T14:31:26Z",
   "license": "ODbL-1.0",
   "attribution": "© OpenStreetMap contributors",
   "licenseUrl": "https://www.openstreetmap.org/copyright",
   "coverage": {
-    "china": 0,
+    "china": 1,
     "japan": 0,
     "oceania": 1,
     "south-america": 1,
+    "africa": 1,
     "south-asia": 0
   },
   "sourceCursors": {
-    "china": "2026-10-05T05:34:30Z",
-    "japan": "2026-10-05T05:34:30Z",
-    "oceania": "2026-10-05T05:34:30Z",
-    "south-america": "2026-10-05T05:34:30Z",
-    "africa": "2026-10-04T21:21:03Z",
-    "south-asia": "2026-10-05T05:34:30Z"
+    "china": "2026-10-05T14:31:26Z",
+    "japan": "2026-10-05T14:31:26Z",
+    "oceania": "2026-10-05T14:31:26Z",
+    "south-america": "2026-10-05T14:31:26Z",
+    "africa": "2026-10-05T14:31:26Z",
+    "south-asia": "2026-10-05T14:31:26Z"
   },
   "failures": [
     {
@@ -26,11 +27,7 @@
     },
     {
       "region": "north-america",
-      "error": "runtime error: Query timed out in \"query\" at line 1 after 46 seconds."
-    },
-    {
-      "region": "africa",
-      "error": "HTTP Error 504: Gateway Timeout"
+      "error": "The read operation timed out"
     }
   ],
   "routes": [
@@ -21914,7 +21911,7 @@
         "network": "rwn",
         "website": "https://whadjukwalkingtrails.org.au/trails/bush-to-beach/"
       },
-      "fetchedAt": "2026-10-04T21:21:03Z",
+      "fetchedAt": "2026-10-05T14:31:26Z",
       "status": "待核验"
     },
     {
@@ -35628,6 +35625,23 @@
       "status": "待核验"
     },
     {
+      "id": "osm-relation-16377299",
+      "name": "台北天際線#9",
+      "originalName": "台北天際線#9",
+      "region": "china",
+      "center": [
+        121.3591154,
+        24.9251257
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/16377299",
+      "sourceTags": {
+        "description": "台北天際線第九段 鶯歌到三峽。別名：環台北天際線、大台北天際線、環大台北天際線 長距離步道：台北天際線步道施作構想",
+        "network": "rwn"
+      },
+      "fetchedAt": "2026-10-05T14:31:26Z",
+      "status": "待核验"
+    },
+    {
       "id": "osm-relation-1637957",
       "name": "Trezona Hike",
       "originalName": "Trezona Hike",
@@ -36687,6 +36701,22 @@
         "operator": "CONAF"
       },
       "fetchedAt": "2026-10-04T21:21:03Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-16782568",
+      "name": "Senda Azul de Cabo de Gata",
+      "originalName": "Senda Azul de Cabo de Gata",
+      "region": "africa",
+      "center": [
+        -2.023923,
+        36.8475145
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/16782568",
+      "sourceTags": {
+        "network": "rwn"
+      },
+      "fetchedAt": "2026-10-05T14:31:26Z",
       "status": "待核验"
     },
     {
@@ -45708,6 +45738,22 @@
         "operator": "Dunedin City Council"
       },
       "fetchedAt": "2026-10-04T21:21:03Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-21499680",
+      "name": "Trilha Ecológica de Pontal do Paraná",
+      "originalName": "Trilha Ecológica de Pontal do Paraná",
+      "region": "south-america",
+      "center": [
+        -48.3984025,
+        -25.5895575
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/21499680",
+      "sourceTags": {
+        "network": "lwn"
+      },
+      "fetchedAt": "2026-10-05T14:31:26Z",
       "status": "待核验"
     },
     {
