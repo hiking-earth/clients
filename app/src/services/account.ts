@@ -53,7 +53,7 @@ export async function accountRequest<T>(action: string, data: Record<string, unk
   if (!accountApiConfigured()) return { ok: false, errMsg: '账号服务尚未配置，请稍后使用' };
   const session = accountSession();
   return new Promise(resolve => {
-    uni.request({ url: API_URL, method: 'POST', timeout: action === 'gear-scan' ? 60000 : 20000,
+    uni.request({ url: API_URL, method: 'POST', timeout: ['gear-scan','catalog-feed'].includes(action) ? 60000 : 20000,
       header: { 'Content-Type': 'application/json', ...(session ? { Authorization: `Bearer ${session.token}` } : {}) },
       data: { action, data },
       success: response => {

@@ -24,7 +24,7 @@
       <view class="notice">社区内容发布前需要审核；请勿发布他人位置等敏感信息。发现违规可长按帖子举报。</view>
     </scroll-view>
 
-    <view v-if="joiningPost" class="mask" @click="cancelRegistration"><view class="form" @click.stop><text class="form-title">活动报名</text><text>{{joiningPost.title}}</text><input v-model="birth" class="input" placeholder="出生日期 YYYY-MM-DD（不保存完整生日）" /><input v-model="emergency" maxlength="200" class="input" placeholder="紧急联系人姓名与电话" /><view><switch :checked="guardian" @change="guardian=$event.detail.value" /><text>未成年人由监护人填写并确认</text></view><view><switch :checked="contactConsent" @change="contactConsent=$event.detail.value" /><text>同意将紧急联系信息提供给活动发起人，取消报名后删除</text></view><button :disabled="submitting" @click="submitRegistration">确认报名</button><button @click="cancelRegistration">取消</button></view></view>
+    <view v-if="joiningPost" class="mask" @click="cancelRegistration"><view class="form" @click.stop><text class="form-title">活动报名</text><text>{{joiningPost.title}}</text><input v-model="birth" class="input" placeholder="出生日期 YYYY-MM-DD（不保存完整生日）" /><input v-model="emergency" maxlength="200" class="input" placeholder="紧急联系人姓名与电话" /><view><switch :checked="guardian" @change="guardian=eventValue($event)" /><text>未成年人由监护人填写并确认</text></view><view><switch :checked="contactConsent" @change="contactConsent=eventValue($event)" /><text>同意将紧急联系信息提供给活动发起人，取消报名后删除</text></view><button :disabled="submitting" @click="submitRegistration">确认报名</button><button @click="cancelRegistration">取消</button></view></view>
     <view class="fab" @click="newPost">＋ 发约伴</view>
 
     <!-- 发帖弹窗 -->
@@ -34,7 +34,7 @@
         <input v-model="form.title" class="input" placeholder="标题（如：武功山两日轻装）" placeholder-class="ph" />
         <textarea v-model="form.content" class="textarea" placeholder="时间、集合点、强度要求…" placeholder-class="ph" />
         <input v-model="form.departDate" class="input" placeholder="出发日期 YYYY-MM-DD" placeholder-class="ph" />
-        <view v-if="!editingId"><input v-model="birth" class="input" placeholder="出生日期 YYYY-MM-DD（用于成年人判断，不保存完整生日）" /><input v-model="emergency" maxlength="200" class="input" placeholder="紧急联系人姓名与电话" /><switch :checked="contactConsent" @change="contactConsent=$event.detail.value" /><text>同意保存本人紧急联系信息，仅本人及发起人可访问</text></view>
+        <view v-if="!editingId"><input v-model="birth" class="input" placeholder="出生日期 YYYY-MM-DD（用于成年人判断，不保存完整生日）" /><input v-model="emergency" maxlength="200" class="input" placeholder="紧急联系人姓名与电话" /><switch :checked="contactConsent" @change="contactConsent=eventValue($event)" /><text>同意保存本人紧急联系信息，仅本人及发起人可访问</text></view>
         <input v-model.number="form.maxMembers" type="number" class="input" placeholder="人数上限" placeholder-class="ph" />
         <picker mode="selector" :range="routeNames" @change="onPickRoute">
           <view class="input picker">{{ form.routeId ? routeName(form.routeId) : '关联路线（可选）' }}</view>
@@ -49,6 +49,7 @@
 </template>
 
 <script setup lang="ts">
+function eventValue(event: Event): any { return (event as Event & {detail:{value:unknown}}).detail.value; }
 import { ref } from "vue";
 import { onShow, onHide, onUnload } from "@dcloudio/uni-app";
 import { ROUTES } from "@/services/route-catalog";

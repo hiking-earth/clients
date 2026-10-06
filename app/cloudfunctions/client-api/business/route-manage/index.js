@@ -3,13 +3,18 @@ const statuses=['开放中','即将开放','临时关闭','永久关闭','待核
 exports.main=async event=>{
  const OPENID = require('../../identity').optionalIdentity();
  if(event.action==='list'){
+  if(typeof event.routeId==='string'&&event.routeId.trim()&&event.routeId.length<=128){
+   const id=crypto.createHash('sha256').update(event.routeId).digest('hex');
+   const row=(await db.collection('route_reviews').doc(id).get()).data;
+   return {items:row?[(({reviewedBy,...publicRow})=>publicRow)(row)]:[],hasMore:false};
+  }
   const page=Number.isInteger(event.page)&&event.page>=0&&event.page<1000?event.page:0;
-  const rows=(await db.collection('route_reviews').orderBy('updatedAt','desc').skip(page*100).limit(100).get()).data;
-  return {items:rows.map(({reviewedBy,...row})=>row),hasMore:rows.length===100};
+  const rows=(await db.collection('route_reviews').orderBy('updatedAt','desc').skip(page*10).limit(10).get()).data;
+  return {items:rows.map(({reviewedBy,...row})=>row),hasMore:rows.length===10};
  }
  const admins=new Set(String(process.env.HIKING_ADMIN_IDENTITIES||'').split(',').map(x=>x.trim()).filter(Boolean));
  if(!OPENID||!admins.has(OPENID))return {errMsg:'需要管理员权限'};
- if(event.action!=='save'||typeof event.routeId!=='string'||event.routeId.length>128||!statuses.includes(event.status))return {errMsg:'路线审核格式无效'};
+ if(event.action!=='save'||typeof event.routeId!=='string'||!event.routeId.trim()||event.routeId.length>128||!statuses.includes(event.status))return {errMsg:'路线审核格式无效'};
  let source;try{source=new URL(event.sourceUrl);}catch{return {errMsg:'需提供官方资料链接'};}
  const defaultDomains='nps.gov,hiking.gov.hk,afcd.gov.hk,portal.csdi.gov.hk,dengfeng.gov.cn,dpm.org.cn,lmsk.cn,bmy.com.cn,shaolin.org.cn';
  const allowed=String(process.env.HIKING_OFFICIAL_DOMAINS||defaultDomains).split(',').map(x=>x.trim().toLowerCase()).filter(Boolean);
@@ -21,7 +26,7 @@ exports.main=async event=>{
  let track=null;
  if(event.track){
   const t=event.track;let url;try{url=new URL(t.sourceUrl);}catch{return {errMsg:'轨迹需提供可追溯来源链接'};}
-  if(url.protocol!=='https:'||url.username||url.password||!allowed.some(domain=>url.hostname===domain||url.hostname.endsWith('.'+domain))||typeof t.license!=='string'||!t.license.trim()||t.license.length>1000||t.continuityConfirmed!==true||!Array.isArray(t.path)||t.path.length<2||t.path.length>20000||!t.path.every(p=>Array.isArray(p)&&p.length===2&&p.every(Number.isFinite)&&Math.abs(p[0])<=180&&Math.abs(p[1])<=90))return {errMsg:'轨迹需有效许可、连续性确认与2至20000个WGS84点'};
+  if(url.protocol!=='https:'||url.username||url.password||!allowed.some(domain=>url.hostname===domain||url.hostname.endsWith('.'+domain))||typeof t.license!=='string'||!t.license.trim()||t.license.length>1000||t.continuityConfirmed!==true||!Array.isArray(t.path)||t.path.length<2||t.path.length>3000||!t.path.every(p=>Array.isArray(p)&&p.length===2&&p.every(Number.isFinite)&&Math.abs(p[0])<=180&&Math.abs(p[1])<=90))return {errMsg:'轨迹需有效许可、连续性确认与2至3000个WGS84点'};
   track={sourceUrl:url.href,license:t.license.trim(),path:t.path,verifiedAt:new Date(checkedAt).toISOString()};
  }
  const id=crypto.createHash('sha256').update(event.routeId).digest('hex');

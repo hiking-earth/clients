@@ -22,7 +22,7 @@ jobs:
         include:
           - os: macos-latest
             target: aarch64-apple-darwin
-            bundles: dmg
+            bundles: app,dmg
           - os: windows-latest
             target: x86_64-pc-windows-msvc
             bundles: msi
@@ -76,6 +76,16 @@ jobs:
           includeUpdaterJson: true
           releaseDraft: true
           prerelease: false
+
+      - name: Verify updater signatures against pinned public key
+        shell: bash
+        run: |
+          count=0
+          while IFS= read -r -d '' signature; do
+            node scripts/verify-desktop-updater.mjs "${signature%.sig}"
+            count=$((count + 1))
+          done < <(find desktop/src-tauri/target/${{ matrix.target }}/release/bundle -type f -name '*.sig' -print0)
+          test "$count" -gt 0
 
       - name: 保存 Windows 程序与打包产物
         if: always() && matrix.os == 'windows-latest'

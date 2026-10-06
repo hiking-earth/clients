@@ -1,12 +1,15 @@
 import { reactive } from 'vue';
+import {publicSnapshot} from './public-data';
 import { isDesktop, checkDesktopUpdate, installDesktopUpdate, restartDesktop } from './desktop';
 import { hasRecordingDraft } from './tracks';
-export const APP_VERSION='0.2.0';
+export const APP_VERSION='0.2.1';
 export const updateState=reactive({checking:false,installing:false,available:false,version:'',notes:'',message:'',progress:0});
-const MANIFEST=import.meta.env.VITE_RELEASE_MANIFEST_URL || 'https://raw.githubusercontent.com/hiking-earth/clients/main/shared/releases/stable.json';
+const MANIFEST=import.meta.env.VITE_RELEASE_MANIFEST_URL;
 type Artifact={url:string;sha256:string;size:number};
 type Release={schemaVersion:1;ready:boolean;version:string;versionCode:number;notes:string;android:Artifact|null;ios:{url:string}|null};
-let release:Release|null=null;let lastCheck=0;let miniManagerBound=false;
+let release:Release|null=null;let nextCheckAt=0;let failures=0;let miniManagerBound=false;
+function checkedSuccessfully(){failures=0;nextCheckAt=Date.now()+6*60*60*1000;}
+function checkFailed(){failures++;nextCheckAt=Date.now()+Math.min(6*60*60*1000,15*60*1000*2**Math.min(failures-1,5));}
 function newer(version:string,current:string):boolean {const a=version.split('.').map(Number),b=current.split('.').map(Number);for(let i=0;i<3;i++){if(a[i]!==b[i])return a[i]>b[i];}return false;}
 function artifactUrl(url:string):boolean {return /^https:\/\/github\.com\/hiking-earth\/clients\/releases\/download\/[^/]+\/[^?#]+$/.test(url);}
 function nativeVersion():string {
@@ -16,50 +19,49 @@ function nativeVersion():string {
   return APP_VERSION;
 }
 export async function checkForUpdate(force=false):Promise<void> {
-  if(updateState.checking || updateState.installing || (!force && Date.now()-lastCheck<6*60*60*1000))return;
-  updateState.checking=true;lastCheck=Date.now();updateState.message='';
-  // Mini-program callbacks retain a downloaded update between checks.
-  // #ifndef MP-WEIXIN
-  release=null;updateState.available=false;updateState.version='';updateState.notes='';
-  // #endif
+  if(updateState.checking || updateState.installing || (!force && Date.now()<nextCheckAt))return;
+  updateState.checking=true;updateState.message='';
   try {
-    if(isDesktop()) {const info=await checkDesktopUpdate();updateState.available=!!info;updateState.version=info?.version||'';updateState.notes=info?.notes||'';return;}
+    if(isDesktop()) {const info=await checkDesktopUpdate();updateState.available=!!info;updateState.version=info?.version||'';updateState.notes=info?.notes||'';checkedSuccessfully();return;}
     // #ifdef MP-WEIXIN
-    if(miniManagerBound)return;miniManagerBound=true;
+    if(miniManagerBound){updateState.message=updateState.available?'微信已下载更新，保存当前工作后可重启':'微信在下次小程序启动时继续检查更新';return;}
     const manager=uni.getUpdateManager();
-    manager.onCheckForUpdate(result=>{updateState.message=result.hasUpdate?'微信正在准备更新':'当前小程序为最新版本';});
+    manager.onCheckForUpdate(result=>{checkedSuccessfully();updateState.message=result.hasUpdate?'微信正在准备更新':'当前小程序为最新版本';});
     manager.onUpdateReady(()=>{updateState.available=true;updateState.notes='微信已下载新版本，完成当前操作后可重启更新';});
-    manager.onUpdateFailed(()=>{updateState.message='微信更新下载失败，请稍后重新打开';});
+    manager.onUpdateFailed(()=>{checkFailed();updateState.available=false;updateState.message='微信更新下载失败，请稍后重新打开';});
+    miniManagerBound=true;
     return;
     // #endif
-    const data=await new Promise<unknown>((resolve,reject)=>uni.request({url:MANIFEST,timeout:15000,success:r=>r.statusCode===200?resolve(r.data):reject(new Error('发布清单暂不可用')),fail:()=>reject(new Error('无法连接更新服务'))}));
+    const data=MANIFEST?await new Promise<unknown>((resolve,reject)=>uni.request({url:MANIFEST,timeout:15000,success:r=>r.statusCode===200?resolve(r.data):reject(new Error('发布清单暂不可用')),fail:()=>reject(new Error('无法连接更新服务'))})):await publicSnapshot('release');
     const r=data as Release;
-    if(r?.schemaVersion!==1 || !/^\d+\.\d+\.\d+$/.test(r.version) || !Number.isInteger(r.versionCode) || typeof r.notes!=='string')throw new Error('发布清单无效');
-    if(r.android && (!artifactUrl(r.android.url) || !/^[a-f0-9]{64}$/.test(r.android.sha256) || !Number.isSafeInteger(r.android.size) || r.android.size<=0 || r.android.size>200*1024*1024))throw new Error('安装包信息无效');
-    if(r.ios && !/^https:\/\/(apps\.apple\.com|testflight\.apple\.com)\//.test(r.ios.url))throw new Error('iOS更新入口无效');
+    if(r?.schemaVersion!==1 || typeof r.ready!=='boolean' || !/^\d+\.\d+\.\d+$/.test(r.version) || !Number.isSafeInteger(r.versionCode) || r.versionCode<=0 || typeof r.notes!=='string' || r.notes.length>12000)throw new Error('发布清单无效');
+    const android=r.android;const ios=r.ios;
+    if(android && (!artifactUrl(android!.url) || !/^[a-f0-9]{64}$/.test(android!.sha256) || !Number.isSafeInteger(android!.size) || android!.size<=0 || android!.size>200*1024*1024))throw new Error('安装包信息无效');
+    if(ios && !/^https:\/\/(apps\.apple\.com|testflight\.apple\.com)\//.test(ios!.url))throw new Error('iOS更新入口无效');
     release=r;updateState.available=r.ready && newer(r.version,nativeVersion());updateState.version=r.version;updateState.notes=r.notes;
+    checkedSuccessfully();
     if(!updateState.available)updateState.message=r.ready?'当前为最新版本':'新版本仍在准备，尚未正式发布';
-  } catch(e:any){updateState.message=e.message || '检查更新失败';}finally{updateState.checking=false;}
+  } catch(e:any){checkFailed();updateState.message=e.message || '检查更新失败';}finally{updateState.checking=false;}
 }
 export async function applyUpdate():Promise<void> {
   if(updateState.installing || !updateState.available)return;
   if(hasRecordingDraft()){updateState.message='请先暂停并保存正在记录的轨迹，再更新';return;}
-  updateState.installing=true;updateState.message='';
+  updateState.installing=true;updateState.message='';updateState.progress=0;
   try {
     if(isDesktop()){await installDesktopUpdate(updateState.version);await restartDesktop();return;}
     // #ifdef MP-WEIXIN
     uni.getUpdateManager().applyUpdate();return;
     // #endif
     // #ifdef APP-PLUS
-    if(plus.os.name==='iOS'){if(!release?.ios)throw new Error('iOS签名版本尚未发布');plus.runtime.openURL(release.ios.url);return;}
-    if(!release?.android)throw new Error('Android新版安装包尚未发布');
-    const artifact=release.android;
+    const currentRelease=release;const iosArtifact=currentRelease?.ios;const artifact=currentRelease?.android;
+    if(plus.os.name==='iOS'){if(!iosArtifact)throw new Error('iOS签名版本尚未发布');plus.runtime.openURL(iosArtifact!.url);return;}
+    if(!artifact)throw new Error('Android新版安装包尚未发布');
     const filename=await new Promise<string>((resolve,reject)=>{
-      const task=uni.downloadFile({url:artifact.url,timeout:180000,success:r=>r.statusCode===200?resolve(r.tempFilePath):reject(new Error('安装包下载失败')),fail:()=>reject(new Error('安装包下载中断'))});
+      const task=uni.downloadFile({url:artifact!.url,timeout:180000,success:r=>r.statusCode===200?resolve(r.tempFilePath):reject(new Error('安装包下载失败')),fail:()=>reject(new Error('安装包下载中断'))});
       task.onProgressUpdate(p=>{updateState.progress=p.progress;});
     });
     const { verifyDownloadedApk }=await import('./files');
-    await verifyDownloadedApk(filename,artifact.sha256,artifact.size);
+    await verifyDownloadedApk(filename,artifact!.sha256,artifact!.size);
     // Android's installer additionally validates APK signature and upgrade identity.
     await new Promise<void>((resolve,reject)=>plus.runtime.install(filename,{force:false},()=>resolve(),()=>reject(new Error('安装未完成，请检查系统安装授权'))));
     return;

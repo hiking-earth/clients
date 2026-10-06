@@ -47,7 +47,7 @@ exports.main = async (event) => {
    if(previous){if(['deleted','hidden','deleting'].includes(previous.status))return {errMsg:'该提交已失效，请重新创建活动'};return {id,...previous,reviewPending:previous.status==='pending'};}
    await ref.set({data:doc});
    const registrationId=crypto.createHash('sha256').update(`${OPENID}:registration:${id}`).digest('hex');
-   await tx.collection('user_documents').doc(registrationId).set({data:{owner:OPENID,kind:'registration',nickname:String(event.nickname||'山友').slice(0,40),postId:id,adult:true,guardianConfirmed:false,emergency:event.emergency.trim(),createdAt:Date.now()}});
+   await tx.collection('user_documents').doc(registrationId).set({data:{owner:OPENID,kind:'registration',nickname:String(event.nickname||'山友').slice(0,40),postId:id,adult:true,guardianConfirmed:false,emergency:event.emergency.trim(),expiresAt:Date.parse(departDate+'T23:59:59+08:00')+30*86400000,createdAt:Date.now()}});
    return {id,...doc,reviewPending};
   });
 };

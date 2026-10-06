@@ -11,20 +11,21 @@
   <text class="hint">格式：format=hiking-earth-offline-v1，name、attribution、license均必填，geometry为GeoJSON FeatureCollection；支持LineString/MultiLineString/Polygon/MultiPolygon。每份最多5 MB、50000点，总量8 MB。导入后不会上传。</text>
 </scroll-view></template>
 <script setup lang="ts">
+import {publicSnapshot} from '@/services/public-data';
 import { chooseNativeText } from '@/services/files';
 import { computed, ref } from 'vue';
 import { onShow } from '@dcloudio/uni-app';
 import TrackCanvas from '@/components/TrackCanvas.vue';
-import { offlineLayers, importOfflineLayer, deleteOfflineLayer, selectOfflineLayer } from '@/services/offline';
+import { offlineLayers, importOfflineLayer, deleteOfflineLayer, selectOfflineLayer, restoreOfflineLayers } from '@/services/offline';
 const downloading=ref(false);
-async function downloadHk(){if(downloading.value)return;downloading.value=true;message.value='';try{const text=await new Promise<string>((resolve,reject)=>uni.request({url:'https://raw.githubusercontent.com/hiking-earth/clients/main/shared/data/offline/hk-afcd.json',timeout:30000,success:r=>r.statusCode===200?resolve(typeof r.data==='string'?r.data:JSON.stringify(r.data)):reject(new Error('官方资料暂不可用')),fail:()=>reject(new Error('下载失败，已有资料保留'))}));const layer=importOfflineLayer(text);selectOfflineLayer(layer.id);load();message.value='官方参考线已保存，可离线查看';}catch(e:any){message.value=e.message;}finally{downloading.value=false;}}
+async function downloadHk(){if(downloading.value)return;downloading.value=true;message.value='';try{const text=JSON.stringify(await publicSnapshot('offline-hk'));const layer=await importOfflineLayer(text);selectOfflineLayer(layer.id);load();message.value='官方参考线已保存，可离线查看';}catch(e:any){message.value=e.message;}finally{downloading.value=false;}}
 const layers = ref(offlineLayers()), active = ref(String(uni.getStorageSync('he_offline_active') || '')), source = ref(''), message = ref('');
 const preview = computed(() => layers.value.find(p => p.id === active.value));
-function load() { layers.value = offlineLayers(); active.value = String(uni.getStorageSync('he_offline_active') || ''); }
+async function load() { await restoreOfflineLayers();layers.value = offlineLayers(); active.value = String(uni.getStorageSync('he_offline_active') || ''); }
 onShow(load);
 function activate(id: string) { selectOfflineLayer(id); load(); }
-function remove(id: string) { uni.showModal({ title: '删除离线资料', content: '删除这份本机资料？不影响轨迹文件。', success: r => { if (r.confirm) { try { deleteOfflineLayer(id); load(); } catch { message.value = '删除失败'; } } } }); }
-function save() { try { const layer = importOfflineLayer(source.value); selectOfflineLayer(layer.id); source.value = ''; load(); message.value = '已保存到本机'; } catch (e) { message.value = e instanceof Error ? e.message : '导入失败'; } }
+function remove(id: string) { uni.showModal({ title: '删除离线资料', content: '删除这份本机资料？不影响轨迹文件。', success: async r => { if (r.confirm) { try { await deleteOfflineLayer(id); await load(); } catch { message.value = '删除失败'; } } } }); }
+async function save() { try { const layer = await importOfflineLayer(source.value); selectOfflineLayer(layer.id); source.value = ''; load(); message.value = '已保存到本机'; } catch (e) { message.value = e instanceof Error ? e.message : '导入失败'; } }
 async function chooseNative() { try { const text = await chooseNativeText(); if (text !== null) source.value = text; } catch (e) { message.value = e instanceof Error ? e.message : '文件读取失败'; } }
 // #ifdef H5
 function choose() {

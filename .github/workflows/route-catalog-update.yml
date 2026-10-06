@@ -42,14 +42,42 @@ jobs:
         env:
           USDA_OUTCOME: ${{ steps.usda.outcome }}
           OSM_OUTCOME: ${{ steps.osm.outcome }}
+          HK_OUTCOME: ${{ steps.hk.outcome }}
+          CONTENT_OUTCOME: ${{ steps.content.outcome }}
         run: |
           echo "### Hiking catalog collection" >> "$GITHUB_STEP_SUMMARY"
-          echo "USDA: $USDA_OUTCOME; OSM: $OSM_OUTCOME" >> "$GITHUB_STEP_SUMMARY"
-          echo "Failed sources retain their previous catalog. Source collection is not application acceptance." >> "$GITHUB_STEP_SUMMARY"
+          echo "USDA: $USDA_OUTCOME; OSM: $OSM_OUTCOME; Hong Kong AFCD: $HK_OUTCOME; official notices: $CONTENT_OUTCOME" >> "$GITHUB_STEP_SUMMARY"
+          python - <<'PY'
+          import json, os
+          from collections import Counter
+          from pathlib import Path
+          root = Path('shared/data')
+          sources = [
+              ('OSM', root/'catalog/osm.json', 'routes'),
+              ('USFS', root/'catalog/usfs.json', 'routes'),
+              ('Hong Kong AFCD', root/'catalog/hk-afcd.json', 'routes'),
+              ('Official notices', root/'content/official-news.json', 'items'),
+          ]
+          rows = ['| Source snapshot | Records | Generated |', '|---|---:|---|']
+          for label, path, key in sources:
+              data = json.loads(path.read_text())
+              rows.append(f"| {label} | {len(data.get(key, []))} | {data.get('generatedAt', 'unknown')} |")
+          osm = json.loads((root/'catalog/osm.json').read_text())
+          backfill = osm.get('backfill', {})
+          regions = Counter(route.get('region', 'unknown') for route in osm.get('routes', []))
+          rows.append('| OSM records by region | ' + '; '.join(f'{name}: {count}' for name, count in sorted(regions.items())) + ' | source tags only |')
+          rows.append(f"| OSM grid backfill | {backfill.get('completedTiles', 0)} complete / {backfill.get('pendingTiles', 0)} pending | cycle {backfill.get('cycle', 0)} |")
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as summary:
+              summary.write('\n'.join(rows) + '\n')
+          PY
+          echo "Failed sources retain their previous catalog. Automatic collection does not verify trail access or produce navigable geometry." >> "$GITHUB_STEP_SUMMARY"
+      - name: Prepare immutable compressed catalog pages
+        if: ${{ !cancelled() }}
+        run: python scripts/prepare-catalog-pages.py
       - name: Publish changed snapshot
         if: ${{ !cancelled() }}
         run: |
-          git add shared/data/catalog/ shared/data/content/ shared/data/offline/
+          git add shared/data/catalog/ shared/data/content/ shared/data/offline/ shared/public-catalog/
           if git diff --cached --quiet; then exit 0; fi
           git config user.name 'hiking-earth-catalog[bot]'
           git config user.email 'catalog@users.noreply.github.com'

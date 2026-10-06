@@ -140,6 +140,25 @@
       "timeout": 30,
       "memorySize": 256,
       "runtime": "Nodejs20.19"
+    },
+    {
+      "name": "data-maintenance",
+      "timeout": 120,
+      "memorySize": 256,
+      "runtime": "Nodejs20.19",
+      "triggers": [
+        {
+          "name": "hiking-retention-six-hours",
+          "type": "timer",
+          "config": "0 37 */6 * * * *"
+        }
+      ]
+    },
+    {
+      "name": "catalog-feed",
+      "timeout": 60,
+      "memorySize": 512,
+      "runtime": "Nodejs20.19"
     }
   ]
 }

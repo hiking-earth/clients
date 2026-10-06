@@ -59,13 +59,15 @@
 </template>
 
 <script setup lang="ts">
-import { activeOfflineLayer } from '@/services/offline';
-const offlineLayer = activeOfflineLayer();
+import { activeOfflineLayer,restoreOfflineLayers } from '@/services/offline';
+
 import RouteMap from '@/components/RouteMap.vue';
 import { toMapPoint } from "@shared/api/coordinates";
 import { isNavigable } from "@shared/types/route";
 import { computed, onUnmounted, ref } from "vue";
-import { onLoad } from "@dcloudio/uni-app";
+import { onLoad,onShow } from "@dcloudio/uni-app";
+const offlineLayer = computed(()=>activeOfflineLayer());
+onShow(()=>{void restoreOfflineLayers();});
 import { ROUTES } from "@/services/route-catalog";
 import type { LatLng } from "@shared/api/navigation-core";
 import {

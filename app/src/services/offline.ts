@@ -1,10 +1,21 @@
+import {reactive} from 'vue';
+import {readCatalogCache,writeCatalogCache} from './catalog-cache';
 export type OfflineLayer = { id: string; name: string; attribution: string; license: string; savedAt: number; paths: [number, number][][]; bytes: number };
-const KEY = 'he_offline_vectors_v1';
-const bytesOf = (text: string) => encodeURIComponent(text).replace(/%[A-F\d]{2}|./g, 'x').length;
-export function offlineLayers(): OfflineLayer[] {
-  try { const value = JSON.parse(uni.getStorageSync(KEY) || '[]'); return Array.isArray(value) ? value.filter(p => p && typeof p.id === 'string' && Array.isArray(p.paths)) : []; } catch { return []; }
+const state=reactive<{layers:OfflineLayer[];active:string}>({layers:[],active:String(uni.getStorageSync('he_offline_active')||'')});
+let restoring:Promise<void>|undefined;let mutation:Promise<void>=Promise.resolve();
+function validLayers(value:any):value is OfflineLayer[]{
+ return Array.isArray(value)&&value.length<=100&&value.every((layer:any)=>layer&&typeof layer.id==='string'&&typeof layer.name==='string'&&typeof layer.attribution==='string'&&typeof layer.license==='string'&&Number.isFinite(layer.savedAt)&&Number.isFinite(layer.bytes)&&Array.isArray(layer.paths)&&layer.paths.length<=50000&&layer.paths.every((line:any)=>Array.isArray(line)&&line.length>=2&&line.length<=50000&&line.every((point:any)=>Array.isArray(point)&&point.length===2&&point.every(Number.isFinite)&&Math.abs(point[0])<=180&&Math.abs(point[1])<=90)));
 }
-export function importOfflineLayer(text: string): OfflineLayer {
+export function restoreOfflineLayers():Promise<void>{
+ return restoring??=readCatalogCache('offline',validLayers).then(value=>{if(value&&bytesOf(JSON.stringify(value))<=8*1024*1024)state.layers=value;}).catch(()=>{});
+}
+async function commitLayers(update:(rows:OfflineLayer[])=>OfflineLayer[]):Promise<void>{
+ const work=mutation.catch(()=>{}).then(async()=>{await restoreOfflineLayers();const next=update([...state.layers]);await writeCatalogCache('offline',next);state.layers=next;});mutation=work;return work;
+}
+const bytesOf = (text: string) => encodeURIComponent(text).replace(/%[A-F\d]{2}|./g, 'x').length;
+export function offlineLayers():OfflineLayer[]{return state.layers;}
+export async function importOfflineLayer(text: string): Promise<OfflineLayer> {
+  await restoreOfflineLayers();
   if (bytesOf(text) > 5 * 1024 * 1024) throw new Error('离线资料最多5 MB');
   const data = JSON.parse(text);
   if (data.format !== 'hiking-earth-offline-v1' || typeof data.name !== 'string' || !data.name.trim() || typeof data.attribution !== 'string' || !data.attribution.trim() || typeof data.license !== 'string' || !data.license.trim() || data.geometry?.type !== 'FeatureCollection' || !Array.isArray(data.geometry.features)) throw new Error('资料需包含名称、来源、许可和GeoJSON FeatureCollection');
@@ -29,18 +40,21 @@ export function importOfflineLayer(text: string): OfflineLayer {
   if (!paths.length) throw new Error('资料没有可显示的线段');
   const layer = { id: `offline-${Date.now()}-${Math.random().toString(36).slice(2,8)}`, name: data.name.trim().slice(0,80), attribution: data.attribution.trim().slice(0,300), license: data.license.trim().slice(0,300), savedAt: Date.now(), paths, bytes: 0 };
   layer.bytes = bytesOf(JSON.stringify(layer));
-  const all = [...offlineLayers(), layer], serialized = JSON.stringify(all);
-  if (bytesOf(serialized) > 8 * 1024 * 1024) throw new Error('离线资料总量最多8 MB，请先删除不需要的资料');
-  uni.setStorageSync(KEY, serialized); return layer;
+  let selected=layer;
+  await commitLayers(rows=>{
+   const existing=rows.find(item=>item.name===layer.name&&item.attribution===layer.attribution&&item.license===layer.license&&JSON.stringify(item.paths)===JSON.stringify(layer.paths));
+   if(existing){selected=existing;return rows;}
+   const all=[...rows,layer];if(all.length>100||bytesOf(JSON.stringify(all))>8*1024*1024)throw new Error('离线资料总量最多8 MB和100份，请先删除不需要的资料');return all;
+  });return selected;
 }
-export function deleteOfflineLayer(id: string): void {
-  uni.setStorageSync(KEY, JSON.stringify(offlineLayers().filter(p => p.id !== id)));
-  if (uni.getStorageSync('he_offline_active') === id) uni.removeStorageSync('he_offline_active');
+export async function deleteOfflineLayer(id: string): Promise<void> {
+ await commitLayers(rows=>rows.filter(layer=>layer.id!==id));
+ if(state.active===id){state.active='';try{uni.removeStorageSync('he_offline_active');}catch{}}
 }
 export function activeOfflineLayer(): OfflineLayer | null {
-  const id = uni.getStorageSync('he_offline_active'); return offlineLayers().find(p => p.id === id) || null;
+  const id = state.active; return offlineLayers().find(p => p.id === id) || null;
 }
 export function selectOfflineLayer(id: string): void {
   if (!offlineLayers().some(p => p.id === id)) throw new Error('离线资料不存在');
-  uni.setStorageSync('he_offline_active', id);
+  uni.setStorageSync('he_offline_active', id);state.active=id;
 }

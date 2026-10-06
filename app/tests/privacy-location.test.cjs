@@ -10,6 +10,8 @@ function setup(extra = {}) {
   let starts = 0, stops = 0;
   const uni = {
     getStorageSync: k => storage.get(k), setStorageSync: (k, v) => storage.set(k, v),
+    removeStorageSync: k => storage.delete(k),
+    request: opts => opts.fail({errMsg: 'simulated network unavailable'}),
     startLocationUpdate: opts => { starts++; requests.push(opts); },
     stopLocationUpdate: () => { stops++; },
     onLocationChange: fn => events.add(fn), offLocationChange: fn => events.delete(fn),
@@ -26,10 +28,19 @@ function setup(extra = {}) {
     file = path.resolve(__dirname, '..', file);
     if (cache.has(file)) return cache.get(file).exports;
     const mod = { exports: {} }; cache.set(file, mod);
-    const code = ts.transpileModule(fs.readFileSync(file, 'utf8'), {
+    const flags = new Set(extra.wx ? ['MP-WEIXIN'] : ['H5']);
+    const stack = [true];
+    const platformSource = fs.readFileSync(file, 'utf8').split('\n').filter(line => {
+      const start = line.match(/^\s*\/\/\s*#(ifdef|ifndef)\s+(.+)$/);
+      if (start) {const matches=start[2].trim().split(/\s*\|\|\s*/).some(flag=>flags.has(flag));stack.push(stack[stack.length-1] && (start[1]==='ifdef'?matches:!matches));return false;}
+      if (/^\s*\/\/\s*#endif/.test(line)) {stack.pop();return false;}
+      return stack[stack.length-1];
+    }).join('\n').replace(/import\.meta\.env/g, '({})');
+    const code = ts.transpileModule(platformSource, {
       compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 },
     }).outputText;
     const requireLocal = name => {
+      if (!name.startsWith('@/') && !name.startsWith('@shared/')) return require(name);
       const target = name.startsWith('@/') ? 'src/' + name.slice(2) : '../shared/' + name.slice(8);
       const p = path.resolve(__dirname, '..', target);
       return load(fs.existsSync(p + '.ts') ? p + '.ts' : path.join(p, 'index.ts'));

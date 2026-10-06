@@ -25,13 +25,15 @@
 
 <script setup lang="ts">
 import { saveNativeGpx } from '@/services/files';
-import { activeOfflineLayer } from '@/services/offline';
-const offlineLayer = activeOfflineLayer();
+import { activeOfflineLayer,restoreOfflineLayers } from '@/services/offline';
+
 import RouteMap from '@/components/RouteMap.vue';
 import { isDesktop, saveDesktopGpx } from '@/services/desktop';
 import { toMapPoint } from "@shared/api/coordinates";
 import { computed, ref } from "vue";
-import { onLoad } from "@dcloudio/uni-app";
+import { onLoad,onShow } from "@dcloudio/uni-app";
+const offlineLayer = computed(()=>activeOfflineLayer());
+onShow(()=>{void restoreOfflineLayers();});
 import { trackToGpx, type TrackRecord } from "@shared/types/track";
 import { deleteTrack, getTrack, markSynced } from "@/services/tracks";
 import { callCloud } from "@/services/cloud";

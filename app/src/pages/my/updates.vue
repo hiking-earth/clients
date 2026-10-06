@@ -25,8 +25,8 @@ import {autoSyncEnabled,setAutoSync,syncNow,syncState} from '@/services/sync';
 import {APP_VERSION,checkForUpdate,applyUpdate,updateState} from '@/services/updates';
 const enabled=ref(false);
 onShow(()=>{enabled.value=autoSyncEnabled();});
-async function toggle(event:{detail:{value:boolean}}){
-  if(!event.detail.value){setAutoSync(false);enabled.value=false;return;}
+async function toggle(event:Event){
+  if(!(event as Event & {detail:{value:boolean}}).detail.value){setAutoSync(false);enabled.value=false;return;}
   const result=await uni.showModal({title:'开启自动同步',content:'将本机收藏、行程以及已授权备份的完成轨迹同步到当前账号；其他设备可恢复。账号切换后需单独开启。'});
   if(!result.confirm){enabled.value=false;return;}
   try{setAutoSync(true);enabled.value=true;}catch(e:any){enabled.value=false;uni.showToast({title:e.message,icon:'none'});}

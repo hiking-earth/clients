@@ -85,10 +85,11 @@ async function login() {
   go('/pages/account/account'); return;
   // #endif
   const res = await callCloud<{ openid: string; nickname: string }>("login");
-  if (res.ok && res.data) {
-    openid.value = res.data.openid;
-    nickname.value = res.data.nickname ?? "山友";
-    uni.setStorageSync("he_openid", res.data.openid);
+  const loginData = res.data;
+  if (res.ok && loginData) {
+    openid.value = loginData!.openid;
+    nickname.value = loginData!.nickname ?? "山友";
+    uni.setStorageSync("he_openid", loginData!.openid);
     uni.showToast({ title: "登录成功", icon: "success" });
   } else {
     uni.showToast({ title: res.errMsg ?? "登录失败", icon: "none" });
@@ -99,7 +100,7 @@ async function syncAll() {
   if (!hasPrivacyConsent("trackCloudSync")) {
     uni.showModal({
       title: "需要轨迹备份授权",
-      content: "仅在你手动同步时上传轨迹。请先在隐私设置中启用云端轨迹备份。",
+      content: "手动备份或已另行开启的账号自动同步，都需要先在隐私设置中启用云端轨迹备份。",
       showCancel: false,
     });
     return;

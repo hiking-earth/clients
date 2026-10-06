@@ -9,7 +9,7 @@
    <view v-if="keyword" class="choices"><button v-for="route in matching" :key="route.id" @click="chooseRoute(route.id)">{{ route.name }} · {{ route.region }}</button></view>
    <input v-if="tab==='diaries'" v-model="title" maxlength="100" placeholder="日记标题" />
    <textarea v-model="body" maxlength="5000" placeholder="写下内容；公开内容需审核后展示" />
-   <view v-if="tab==='diaries'"><view class="row"><text>公开日记（默认仅自己）</text><switch :checked="isPublic" @change="isPublic=$event.detail.value" /></view><view class="row"><text>手动标记已到访</text><switch :checked="checkedIn" @change="checkedIn=$event.detail.value" /></view></view>
+   <view v-if="tab==='diaries'"><view class="row"><text>公开日记（默认仅自己）</text><switch :checked="isPublic" @change="isPublic=eventValue($event)" /></view><view class="row"><text>手动标记已到访</text><switch :checked="checkedIn" @change="checkedIn=eventValue($event)" /></view></view>
    <button :disabled="busy||!routeId||!body.trim()" @click="save">{{ editing?'保存修改':'提交' }}</button>
    <button v-if="editing" @click="cancelEdit">取消编辑</button>
   </view>
@@ -28,6 +28,7 @@
  </scroll-view>
 </template>
 <script setup lang="ts">
+function eventValue(event: Event): any { return (event as Event & {detail:{value:unknown}}).detail.value; }
 import {computed,ref} from 'vue';
 import {onLoad,onShow,onHide,onUnload} from '@dcloudio/uni-app';
 import {callCloud} from '@/services/cloud';

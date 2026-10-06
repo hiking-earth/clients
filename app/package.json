@@ -36,6 +36,7 @@
     "build:quickapp-webview-union": "uni build -p quickapp-webview-union",
     "type-check": "vue-tsc --noEmit",
     "test:privacy": "node --test tests/privacy-location.test.cjs",
+    "upload:weixin": "node scripts/upload-miniprogram.cjs",
     "build:app": "uni build -p app"
   },
   "dependencies": {
