@@ -4,6 +4,7 @@
 Raw source files remain the provenance record. Two immutable generations are
 retained so an in-flight client can finish reading its original snapshot.
 """
+from afcd_pair import offline_bytes as afcd_offline_bytes
 import gzip
 import hashlib
 import json
@@ -33,12 +34,22 @@ def atomic_write(path, data):
 def prepare():
     # Validate the pair before changing any public pointer or fallback file.
     hk = json.loads((ROOT / 'shared/data/catalog/hk-afcd.json').read_bytes())
-    offline_bytes = (ROOT / 'shared/data/offline/hk-afcd.json').read_bytes()
-    offline = json.loads(offline_bytes)
+    try:
+        offline_bytes = (ROOT / 'shared/data/offline/hk-afcd.json').read_bytes()
+        offline = json.loads(offline_bytes)
+    except (OSError, ValueError):
+        offline_bytes = b''
+        offline = {}
+    if not isinstance(offline, dict):offline = {}
     expected_hash = hk.get('offlineSha256')
     if expected_hash is not None and (expected_hash != hashlib.sha256(offline_bytes).hexdigest()
                                     or offline.get('sourceGeneratedAt') != hk.get('generatedAt')):
-        raise ValueError('Hong Kong catalog/offline generation mismatch; publication stopped')
+        repaired = afcd_offline_bytes(hk)
+        if hashlib.sha256(repaired).hexdigest() != expected_hash:
+            raise ValueError('Hong Kong offline reconstruction hash mismatch; publication stopped')
+        atomic_write(ROOT / 'shared/data/offline/hk-afcd.json', repaired)
+        offline = json.loads(repaired)
+        print('Recovered Hong Kong offline reference from authoritative catalog')
     expected = {row['id']: row.get('referencePaths') for row in hk['routes']}
     actual = {}
     for feature in offline.get('geometry', {}).get('features', []):
@@ -47,7 +58,11 @@ def prepare():
             raise ValueError('Duplicate Hong Kong offline source ID')
         actual[identity] = feature.get('geometry', {}).get('coordinates')
     if expected != actual:
-        raise ValueError('Hong Kong catalog/offline reference mismatch; publication stopped')
+        repaired = afcd_offline_bytes(hk)
+        if expected_hash is not None and hashlib.sha256(repaired).hexdigest() != expected_hash:
+            raise ValueError('Hong Kong offline reconstruction hash mismatch; publication stopped')
+        atomic_write(ROOT / 'shared/data/offline/hk-afcd.json', repaired)
+        print('Recovered Hong Kong reference geometry from authoritative catalog')
     for source, relative in SOURCES.items():
         raw = (ROOT / 'shared' / relative).read_bytes()
         data = json.loads(raw)

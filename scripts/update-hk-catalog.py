@@ -2,6 +2,7 @@
 """AFCD official hiking trail discovery with source attribution and bounded geometry.
 Official geometry is displayed as source reference, never a live permission to hike.
 """
+from afcd_pair import offline_bytes
 import datetime as dt,hashlib,json,math,pathlib,urllib.parse,urllib.request
 ROOT=pathlib.Path(__file__).resolve().parents[1];TARGET=ROOT/'shared/data/catalog/hk-afcd.json'
 BASE='https://portal.csdi.gov.hk/server/rest/services/common/afcd_rcd_1665568199103_4360/FeatureServer/0'
@@ -53,9 +54,9 @@ for feature in features:
  offline.append({'type':'Feature','properties':{'name':name,'sourceId':identifier},'geometry':{'type':'MultiLineString','coordinates':lines}})
 if not routes:raise SystemExit('No usable official source routes; previous catalog retained')
 result={'schemaVersion':1,'generatedAt':now,'attribution':ATTR,'license':'DATA.GOV.HK-terms-1.2','licenseUrl':'https://data.gov.hk/en/terms-and-conditions','sourceUrl':BASE,'routes':routes}
-pack={'sourceGeneratedAt':now,'format':'hiking-earth-offline-v1','name':'香港郊野公园官方步道参考线','attribution':ATTR,'license':'DATA.GOV.HK 使用条款 1.2 · https://data.gov.hk/en/terms-and-conditions','geometry':{'type':'FeatureCollection','features':offline}}
+
 out=ROOT/'shared/data/offline/hk-afcd.json'
-pack_bytes=(json.dumps(pack,ensure_ascii=False,separators=(',',':'),allow_nan=False)+'\n').encode('utf-8')
+pack_bytes=offline_bytes(result)
 result['offlineSha256']=hashlib.sha256(pack_bytes).hexdigest()
 catalog_bytes=(json.dumps(result,ensure_ascii=False,separators=(',',':'),allow_nan=False)+'\n').encode('utf-8')
 TARGET.parent.mkdir(parents=True,exist_ok=True);out.parent.mkdir(parents=True,exist_ok=True)
