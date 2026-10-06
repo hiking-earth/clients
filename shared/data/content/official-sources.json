@@ -30,6 +30,20 @@
       ],
       "format": "rss",
       "reuse": "metadata-links-only"
+    },
+    {
+      "id": "nps-yellowstone-news",
+      "label": "美国国家公园管理局 · 黄石",
+      "url": "https://www.nps.gov/feeds/getNewsRSS.htm?id=yell",
+      "region": "美国 · 黄石",
+      "articleHosts": [
+        "www.nps.gov"
+      ],
+      "format": "rss",
+      "reuse": "metadata-links-only",
+      "evidenceUrl": "https://www.nps.gov/yell/learn/news/index.htm",
+      "verifiedLinkAt": "2026-10-06",
+      "feedAcceptance": "pending-unified-verification"
     }
   ]
 }

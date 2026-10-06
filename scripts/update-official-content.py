@@ -46,7 +46,7 @@ def collect(source):
   stamp=(item.findtext('pubDate') or '').strip()
   try:published=email.utils.parsedate_to_datetime(stamp).isoformat()
   except (ValueError,TypeError,OverflowError):published=None
-  rows.append({'id':source['id']+'-'+hashlib.sha256(link.encode()).hexdigest()[:20],'title':title,'url':link,'region':source['region'],'center':source['center'],'industry':'开放管理','importance':'中','publishedAt':published,'sourceLabel':source['label'],'sourceUrl':source['url'],'fetchedAt':now,'verified':True,'sourceId':source['id']})
+  rows.append({'id':source['id']+'-'+hashlib.sha256(link.encode()).hexdigest()[:20],'title':title,'url':link,'region':source['region'],**({'center':source['center']} if 'center' in source else {}),'industry':'开放管理','importance':'中','publishedAt':published,'sourceLabel':source['label'],'sourceUrl':source['url'],'fetchedAt':now,'verified':True,'sourceId':source['id']})
  if not rows:raise ValueError('no valid official metadata')
  return rows
 # Linux scheduled runners and macOS local collectors share a per-target OS lock.
