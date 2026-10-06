@@ -1,22 +1,23 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-06T06:16:25Z",
+  "generatedAt": "2026-10-06T13:20:54Z",
   "license": "ODbL-1.0",
   "attribution": "© OpenStreetMap contributors",
   "licenseUrl": "https://www.openstreetmap.org/copyright",
   "coverage": {
-    "china": 2,
+    "china": 1,
     "oceania": 0,
-    "south-america": 0,
+    "south-america": 3,
+    "africa": 2,
     "south-asia": 0
   },
   "sourceCursors": {
-    "china": "2026-10-06T06:16:25Z",
+    "china": "2026-10-06T13:20:54Z",
     "japan": "2026-10-06T00:01:05Z",
-    "oceania": "2026-10-06T06:16:25Z",
-    "south-america": "2026-10-06T06:16:25Z",
-    "africa": "2026-10-06T00:01:05Z",
-    "south-asia": "2026-10-06T06:16:25Z"
+    "oceania": "2026-10-06T13:20:54Z",
+    "south-america": "2026-10-06T13:20:54Z",
+    "africa": "2026-10-06T13:20:54Z",
+    "south-asia": "2026-10-06T13:20:54Z"
   },
   "failures": [
     {
@@ -25,14 +26,10 @@
     },
     {
       "region": "north-america",
-      "error": "runtime error: Query timed out in \"query\" at line 1 after 51 seconds."
-    },
-    {
-      "region": "japan",
       "error": "HTTP Error 504: Gateway Timeout"
     },
     {
-      "region": "africa",
+      "region": "japan",
       "error": "HTTP Error 504: Gateway Timeout"
     }
   ],
@@ -21256,18 +21253,18 @@
     },
     {
       "id": "osm-relation-13885751",
-      "name": "Caminhada da Praia Deserta",
-      "originalName": "Caminhada da Praia Deserta",
+      "name": "Travessia do Superagui",
+      "originalName": "Travessia do Superagui",
       "region": "south-america",
       "center": [
-        -48.2149704,
-        -25.389875
+        -48.1342992,
+        -25.346791
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/13885751",
       "sourceTags": {
         "network": "lwn"
       },
-      "fetchedAt": "2026-10-04T21:21:03Z",
+      "fetchedAt": "2026-10-06T13:20:54Z",
       "status": "待核验"
     },
     {
@@ -35732,6 +35729,23 @@
       "status": "待核验"
     },
     {
+      "id": "osm-relation-16413235",
+      "name": "千里步道台北海線",
+      "originalName": "千里步道台北海線",
+      "region": "china",
+      "center": [
+        121.6438991,
+        25.1406048
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/16413235",
+      "sourceTags": {
+        "network": "nwn",
+        "operator": "台灣千里步道協會"
+      },
+      "fetchedAt": "2026-10-06T13:20:54Z",
+      "status": "待核验"
+    },
+    {
       "id": "osm-relation-16414922",
       "name": "伊場遺跡健康ウォークコース",
       "originalName": "伊場遺跡健康ウォークコース",
@@ -36722,7 +36736,7 @@
       "sourceTags": {
         "network": "rwn"
       },
-      "fetchedAt": "2026-10-05T14:31:26Z",
+      "fetchedAt": "2026-10-06T13:20:54Z",
       "status": "待核验"
     },
     {
@@ -40161,7 +40175,7 @@
         "ref": "CMA",
         "website": "https://caminhodamataatlantica.org.br/"
       },
-      "fetchedAt": "2026-10-04T21:21:03Z",
+      "fetchedAt": "2026-10-06T13:20:54Z",
       "status": "待核验"
     },
     {
@@ -43541,6 +43555,23 @@
       "status": "待核验"
     },
     {
+      "id": "osm-relation-19836740",
+      "name": "Karia Yolu - Datça Yarımadası",
+      "originalName": "Karia Yolu - Datça Yarımadası",
+      "region": "africa",
+      "center": [
+        27.7002511,
+        36.736303
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/19836740",
+      "sourceTags": {
+        "network": "nwn",
+        "website": "https://kariayolu.com/"
+      },
+      "fetchedAt": "2026-10-06T13:20:54Z",
+      "status": "待核验"
+    },
+    {
       "id": "osm-relation-19844024",
       "name": "Sendero Bosque Relicto",
       "originalName": "Sendero Bosque Relicto",
@@ -45809,6 +45840,23 @@
         "network": "lwn"
       },
       "fetchedAt": "2026-10-06T00:01:05Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-21516594",
+      "name": "Circuito do P.E. Rio da Onça",
+      "originalName": "Circuito do P.E. Rio da Onça",
+      "region": "south-america",
+      "center": [
+        -48.5289742,
+        -25.7894271
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/21516594",
+      "sourceTags": {
+        "network": "lwn",
+        "operator": "IAT"
+      },
+      "fetchedAt": "2026-10-06T13:20:54Z",
       "status": "待核验"
     },
     {
