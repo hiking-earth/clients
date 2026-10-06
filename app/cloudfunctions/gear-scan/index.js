@@ -12,12 +12,12 @@
 // 响应：{ items:[{name,category}], missing:[{name,reason}], usage:[...], plan:[{name}] }
 const BASE = process.env.LLM_BASE_URL || "";
 const KEY = process.env.LLM_API_KEY || "";
-const MODEL = process.env.LLM_MODEL || "qwen-vl-plus";
+const MODEL = process.env.LLM_MODEL || "";
 
 const SYS_PROMPT = `你是户外徒步装备专家。用户会给你一张装备照片（可能还有目标徒步路线）。
 任务：
 1. 识别照片中所有可见装备（名称 + 类别：鞋靴/背包/服装/露营/导航/饮食/应急/其他）。
-2. 结合目标路线（若有：考虑其里程/爬升/过夜/路面/季节）给出还缺什么，按优先级排序并说明原因。
+2. 基于照片和用户明确提供的资料给出还缺什么，按优先级排序并说明原因。仅有路线名称时，里程、爬升、过夜、路面、季节和天气均未知，不得自行编造；建议说明适用条件。
 3. 给出已有关键装备的使用要点（3-6 条）。
 4. 输出一份完整出行打包清单（名称列表，含照片里已有的和补充的）。
 严格只输出 JSON，不要任何额外文字，格式：
@@ -26,18 +26,27 @@ const SYS_PROMPT = `你是户外徒步装备专家。用户会给你一张装备
 exports.main = async (event) => {
   const { image, routeName = "" } = event;
   if (!image || typeof image !== "string" || !/^[A-Za-z0-9+/]+={0,2}$/.test(image) || image.length % 4 !== 0) return { errMsg: "缺少图片" };
-  if (!BASE || !KEY) {
-    return { errMsg: "视觉模型未配置（云函数环境变量 LLM_BASE_URL / LLM_API_KEY 缺失）" };
+  if (!BASE || !KEY || !MODEL) {
+    return { errMsg: "视觉模型未配置（云函数环境变量 LLM_BASE_URL / LLM_API_KEY / LLM_MODEL 缺失）" };
   }
-  // base64 体积保护（约 10MB）
+  // Encoded-size and decoded-size limits agree with the client 4 MB maximum.
   if (image.length > Math.ceil(4 * 1024 * 1024 / 3) * 4) return { errMsg: "图片过大，请压缩后重试" };
 
-  // 识别图片真实 MIME（按 magic bytes），避免 jpeg 声明发 png 数据被模型拒收
-  let mime = "image/jpeg";
-  if (image.startsWith("iVBORw0KGgo")) mime = "image/png";
-  else if (image.startsWith("/9j/")) mime = "image/jpeg";
-  else if (image.startsWith("UklGR")) mime = "image/webp";
-  else if (image.startsWith("R0lGOD")) mime = "image/gif";
+  let endpoint;
+  try {
+    const url=new URL(`${BASE.replace(/\/$/, "")}/chat/completions`);
+    if(url.protocol!=='https:'||url.username||url.password||url.search||url.hash||url.port)return {errMsg:'视觉服务地址配置无效'};
+    endpoint=url.href;
+  }catch{return {errMsg:'视觉服务地址配置无效'};}
+  if(MODEL.length>200)return {errMsg:'视觉模型配置无效'};
+  const bytes=Buffer.from(image,'base64');
+  if(bytes.length>4*1024*1024 || bytes.toString('base64')!==image)return {errMsg:'图片过大或编码无效'};
+  let mime='';
+  if(bytes.length>=8&&bytes.subarray(0,8).equals(Buffer.from([137,80,78,71,13,10,26,10])))mime='image/png';
+  else if(bytes.length>=3&&bytes[0]===255&&bytes[1]===216&&bytes[2]===255)mime='image/jpeg';
+  else if(bytes.length>=12&&bytes.toString('ascii',0,4)==='RIFF'&&bytes.toString('ascii',8,12)==='WEBP')mime='image/webp';
+  else if(bytes.length>=6&&['GIF87a','GIF89a'].includes(bytes.toString('ascii',0,6)))mime='image/gif';
+  if(!mime)return {errMsg:'请使用JPEG、PNG、WebP或GIF照片'};
 
   if(typeof routeName!=="string" || routeName.length>200)return {errMsg:"路线名称格式无效"};
   const userText = routeName
@@ -47,9 +56,10 @@ exports.main = async (event) => {
   const controller=new AbortController();
   const timer=setTimeout(()=>controller.abort(),30000);
   try {
-    const resp = await fetch(`${BASE.replace(/\/$/, "")}/chat/completions`, {
+    const resp = await fetch(endpoint, {
       method: "POST",
       signal:controller.signal,
+      redirect:"error",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${KEY}` },
       body: JSON.stringify({
         model: MODEL,
