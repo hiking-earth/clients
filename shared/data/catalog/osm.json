@@ -1,33 +1,39 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-06T00:01:05Z",
+  "generatedAt": "2026-10-06T06:16:25Z",
   "license": "ODbL-1.0",
   "attribution": "© OpenStreetMap contributors",
   "licenseUrl": "https://www.openstreetmap.org/copyright",
   "coverage": {
     "china": 2,
-    "japan": 0,
     "oceania": 0,
-    "south-america": 1,
-    "africa": 1,
+    "south-america": 0,
     "south-asia": 0
   },
   "sourceCursors": {
-    "china": "2026-10-06T00:01:05Z",
+    "china": "2026-10-06T06:16:25Z",
     "japan": "2026-10-06T00:01:05Z",
-    "oceania": "2026-10-06T00:01:05Z",
-    "south-america": "2026-10-06T00:01:05Z",
+    "oceania": "2026-10-06T06:16:25Z",
+    "south-america": "2026-10-06T06:16:25Z",
     "africa": "2026-10-06T00:01:05Z",
-    "south-asia": "2026-10-06T00:01:05Z"
+    "south-asia": "2026-10-06T06:16:25Z"
   },
   "failures": [
     {
       "region": "europe",
-      "error": "The read operation timed out"
+      "error": "HTTP Error 504: Gateway Timeout"
     },
     {
       "region": "north-america",
-      "error": "runtime error: Query timed out in \"query\" at line 1 after 46 seconds."
+      "error": "runtime error: Query timed out in \"query\" at line 1 after 51 seconds."
+    },
+    {
+      "region": "japan",
+      "error": "HTTP Error 504: Gateway Timeout"
+    },
+    {
+      "region": "africa",
+      "error": "HTTP Error 504: Gateway Timeout"
     }
   ],
   "routes": [
@@ -38409,6 +38415,23 @@
       "status": "待核验"
     },
     {
+      "id": "osm-relation-17461355",
+      "name": "漢北正脈",
+      "originalName": "한북정맥",
+      "region": "china",
+      "center": [
+        127.1271416,
+        37.9279554
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/17461355",
+      "sourceTags": {
+        "network": "nwn",
+        "website": "http://www.openbaekdudaegan.org"
+      },
+      "fetchedAt": "2026-10-06T06:16:25Z",
+      "status": "待核验"
+    },
+    {
       "id": "osm-relation-17464521",
       "name": "武蔵野の路　千川・石神井川コース",
       "originalName": "武蔵野の路　千川・石神井川コース",
@@ -41410,6 +41433,22 @@
       "sourceUrl": "https://www.openstreetmap.org/relation/19012790",
       "sourceTags": {},
       "fetchedAt": "2026-10-04T21:21:03Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-19015166",
+      "name": "桃林鐵路步道",
+      "originalName": "桃林鐵路步道",
+      "region": "china",
+      "center": [
+        121.2988979,
+        25.0527538
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/19015166",
+      "sourceTags": {
+        "network": "lwn"
+      },
+      "fetchedAt": "2026-10-06T06:16:25Z",
       "status": "待核验"
     },
     {
