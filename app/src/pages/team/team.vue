@@ -63,7 +63,7 @@ import { onLoad, onShow, onHide } from "@dcloudio/uni-app";
 import { formatDistance, haversineM } from "@shared/api/navigation-core";
 import type { Team, TeamMember } from "@shared/types/social";
 import type { TrackPoint } from "@shared/types/track";
-import { onAccountChange } from '@/services/account';
+import { accountSession, onAccountChange } from '@/services/account';
 import { callCloud } from "@/services/cloud";
 import { startLocationUpdates, stopLocationUpdates } from "@/services/location";
 import { hasPrivacyConsent, onPrivacyChange } from "@/services/privacy";
@@ -85,9 +85,15 @@ let reportTimer: ReturnType<typeof setInterval> | null = null;
 let remoteQueue: Promise<unknown> = Promise.resolve();
 let pollTimer: ReturnType<typeof setInterval> | null = null;
 
+let context=0,pollSequence=0;
+function identity(){return `${uni.getStorageSync('he_openid')||''}:${accountSession()?.token||''}`;}
+function snapshot(){return {owner:identity(),epoch:context,teamId:team.value?.id};}
+function current(value:ReturnType<typeof snapshot>){return value.owner===identity()&&value.epoch===context&&value.teamId===team.value?.id;}
+
 onLoad(async () => {
+  const original=snapshot();
   const res = await callCloud<{ openid: string }>("login");
-  if (!res.ok || !res.data) return;
+  if (!current(original)||!res.ok || !res.data) return;
   myOpenid.value = res.data.openid;
   // 恢复上次队伍
   const saved = uni.getStorageSync("he_team");
@@ -97,18 +103,20 @@ onLoad(async () => {
 });
 
 onShow(() => { if (team.value) startPoll(); });
-onHide(() => { stopPoll(); stopShare(); });
+onHide(() => { context++; stopPoll(); stopShare(); });
 const unsubscribePrivacy = onPrivacyChange((consents) => {
   if (!consents.location || !consents.teamLocation) stopShare();
 });
 const unsubscribeAccount = onAccountChange(() => {
-  stopShare(); stopPoll(); team.value = null; members.value = []; alerts.value = [];
+  context++;stopShare(); stopPoll(); team.value = null; members.value = []; alerts.value = [];
   membersWithDistance.value = []; myOpenid.value = String(uni.getStorageSync('he_openid') || '');
 });
-onUnmounted(() => { unsubscribePrivacy(); unsubscribeAccount(); stopPoll(); stopShare(); });
+onUnmounted(() => { context++;unsubscribePrivacy(); unsubscribeAccount(); stopPoll(); stopShare(); });
 
 async function createTeam() {
+  const original=snapshot();
   const res = await callCloud<{ teamId: string; inviteCode: string }>("team-create", { name: "徒步小队" });
+  if(!current(original))return;
   if (res.ok && res.data) {
     team.value = {
       id: res.data.teamId, name: "徒步小队", inviteCode: res.data.inviteCode,
@@ -122,11 +130,13 @@ async function createTeam() {
 }
 
 async function joinTeam() {
+  const original=snapshot();
   if (inviteCode.value.length !== 6) {
     uni.showToast({ title: "请输入 6 位邀请码", icon: "none" });
     return;
   }
   const res = await callCloud<{ team: Team }>("team-join", { inviteCode: inviteCode.value });
+  if(!current(original))return;
   if (res.ok && res.data) {
     team.value = res.data.team;
     uni.setStorageSync("he_team", JSON.stringify(team.value));
@@ -137,15 +147,18 @@ async function joinTeam() {
 }
 
 function leave() {
+  const original=snapshot();
   uni.showModal({
     title: "退出队伍？",
     content: "退出后停止位置共享",
     success: async (r) => {
-      if (!r.confirm || !team.value) return;
+      if (!r.confirm || !team.value || !current(original)) return;
       const teamId = team.value.id;
       stopShare();
       await remoteQueue;
+      if(!current(original))return;
       const result = await callCloud("team-leave", { teamId });
+      if(!current(original))return;
       if (!result.ok) { uni.showToast({ title: result.errMsg ?? "退出失败，请重试", icon: "none" }); return; }
       stopPoll();
       team.value = null;
@@ -180,6 +193,7 @@ async function startShare() {
 function stopShare() {
   const wasSharing = sharing.value;
   const teamId = team.value?.id;
+  const owner=identity();
   shareGeneration++;
   startingShare = false;
   sharing.value = false;
@@ -189,8 +203,9 @@ function stopShare() {
   reportTimer = null;
   if (wasSharing && teamId) {
     remoteQueue = remoteQueue.catch(() => {}).then(async () => {
+      if(owner!==identity())return;
       const res = await callCloud("team-stop", { teamId });
-      if (!res.ok) uni.showToast({ title: "本机已停止共享；云端位置清理失败，最多一分钟后不再展示", icon: "none" });
+      if (owner===identity()&&!res.ok) uni.showToast({ title: "本机已停止共享；云端位置清理失败，最多一分钟后不再展示", icon: "none" });
     });
   }
 }
@@ -221,8 +236,9 @@ function stopPoll() {
 async function poll() {
   if (!team.value) return;
   const id = team.value.id;
+  const original=snapshot(),sequence=++pollSequence;
   const res = await callCloud<{ members: TeamMember[]; alerts: Alert[]; team: Team }>("team-locations", { teamId: id });
-  if (team.value?.id !== id) return;
+  if (!current(original)||sequence!==pollSequence||team.value?.id !== id) return;
   if (res.ok && res.data) {
     team.value = res.data.team;
     uni.setStorageSync('he_team', JSON.stringify(team.value));
