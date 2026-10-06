@@ -61,7 +61,7 @@ import { onShow } from "@dcloudio/uni-app";
 import { callCloud } from "@/services/cloud";
 import { listTracks, uploadTrackToCloud, currentTrackOwner, trackNeedsManualBackup } from "@/services/tracks";
 import { hasPrivacyConsent } from "@/services/privacy";
-import { accountSession } from '@/services/account';
+import { accountSession, saveWeChatIdentity } from '@/services/account';
 
 const openid = ref("");
 const nickname = ref("未登录");
@@ -89,10 +89,12 @@ async function login() {
   const res = await callCloud<{ openid: string; nickname: string }>("login");
   const loginData = res.data;
   if (res.ok && loginData) {
-    openid.value = loginData!.openid;
-    nickname.value = loginData!.nickname ?? "山友";
-    uni.setStorageSync("he_openid", loginData!.openid);
-    uni.showToast({ title: "登录成功", icon: "success" });
+    try{
+      saveWeChatIdentity(loginData.openid,loginData.nickname??"山友");
+      openid.value = loginData.openid;
+      nickname.value = loginData.nickname ?? "山友";
+      uni.showToast({ title: "登录成功", icon: "success" });
+    }catch(error){uni.showToast({title:error instanceof Error?error.message:'微信身份无法保存',icon:'none'});}
   } else {
     uni.showToast({ title: res.errMsg ?? "登录失败", icon: "none" });
   }

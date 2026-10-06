@@ -47,20 +47,34 @@ export function saveAccount(session: AccountSession): void {
   if (!session || !/^[a-f0-9]{64}$/.test(session.token) || typeof session.openid!=='string' || !session.openid || session.openid.length>128
     || typeof session.nickname!=='string' || session.nickname.length>24 || typeof session.username!=='string' || session.username.length>32
     || !Number.isFinite(session.expiresAt) || session.expiresAt<=Date.now()) throw new Error('登录响应无效');
-  const previous = String(uni.getStorageSync('he_openid') || '');
-  if (previous !== session.openid) {
-    stopLocationUpdates(); stopCompass(); stopBackgroundRecording();
-    uni.removeStorageSync('he_team');
-    // A successful sync to another account is not a sync to this account.
-    listTracks().filter(track => track.cloudOwner && track.cloudOwner!==session.openid).forEach(track => {
-      if(track.synced)saveTrack({...track,synced:false});
-      setTrackAutoSyncExcluded(track.id,true,session.openid);
-    });
-  }
+  const changed=prepareLocalIdentity(session.openid);
   uni.setStorageSync(SESSION_KEY, JSON.stringify(session));
   uni.setStorageSync('he_openid', session.openid);
   uni.setStorageSync('he_nickname', session.nickname);
-  if (previous !== session.openid) subscribers.forEach(callback => callback());
+  if (changed) subscribers.forEach(callback => callback());
+}
+
+/** Apply the same local privacy boundary when Mini Program users use native WeChat identity. */
+export function saveWeChatIdentity(openid:string,nickname:string):void {
+  if(typeof openid!=='string'||!openid||openid.length>128||openid==='local-mock-user'||openid.startsWith('account:'))throw new Error('微信登录身份无效');
+  if(accountSession())throw new Error('统一账号仍处于登录状态，请先退出后再切换微信身份');
+  const changed=prepareLocalIdentity(openid);
+  uni.setStorageSync('he_openid',openid);
+  uni.setStorageSync('he_nickname',typeof nickname==='string'?nickname.slice(0,24):'山友');
+  if(changed)subscribers.forEach(callback=>callback());
+}
+
+function prepareLocalIdentity(nextOwner:string):boolean {
+  const previous=String(uni.getStorageSync('he_openid')||'');
+  if(previous===nextOwner)return false;
+  stopLocationUpdates();stopCompass();stopBackgroundRecording();
+  uni.removeStorageSync('he_team');
+  // A successful sync to another account is not a sync to this account.
+  listTracks().filter(track=>track.cloudOwner&&track.cloudOwner!==nextOwner).forEach(track=>{
+    if(track.synced)saveTrack({...track,synced:false});
+    setTrackAutoSyncExcluded(track.id,true,nextOwner);
+  });
+  return true;
 }
 // Compare without accountSession(): checking a delayed response must not
 // expire or otherwise mutate the newly selected session.
