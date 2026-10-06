@@ -14,7 +14,7 @@ root = Path(__file__).resolve().parents[1] / 'cloudfunctions'
 destination = root / 'client-api' / 'business'
 names = ['catalog-feed', 'route-manage', 'social-manage', 'companion-create', 'companion-list', 'companion-join', 'companion-report', 'companion-manage', 'team-manage', 'library-manage', 'community-moderate',
          'team-create', 'team-join', 'team-leave', 'team-stop', 'team-report',
-         'team-locations', 'track-sync', 'track-manage', 'sos-trigger', 'guide-list']
+         'team-locations', 'team-current', 'track-sync', 'track-manage', 'sos-trigger', 'guide-list']
 for name in names:
     source = (root / name / 'index.js').read_text()
     source = source.replace('const { OPENID } = cloud.getWXContext();',

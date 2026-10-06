@@ -10,7 +10,7 @@ const SESSION_MS = 7 * 24 * 60 * 60 * 1000;
 const MAX_BODY = 6 * 1024 * 1024;
 const handlers = new Set(['catalog-feed', 'route-manage', 'social-manage', 'companion-create', 'companion-list', 'companion-join',
   'companion-report', 'companion-manage', 'team-manage', 'library-manage', 'community-moderate', 'team-create', 'team-join', 'team-leave', 'team-stop',
-  'team-report', 'team-locations', 'track-sync', 'track-manage', 'sos-trigger', 'guide-list']);
+  'team-report', 'team-locations', 'team-current', 'track-sync', 'track-manage', 'sos-trigger', 'guide-list']);
 const publicHandlers = new Set(['catalog-feed', 'companion-list', 'guide-list']);
 const hash = value => crypto.createHash('sha256').update(value).digest('hex');
 const random = () => crypto.randomBytes(32).toString('hex');

@@ -20,6 +20,7 @@
           <text class="team-code" @click="copyCode">邀请码 {{ team.inviteCode }} · 点按复制</text>
         </view>
         <view v-if="team.createdBy === myOpenid" class="leave" @click="manageTeam">管理</view>
+        <view v-if="availableTeams.length > 1" class="leave" @click="chooseTeam">切换队伍</view>
         <view class="leave" @click="leave">退出</view>
       </view>
 
@@ -71,6 +72,7 @@ import { hasPrivacyConsent, onPrivacyChange } from "@/services/privacy";
 const REPORT_INTERVAL = 10000;
 
 const team = ref<(Team & { teamId?: string }) | null>(null);
+const availableTeams = ref<(Team & { teamId?: string })[]>([]);
 const inviteCode = ref("");
 type Alert = { id: string; openid: string; message: string; triggeredAt: number };
 const alerts = ref<Alert[]>([]);
@@ -86,6 +88,7 @@ let remoteQueue: Promise<unknown> = Promise.resolve();
 let pollTimer: ReturnType<typeof setInterval> | null = null;
 
 let context=0,pollSequence=0;
+let discoverSequence=0;
 function identity(){return `${uni.getStorageSync('he_openid')||''}:${accountSession()?.token||''}`;}
 function snapshot(){return {owner:identity(),epoch:context,teamId:team.value?.id};}
 function current(value:ReturnType<typeof snapshot>){return value.owner===identity()&&value.epoch===context&&value.teamId===team.value?.id;}
@@ -95,21 +98,23 @@ onLoad(async () => {
   const res = await callCloud<{ openid: string }>("login");
   if (!current(original)||!res.ok || !res.data) return;
   myOpenid.value = res.data.openid;
-  // 恢复上次队伍
+  // 本机缓存先用于断网显示；随后按登录身份读取云端成员关系并纠正它。
   const saved = uni.getStorageSync("he_team");
   if (saved) {
     try { const restored=JSON.parse(saved);if(!validTeam(restored))throw new Error("invalid team");team.value=restored;startPoll(); } catch { uni.removeStorageSync("he_team"); }
   }
+  await discoverJoinedTeams();
 });
 
-onShow(() => { if (team.value) startPoll(); });
+onShow(() => { if (team.value) startPoll(); void discoverJoinedTeams(); });
 onHide(() => { context++; stopPoll(); stopShare(); });
 const unsubscribePrivacy = onPrivacyChange((consents) => {
   if (!consents.location || !consents.teamLocation) stopShare();
 });
 const unsubscribeAccount = onAccountChange(() => {
   context++;stopShare(); stopPoll(); team.value = null; members.value = []; alerts.value = [];
-  membersWithDistance.value = []; myOpenid.value = String(uni.getStorageSync('he_openid') || '');
+  membersWithDistance.value = []; availableTeams.value=[];myOpenid.value = accountSession()?.openid||String(uni.getStorageSync('he_openid') || '');
+  void discoverJoinedTeams();
 });
 onUnmounted(() => { context++;unsubscribePrivacy(); unsubscribeAccount(); stopPoll(); stopShare(); });
 
@@ -152,6 +157,7 @@ async function createTeam() {
       uni.showToast({title:res.errMsg||'创建返回资料无效，请刷新后重试',icon:'none'});return;
     }
     team.value={id:res.data.teamId,name:'徒步小队',inviteCode:res.data.inviteCode,createdBy:myOpenid.value,createdAt:Date.now(),active:true};
+    availableTeams.value=[team.value,...availableTeams.value.filter(item=>item.id!==team.value!.id)];
     clearCreation(creationRequest);rememberTeam();startPoll();
   }catch{if(current(original))uni.showToast({title:'创建请求失败，请重试',icon:'none'});}
   finally{entering=false;}
@@ -164,9 +170,36 @@ async function joinTeam() {
     const res=await callCloud<{team:Team}>('team-join',{inviteCode:inviteCode.value});
     if(!current(original))return;
     if(!res.ok||!res.data||!validTeam(res.data.team)||!res.data.team.active){uni.showToast({title:res.errMsg||'加入返回资料无效',icon:'none'});return;}
-    team.value=res.data.team;rememberTeam();startPoll();
+    team.value=res.data.team;availableTeams.value=[team.value,...availableTeams.value.filter(item=>item.id!==team.value!.id)];rememberTeam();startPoll();
   }catch{if(current(original))uni.showToast({title:'加入请求失败，请重试',icon:'none'});}
   finally{entering=false;}
+}
+
+async function discoverJoinedTeams():Promise<void> {
+  const sequence=++discoverSequence,original=snapshot();
+  const result=await callCloud<{teams:(Team & {teamId?:string})[];hasMore:boolean}>('team-current');
+  if(sequence!==discoverSequence||!current(original))return;
+  if(!result.ok||!result.data)return; // Keep the last local cache when the network is unavailable.
+  if(!Array.isArray(result.data.teams)||result.data.teams.length>100||typeof result.data.hasMore!=='boolean'
+    ||!result.data.teams.every(validTeam)||new Set(result.data.teams.map(item=>item.id)).size!==result.data.teams.length){
+    uni.showToast({title:'云端队伍目录格式无效，已保留本机缓存',icon:'none'});return;
+  }
+  availableTeams.value=result.data.teams;
+  if(!availableTeams.value.length){team.value=null;members.value=[];alerts.value=[];membersWithDistance.value=[];stopPoll();stopShare();uni.removeStorageSync('he_team');return;}
+  const preferred=team.value?.id||'';
+  team.value=availableTeams.value.find(item=>item.id===preferred)||availableTeams.value[0];
+  rememberTeam();startPoll();
+  if(result.data.hasMore)uni.showToast({title:'成员目录达到100条查询上限，可能遗漏旧队伍',icon:'none'});
+}
+
+function chooseTeam(){
+  if(availableTeams.value.length<2)return;
+  const original=snapshot();
+  uni.showActionSheet({itemList:availableTeams.value.map(item=>`${item.name} · ${item.inviteCode}`),success:choice=>{
+    if(!current(original))return;
+    const selected=availableTeams.value[choice.tapIndex];if(!selected||selected.id===team.value?.id)return;
+    stopShare();stopPoll();team.value=selected;members.value=[];alerts.value=[];membersWithDistance.value=[];rememberTeam();startPoll();
+  }});
 }
 
 let leaving=false;
@@ -186,6 +219,9 @@ function leave() {
       stopPoll();team.value=null;members.value=[];alerts.value=[];membersWithDistance.value=[];
       try{uni.removeStorageSync('he_team');}
       catch{uni.showToast({title:'已退出队伍，本机缓存清理失败',icon:'none'});}
+      availableTeams.value=availableTeams.value.filter(item=>item.id!==teamId);
+      if(availableTeams.value.length){team.value=availableTeams.value[0];rememberTeam();startPoll();}
+      else void discoverJoinedTeams();
     }catch{if(current(original))uni.showToast({title:'退出请求失败，共享已停止，请重试',icon:'none'});}
     finally{leaving=false;}
   }});
@@ -296,6 +332,7 @@ async function poll() {
     stopShare(); stopPoll(); team.value = null; members.value = []; alerts.value = [];
     membersWithDistance.value = []; uni.removeStorageSync('he_team');
     uni.showToast({ title: res.errMsg, icon: 'none' });
+    void discoverJoinedTeams();
   }
 }
 

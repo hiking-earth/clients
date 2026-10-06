@@ -40,6 +40,12 @@
       "description": "邀请码入队"
     },
     {
+      "name": "team-current",
+      "timeout": 10,
+      "memorySize": 256,
+      "description": "恢复当前账号已加入的活动队伍"
+    },
+    {
       "name": "team-report",
       "timeout": 10,
       "memorySize": 256,
