@@ -22,7 +22,7 @@
    <text class="title">{{ item.title || item.nickname || '徒步记录' }}</text><text v-if="item.body">{{ item.body }}</text>
    <text v-if="item.status">{{ statuses[item.status] || item.status }} · 版本 {{ item.version }}</text>
    <text>{{ new Date(item.updatedAt || item.createdAt).toLocaleString() }}</text>
-   <view v-if="tab==='diaries'&&item.mine" class="row"><button :disabled="busy" @click="edit(item)">编辑</button><button :disabled="busy" @click="remove(item)">删除</button></view>
+   <view v-if="tab==='diaries'&&item.mine" class="row"><button v-if="!publicFeed" :disabled="busy" @click="edit(item)">编辑</button><button :disabled="busy" @click="remove(item)">删除</button></view>
    <button v-if="tab==='notifications'&&!item.read" :disabled="busy" @click="read(item)">标为已读</button>
    <view v-if="tab==='moderation'" class="row"><button :disabled="busy" @click="decide(item,'approve')">通过</button><button :disabled="busy" @click="decide(item,'reject')">拒绝</button></view>
   </view>
