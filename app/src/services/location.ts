@@ -23,17 +23,20 @@ function allowed(purpose: Purpose): boolean {
   return hasPrivacyConsent("location") && (purpose !== "team" || hasPrivacyConsent("teamLocation"));
 }
 function deliver(res: any) {
+  if(!res || !Number.isFinite(res.latitude) || Math.abs(res.latitude)>90 || !Number.isFinite(res.longitude) || Math.abs(res.longitude)>180)return;
+  const optional=(value:unknown,nonnegative=false):number|undefined=>typeof value==='number'&&Number.isFinite(value)&&(!nonnegative||value>=0)?value:undefined;
   const point: TrackPoint = {
     latitude: res.latitude, longitude: res.longitude,
-    altitude: res.altitude ?? undefined, speed: res.speed,
-    accuracy: res.horizontalAccuracy ?? res.accuracy, timestamp: Date.now(),
+    altitude: optional(res.altitude), speed: optional(res.speed,true),
+    accuracy: optional(res.horizontalAccuracy ?? res.accuracy,true), timestamp: Date.now(),
   };
-  locations.forEach((purpose, cb) => { if (allowed(purpose)) cb(point); });
+  locations.forEach((purpose, cb) => { if (allowed(purpose)) cb({...point}); });
 }
 const locationListener = (res: any) => { if (running) deliver(res); };
 const compassListener = (res: any) => {
   if (!compassRunning || !hasPrivacyConsent("location")) return;
-  const value = filter.push(res.direction);
+  if(!res || !Number.isFinite(res.direction) || res.direction<0 || res.direction>360)return;
+  const value = filter.push(res.direction===360?0:res.direction);
   headings.forEach((cb) => cb(value));
 };
 function shutdown() {
