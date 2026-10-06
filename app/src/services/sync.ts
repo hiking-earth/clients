@@ -53,6 +53,7 @@ export async function syncNow(force=false):Promise<void> {
         for(const item of listing.data.tracks){
           if(trackAutoSyncExcluded(item.trackId))continue;
           const baseline=getTrack(item.trackId);
+          if(baseline?.synced&&!baseline.cloudOwner)throw new Error(`轨迹 ${item.trackId} 的旧云端归属无法确认，请在云端轨迹页面核对后恢复`);
           if(baseline?.cloudOwner&&baseline.cloudOwner!==identity)throw new Error(`轨迹 ${item.trackId} 属于其他账号，请在当前账号手动恢复`);
           if(baseline&&!baseline.synced)throw new Error(`轨迹 ${item.trackId} 本机有未同步改动，请处理云端版本冲突`);
           if(baseline&&baseline.cloudVersion===item.version)continue;
