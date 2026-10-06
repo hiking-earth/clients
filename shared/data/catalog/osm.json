@@ -1,28 +1,31 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-06T18:10:00Z",
+  "generatedAt": "2026-10-06T18:41:44Z",
   "license": "ODbL-1.0",
   "attribution": "© OpenStreetMap contributors",
   "licenseUrl": "https://www.openstreetmap.org/copyright",
   "coverage": {
-    "china": 3,
-    "japan": 1,
-    "south-asia": 0,
-    "south-america": 3,
-    "africa": 2
+    "china": 0,
+    "japan": 0,
+    "oceania": 0,
+    "south-america": 0
   },
   "failures": [
     {
+      "region": "south-asia",
+      "error": "HTTP 429: Too Many Requests"
+    },
+    {
       "region": "europe",
-      "error": "[Errno 54] Connection reset by peer"
+      "error": "HTTP 504: Gateway Timeout"
     },
     {
       "region": "north-america",
       "error": "[Errno 54] Connection reset by peer"
     },
     {
-      "region": "oceania",
-      "error": "HTTP Error 504: Gateway Timeout"
+      "region": "africa",
+      "error": "HTTP 504: Gateway Timeout"
     }
   ],
   "routes": [
@@ -496185,10 +496188,20 @@
     "cycleStartedAt": "2026-10-06T15:38:12.036152+00:00"
   },
   "sourceCursors": {
-    "china": "2026-10-06T17:58:46Z",
-    "japan": "2026-10-06T17:58:46Z",
+    "china": "2026-10-06T18:30:26Z",
+    "japan": "2026-10-06T18:30:26Z",
     "south-asia": "2026-10-06T17:59:46Z",
-    "south-america": "2026-10-06T18:04:51Z",
-    "africa": "2026-10-06T18:04:51Z"
+    "south-america": "2026-10-06T18:32:31Z",
+    "africa": "2026-10-06T18:04:51Z",
+    "oceania": "2026-10-06T18:32:31Z"
+  },
+  "lastUpdateAttemptAt": "2026-10-06T18:41:44Z",
+  "sourceBudget": {
+    "dateUTC": "2026-10-06",
+    "downloadedBytes": 3241,
+    "queryCount": 16,
+    "dailyByteLimit": 8388608,
+    "dailyQueryLimit": 64,
+    "perResponseByteLimit": 1048576
   }
 }
