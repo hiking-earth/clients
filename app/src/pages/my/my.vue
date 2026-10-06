@@ -62,7 +62,7 @@ import { callCloud } from "@/services/cloud";
 import { listTracks, uploadTrackToCloud, currentTrackOwner, trackNeedsManualBackup } from "@/services/tracks";
 import { hasPrivacyConsent } from "@/services/privacy";
 import { accountSession, saveWeChatIdentity } from '@/services/account';
-import { APP_VERSION } from '@/services/updates';
+import { APP_VERSION } from '@/services/version';
 
 const openid = ref("");
 const nickname = ref("未登录");
