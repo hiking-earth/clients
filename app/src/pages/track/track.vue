@@ -50,7 +50,7 @@ import { haversineM } from "@shared/api/navigation-core";
 import type { TrackPoint, TrackRecord } from "@shared/types/track";
 import { startLocationUpdates, stopLocationUpdates } from "@/services/location";
 import { onPrivacyChange } from "@/services/privacy";
-import { listTracks, saveTrack, loadDraft, saveDraft, clearDraft } from "@/services/tracks";
+import { listTracks, saveTrack, loadDraft, saveDraft, clearDraft, currentTrackOwner } from "@/services/tracks";
 
 const state = ref<"idle" | "recording" | "paused">("idle");
 const points = ref<TrackPoint[]>([]);
@@ -64,6 +64,7 @@ const backgroundOn = ref(false);
 let flushingBackground = false;
 
 let startedAt = 0;
+let recordOwner = '';
 let activeMs = 0;
 let resumedAt = 0;
 let segmentStart = true;
@@ -81,6 +82,7 @@ if (draft) {
   ascentM.value = draft.ascentM;
   descentM.value = draft.descentM;
   startedAt = draft.startedAt;
+  recordOwner = draft.localOwner || '';
   activeMs = draft.activeDurationMs ?? 0;
   state.value = "paused";
   stopBackgroundRecording();
@@ -102,6 +104,7 @@ function updateElapsed() {
 function record(status: TrackRecord["state"]): TrackRecord {
   return {
     id: `t-${startedAt}`, name: `徒步 ${formatDate(startedAt)}`,
+    ...(recordOwner ? { localOwner: recordOwner } : {}),
     points: points.value, distanceM: distanceM.value, ascentM: ascentM.value,
     descentM: descentM.value, activeDurationMs: duration(), startedAt,
     state: status, synced: false,
@@ -175,7 +178,7 @@ async function begin() {
     uni.showToast({ title: "请启用隐私设置中的定位并授权", icon: "none" });
     return;
   }
-  if (!startedAt) startedAt = Date.now();
+  if (!startedAt) { startedAt = Date.now(); recordOwner = currentTrackOwner() || 'anonymous'; }
   resumedAt = Date.now();
   segmentStart = true;
   state.value = "recording";
@@ -244,6 +247,7 @@ function reset() {
   points.value = [];
   distanceM.value = ascentM.value = descentM.value = 0;
   startedAt = activeMs = resumedAt = 0;
+  recordOwner = '';
   elapsedText.value = "0:00";
   speedText.value = "0.0";
   lastAlt = null;

@@ -19,11 +19,11 @@ import { chooseNativeText } from '@/services/files';
 import { ref } from 'vue';
 import { isDesktop, chooseDesktopGpx } from '@/services/desktop';
 import { importGpx } from '@/services/gpx';
-import { saveTrack } from '@/services/tracks';
+import { saveTrack, currentTrackOwner } from '@/services/tracks';
 const source = ref('');
 const error = ref('');
 function save() {
-  try { const track = importGpx(source.value); saveTrack(track); uni.redirectTo({ url: `/pages/track/detail?id=${track.id}` }); }
+  try { const track = importGpx(source.value); track.localOwner = currentTrackOwner() || 'anonymous'; saveTrack(track); uni.redirectTo({ url: `/pages/track/detail?id=${track.id}` }); }
   catch (e) { error.value = e instanceof Error ? e.message : '导入失败，文件未保存'; }
 }
 async function chooseNative() { try { const text = await chooseNativeText(); if (text !== null) source.value = text; } catch (e) { error.value = e instanceof Error ? e.message : '文件读取失败'; } }

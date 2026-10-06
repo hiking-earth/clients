@@ -44,6 +44,8 @@ export type TrackRecord = {
   state: "recording" | "paused" | "finished";
   /** 是否已云同步 */
   synced: boolean;
+  /** 创建或导入该本机轨迹时的账号身份；匿名轨迹为anonymous，旧版未标记轨迹需用户确认后才能转入账号 */
+  localOwner?: string;
   /** 该云端版本所属的统一账号身份 */
   cloudOwner?: string;
   /** 用户当前账号下云端轨迹的乐观并发版本 */

@@ -17,7 +17,7 @@
     <view class="actions">
       <button class="btn primary" @click="navAlong">沿此轨迹导航</button>
       <button class="btn" @click="exportGpx">导出 GPX</button>
-      <button v-if="!track.synced" class="btn" :disabled="syncing" @click="sync">{{syncing?'同步中…':'云同步'}}</button>
+      <button v-if="showSyncAction" class="btn" :disabled="syncing" @click="sync">{{syncing?'同步中…':'云同步'}}</button>
       <button class="btn danger" @click="remove">删除</button>
     </view>
   </view>
@@ -35,12 +35,13 @@ import { onLoad,onShow } from "@dcloudio/uni-app";
 const offlineLayer = computed(()=>activeOfflineLayer());
 onShow(()=>{void restoreOfflineLayers();});
 import { trackToGpx, type TrackRecord } from "@shared/types/track";
-import { deleteTrack, getTrack, uploadTrackToCloud } from "@/services/tracks";
+import { deleteTrack, getTrack, uploadTrackToCloud, currentTrackOwner, trackNeedsManualBackup } from "@/services/tracks";
 import { hasPrivacyConsent } from "@/services/privacy";
 
 declare const plus: any;
 declare const wx: any;
 const track = ref<TrackRecord | null>(null);
+const showSyncAction = computed(() => !!track.value && trackNeedsManualBackup(track.value));
 
 onLoad((q) => {
   const t = getTrack(q?.id as string);
@@ -127,11 +128,11 @@ async function sync() {
   }
   const snapshot=track.value;syncing.value=true;uni.showLoading({title:"同步中"});
   try{
-    const owner=String(uni.getStorageSync('he_openid')||'');
+    const owner=currentTrackOwner();
     if(!owner){uni.showToast({title:'请先登录统一账号',icon:'none'});return;}
-    if(snapshot.cloudOwner&&snapshot.cloudOwner!==owner){
-      const accepted=await new Promise<boolean>(resolve=>uni.showModal({title:'转存其他账号的轨迹？',content:'此轨迹上次同步到其他账号。确认后会把本机轨迹复制到当前账号。',success:r=>resolve(r.confirm===true),fail:()=>resolve(false)}));
-      if(!accepted||owner!==String(uni.getStorageSync('he_openid')||''))return;
+    if(snapshot.localOwner!==owner||(snapshot.cloudOwner&&snapshot.cloudOwner!==owner)){
+      const accepted=await new Promise<boolean>(resolve=>uni.showModal({title:'确认转入当前账号？',content:'此轨迹属于其他账号或旧版未记录本机归属。确认后会把本机轨迹副本上传到当前账号。',success:r=>resolve(r.confirm===true),fail:()=>resolve(false)}));
+      if(!accepted||owner!==currentTrackOwner())return;
     }
     const result=await uploadTrackToCloud(snapshot,{restoreDeleted:true,transferAccount:true});
     if(result.ok){track.value=getTrack(snapshot.id);uni.showToast({title:"已同步",icon:"success"});}

@@ -9,6 +9,14 @@ import { callCloud } from "@/services/cloud";
 
 const KEY = "he_tracks_v1";
 
+/** The current account identity used to bind a new local track. */
+export function currentTrackOwner(): string {
+  const session = accountSession();
+  if (session) return session.openid;
+  const saved = String(uni.getStorageSync('he_openid') || '');
+  return saved && saved !== 'local-mock-user' && !saved.startsWith('account:') ? saved : '';
+}
+
 export function listTracks(): TrackRecord[] {
   try {
     const raw = uni.getStorageSync(KEY);
@@ -21,6 +29,11 @@ export function listTracks(): TrackRecord[] {
 
 export function getTrack(id: string): TrackRecord | null {
   return listTracks().find((t) => t.id === id) ?? null;
+}
+
+/** A local copy needs review if it is unsynced, has unknown ownership, or is tied to another account. */
+export function trackNeedsManualBackup(track: TrackRecord, owner = currentTrackOwner()): boolean {
+  return !track.synced || track.localOwner !== owner || (track.synced && !track.cloudOwner);
 }
 
 export function saveTrack(track: TrackRecord): void {
@@ -44,9 +57,10 @@ export async function uploadTrackToCloud(track:TrackRecord,options:{restoreDelet
   if(track.state!=='finished'||!validRecord(track))return {ok:false,errMsg:'仅可同步格式有效的已完成轨迹'};
   if(trackUploads.has(track.id))return {ok:false,errMsg:'该轨迹正在同步'};
   const session=accountSession();
-  const identity=session?.openid||String(uni.getStorageSync('he_openid')||'');
+  const identity=currentTrackOwner();
   const token=session?.token||'';
   if(!identity)return {ok:false,errMsg:'请先登录统一账号'};
+  if(track.localOwner!==identity&&!options.transferAccount)return {ok:false,errMsg:track.localOwner?'该轨迹属于其他本机账号，请确认后手动转存':'该旧版轨迹未记录账号归属，请确认后手动转入当前账号'};
   if(track.cloudOwner&&track.cloudOwner!==identity&&!options.transferAccount)return {ok:false,errMsg:'该轨迹属于其他账号，请在确认转存后手动同步'};
   const expectedVersion=track.cloudOwner&&track.cloudOwner!==identity?0:track.cloudVersion??0;
   if(!Number.isSafeInteger(expectedVersion)||expectedVersion<0)return {ok:false,errMsg:'本机轨迹云端版本无效，请恢复云端副本'};
@@ -55,7 +69,7 @@ export async function uploadTrackToCloud(track:TrackRecord,options:{restoreDelet
   try{
     const response=await callCloud<{synced:boolean;version:number}>('track-sync',{track,expectedVersion,restoreDeleted:options.restoreDeleted===true});
     const latestSession=accountSession();
-    const latestIdentity=latestSession?.openid||String(uni.getStorageSync('he_openid')||'');
+    const latestIdentity=currentTrackOwner();
     if(latestIdentity!==identity||(token&&latestSession?.token!==token)||!hasPrivacyConsent('trackCloudSync'))return {ok:false,errMsg:'账号或轨迹备份授权已变化，轨迹仍保留在本机'};
     if(!response.ok||response.data?.synced!==true||response.data.version!==expectedVersion+1)
       return {ok:false,errMsg:response.errMsg||'云端版本冲突或未确认；请从云端恢复最新副本后再同步'};
@@ -66,7 +80,7 @@ export async function uploadTrackToCloud(track:TrackRecord,options:{restoreDelet
 
 export function markSynced(id: string, cloudVersion:number, cloudOwner:string): void {
   const t = getTrack(id);
-  if (t && Number.isSafeInteger(cloudVersion) && cloudVersion>=1 && typeof cloudOwner==='string' && cloudOwner.length>0) {saveTrack({ ...t, synced: true, cloudVersion, cloudOwner });setTrackAutoSyncExcluded(id,false); }
+  if (t && Number.isSafeInteger(cloudVersion) && cloudVersion>=1 && typeof cloudOwner==='string' && cloudOwner.length>0) {saveTrack({ ...t, synced: true, localOwner:cloudOwner, cloudVersion, cloudOwner });setTrackAutoSyncExcluded(id,false); }
 }
 
 // 恢复时只恢复为暂停；不得在启动应用时自动取得定位权限。
@@ -96,6 +110,7 @@ function validRecord(t: any): t is TrackRecord {
     && (t.activeDurationMs === undefined || (Number.isFinite(t.activeDurationMs) && t.activeDurationMs >= 0))
     && ['recording', 'paused', 'finished'].includes(t.state) && typeof t.synced === 'boolean'
     && (t.cloudVersion===undefined || (Number.isSafeInteger(t.cloudVersion) && t.cloudVersion>=0))
+    && (t.localOwner===undefined || (typeof t.localOwner==='string' && t.localOwner.length>0 && t.localOwner.length<=128))
     && (t.cloudOwner===undefined || (typeof t.cloudOwner==='string' && t.cloudOwner.length>0 && t.cloudOwner.length<=128))
     && (t.routeId === undefined || typeof t.routeId === 'string')
     && t.points.every(validTrackPoint);
@@ -103,12 +118,12 @@ function validRecord(t: any): t is TrackRecord {
 
 // A local deletion remains local, including when automatic cloud restore runs.
 export function trackAutoSyncExcluded(id:string):boolean {
-  const owner=String(uni.getStorageSync('he_openid')||'');
+  const owner=currentTrackOwner();
   const items=uni.getStorageSync(`he_track_sync_excluded:${owner}`);
   return Array.isArray(items)&&items.includes(id);
 }
 export function setTrackAutoSyncExcluded(id:string,value:boolean,ownerOverride?:string):void {
-  const owner=ownerOverride??String(uni.getStorageSync('he_openid')||'');
+  const owner=ownerOverride??currentTrackOwner();
   const key=`he_track_sync_excluded:${owner}`;const raw=uni.getStorageSync(key);
   const items=new Set<string>(Array.isArray(raw)?raw:[]);
   if(value)items.add(id);else items.delete(id);uni.setStorageSync(key,[...items]);

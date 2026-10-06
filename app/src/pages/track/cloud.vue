@@ -65,7 +65,7 @@ async function restore(id: string) {
     if(JSON.stringify(getTrack(id))!==baseline)throw new Error('本机轨迹已变化，请重新确认恢复');
     if(!res.data.track||res.data.track.id!==id||res.data.track.state!=='finished'||res.data.track.synced!==true
       ||!Number.isSafeInteger(res.data.track.cloudVersion)||res.data.track.cloudVersion<0)throw new Error('云端轨迹与请求不一致，本机资料未覆盖');
-    saveTrack({...res.data.track,cloudOwner:owner});
+    saveTrack({...res.data.track,localOwner:owner,cloudOwner:owner});
     setTrackAutoSyncExcluded(id,false);
     uni.showToast({ title: '已恢复到本机', icon: 'success' });
   } catch (e) { if(visible&&owner===currentOwner())error.value = e instanceof Error ? e.message : '保存失败'; }
