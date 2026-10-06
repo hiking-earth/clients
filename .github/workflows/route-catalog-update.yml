@@ -71,7 +71,17 @@ jobs:
           regions = Counter(route.get('region', 'unknown') for route in osm.get('routes', []))
           rows.append('| OSM records by region | ' + '; '.join(f'{name}: {count}' for name, count in sorted(regions.items())) + ' | source tags only |')
           rows.append(f"| OSM grid backfill | {backfill.get('completedTiles', 0)} complete / {backfill.get('pendingTiles', 0)} pending | cycle {backfill.get('cycle', 0)} |")
-          status = {'schemaVersion': 1, 'checkedAt': datetime.datetime.now(datetime.timezone.utc).isoformat(), 'runId': os.environ['GITHUB_RUN_ID'], 'sourceCommit': os.environ['GITHUB_SHA'], 'outcomes': outcomes, 'snapshots': snapshots, 'accessVerified': False}
+          news = json.loads((root/'content/official-news.json').read_text())
+          registry = json.loads((root/'content/official-sources.json').read_text())
+          news_states = {source['id']: source for source in news.get('sources', [])}
+          news_counts = Counter(item.get('sourceId', 'unknown') for item in news.get('items', []))
+          news_sources = []
+          for source in registry['sources']:
+              state = news_states.get(source['id'], {})
+              health = 'failed' if state.get('lastError') else 'available' if state.get('lastSuccess') else 'pending'
+              news_sources.append({'id': source['id'], 'status': health, 'records': news_counts[source['id']], 'lastAttempt': state.get('lastAttempt'), 'lastSuccess': state.get('lastSuccess'), 'feedVerified': False})
+              rows.append(f"| Official notices: {source['id']} | {news_counts[source['id']]} | {health}; last success {state.get('lastSuccess', 'none')} |")
+          status = {'schemaVersion': 1, 'checkedAt': datetime.datetime.now(datetime.timezone.utc).isoformat(), 'runId': os.environ['GITHUB_RUN_ID'], 'sourceCommit': os.environ['GITHUB_SHA'], 'outcomes': outcomes, 'newsSources': news_sources, 'snapshots': snapshots, 'accessVerified': False}
           status_path = Path('shared/public-catalog/collection-status.json')
           status_path.parent.mkdir(parents=True, exist_ok=True)
           status_path.write_text(json.dumps(status, ensure_ascii=False, indent=2) + '\n')
