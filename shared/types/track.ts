@@ -69,3 +69,16 @@ ${trkpts}
 function escapeXml(s: string): string {
   return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }
+
+/** Coordinates and optional sensor fields must be finite before recording. */
+export function validTrackPoint(value:unknown):value is TrackPoint {
+  const p=value as any;
+  return !!p && Number.isFinite(p.latitude) && Math.abs(p.latitude)<=90
+    && Number.isFinite(p.longitude) && Math.abs(p.longitude)<=180
+    && Number.isFinite(p.timestamp) && p.timestamp>0 && p.timestamp<=8640000000000000
+    && (p.altitude==null || Number.isFinite(p.altitude))
+    && (p.speed==null || (Number.isFinite(p.speed)&&p.speed>=0))
+    && (p.accuracy==null || (Number.isFinite(p.accuracy)&&p.accuracy>=0))
+    && (p.segmentStart===undefined || typeof p.segmentStart==='boolean')
+    && (p.timeEstimated===undefined || typeof p.timeEstimated==='boolean');
+}

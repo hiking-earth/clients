@@ -1,4 +1,5 @@
 import { hasPrivacyConsent, onPrivacyChange } from '@/services/privacy';
+import {validTrackPoint} from '@shared/types/track';
 import type { TrackPoint } from '@shared/types/track';
 // #ifdef APP-PLUS
 import { startBackground, stopBackground, backgroundBuffer, acknowledgeBackground } from '@/uni_modules/hiking-background';
@@ -31,11 +32,12 @@ export function stopBackgroundRecording(): void {
 export function backgroundRecording(): boolean { return running; }
 export function pendingBackground(): { session: string; points: TrackPoint[] } {
   // #ifdef APP-PLUS
-  try { const value = JSON.parse(backgroundBuffer()); return { session: String(value.session || ''), points: Array.isArray(value.points) ? value.points : [] }; } catch {}
+  try { const value = JSON.parse(backgroundBuffer()); return { session: String(value.session || ''), points: Array.isArray(value.points) ? value.points.filter(validTrackPoint).sort((a:TrackPoint,b:TrackPoint)=>a.timestamp-b.timestamp).slice(0,20000) : [] }; } catch {}
   // #endif
   return { session: '', points: [] };
 }
 export function acknowledgeBackgroundPoints(timestamp: number): void {
+  if(!Number.isFinite(timestamp)||timestamp<=0)return;
   // #ifdef APP-PLUS
   acknowledgeBackground(timestamp);
   // #endif

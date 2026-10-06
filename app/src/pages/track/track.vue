@@ -40,6 +40,7 @@
 </template>
 
 <script setup lang="ts">
+import {validTrackPoint} from '@shared/types/track';
 import { beginBackground, stopBackgroundRecording, backgroundRecording, backgroundSupported, pendingBackground, acknowledgeBackgroundPoints } from '@/services/background';
 import { onAccountChange } from '@/services/account';
 import { hasPrivacyConsent } from '@/services/privacy';
@@ -121,7 +122,7 @@ const unsubscribePrivacy = onPrivacyChange((consents) => {
 
 function onPoint(p: TrackPoint) {
   if (state.value !== "recording") return;
-  if (![p.latitude, p.longitude, p.timestamp].every(Number.isFinite) || Math.abs(p.latitude) > 90 || Math.abs(p.longitude) > 180) return;
+  if (!validTrackPoint(p) || p.timestamp>Date.now()+30000) return;
   const last = points.value[points.value.length - 1];
   if (last && p.timestamp <= last.timestamp) return;
   if (p.accuracy != null && p.accuracy > 60) return;
