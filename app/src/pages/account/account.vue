@@ -124,7 +124,7 @@ function deleteAccount() {
         const archived=archiveDeletedAccountLibrary(original.openid);
         const cleaned=clearDeletedAccountRequests(original.openid);clearAccount(); session.value = null; password.value = '';
         message.value=archived.status==='failed'
-          ?'云端账号已注销；本机收藏与行程无法安全转入待确认备份，原本机分区仍保留，请勿清理应用数据'
+          ?'云端账号已注销；本机收藏与行程仍保留在旧分区，待确认备份状态未完全确认（可能已有副本），请勿清理应用数据'
           :!cleaned?'账号和云数据已注销，本机待创建请求清理失败'
           :!archived.metadataCleaned?`本机收藏与行程已移入待确认备份，但旧同步元数据未能完整清理`
           :archived.status==='archived'?`账号和云数据已注销；${archived.favorites}条收藏、${archived.plans}个行程已移入待确认备份`:'账号和云数据已注销';

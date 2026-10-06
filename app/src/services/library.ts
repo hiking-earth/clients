@@ -84,10 +84,11 @@ export function importLegacyLibrary(): { favorites: number; plans: number } {
 export function archiveDeletedAccountLibrary(owner: string): { status: 'archived' | 'empty' | 'failed'; favorites: number; plans: number; metadataCleaned: boolean } {
   if (!owner || owner === 'anonymous') return { status: 'failed', favorites: 0, plans: 0, metadataCleaned: false };
   const sourceKey = scopedKey(owner);
+  const valueExists = (value: unknown) => value !== undefined && value !== null && value !== '';
   const cleanMetadata = () => {
     let complete = true;
     for (const key of [`he_library_version:${owner}`, `he_library_baseline:${owner}`]) {
-      try { uni.removeStorageSync(key); } catch { complete = false; }
+      try { uni.removeStorageSync(key); if (valueExists(uni.getStorageSync(key))) complete = false; } catch { complete = false; }
     }
     return complete;
   };
@@ -110,6 +111,7 @@ export function archiveDeletedAccountLibrary(owner: string): { status: 'archived
     uni.setStorageSync(QUARANTINE_KEY, serialized);
     if (JSON.stringify(parseLibrary(uni.getStorageSync(QUARANTINE_KEY))) !== serialized) return { status: 'failed', favorites: 0, plans: 0, metadataCleaned: false };
     uni.removeStorageSync(sourceKey);
+    if (valueExists(uni.getStorageSync(sourceKey))) return { status: 'failed', favorites: 0, plans: 0, metadataCleaned: false };
     return { status: 'archived', favorites: source.favorites.length, plans: source.plans.length, metadataCleaned: cleanMetadata() };
   } catch { return { status: 'failed', favorites: 0, plans: 0, metadataCleaned: false }; }
 }
