@@ -5,186 +5,6 @@
       "region": "china",
       "bbox": [
         34,
-        117,
-        38,
-        121
-      ]
-    },
-    {
-      "region": "china",
-      "bbox": [
-        26,
-        113,
-        30,
-        117
-      ]
-    },
-    {
-      "region": "china",
-      "bbox": [
-        38,
-        117,
-        42,
-        121
-      ]
-    },
-    {
-      "region": "china",
-      "bbox": [
-        30,
-        113,
-        34,
-        117
-      ]
-    },
-    {
-      "region": "china",
-      "bbox": [
-        22,
-        97,
-        26,
-        101
-      ]
-    },
-    {
-      "region": "china",
-      "bbox": [
-        22,
-        117,
-        26,
-        121
-      ]
-    },
-    {
-      "region": "china",
-      "bbox": [
-        38,
-        125,
-        42,
-        129
-      ]
-    },
-    {
-      "region": "china",
-      "bbox": [
-        30,
-        89,
-        34,
-        93
-      ]
-    },
-    {
-      "region": "china",
-      "bbox": [
-        34,
-        97,
-        38,
-        101
-      ]
-    },
-    {
-      "region": "china",
-      "bbox": [
-        34,
-        105,
-        38,
-        109
-      ]
-    },
-    {
-      "region": "china",
-      "bbox": [
-        18,
-        105,
-        22,
-        109
-      ]
-    },
-    {
-      "region": "china",
-      "bbox": [
-        30,
-        105,
-        34,
-        109
-      ]
-    },
-    {
-      "region": "china",
-      "bbox": [
-        42,
-        89,
-        46,
-        93
-      ]
-    },
-    {
-      "region": "china",
-      "bbox": [
-        42,
-        121,
-        46,
-        125
-      ]
-    },
-    {
-      "region": "china",
-      "bbox": [
-        22,
-        105,
-        26,
-        109
-      ]
-    },
-    {
-      "region": "china",
-      "bbox": [
-        18,
-        113,
-        22,
-        117
-      ]
-    },
-    {
-      "region": "china",
-      "bbox": [
-        38,
-        89,
-        42,
-        93
-      ]
-    },
-    {
-      "region": "china",
-      "bbox": [
-        38,
-        101,
-        42,
-        105
-      ]
-    },
-    {
-      "region": "china",
-      "bbox": [
-        42,
-        129,
-        46,
-        133
-      ]
-    },
-    {
-      "region": "china",
-      "bbox": [
-        38,
-        129,
-        42,
-        133
-      ]
-    },
-    {
-      "region": "china",
-      "bbox": [
-        34,
         121,
         38,
         125
@@ -10818,26 +10638,6 @@
         37,
         52
       ]
-    },
-    {
-      "region": "china",
-      "bbox": [
-        22,
-        101,
-        26,
-        105
-      ],
-      "lastError": "HTTP Error 504: Gateway Timeout"
-    },
-    {
-      "region": "china",
-      "bbox": [
-        18,
-        109,
-        22,
-        113
-      ],
-      "lastError": "HTTP Error 504: Gateway Timeout"
     },
     {
       "region": "china",
@@ -10852,9 +10652,19 @@
     {
       "region": "china",
       "bbox": [
+        22,
+        117,
         26,
+        121
+      ],
+      "lastError": "HTTP Error 504: Gateway Timeout"
+    },
+    {
+      "region": "china",
+      "bbox": [
+        38,
         89,
-        30,
+        42,
         93
       ],
       "lastError": "HTTP Error 504: Gateway Timeout"
@@ -11060,6 +10870,219 @@
         117
       ],
       "watermark": "2026-10-06T15:41:51+00:00"
+    },
+    {
+      "region": "china",
+      "bbox": [
+        22,
+        101,
+        26,
+        105
+      ],
+      "lastError": "HTTP Error 504: Gateway Timeout",
+      "watermark": "2026-10-06T15:47:02+00:00"
+    },
+    {
+      "region": "china",
+      "bbox": [
+        18,
+        109,
+        22,
+        113
+      ],
+      "lastError": "HTTP Error 504: Gateway Timeout",
+      "watermark": "2026-10-06T15:48:03+00:00"
+    },
+    {
+      "region": "china",
+      "bbox": [
+        26,
+        89,
+        30,
+        93
+      ],
+      "lastError": "HTTP Error 504: Gateway Timeout",
+      "watermark": "2026-10-06T15:49:04+00:00"
+    },
+    {
+      "region": "china",
+      "bbox": [
+        34,
+        117,
+        38,
+        121
+      ],
+      "watermark": "2026-10-06T15:50:05+00:00"
+    },
+    {
+      "region": "china",
+      "bbox": [
+        26,
+        113,
+        30,
+        117
+      ],
+      "watermark": "2026-10-06T15:51:05+00:00"
+    },
+    {
+      "region": "china",
+      "bbox": [
+        38,
+        117,
+        42,
+        121
+      ],
+      "watermark": "2026-10-06T15:51:05+00:00"
+    },
+    {
+      "region": "china",
+      "bbox": [
+        30,
+        113,
+        34,
+        117
+      ],
+      "watermark": "2026-10-06T15:52:06+00:00"
+    },
+    {
+      "region": "china",
+      "bbox": [
+        22,
+        97,
+        26,
+        101
+      ],
+      "watermark": "2026-10-06T15:53:06+00:00"
+    },
+    {
+      "region": "china",
+      "bbox": [
+        38,
+        125,
+        42,
+        129
+      ],
+      "watermark": "2026-10-06T15:54:06+00:00"
+    },
+    {
+      "region": "china",
+      "bbox": [
+        30,
+        89,
+        34,
+        93
+      ],
+      "watermark": "2026-10-06T15:54:06+00:00"
+    },
+    {
+      "region": "china",
+      "bbox": [
+        34,
+        97,
+        38,
+        101
+      ],
+      "watermark": "2026-10-06T15:55:10+00:00"
+    },
+    {
+      "region": "china",
+      "bbox": [
+        34,
+        105,
+        38,
+        109
+      ],
+      "watermark": "2026-10-06T15:56:10+00:00"
+    },
+    {
+      "region": "china",
+      "bbox": [
+        18,
+        105,
+        22,
+        109
+      ],
+      "watermark": "2026-10-06T15:56:10+00:00"
+    },
+    {
+      "region": "china",
+      "bbox": [
+        30,
+        105,
+        34,
+        109
+      ],
+      "watermark": "2026-10-06T15:57:11+00:00"
+    },
+    {
+      "region": "china",
+      "bbox": [
+        42,
+        89,
+        46,
+        93
+      ],
+      "watermark": "2026-10-06T15:57:11+00:00"
+    },
+    {
+      "region": "china",
+      "bbox": [
+        42,
+        121,
+        46,
+        125
+      ],
+      "watermark": "2026-10-06T15:58:10+00:00"
+    },
+    {
+      "region": "china",
+      "bbox": [
+        22,
+        105,
+        26,
+        109
+      ],
+      "watermark": "2026-10-06T15:58:10+00:00"
+    },
+    {
+      "region": "china",
+      "bbox": [
+        18,
+        113,
+        22,
+        117
+      ],
+      "watermark": "2026-10-06T15:58:10+00:00"
+    },
+    {
+      "region": "china",
+      "bbox": [
+        38,
+        101,
+        42,
+        105
+      ],
+      "watermark": "2026-10-06T15:59:12+00:00"
+    },
+    {
+      "region": "china",
+      "bbox": [
+        42,
+        129,
+        46,
+        133
+      ],
+      "watermark": "2026-10-06T16:00:12+00:00"
+    },
+    {
+      "region": "china",
+      "bbox": [
+        38,
+        129,
+        42,
+        133
+      ],
+      "watermark": "2026-10-06T16:00:12+00:00"
     }
   ],
   "cycle": 0,

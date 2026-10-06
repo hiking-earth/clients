@@ -112,27 +112,35 @@ def prepare():
             raise ValueError(f'{source}: manifest exceeds metadata budget')
         atomic_write(version / 'manifest.json', manifest)
         retained = {snapshot, previous}
-        fallback = ROOT / 'app/cloudfunctions/catalog-feed/snapshots' / source
-        fallback.mkdir(parents=True, exist_ok=True)
+        fallbacks = [
+            ROOT / 'app/cloudfunctions/catalog-feed/snapshots' / source,
+            ROOT / 'app/cloudfunctions/client-api/business/catalog-feed/snapshots' / source,
+        ]
+        for fallback in fallbacks:
+            fallback.mkdir(parents=True, exist_ok=True)
         # Stage every retained immutable generation before exposing any pointer.
-        for generation in retained:
-            if generation and (folder / generation).is_dir():
-                shutil.copytree(folder / generation, fallback / generation, dirs_exist_ok=True)
-        pending.append((source, folder, fallback, manifest, retained))
+        for fallback in fallbacks:
+            for generation in retained:
+                if generation and (folder / generation).is_dir():
+                    shutil.copytree(folder / generation, fallback / generation, dirs_exist_ok=True)
+        pending.append((source, folder, fallbacks, manifest, retained))
         print(f'{source}: prepared {len(rows)} records / {len(hashes)} pages; {snapshot[:12]}')
 
     # All sources and direct payload budgets passed before pointer publication.
     # Separate source pointers are independent, not one filesystem transaction.
-    for source, folder, fallback, manifest, retained in pending:
-        atomic_write(fallback / 'manifest.json', manifest)
+    for source, folder, fallbacks, manifest, retained in pending:
         atomic_write(folder / 'manifest.json', manifest)
-        for base in (folder, fallback):
+        for fallback in fallbacks:
+            atomic_write(fallback / 'manifest.json', manifest)
+        for base in (folder, *fallbacks):
             for child in base.iterdir():
                 if child.is_dir() and len(child.name) == 64 and all(c in '0123456789abcdef' for c in child.name) and child.name not in retained:
                     shutil.rmtree(child)
-        (fallback.parent / (source + '.json')).unlink(missing_ok=True)
+        for fallback in fallbacks:
+            (fallback.parent / (source + '.json')).unlink(missing_ok=True)
     for source, payload in direct.items():
-        atomic_write(ROOT / 'app/cloudfunctions/catalog-feed/snapshots' / (source + '.json'), payload)
+        for base in (ROOT / 'app/cloudfunctions/catalog-feed/snapshots', ROOT / 'app/cloudfunctions/client-api/business/catalog-feed/snapshots'):
+            atomic_write(base / (source + '.json'), payload)
 
 
 if __name__ == '__main__':

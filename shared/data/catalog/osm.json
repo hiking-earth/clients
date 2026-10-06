@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-06T15:43:13.614754+00:00",
+  "generatedAt": "2026-10-06T15:58:00.895203+00:00",
   "license": "ODbL-1.0",
   "attribution": "© OpenStreetMap contributors",
   "licenseUrl": "https://www.openstreetmap.org/copyright",
@@ -8,26 +8,6 @@
     "japan": 800
   },
   "failures": [
-    {
-      "region": "china",
-      "bbox": [
-        22,
-        101,
-        26,
-        105
-      ],
-      "error": "HTTP Error 504: Gateway Timeout"
-    },
-    {
-      "region": "china",
-      "bbox": [
-        18,
-        109,
-        22,
-        113
-      ],
-      "error": "HTTP Error 504: Gateway Timeout"
-    },
     {
       "region": "china",
       "bbox": [
@@ -41,9 +21,19 @@
     {
       "region": "china",
       "bbox": [
+        22,
+        117,
         26,
+        121
+      ],
+      "error": "HTTP Error 504: Gateway Timeout"
+    },
+    {
+      "region": "china",
+      "bbox": [
+        38,
         89,
-        30,
+        42,
         93
       ],
       "error": "HTTP Error 504: Gateway Timeout"
@@ -9821,7 +9811,8 @@
       "sourceTags": {
         "network": "rwn"
       },
-      "fetchedAt": "2026-10-04T21:15:40.402978+00:00",
+      "fetchedAt": "2026-10-06T15:58:00.895203+00:00",
+      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
       "status": "待核验"
     },
     {
@@ -72328,7 +72319,8 @@
         "network": "lwn",
         "ref": "武功山"
       },
-      "fetchedAt": "2026-10-04T22:35:25.300042+00:00",
+      "fetchedAt": "2026-10-06T15:58:00.895203+00:00",
+      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
       "status": "待核验"
     },
     {
@@ -157166,7 +157158,8 @@
       "sourceTags": {
         "description": "全国重点文物保护单位茶马古道子项，部分路段已建成公路"
       },
-      "fetchedAt": "2026-10-04T22:35:25.300042+00:00",
+      "fetchedAt": "2026-10-06T15:58:00.895203+00:00",
+      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
       "status": "待核验"
     },
     {
@@ -163801,7 +163794,8 @@
       "sourceTags": {
         "network": "lwn"
       },
-      "fetchedAt": "2026-10-04T22:35:25.300042+00:00",
+      "fetchedAt": "2026-10-06T15:58:00.895203+00:00",
+      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
       "status": "待核验"
     },
     {
@@ -183434,7 +183428,8 @@
       "sourceTags": {
         "network": "lwn"
       },
-      "fetchedAt": "2026-10-04T21:09:04.371186+00:00",
+      "fetchedAt": "2026-10-06T15:58:00.895203+00:00",
+      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
       "status": "待核验"
     },
     {
@@ -185344,7 +185339,8 @@
       "sourceTags": {
         "network": "lwn"
       },
-      "fetchedAt": "2026-10-04T22:39:17.184437+00:00",
+      "fetchedAt": "2026-10-06T15:58:00.895203+00:00",
+      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
       "status": "待核验"
     },
     {
@@ -209078,7 +209074,8 @@
       "sourceTags": {
         "network": "lwn"
       },
-      "fetchedAt": "2026-10-04T23:08:34.488802+00:00",
+      "fetchedAt": "2026-10-06T15:58:00.895203+00:00",
+      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
       "status": "待核验"
     },
     {
@@ -209092,7 +209089,8 @@
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/17412118",
       "sourceTags": {},
-      "fetchedAt": "2026-10-04T23:08:34.488802+00:00",
+      "fetchedAt": "2026-10-06T15:58:00.895203+00:00",
+      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
       "status": "待核验"
     },
     {
@@ -210057,7 +210055,8 @@
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/17439378",
       "sourceTags": {},
-      "fetchedAt": "2026-10-04T22:35:25.300042+00:00",
+      "fetchedAt": "2026-10-06T15:58:00.895203+00:00",
+      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
       "status": "待核验"
     },
     {
@@ -221501,7 +221500,8 @@
         "network": "rwn",
         "ref": "金牛"
       },
-      "fetchedAt": "2026-10-04T21:15:40.402978+00:00",
+      "fetchedAt": "2026-10-06T15:58:00.895203+00:00",
+      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
       "status": "待核验"
     },
     {
@@ -239583,7 +239583,8 @@
       "sourceTags": {
         "network": "lwn"
       },
-      "fetchedAt": "2026-10-04T21:09:04.371186+00:00",
+      "fetchedAt": "2026-10-06T15:58:00.895203+00:00",
+      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
       "status": "待核验"
     },
     {
@@ -259801,7 +259802,8 @@
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/19110976",
       "sourceTags": {},
-      "fetchedAt": "2026-10-04T22:35:25.300042+00:00",
+      "fetchedAt": "2026-10-06T15:58:00.895203+00:00",
+      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
       "status": "待核验"
     },
     {
@@ -263376,7 +263378,7 @@
       "sourceTags": {
         "network": "lwn"
       },
-      "fetchedAt": "2026-10-06T15:43:13.614754+00:00",
+      "fetchedAt": "2026-10-06T15:58:00.895203+00:00",
       "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
       "status": "待核验"
     },
@@ -263393,7 +263395,7 @@
       "sourceTags": {
         "network": "lwn"
       },
-      "fetchedAt": "2026-10-06T15:43:13.614754+00:00",
+      "fetchedAt": "2026-10-06T15:58:00.895203+00:00",
       "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
       "status": "待核验"
     },
@@ -263410,7 +263412,7 @@
       "sourceTags": {
         "network": "lwn"
       },
-      "fetchedAt": "2026-10-06T15:43:13.614754+00:00",
+      "fetchedAt": "2026-10-06T15:58:00.895203+00:00",
       "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
       "status": "待核验"
     },
@@ -271273,7 +271275,8 @@
       "sourceTags": {
         "network": "lwn"
       },
-      "fetchedAt": "2026-10-04T20:42:13.440398+00:00",
+      "fetchedAt": "2026-10-06T15:58:00.895203+00:00",
+      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
       "status": "待核验"
     },
     {
@@ -271289,7 +271292,8 @@
       "sourceTags": {
         "network": "lwn"
       },
-      "fetchedAt": "2026-10-04T20:42:13.440398+00:00",
+      "fetchedAt": "2026-10-06T15:58:00.895203+00:00",
+      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
       "status": "待核验"
     },
     {
@@ -271305,7 +271309,8 @@
       "sourceTags": {
         "network": "lwn"
       },
-      "fetchedAt": "2026-10-04T20:42:13.440398+00:00",
+      "fetchedAt": "2026-10-06T15:58:00.895203+00:00",
+      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
       "status": "待核验"
     },
     {
@@ -271321,7 +271326,8 @@
       "sourceTags": {
         "network": "lwn"
       },
-      "fetchedAt": "2026-10-04T20:42:13.440398+00:00",
+      "fetchedAt": "2026-10-06T15:58:00.895203+00:00",
+      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
       "status": "待核验"
     },
     {
@@ -271337,7 +271343,8 @@
       "sourceTags": {
         "network": "lwn"
       },
-      "fetchedAt": "2026-10-04T20:42:13.440398+00:00",
+      "fetchedAt": "2026-10-06T15:58:00.895203+00:00",
+      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
       "status": "待核验"
     },
     {
@@ -271353,7 +271360,8 @@
       "sourceTags": {
         "network": "lwn"
       },
-      "fetchedAt": "2026-10-04T20:42:13.440398+00:00",
+      "fetchedAt": "2026-10-06T15:58:00.895203+00:00",
+      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
       "status": "待核验"
     },
     {
@@ -273781,7 +273789,8 @@
       "sourceTags": {
         "network": "lwn"
       },
-      "fetchedAt": "2026-10-04T21:09:04.371186+00:00",
+      "fetchedAt": "2026-10-06T15:58:00.895203+00:00",
+      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
       "status": "待核验"
     },
     {
@@ -280072,14 +280081,15 @@
       "id": "osm-relation-19703103",
       "name": "博南古道永平至保山段徒步路线",
       "originalName": "博南古道永平至保山段徒步路线",
-      "region": "south-asia",
+      "region": "china",
       "center": [
         99.3758824,
         25.2955673
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/19703103",
       "sourceTags": {},
-      "fetchedAt": "2026-10-05T05:17:20.916757+00:00",
+      "fetchedAt": "2026-10-06T15:58:00.895203+00:00",
+      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
       "status": "待核验"
     },
     {
@@ -281222,7 +281232,8 @@
       "sourceTags": {
         "network": "lwn"
       },
-      "fetchedAt": "2026-10-04T22:35:25.300042+00:00",
+      "fetchedAt": "2026-10-06T15:58:00.895203+00:00",
+      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
       "status": "待核验"
     },
     {
@@ -281880,7 +281891,8 @@
       "sourceTags": {
         "network": "lwn"
       },
-      "fetchedAt": "2026-10-04T20:42:13.440398+00:00",
+      "fetchedAt": "2026-10-06T15:58:00.895203+00:00",
+      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
       "status": "待核验"
     },
     {
@@ -283096,7 +283108,8 @@
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/19818868",
       "sourceTags": {},
-      "fetchedAt": "2026-10-04T22:39:17.184437+00:00",
+      "fetchedAt": "2026-10-06T15:58:00.895203+00:00",
+      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
       "status": "待核验"
     },
     {
@@ -289046,7 +289059,8 @@
       "sourceTags": {
         "network": "lwn"
       },
-      "fetchedAt": "2026-10-04T22:35:25.300042+00:00",
+      "fetchedAt": "2026-10-06T15:58:00.895203+00:00",
+      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
       "status": "待核验"
     },
     {
@@ -290723,7 +290737,8 @@
       "sourceTags": {
         "network": "lwn"
       },
-      "fetchedAt": "2026-10-04T21:09:04.371186+00:00",
+      "fetchedAt": "2026-10-06T15:58:00.895203+00:00",
+      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
       "status": "待核验"
     },
     {
@@ -299875,7 +299890,8 @@
       "sourceTags": {
         "network": "lwn"
       },
-      "fetchedAt": "2026-10-04T22:39:17.184437+00:00",
+      "fetchedAt": "2026-10-06T15:58:00.895203+00:00",
+      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
       "status": "待核验"
     },
     {
@@ -300377,7 +300393,8 @@
       "sourceTags": {
         "network": "lwn"
       },
-      "fetchedAt": "2026-10-04T22:39:17.184437+00:00",
+      "fetchedAt": "2026-10-06T15:58:00.895203+00:00",
+      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
       "status": "待核验"
     },
     {
@@ -301789,7 +301806,8 @@
       "sourceTags": {
         "network": "rwn"
       },
-      "fetchedAt": "2026-10-04T21:15:40.402978+00:00",
+      "fetchedAt": "2026-10-06T15:58:00.895203+00:00",
+      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
       "status": "待核验"
     },
     {
@@ -303099,7 +303117,8 @@
       "sourceTags": {
         "network": "lwn"
       },
-      "fetchedAt": "2026-10-04T22:39:17.184437+00:00",
+      "fetchedAt": "2026-10-06T15:58:00.895203+00:00",
+      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
       "status": "待核验"
     },
     {
@@ -308093,7 +308112,7 @@
       "sourceTags": {
         "network": "rwn"
       },
-      "fetchedAt": "2026-10-06T15:38:12.044055+00:00",
+      "fetchedAt": "2026-10-06T15:58:00.895203+00:00",
       "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
       "status": "待核验"
     },
@@ -308110,7 +308129,7 @@
       "sourceTags": {
         "network": "lwn"
       },
-      "fetchedAt": "2026-10-06T15:38:12.044055+00:00",
+      "fetchedAt": "2026-10-06T15:58:00.895203+00:00",
       "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
       "status": "待核验"
     },
@@ -483827,10 +483846,10 @@
     }
   ],
   "backfill": {
-    "completedTiles": 20,
-    "pendingTiles": 1206,
+    "completedTiles": 41,
+    "pendingTiles": 1185,
     "cycle": 0,
-    "lastProcessedTiles": 12
+    "lastProcessedTiles": 21
   },
   "coverageNote": "Bounded full-membership spatial backfill and revisits; incomplete until the pending queue has been traversed. No opening or navigation permission implied.",
   "backfillState": {
@@ -483840,186 +483859,6 @@
         "region": "china",
         "bbox": [
           34,
-          117,
-          38,
-          121
-        ]
-      },
-      {
-        "region": "china",
-        "bbox": [
-          26,
-          113,
-          30,
-          117
-        ]
-      },
-      {
-        "region": "china",
-        "bbox": [
-          38,
-          117,
-          42,
-          121
-        ]
-      },
-      {
-        "region": "china",
-        "bbox": [
-          30,
-          113,
-          34,
-          117
-        ]
-      },
-      {
-        "region": "china",
-        "bbox": [
-          22,
-          97,
-          26,
-          101
-        ]
-      },
-      {
-        "region": "china",
-        "bbox": [
-          22,
-          117,
-          26,
-          121
-        ]
-      },
-      {
-        "region": "china",
-        "bbox": [
-          38,
-          125,
-          42,
-          129
-        ]
-      },
-      {
-        "region": "china",
-        "bbox": [
-          30,
-          89,
-          34,
-          93
-        ]
-      },
-      {
-        "region": "china",
-        "bbox": [
-          34,
-          97,
-          38,
-          101
-        ]
-      },
-      {
-        "region": "china",
-        "bbox": [
-          34,
-          105,
-          38,
-          109
-        ]
-      },
-      {
-        "region": "china",
-        "bbox": [
-          18,
-          105,
-          22,
-          109
-        ]
-      },
-      {
-        "region": "china",
-        "bbox": [
-          30,
-          105,
-          34,
-          109
-        ]
-      },
-      {
-        "region": "china",
-        "bbox": [
-          42,
-          89,
-          46,
-          93
-        ]
-      },
-      {
-        "region": "china",
-        "bbox": [
-          42,
-          121,
-          46,
-          125
-        ]
-      },
-      {
-        "region": "china",
-        "bbox": [
-          22,
-          105,
-          26,
-          109
-        ]
-      },
-      {
-        "region": "china",
-        "bbox": [
-          18,
-          113,
-          22,
-          117
-        ]
-      },
-      {
-        "region": "china",
-        "bbox": [
-          38,
-          89,
-          42,
-          93
-        ]
-      },
-      {
-        "region": "china",
-        "bbox": [
-          38,
-          101,
-          42,
-          105
-        ]
-      },
-      {
-        "region": "china",
-        "bbox": [
-          42,
-          129,
-          46,
-          133
-        ]
-      },
-      {
-        "region": "china",
-        "bbox": [
-          38,
-          129,
-          42,
-          133
-        ]
-      },
-      {
-        "region": "china",
-        "bbox": [
-          34,
           121,
           38,
           125
@@ -494653,26 +494492,6 @@
           37,
           52
         ]
-      },
-      {
-        "region": "china",
-        "bbox": [
-          22,
-          101,
-          26,
-          105
-        ],
-        "lastError": "HTTP Error 504: Gateway Timeout"
-      },
-      {
-        "region": "china",
-        "bbox": [
-          18,
-          109,
-          22,
-          113
-        ],
-        "lastError": "HTTP Error 504: Gateway Timeout"
       },
       {
         "region": "china",
@@ -494687,9 +494506,19 @@
       {
         "region": "china",
         "bbox": [
+          22,
+          117,
           26,
+          121
+        ],
+        "lastError": "HTTP Error 504: Gateway Timeout"
+      },
+      {
+        "region": "china",
+        "bbox": [
+          38,
           89,
-          30,
+          42,
           93
         ],
         "lastError": "HTTP Error 504: Gateway Timeout"
@@ -494895,6 +494724,219 @@
           117
         ],
         "watermark": "2026-10-06T15:41:51+00:00"
+      },
+      {
+        "region": "china",
+        "bbox": [
+          22,
+          101,
+          26,
+          105
+        ],
+        "lastError": "HTTP Error 504: Gateway Timeout",
+        "watermark": "2026-10-06T15:47:02+00:00"
+      },
+      {
+        "region": "china",
+        "bbox": [
+          18,
+          109,
+          22,
+          113
+        ],
+        "lastError": "HTTP Error 504: Gateway Timeout",
+        "watermark": "2026-10-06T15:48:03+00:00"
+      },
+      {
+        "region": "china",
+        "bbox": [
+          26,
+          89,
+          30,
+          93
+        ],
+        "lastError": "HTTP Error 504: Gateway Timeout",
+        "watermark": "2026-10-06T15:49:04+00:00"
+      },
+      {
+        "region": "china",
+        "bbox": [
+          34,
+          117,
+          38,
+          121
+        ],
+        "watermark": "2026-10-06T15:50:05+00:00"
+      },
+      {
+        "region": "china",
+        "bbox": [
+          26,
+          113,
+          30,
+          117
+        ],
+        "watermark": "2026-10-06T15:51:05+00:00"
+      },
+      {
+        "region": "china",
+        "bbox": [
+          38,
+          117,
+          42,
+          121
+        ],
+        "watermark": "2026-10-06T15:51:05+00:00"
+      },
+      {
+        "region": "china",
+        "bbox": [
+          30,
+          113,
+          34,
+          117
+        ],
+        "watermark": "2026-10-06T15:52:06+00:00"
+      },
+      {
+        "region": "china",
+        "bbox": [
+          22,
+          97,
+          26,
+          101
+        ],
+        "watermark": "2026-10-06T15:53:06+00:00"
+      },
+      {
+        "region": "china",
+        "bbox": [
+          38,
+          125,
+          42,
+          129
+        ],
+        "watermark": "2026-10-06T15:54:06+00:00"
+      },
+      {
+        "region": "china",
+        "bbox": [
+          30,
+          89,
+          34,
+          93
+        ],
+        "watermark": "2026-10-06T15:54:06+00:00"
+      },
+      {
+        "region": "china",
+        "bbox": [
+          34,
+          97,
+          38,
+          101
+        ],
+        "watermark": "2026-10-06T15:55:10+00:00"
+      },
+      {
+        "region": "china",
+        "bbox": [
+          34,
+          105,
+          38,
+          109
+        ],
+        "watermark": "2026-10-06T15:56:10+00:00"
+      },
+      {
+        "region": "china",
+        "bbox": [
+          18,
+          105,
+          22,
+          109
+        ],
+        "watermark": "2026-10-06T15:56:10+00:00"
+      },
+      {
+        "region": "china",
+        "bbox": [
+          30,
+          105,
+          34,
+          109
+        ],
+        "watermark": "2026-10-06T15:57:11+00:00"
+      },
+      {
+        "region": "china",
+        "bbox": [
+          42,
+          89,
+          46,
+          93
+        ],
+        "watermark": "2026-10-06T15:57:11+00:00"
+      },
+      {
+        "region": "china",
+        "bbox": [
+          42,
+          121,
+          46,
+          125
+        ],
+        "watermark": "2026-10-06T15:58:10+00:00"
+      },
+      {
+        "region": "china",
+        "bbox": [
+          22,
+          105,
+          26,
+          109
+        ],
+        "watermark": "2026-10-06T15:58:10+00:00"
+      },
+      {
+        "region": "china",
+        "bbox": [
+          18,
+          113,
+          22,
+          117
+        ],
+        "watermark": "2026-10-06T15:58:10+00:00"
+      },
+      {
+        "region": "china",
+        "bbox": [
+          38,
+          101,
+          42,
+          105
+        ],
+        "watermark": "2026-10-06T15:59:12+00:00"
+      },
+      {
+        "region": "china",
+        "bbox": [
+          42,
+          129,
+          46,
+          133
+        ],
+        "watermark": "2026-10-06T16:00:12+00:00"
+      },
+      {
+        "region": "china",
+        "bbox": [
+          38,
+          129,
+          42,
+          133
+        ],
+        "watermark": "2026-10-06T16:00:12+00:00"
       }
     ],
     "cycle": 0,
