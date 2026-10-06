@@ -87,12 +87,12 @@ jobs:
               'incrementalAttemptSucceeded': outcomes['osm_incremental'] == 'success',
               },
               'usfs': {
-                  'supported': usfs_progress.get('reconciliationVersion') == 1,
+                  'supported': usfs_progress.get('reconciliationVersion') == 2,
                   'cycleStartedAt': usfs_progress.get('cycleStartedAt'),
                   'lastCompletedAt': usfs_progress.get('lastCompletedAt'),
                   'lastRemovedFromDiscovery': usfs_progress.get('lastRemovedFromDiscovery'),
                   'nextObjectId': usfs_progress.get('nextObjectId'),
-                  'currentCycleComplete': usfs_progress.get('reconciliationVersion') == 1 and usfs_progress.get('nextObjectId') is None and bool(usfs_progress.get('lastCompletedAt')),
+                  'currentCycleComplete': usfs_progress.get('reconciliationVersion') == 2 and usfs_progress.get('nextObjectId') is None and bool(usfs_progress.get('lastCompletedAt')),
                   'lastAttemptSucceeded': outcomes['usfs'] == 'success',
               },
               'hk': {
