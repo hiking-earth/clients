@@ -130,7 +130,7 @@ async function sync() {
     if(await uploadTrackToCloud(snapshot)){
       track.value=getTrack(snapshot.id);
       uni.showToast({title:"已同步",icon:"success"});
-    }else uni.showToast({title:"云端未确认，保留待同步状态",icon:"none"});
+    }else uni.showToast({title:"云端未确认，轨迹仍保留在本机待同步",icon:"none"});
   }finally{syncing.value=false;uni.hideLoading();}
 }
 

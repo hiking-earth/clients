@@ -116,14 +116,15 @@ async function syncAll() {
   syncingTracks=true;
   uni.showLoading({ title: "同步中" });
   const owner=String(uni.getStorageSync("he_openid")||"");
-  let okCount = 0;
+  let okCount = 0,attempted=0,interrupted=false;
   try { for (const t of list) {
-    if(owner!==String(uni.getStorageSync("he_openid")||"")||!hasPrivacyConsent("trackCloudSync"))break;
-    if(owner!==String(uni.getStorageSync("he_openid")||"")||!hasPrivacyConsent("trackCloudSync"))break;
+    if(owner!==String(uni.getStorageSync("he_openid")||"")||!hasPrivacyConsent("trackCloudSync")){interrupted=true;break;}
+    attempted++;
     if(await uploadTrackToCloud(t))okCount++;
+    if(owner!==String(uni.getStorageSync("he_openid")||"")||!hasPrivacyConsent("trackCloudSync")){interrupted=true;break;}
   }} finally { syncingTracks=false;uni.hideLoading(); }
   unsynced.value = listTracks().filter((t) => !t.synced).length;
-  uni.showToast({ title: `已同步 ${okCount}/${list.length} 条`, icon: "none" });
+  uni.showToast({ title: interrupted?`已确认 ${okCount} 条；因账号或授权变化停止，${unsynced.value} 条仍待同步`:`已确认 ${okCount}/${attempted} 条；${unsynced.value} 条仍待同步`, icon: "none" });
 }
 
 function go(url: string) {
