@@ -9,9 +9,19 @@ type Artifact={url:string;sha256:string;size:number};
 type Release={schemaVersion:1;ready:boolean;version:string;versionCode:number;notes:string;android:Artifact|null;ios:{url:string}|null};
 let release:Release|null=null;let nextCheckAt=0;let failures=0;let miniManagerBound=false;
 function checkedSuccessfully(){failures=0;nextCheckAt=Date.now()+6*60*60*1000;}
-function checkFailed(){failures++;nextCheckAt=Date.now()+Math.min(6*60*60*1000,15*60*1000*2**Math.min(failures-1,5));}
+function checkFailed(){release=null;updateState.available=false;updateState.version='';updateState.notes='';failures++;nextCheckAt=Date.now()+Math.min(6*60*60*1000,15*60*1000*2**Math.min(failures-1,5));}
 function newer(version:string,current:string):boolean {const a=version.split('.').map(Number),b=current.split('.').map(Number);for(let i=0;i<3;i++){if(a[i]!==b[i])return a[i]>b[i];}return false;}
 function artifactUrl(url:string):boolean {return /^https:\/\/github\.com\/hiking-earth\/clients\/releases\/download\/[^/]+\/[^?#]+$/.test(url);}
+function platformArtifactAvailable(candidate:Release):boolean {
+  // #ifdef APP-PLUS
+  return plus.os.name==='iOS'?!!candidate.ios:!!candidate.android;
+  // #endif
+  // #ifdef H5
+  // The page refresh is separate from an installable native release.
+  return false;
+  // #endif
+  return false;
+}
 function nativeVersion():string {
   // #ifdef APP-PLUS
   return plus.runtime.version || APP_VERSION;
@@ -38,9 +48,12 @@ export async function checkForUpdate(force=false):Promise<void> {
     const android=r.android;const ios=r.ios;
     if(android && (!artifactUrl(android!.url) || !/^[a-f0-9]{64}$/.test(android!.sha256) || !Number.isSafeInteger(android!.size) || android!.size<=0 || android!.size>200*1024*1024))throw new Error('安装包信息无效');
     if(ios && !/^https:\/\/(apps\.apple\.com|testflight\.apple\.com)\//.test(ios!.url))throw new Error('iOS更新入口无效');
-    release=r;updateState.available=r.ready && newer(r.version,nativeVersion());updateState.version=r.version;updateState.notes=r.notes;
+    release=r;const hasNewVersion=r.ready && newer(r.version,nativeVersion());const hasArtifact=platformArtifactAvailable(r);updateState.available=hasNewVersion && hasArtifact;updateState.version=r.version;updateState.notes=r.notes;
     checkedSuccessfully();
-    if(!updateState.available)updateState.message=r.ready?'当前为最新版本':'新版本仍在准备，尚未正式发布';
+    if(!updateState.available)updateState.message=!r.ready?'新版本仍在准备，尚未正式发布':hasNewVersion&&!hasArtifact?'当前平台的新版本安装入口尚未发布':'当前为最新版本';
+    // #ifdef H5
+    updateState.message='网页功能随服务发布更新，请完成当前操作后重新打开页面';
+    // #endif
   } catch(e:any){checkFailed();updateState.message=e.message || '检查更新失败';}finally{updateState.checking=false;}
 }
 export async function applyUpdate():Promise<void> {
