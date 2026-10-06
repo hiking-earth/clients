@@ -1,5 +1,6 @@
 <template>
   <scroll-view scroll-y class="page">
+    <button @click="go('/pages/guide/manage')">导购资料管理（管理员）</button>
     <button @click="go('/pages/my/route-review')">官方路线审核（管理员）</button>
     <button @click="go('/pages/route/news')">官方户外公告</button>
     <button @click="go('/pages/my/import')">迁移旧网页日记与留言</button>

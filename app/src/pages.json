@@ -54,6 +54,12 @@
       }
     },
     {
+      "path": "pages/guide/manage",
+      "style": {
+        "navigationBarTitleText": "导购资料管理"
+      }
+    },
+    {
       "path": "pages/guide/guide",
       "style": {
         "navigationBarTitleText": "装备导购"
