@@ -115,19 +115,25 @@ onUnmounted(() => { context++;unsubscribePrivacy(); unsubscribeAccount(); stopPo
 
 let entering=false;
 const CREATION_KEY='he_team_creation_request_v1';
-function pendingCreation():string{
+function pendingCreation():{id:string;key:string}{
   const owner=String(uni.getStorageSync('he_openid')||myOpenid.value);
   if(!owner)throw new Error('请先登录');
-  const raw=uni.getStorageSync(CREATION_KEY);
-  if(raw){const saved=typeof raw==='string'?JSON.parse(raw):raw;
-    if(!saved||typeof saved.owner!=='string'||typeof saved.id!=='string'||!/^team-[a-zA-Z0-9-]{1,100}$/.test(saved.id))throw new Error('创建请求缓存异常');
-    if(saved.owner===owner)return saved.id;
+  const key=`${CREATION_KEY}:${encodeURIComponent(owner)}`;
+  function parse(raw:any){const value=typeof raw==='string'?JSON.parse(raw):raw;
+    if(!value||typeof value.owner!=='string'||typeof value.id!=='string'||!/^team-[a-zA-Z0-9-]{1,100}$/.test(value.id))throw new Error('创建请求缓存异常');
+    return value;
   }
+  const raw=uni.getStorageSync(key);
+  if(raw){const saved=parse(raw);if(saved.owner!==owner)throw new Error('创建请求账号不匹配');return {id:saved.id,key};}
+  const legacyRaw=uni.getStorageSync(CREATION_KEY);
+  if(legacyRaw){const legacy=parse(legacyRaw);if(legacy.owner===owner){
+    uni.setStorageSync(key,JSON.stringify(legacy));uni.removeStorageSync(CREATION_KEY);return {id:legacy.id,key};
+  }}
   const id=`team-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-  uni.setStorageSync(CREATION_KEY,JSON.stringify({owner,id}));return id;
+  uni.setStorageSync(key,JSON.stringify({owner,id}));return {id,key};
 }
-function clearCreation(id:string){
-  try{const raw=uni.getStorageSync(CREATION_KEY);const saved=typeof raw==='string'?JSON.parse(raw):raw;if(saved?.id===id)uni.removeStorageSync(CREATION_KEY);}
+function clearCreation(request:{id:string;key:string}){
+  try{const raw=uni.getStorageSync(request.key);const saved=typeof raw==='string'?JSON.parse(raw):raw;if(saved?.id===request.id){const legacyRaw=uni.getStorageSync(CREATION_KEY);const legacy=typeof legacyRaw==='string'?JSON.parse(legacyRaw):legacyRaw;if(legacy?.id===request.id&&legacy?.owner===saved.owner)uni.removeStorageSync(CREATION_KEY);uni.removeStorageSync(request.key);}}
   catch{uni.showToast({title:'创建请求缓存清理失败',icon:'none'});}
 }
 function rememberTeam(){
@@ -139,7 +145,7 @@ async function createTeam() {
   const original=snapshot();entering=true;
   try{
     const creationRequest=pendingCreation();
-    const res=await callCloud<{teamId:string;inviteCode:string;requestExpired?:boolean}>('team-create',{name:'徒步小队',requestId:creationRequest});
+    const res=await callCloud<{teamId:string;inviteCode:string;requestExpired?:boolean}>('team-create',{name:'徒步小队',requestId:creationRequest.id});
     if(!current(original))return;
     if(res.code==='TEAM_REQUEST_EXPIRED')clearCreation(creationRequest);
     if(!res.ok||!res.data||typeof res.data.teamId!=='string'||!res.data.teamId||typeof res.data.inviteCode!=='string'||!/^\d{6}$/.test(res.data.inviteCode)){
