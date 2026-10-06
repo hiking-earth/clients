@@ -59,7 +59,8 @@ export function refreshUsfsCatalog(force=false): void {
 
 function validUsfs(data:any): boolean {
     if(data?.schemaVersion!==1 || data.attribution!=='USDA Forest Service' || typeof data.generatedAt!=='string' || !Number.isFinite(Date.parse(data.generatedAt)) || !Array.isArray(data.routes) || data.routes.length>40000)return false;
-    if(!data.routes.every((r:any)=>r&&typeof r.id==='string' && /^usfs-[\w-]+$/.test(r.id) && typeof r.name==='string' && r.name.length<=500 && typeof r.region==='string' && Array.isArray(r.center) && r.center.length===2 && r.center.every(Number.isFinite) && Math.abs(r.center[0])<=180 && Math.abs(r.center[1])<=90 && r.sourceUrl==='https://apps.fs.usda.gov/arcx/rest/services/EDW/EDW_TrailNFSPublishWithDataStatus_01/MapServer/0' && typeof r.fetchedAt==='string' && r.sourceTags))return false;
+    const tagKeys=new Set(['trailNumber','hikingManaged','hikingAccepted','hikingRestricted']);
+    if(!data.routes.every((r:any)=>r&&typeof r.id==='string' && /^usfs-[\w.-]+$/.test(r.id) && typeof r.name==='string' && r.name.length<=500 && typeof r.region==='string' && Array.isArray(r.center) && r.center.length===2 && r.center.every(Number.isFinite) && Math.abs(r.center[0])<=180 && Math.abs(r.center[1])<=90 && r.sourceUrl==='https://apps.fs.usda.gov/arcx/rest/services/EDW/EDW_TrailNFSPublishWithDataStatus_01/MapServer/0' && typeof r.fetchedAt==='string' && Number.isFinite(Date.parse(r.fetchedAt)) && r.sourceTags && typeof r.sourceTags==='object' && !Array.isArray(r.sourceTags) && Object.entries(r.sourceTags).every(([key,value]:[string,any])=>tagKeys.has(key)&&(value===null||(typeof value==='string'&&value.length<=255)))))return false;
     return true;
 }
 

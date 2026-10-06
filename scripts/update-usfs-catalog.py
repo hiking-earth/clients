@@ -14,8 +14,11 @@ if not isinstance(state,dict):
 state=dict(state)
 now=datetime.datetime.now(datetime.timezone.utc).isoformat()
 # A legacy partial cycle has no membership evidence; restart from the top.
-if state.get('reconciliationVersion')!=1:
-    state.update({'nextObjectId':None,'reconciliationVersion':1,'cycleStartedAt':now})
+if state.get('reconciliationVersion')!=2:
+    # Query semantics changed to include named trails with seasonal or other
+    # hiker/pedestrian restrictions. Restart membership reconciliation so a
+    # partial cycle under the old filter cannot retire routes in the gap.
+    state.update({'nextObjectId':None,'reconciliationVersion':2,'cycleStartedAt':now})
 if state.get('nextObjectId') is None:
     state['cycleStartedAt']=now
 if state.get('nextObjectId') is not None and (not isinstance(state['nextObjectId'],int) or isinstance(state['nextObjectId'],bool) or state['nextObjectId']<=0):
@@ -28,7 +31,9 @@ records={r['id']:r for r in previous['routes']}; seen=set()
 # Publish neither cursor nor snapshot if any requested page fails.
 for page in range(5):
     historical=page>0
-    where="trail_name IS NOT NULL AND hiker_pedestrian_restricted IS NULL"
+    # Include restricted and seasonally restricted trail segments as discovery
+    # records. They remain pending verification and are not permission to hike.
+    where="trail_name IS NOT NULL"
     requested_cursor=next_cursor if historical else None
     if historical and next_cursor is not None:where+=' AND objectid < '+str(int(next_cursor))
     offset=page*1000
@@ -71,7 +76,7 @@ for page in range(5):
         if rid in seen: continue
         seen.add(rid)
         center=[round(sum(p[i] for p in points)/len(points),5) for i in (0,1)]
-        records[rid]={'id':rid,'name':attrs['trail_name'],'region':'美国 · '+str(attrs.get('managing_org') or '国家森林'),'center':center,'sourceUrl':SOURCE,'sourceTags':{'trailNumber':attrs.get('trail_no'),'hikingManaged':attrs.get('hiker_pedestrian_managed'),'hikingAccepted':attrs.get('hiker_pedestrian_accpt')},'fetchedAt':now,'lastSeenCycle':cycle,'status':'待核验'}
+        records[rid]={'id':rid,'name':attrs['trail_name'],'region':'美国 · '+str(attrs.get('managing_org') or '国家森林'),'center':center,'sourceUrl':SOURCE,'sourceTags':{'trailNumber':attrs.get('trail_no'),'hikingManaged':attrs.get('hiker_pedestrian_managed'),'hikingAccepted':attrs.get('hiker_pedestrian_accpt'),'hikingRestricted':attrs.get('hiker_pedestrian_restricted')},'fetchedAt':now,'lastSeenCycle':cycle,'status':'待核验'}
     print('source page',offset,'records',len(records),flush=True)
     if not has_more:break
     time.sleep(2)
