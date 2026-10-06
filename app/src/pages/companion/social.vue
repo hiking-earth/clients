@@ -3,7 +3,8 @@
   <view class="tabs"><button v-for="mode in modes" :key="mode.key" :class="{selected:tab===mode.key}" :disabled="busy" @click="selectTab(mode.key)">{{ mode.name }}</button></view>
   <text v-if="error" class="error">{{ error }}</text>
   <button @click="openAccount">账号与登录</button>
-  <view v-if="tab==='diaries'||tab==='comments'" class="card">
+  <view v-if="tab==='diaries'" class="row diary-feed"><button :class="{selected:!publicFeed}" :disabled="loading||busy" @click="setDiaryFeed(false)">我的日记</button><button :class="{selected:publicFeed}" :disabled="loading||busy" @click="setDiaryFeed(true)">公开日记</button></view>
+  <view v-if="tab==='diaries'&&!publicFeed||tab==='comments'" class="card">
    <text class="title">{{ tab==='diaries'?'云端日记与手动打卡':'路线留言' }}</text>
    <text>路线：{{ routeName || '请选择路线' }}</text><input :disabled="busy" v-model="keyword" placeholder="搜索路线" />
    <view v-if="keyword" class="choices"><button v-for="route in matching" :key="route.id" :disabled="busy" @click="chooseRoute(route.id)">{{ route.name }} · {{ route.region }}</button></view>
@@ -16,6 +17,7 @@
   <view v-if="tab==='messages'" class="card"><text class="title">队内消息</text><text>仅当前有效队伍成员可见。后台暂停轮询，返回后继续。</text><textarea :disabled="busy" v-model="body" maxlength="1000" placeholder="给队友发送消息" /><button :disabled="busy||!body.trim()" @click="send">发送</button></view>
   <view v-if="tab==='diaries'" class="card"><text>已到访 {{ footprintCount }} 条路线（本页云日记手动标记）</text></view>
   <button :disabled="loading" @click="refresh">{{ loading?'加载中…':'刷新云端内容' }}</button>
+  <text v-if="tab==='diaries'&&publicFeed" class="feed-note">这里只展示作者主动公开且审核通过的日记。</text>
   <view v-for="item in items" :key="item._id" class="card">
    <text class="title">{{ item.title || item.nickname || '徒步记录' }}</text><text v-if="item.body">{{ item.body }}</text>
    <text v-if="item.status">{{ statuses[item.status] || item.status }} · 版本 {{ item.version }}</text>
@@ -36,10 +38,10 @@ import {accountSession,onAccountChange} from '@/services/account';
 import {ROUTES} from '@/services/route-catalog';
 const modes=[{key:'diaries',name:'日记'},{key:'comments',name:'留言'},{key:'messages',name:'队聊'},{key:'notifications',name:'通知'},{key:'moderation',name:'审核'}];
 const statuses:Record<string,string>={private:'仅自己',pending:'待审核',approved:'已公开',rejected:'未通过'};
-const tab=ref('diaries'),routeId=ref(''),keyword=ref(''),title=ref(''),body=ref(''),isPublic=ref(false),checkedIn=ref(false),editing=ref<any>(null);
+const tab=ref('diaries'),publicFeed=ref(false),routeId=ref(''),keyword=ref(''),title=ref(''),body=ref(''),isPublic=ref(false),checkedIn=ref(false),editing=ref<any>(null);
 const items=ref<any[]>([]),error=ref(''),busy=ref(false),loading=ref(false),hasMore=ref(false);let newId=`note-${Date.now()}-${Math.random().toString(36).slice(2)}`,messageId=`msg-${Date.now()}-${Math.random().toString(36).slice(2)}`;let page=0,sequence=0,context=0,mutationSequence=0,timer:ReturnType<typeof setInterval>|undefined;
 const matching=computed(()=>ROUTES.filter(r=>`${r.name} ${r.region}`.toLowerCase().includes(keyword.value.toLowerCase())).slice(0,10));
-const footprintCount=computed(()=>new Set(items.value.filter(item=>item.checkedIn).map(item=>item.routeId)).size);
+const footprintCount=computed(()=>new Set(items.value.filter(item=>item.mine&&item.checkedIn).map(item=>item.routeId)).size);
 function openAccount(){uni.navigateTo({url:'/pages/account/account'});}
 const routeName=computed(()=>ROUTES.find(r=>r.id===routeId.value)?.name);
 function teamId(){try{const raw=uni.getStorageSync('he_team');const team=typeof raw==='string'?JSON.parse(raw):raw;return team?.teamId||team?.id||'';}catch{return '';}}
@@ -47,11 +49,12 @@ const identity=()=>accountSession()?.openid || String(uni.getStorageSync('he_ope
 function chooseRoute(id:string){if(busy.value)return;context++;routeId.value=id;keyword.value='';if(tab.value==='comments')void refresh();}
 function cancelEdit(force=false){if(busy.value&&!force)return;editing.value=null;title.value='';body.value='';isPublic.value=false;checkedIn.value=false;newId=`note-${Date.now()}-${Math.random().toString(36).slice(2)}`;}
 function selectTab(value:string){if(busy.value)return;context++;sequence++;items.value=[];hasMore.value=false;tab.value=value;cancelEdit();void refresh();}
+function setDiaryFeed(value:boolean){if(publicFeed.value===value)return;publicFeed.value=value;context++;sequence++;page=0;items.value=[];hasMore.value=false;cancelEdit();void refresh();}
 async function load(append=false){
  const token=++sequence,owner=identity(),sessionToken=accountSession()?.token,mode=tab.value;if(!owner){loading.value=false;hasMore.value=false;error.value='请先登录';items.value=[];return;}
  if(mode==='comments'&&!routeId.value){loading.value=false;hasMore.value=false;items.value=[];error.value='选择路线后查看留言';return;}
  const action=mode==='moderation'?'moderation.list':`${mode}.list`;loading.value=true;error.value='';
- try{const result=await callCloud<{items:any[];hasMore:boolean}>('social-manage',{action,page,routeId:routeId.value,teamId:teamId()});
+ try{const result=await callCloud<{items:any[];hasMore:boolean}>('social-manage',{action,page,routeId:routeId.value,teamId:teamId(),public:mode==='diaries'&&publicFeed.value});
   if(token!==sequence||owner!==identity()||sessionToken!==accountSession()?.token)return;
   if(!result.ok||!result.data)throw new Error(result.errMsg||'加载失败');const rows=result.data.items;if(!Array.isArray(rows)||rows.length>(mode==='messages'?30:20)||typeof result.data.hasMore!=='boolean'||!rows.every(item=>item&&typeof item._id==='string'&&item._id.length>0)||new Set(rows.map(item=>item._id)).size!==rows.length)throw new Error('云端内容格式无效');items.value=append?[...items.value,...rows.filter(item=>!items.value.some(old=>old._id===item._id))]:rows;hasMore.value=result.data.hasMore;
  }catch(e:any){if(token===sequence){error.value=e.message;if(append)page=Math.max(0,page-1);}}finally{if(token===sequence)loading.value=false;}
@@ -89,4 +92,4 @@ const unsubscribe=onAccountChange(()=>{stop();items.value=[];hasMore.value=false
 onLoad(query=>{if(query?.routeId)routeId.value=query.routeId;if(query?.tab&&modes.some(m=>m.key===query.tab))tab.value=query.tab;});
 onShow(()=>{void refresh();timer=setInterval(()=>{if(['messages','notifications'].includes(tab.value)&&!loading.value&&page===0)void load();},10000);});onHide(stop);onUnload(()=>{stop();unsubscribe();});
 </script>
-<style scoped>.page{background:#0f141b;min-height:100vh;padding:24rpx;box-sizing:border-box;color:#eef4ea}.tabs,.row{display:flex;gap:10rpx;flex-wrap:wrap}.tabs button{font-size:24rpx;padding:0 16rpx}.selected{background:#b8f36b}.card{display:flex;flex-direction:column;gap:16rpx;background:#1a2430;border-radius:20rpx;padding:24rpx;margin:20rpx 0}.title{font-size:32rpx;font-weight:700}.error{color:#ffd166}input,textarea{background:#0f141b;border-radius:12rpx;padding:18rpx;width:100%;box-sizing:border-box}textarea{height:200rpx}button{margin:0;color:#142010}.choices{display:flex;flex-direction:column;gap:8rpx}</style>
+<style scoped>.page{background:#0f141b;min-height:100vh;padding:24rpx;box-sizing:border-box;color:#eef4ea}.tabs,.row{display:flex;gap:10rpx;flex-wrap:wrap}.tabs button{font-size:24rpx;padding:0 16rpx}.selected{background:#b8f36b}.diary-feed{margin-top:20rpx}.feed-note{display:block;color:#c4d1bf;margin:12rpx 0}.card{display:flex;flex-direction:column;gap:16rpx;background:#1a2430;border-radius:20rpx;padding:24rpx;margin:20rpx 0}.title{font-size:32rpx;font-weight:700}.error{color:#ffd166}input,textarea{background:#0f141b;border-radius:12rpx;padding:18rpx;width:100%;box-sizing:border-box}textarea{height:200rpx}button{margin:0;color:#142010}.choices{display:flex;flex-direction:column;gap:8rpx}</style>
