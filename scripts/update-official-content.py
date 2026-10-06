@@ -35,6 +35,16 @@ def collect(source):
   rows.append({'id':source['id']+'-'+hashlib.sha256(link.encode()).hexdigest()[:20],'title':title,'url':link,'region':source['region'],'center':source['center'],'industry':'开放管理','importance':'中','publishedAt':published,'sourceLabel':source['label'],'sourceUrl':source['url'],'fetchedAt':now,'verified':True,'sourceId':source['id']})
  if not rows:raise ValueError('no valid official metadata')
  return rows
+# Linux scheduled runners and macOS local collectors share a per-target OS lock.
+# The kernel releases it on process exit, including crashes; do not unlink it.
+import fcntl
+import tempfile
+lock_path=pathlib.Path(tempfile.gettempdir())/('hiking-news-'+hashlib.sha256(str(TARGET.resolve()).encode()).hexdigest()+'.lock')
+lock_file=lock_path.open('a')
+try:fcntl.flock(lock_file.fileno(),fcntl.LOCK_EX|fcntl.LOCK_NB)
+except BlockingIOError:
+ print('official content collection already running for this target; skipped',flush=True)
+ sys.exit(0)
 old=json.loads(TARGET.read_text()) if TARGET.exists() else {'schemaVersion':1,'items':[],'sources':[]}
 items={r['id']:r for r in old.get('items',[])};states={r['id']:r for r in old.get('sources',[])};failed=0
 for source in SOURCES:
@@ -59,8 +69,7 @@ if failed==len(SOURCES):
 else:
  result={'schemaVersion':1,'generatedAt':dt.datetime.now(dt.timezone.utc).isoformat(),'items':sorted(items.values(),key=order_time,reverse=True)[:500],'sources':list(states.values()),'notice':'官方公告索引；查看原文确认生效范围，不据此自动开放路线。'}
 TARGET.parent.mkdir(parents=True,exist_ok=True)
-# Unique sibling temp file prevents overlapping jobs from sharing a staging path.
-import tempfile
+# Unique sibling temp file keeps incomplete writes separate from the snapshot.
 with tempfile.NamedTemporaryFile(mode='w',encoding='utf-8',dir=TARGET.parent,prefix=TARGET.name+'.',suffix='.tmp',delete=False) as file:
  file.write(json.dumps(result,ensure_ascii=False,indent=2)+'\n');temporary=pathlib.Path(file.name)
 try:temporary.replace(TARGET)
