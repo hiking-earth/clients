@@ -25,12 +25,12 @@ const SYS_PROMPT = `你是户外徒步装备专家。用户会给你一张装备
 
 exports.main = async (event) => {
   const { image, routeName = "" } = event;
-  if (!image || typeof image !== "string") return { errMsg: "缺少图片" };
+  if (!image || typeof image !== "string" || !/^[A-Za-z0-9+/]+={0,2}$/.test(image) || image.length % 4 !== 0) return { errMsg: "缺少图片" };
   if (!BASE || !KEY) {
     return { errMsg: "视觉模型未配置（云函数环境变量 LLM_BASE_URL / LLM_API_KEY 缺失）" };
   }
   // base64 体积保护（约 10MB）
-  if (image.length > 14 * 1024 * 1024) return { errMsg: "图片过大，请压缩后重试" };
+  if (image.length > Math.ceil(4 * 1024 * 1024 / 3) * 4) return { errMsg: "图片过大，请压缩后重试" };
 
   // 识别图片真实 MIME（按 magic bytes），避免 jpeg 声明发 png 数据被模型拒收
   let mime = "image/jpeg";
@@ -39,13 +39,17 @@ exports.main = async (event) => {
   else if (image.startsWith("UklGR")) mime = "image/webp";
   else if (image.startsWith("R0lGOD")) mime = "image/gif";
 
+  if(typeof routeName!=="string" || routeName.length>200)return {errMsg:"路线名称格式无效"};
   const userText = routeName
     ? `目标路线：${routeName}。请识别照片中的装备并给出该路线的装备规划。`
     : "请识别照片中的装备并给出一般一日徒步的装备规划。";
 
+  const controller=new AbortController();
+  const timer=setTimeout(()=>controller.abort(),30000);
   try {
     const resp = await fetch(`${BASE.replace(/\/$/, "")}/chat/completions`, {
       method: "POST",
+      signal:controller.signal,
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${KEY}` },
       body: JSON.stringify({
         model: MODEL,
@@ -64,8 +68,7 @@ exports.main = async (event) => {
       }),
     });
     if (!resp.ok) {
-      const body = await resp.text().catch(() => "");
-      return { errMsg: `模型服务错误 ${resp.status}: ${body.slice(0, 300)}` };
+      return { errMsg: `模型服务暂不可用（${resp.status}），请稍后重试` };
     }
     const json = await resp.json();
     const text = json.choices?.[0]?.message?.content ?? "";
@@ -73,13 +76,15 @@ exports.main = async (event) => {
     const match = text.match(/\{[\s\S]*\}/);
     if (!match) return { errMsg: "识别结果解析失败，请重试" };
     const parsed = JSON.parse(match[0]);
+    const validText=(v,max)=>typeof v==='string'&&v.trim().length>0&&v.length<=max;
+    if(!Array.isArray(parsed.items)||parsed.items.length>100||!parsed.items.every(i=>i&&validText(i.name,200)&&validText(i.category,100))||!Array.isArray(parsed.missing)||parsed.missing.length>100||!parsed.missing.every(i=>i&&validText(i.name,200)&&validText(i.reason,1000))||!Array.isArray(parsed.usage)||parsed.usage.length>30||!parsed.usage.every(i=>validText(i,1000))||!Array.isArray(parsed.plan)||parsed.plan.length>100||!parsed.plan.every(i=>i&&validText(i.name,200)))return {errMsg:'识别结果格式无效，请重试'};
     return {
-      items: Array.isArray(parsed.items) ? parsed.items : [],
-      missing: Array.isArray(parsed.missing) ? parsed.missing : [],
-      usage: Array.isArray(parsed.usage) ? parsed.usage : [],
-      plan: Array.isArray(parsed.plan) ? parsed.plan : [],
+      items: parsed.items.map(i=>({name:i.name,category:i.category})),
+      missing: parsed.missing.map(i=>({name:i.name,reason:i.reason})),
+      usage: parsed.usage,
+      plan: parsed.plan.map(i=>({name:i.name})),
     };
   } catch (e) {
-    return { errMsg: "识别服务异常：" + (e && e.message ? e.message : String(e)) };
-  }
+    return { errMsg: controller.signal.aborted ? "识别服务超时，请重试" : "识别服务异常，请稍后重试" };
+  } finally { clearTimeout(timer); }
 };

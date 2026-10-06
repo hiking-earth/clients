@@ -2,7 +2,7 @@
   <scroll-view scroll-y class="page">
     <view class="intro">
       <text class="intro-title">拍照识装备</text>
-      <text class="intro-sub">拍一张你的装备，AI 识别并给出完整出行装备规划</text>
+      <text class="intro-sub">选择装备照片，获取识别与打包建议；需先配置视觉服务</text>
     </view>
 
     <!-- 选路线（可选，影响规划建议） -->
@@ -57,7 +57,7 @@
       </view>
     </template>
 
-    <view class="notice">识别由云端视觉模型完成，图片仅用于本次分析；结果供参考，出行前请按实际路线复核。</view>
+    <view class="notice">识别由云端视觉模型完成，上传前请确认已配置服务的图片使用和保留政策；结果供参考，出行前请按实际路线复核。</view>
   </scroll-view>
 </template>
 
@@ -66,7 +66,9 @@ import { ref } from "vue";
 declare const plus: any;
 import { ROUTES } from "@/services/route-catalog";
 import { callCloud } from "@/services/cloud";
-import { hasPrivacyConsent } from "@/services/privacy";
+import {onShow,onHide,onUnload} from "@dcloudio/uni-app";
+import {accountSession,onAccountChange} from "@/services/account";
+import { hasPrivacyConsent,onPrivacyChange } from "@/services/privacy";
 
 type GearItem = { name: string; category: string };
 type GearResult = {
@@ -83,17 +85,30 @@ const imagePath = ref("");
 const analyzing = ref(false);
 const result = ref<GearResult | null>(null);
 
+let generation=0,visible=true;
+function invalidate(){generation++;analyzing.value=false;result.value=null;}
+const offAccount=onAccountChange(()=>{invalidate();imagePath.value="";});
+const offPrivacy=onPrivacyChange(consents=>{if(!consents.gearImageUpload)invalidate();});
+onShow(()=>{visible=true;});onHide(()=>{visible=false;invalidate();});onUnload(()=>{visible=false;invalidate();offAccount();offPrivacy();});
+function validResult(value:any):value is GearResult{
+ const text=(v:any,max:number)=>typeof v==="string"&&v.trim().length>0&&v.length<=max;
+ return !!value&&Array.isArray(value.items)&&value.items.length<=100&&value.items.every((i:any)=>i&&text(i.name,200)&&text(i.category,100))&&Array.isArray(value.missing)&&value.missing.length<=100&&value.missing.every((i:any)=>i&&text(i.name,200)&&text(i.reason,1000))&&Array.isArray(value.usage)&&value.usage.length<=30&&value.usage.every((i:any)=>text(i,1000))&&Array.isArray(value.plan)&&value.plan.length<=100&&value.plan.every((i:any)=>i&&text(i.name,200));
+}
 function onPickRoute(e: any) {
+  invalidate();
   const r = ROUTES[e.detail.value];
   routeId.value = r?.id ?? "";
   routeName.value = r?.name ?? "";
 }
 
 function chooseImage() {
+  if(analyzing.value)return;
+  const epoch=++generation;
   uni.chooseImage({
     count: 1,
     sourceType: ["camera", "album"],
     success: (res) => {
+      if(!visible||epoch!==generation)return;
       imagePath.value = res.tempFilePaths[0];
       result.value = null;
     },
@@ -111,26 +126,32 @@ async function analyze() {
     return;
   }
   analyzing.value = true;
+  const epoch=++generation,path=imagePath.value,selectedRoute=routeId.value,selectedName=routeName.value,token=accountSession()?.token;
+  const current=()=>visible&&epoch===generation&&hasPrivacyConsent("gearImageUpload")&&accountSession()?.token===token&&imagePath.value===path&&routeId.value===selectedRoute;
   try {
     // 小程序文件系统、App 原生文件读取、H5 FileReader 分别处理。
-    const base64 = await readAsBase64(imagePath.value);
+    const base64 = await readAsBase64(path);
+    if(!current())return;
+    if(base64.length>Math.ceil(4*1024*1024/3)*4)throw new Error("请选择4 MB以内的照片");
     const res = await callCloud<GearResult>("gear-scan", {
       image: base64,
-      routeId: routeId.value,
-      routeName: routeName.value,
+      routeId: selectedRoute,
+      routeName: selectedName,
     });
-    if (res.ok && res.data) {
+    if(!current())return;
+    if (res.ok && validResult(res.data)) {
       result.value = {
-        ...res.data,
+        items:res.data.items,missing:res.data.missing,usage:res.data.usage,
         plan: (res.data.plan ?? []).map((p: any) => ({ name: p.name ?? p, checked: false })),
       };
     } else {
       uni.showToast({ title: res.errMsg ?? "识别失败", icon: "none" });
     }
   } catch (e) {
+    if(!current())return;
     uni.showToast({ title: e instanceof Error ? e.message : "图片读取或识别失败", icon: "none" });
   } finally {
-    analyzing.value = false;
+    if(epoch===generation)analyzing.value = false;
   }
 }
 
