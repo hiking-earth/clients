@@ -2,7 +2,7 @@ import { reactive } from 'vue';
 import { accountSession, onAccountChange } from './account';
 import { onPrivacyChange, hasPrivacyConsent } from './privacy';
 import { callCloud } from './cloud';
-import { readLibrary, writeLibrary, libraryVersion, setLibraryVersion, type Library } from './library';
+import { readLibrary, writeLibrary, libraryVersion, setLibraryVersion, validCloudLibrary, type Library } from './library';
 import { listTracks, markSynced, getTrack, saveTrack, trackAutoSyncExcluded } from './tracks';
 import type { TrackRecord } from '@shared/types/track';
 export const syncState=reactive({running:false,lastSuccess:0,error:'',conflict:false});
@@ -19,6 +19,7 @@ export async function syncNow(force=false):Promise<void> {
     const remote=await callCloud<Library & {version:number}>('library-manage',{action:'get'});
     if(!allowed(identity))return;
     if(!remote.ok || !remote.data)throw new Error(remote.errMsg || '读取云资料失败');
+    if(!validCloudLibrary(remote.data))throw new Error('云端收藏或行程格式无效，本机资料未覆盖');
     const local=readLibrary();const baseline=uni.getStorageSync(`he_library_baseline:${identity}`);
     const changed=baseline ? JSON.stringify(local)!==baseline : local.favorites.length>0 || local.plans.length>0;
     if(changed && remote.data.version!==libraryVersion()){syncState.conflict=true;throw new Error('收藏或行程在另一端有修改，请到收藏与行程页面处理；本机资料未覆盖');}
@@ -26,6 +27,7 @@ export async function syncNow(force=false):Promise<void> {
       const result=await callCloud<{version:number}>('library-manage',{action:'save',...local,version:libraryVersion()});
       if(!allowed(identity))return;
       if(!result.ok || !result.data)throw new Error(result.errMsg || '保存资料失败');
+      if(!Number.isSafeInteger(result.data.version)||result.data.version!==remote.data.version+1)throw new Error('云端资料版本响应无效，请重新同步');
       // Do not mark edits made during the request as synchronized.
       uni.setStorageSync(`he_library_version:${identity}`,result.data.version);
       uni.setStorageSync(`he_library_baseline:${identity}`,JSON.stringify(local));
@@ -41,18 +43,25 @@ export async function syncNow(force=false):Promise<void> {
         if(!result.ok)throw new Error(result.errMsg || '轨迹上传失败');
         if(JSON.stringify(getTrack(track.id))===JSON.stringify(track))markSynced(track.id);
       }
-      let page=Number(uni.getStorageSync(`he_auto_sync_page:${identity}`)||0);
+      const savedPage=Number(uni.getStorageSync(`he_auto_sync_page:${identity}`)||0);
+      let page=Number.isSafeInteger(savedPage)&&savedPage>=0&&savedPage<=100000?savedPage:0;
       for(let batch=0;batch<5;batch++){
         const listing=await callCloud<{tracks:{trackId:string}[];hasMore:boolean}>('track-manage',{action:'list',page});
         if(!allowed(identity)||!hasPrivacyConsent('trackCloudSync'))return;
         if(!listing.ok || !listing.data)throw new Error(listing.errMsg || '读取云轨迹失败');
+        if(!Array.isArray(listing.data.tracks)||listing.data.tracks.length>20||typeof listing.data.hasMore!=='boolean'
+          ||(listing.data.hasMore&&listing.data.tracks.length!==20)
+          ||!listing.data.tracks.every(item=>item&&typeof item.trackId==='string'&&item.trackId.length>0&&item.trackId.length<=128)
+          ||new Set(listing.data.tracks.map(item=>item.trackId)).size!==listing.data.tracks.length)throw new Error('云端轨迹目录格式无效');
         for(const item of listing.data.tracks){
           if(getTrack(item.trackId)||trackAutoSyncExcluded(item.trackId))continue;
           const fetched=await callCloud<{track:TrackRecord}>('track-manage',{action:'get',trackId:item.trackId});
           if(!allowed(identity)||!hasPrivacyConsent('trackCloudSync'))return;
           if(!fetched.ok||!fetched.data)throw new Error(fetched.errMsg || '恢复轨迹失败');
+          if(!fetched.data.track||fetched.data.track.id!==item.trackId||fetched.data.track.state!=='finished'||fetched.data.track.synced!==true)throw new Error('云端轨迹与请求不一致，本机资料未覆盖');
           if(!getTrack(item.trackId))saveTrack(fetched.data.track);
         }
+        if(listing.data.hasMore&&page>=100000)throw new Error('云端轨迹目录超过同步范围，请手动检查');
         page=listing.data.hasMore?page+1:0;
         uni.setStorageSync(`he_auto_sync_page:${identity}`,page);
         if(page===0)break;

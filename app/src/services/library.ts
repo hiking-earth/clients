@@ -15,3 +15,17 @@ export function toggleFavorite(id: string): boolean {
 }
 export function libraryVersion(): number { return Number(uni.getStorageSync(`he_library_version:${uni.getStorageSync('he_openid') || ''}`) || 0); }
 export function setLibraryVersion(version: number, snapshot: Library = readLibrary()): void { const owner=uni.getStorageSync('he_openid') || '';uni.setStorageSync(`he_library_version:${owner}`, version);uni.setStorageSync(`he_library_baseline:${owner}`,JSON.stringify(snapshot)); }
+
+/** Validate a cloud snapshot before replacing any local library data. */
+export function validCloudLibrary(value:unknown):value is Library & {version:number} {
+  const row=value as any;
+  return !!row && Number.isSafeInteger(row.version) && row.version>=0
+    && Array.isArray(row.favorites) && row.favorites.length<=200
+    && row.favorites.every((id:unknown)=>typeof id==='string' && id.length<=128)
+    && Array.isArray(row.plans) && row.plans.length<=100
+    && row.plans.every((plan:any)=>!!plan && typeof plan.id==='string' && plan.id.length<=128
+      && typeof plan.routeId==='string' && plan.routeId.length<=128
+      && typeof plan.notes==='string' && plan.notes.length<=2000 && typeof plan.packed==='boolean'
+      && typeof plan.date==='string' && /^\d{4}-\d{2}-\d{2}$/.test(plan.date)
+      && Number.isFinite(Date.parse(plan.date)) && new Date(plan.date).toISOString().slice(0,10)===plan.date);
+}
