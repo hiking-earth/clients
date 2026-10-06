@@ -1,33 +1,33 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-05T14:31:26Z",
+  "generatedAt": "2026-10-06T00:01:05Z",
   "license": "ODbL-1.0",
   "attribution": "© OpenStreetMap contributors",
   "licenseUrl": "https://www.openstreetmap.org/copyright",
   "coverage": {
-    "china": 1,
+    "china": 2,
     "japan": 0,
-    "oceania": 1,
+    "oceania": 0,
     "south-america": 1,
     "africa": 1,
     "south-asia": 0
   },
   "sourceCursors": {
-    "china": "2026-10-05T14:31:26Z",
-    "japan": "2026-10-05T14:31:26Z",
-    "oceania": "2026-10-05T14:31:26Z",
-    "south-america": "2026-10-05T14:31:26Z",
-    "africa": "2026-10-05T14:31:26Z",
-    "south-asia": "2026-10-05T14:31:26Z"
+    "china": "2026-10-06T00:01:05Z",
+    "japan": "2026-10-06T00:01:05Z",
+    "oceania": "2026-10-06T00:01:05Z",
+    "south-america": "2026-10-06T00:01:05Z",
+    "africa": "2026-10-06T00:01:05Z",
+    "south-asia": "2026-10-06T00:01:05Z"
   },
   "failures": [
     {
       "region": "europe",
-      "error": "HTTP Error 504: Gateway Timeout"
+      "error": "The read operation timed out"
     },
     {
       "region": "north-america",
-      "error": "The read operation timed out"
+      "error": "runtime error: Query timed out in \"query\" at line 1 after 46 seconds."
     }
   ],
   "routes": [
@@ -9487,7 +9487,7 @@
         "operator": "漁農自然護理署 Agriculture, Fisheries and Conservation Department",
         "ref": "M"
       },
-      "fetchedAt": "2026-10-04T21:21:03Z",
+      "fetchedAt": "2026-10-06T00:01:05Z",
       "status": "待核验"
     },
     {
@@ -40755,6 +40755,22 @@
       "status": "待核验"
     },
     {
+      "id": "osm-relation-18584744",
+      "name": "hiking in sinai trails",
+      "originalName": "hiking in sinai trails",
+      "region": "africa",
+      "center": [
+        33.9481723,
+        28.5611547
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/18584744",
+      "sourceTags": {
+        "operator": "Sinai Hikes"
+      },
+      "fetchedAt": "2026-10-06T00:01:05Z",
+      "status": "待核验"
+    },
+    {
       "id": "osm-relation-18586749",
       "name": "六角坂",
       "originalName": "六角坂",
@@ -45742,8 +45758,8 @@
     },
     {
       "id": "osm-relation-21499680",
-      "name": "Trilha Ecológica de Pontal do Paraná",
-      "originalName": "Trilha Ecológica de Pontal do Paraná",
+      "name": "Trilha Ecológica - Estr. Velha de Shangri-lá",
+      "originalName": "Trilha Ecológica - Estr. Velha de Shangri-lá",
       "region": "south-america",
       "center": [
         -48.3984025,
@@ -45753,7 +45769,7 @@
       "sourceTags": {
         "network": "lwn"
       },
-      "fetchedAt": "2026-10-05T14:31:26Z",
+      "fetchedAt": "2026-10-06T00:01:05Z",
       "status": "待核验"
     },
     {
@@ -56520,7 +56536,7 @@
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/4423658",
       "sourceTags": {},
-      "fetchedAt": "2026-10-04T21:21:03Z",
+      "fetchedAt": "2026-10-06T00:01:05Z",
       "status": "待核验"
     },
     {
