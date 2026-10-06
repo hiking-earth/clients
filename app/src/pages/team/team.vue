@@ -145,27 +145,26 @@ async function joinTeam() {
   finally{entering=false;}
 }
 
+let leaving=false;
 function leave() {
+  if(leaving||!team.value)return;
   const original=snapshot();
-  uni.showModal({
-    title: "退出队伍？",
-    content: "退出后停止位置共享",
-    success: async (r) => {
-      if (!r.confirm || !team.value || !current(original)) return;
-      const teamId = team.value.id;
-      stopShare();
-      await remoteQueue;
+  uni.showModal({title:'退出队伍？',content:'退出后停止位置共享',success:async result=>{
+    if(!result.confirm||leaving||!team.value||!current(original))return;
+    leaving=true;
+    try{
+      const teamId=team.value.id;
+      stopShare();await remoteQueue;
       if(!current(original))return;
-      const result = await callCloud("team-leave", { teamId });
+      const response=await callCloud<{left:boolean}>('team-leave',{teamId});
       if(!current(original))return;
-      if (!result.ok) { uni.showToast({ title: result.errMsg ?? "退出失败，请重试", icon: "none" }); return; }
-      stopPoll();
-      team.value = null;
-      members.value = [];
-      alerts.value = [];
-      uni.removeStorageSync("he_team");
-    },
-  });
+      if(!response.ok||response.data?.left!==true){uni.showToast({title:response.errMsg||'退出未确认，请重试',icon:'none'});return;}
+      stopPoll();team.value=null;members.value=[];alerts.value=[];membersWithDistance.value=[];
+      try{uni.removeStorageSync('he_team');}
+      catch{uni.showToast({title:'已退出队伍，本机缓存清理失败',icon:'none'});}
+    }catch{if(current(original))uni.showToast({title:'退出请求失败，共享已停止，请重试',icon:'none'});}
+    finally{leaving=false;}
+  }});
 }
 
 /* ---------- 位置上报 ---------- */
