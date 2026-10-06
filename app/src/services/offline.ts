@@ -1,6 +1,6 @@
 import {reactive} from 'vue';
 import {readCatalogCache,writeCatalogCache} from './catalog-cache';
-export type OfflineLayer = { id: string; name: string; attribution: string; license: string; savedAt: number; paths: [number, number][][]; bytes: number };
+export type OfflineLayer = { id: string; name: string; attribution: string; license: string; savedAt: number; paths: [number, number][][]; bytes: number; sourceKey?:'hk-afcd' };
 const state=reactive<{layers:OfflineLayer[];active:string}>({layers:[],active:String(uni.getStorageSync('he_offline_active')||'')});
 let restoring:Promise<void>|undefined;let mutation:Promise<void>=Promise.resolve();
 function validLayers(value:any):value is OfflineLayer[]{
@@ -14,7 +14,7 @@ async function commitLayers(update:(rows:OfflineLayer[])=>OfflineLayer[]):Promis
 }
 const bytesOf = (text: string) => encodeURIComponent(text).replace(/%[A-F\d]{2}|./g, 'x').length;
 export function offlineLayers():OfflineLayer[]{return state.layers;}
-export async function importOfflineLayer(text: string): Promise<OfflineLayer> {
+export async function importOfflineLayer(text: string, sourceKey?:'hk-afcd'): Promise<OfflineLayer> {
   await restoreOfflineLayers();
   if (bytesOf(text) > 5 * 1024 * 1024) throw new Error('离线资料最多5 MB');
   const data = JSON.parse(text);
@@ -38,10 +38,17 @@ export async function importOfflineLayer(text: string): Promise<OfflineLayer> {
     else throw new Error('仅支持线段与区域边界，不支持未知几何类型');
   }
   if (!paths.length) throw new Error('资料没有可显示的线段');
-  const layer = { id: `offline-${Date.now()}-${Math.random().toString(36).slice(2,8)}`, name: data.name.trim().slice(0,80), attribution: data.attribution.trim().slice(0,300), license: data.license.trim().slice(0,300), savedAt: Date.now(), paths, bytes: 0 };
+  const layer:OfflineLayer = { ...(sourceKey?{sourceKey}:{}), id: `offline-${Date.now()}-${Math.random().toString(36).slice(2,8)}`, name: data.name.trim().slice(0,80), attribution: data.attribution.trim().slice(0,300), license: data.license.trim().slice(0,300), savedAt: Date.now(), paths, bytes: 0 };
   layer.bytes = bytesOf(JSON.stringify(layer));
   let selected=layer;
   await commitLayers(rows=>{
+   if(sourceKey){
+    const previous=rows.find(item=>item.sourceKey===sourceKey);
+    if(previous){layer.id=previous.id;layer.bytes=bytesOf(JSON.stringify(layer));}
+    const all=[...rows.filter(item=>item.sourceKey!==sourceKey),layer];
+    if(all.length>100||bytesOf(JSON.stringify(all))>8*1024*1024)throw new Error('离线资料总量最多8 MB和100份，请先删除不需要的资料');
+    return all;
+   }
    const existing=rows.find(item=>item.name===layer.name&&item.attribution===layer.attribution&&item.license===layer.license&&JSON.stringify(item.paths)===JSON.stringify(layer.paths));
    if(existing){selected=existing;return rows;}
    const all=[...rows,layer];if(all.length>100||bytesOf(JSON.stringify(all))>8*1024*1024)throw new Error('离线资料总量最多8 MB和100份，请先删除不需要的资料');return all;

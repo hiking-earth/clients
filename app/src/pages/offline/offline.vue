@@ -18,7 +18,7 @@ import { onShow } from '@dcloudio/uni-app';
 import TrackCanvas from '@/components/TrackCanvas.vue';
 import { offlineLayers, importOfflineLayer, deleteOfflineLayer, selectOfflineLayer, restoreOfflineLayers } from '@/services/offline';
 const downloading=ref(false);
-async function downloadHk(){if(downloading.value)return;downloading.value=true;message.value='';try{const text=JSON.stringify(await publicSnapshot('offline-hk'));const layer=await importOfflineLayer(text);selectOfflineLayer(layer.id);load();message.value='官方参考线已保存，可离线查看';}catch(e:any){message.value=e.message;}finally{downloading.value=false;}}
+async function downloadHk(){if(downloading.value)return;downloading.value=true;message.value='';try{const text=JSON.stringify(await publicSnapshot('offline-hk'));const layer=await importOfflineLayer(text,'hk-afcd');selectOfflineLayer(layer.id);await load();message.value='官方参考线已保存，可离线查看';}catch(e:any){message.value=e.message;}finally{downloading.value=false;}}
 const layers = ref(offlineLayers()), active = ref(String(uni.getStorageSync('he_offline_active') || '')), source = ref(''), message = ref('');
 const preview = computed(() => layers.value.find(p => p.id === active.value));
 async function load() { await restoreOfflineLayers();layers.value = offlineLayers(); active.value = String(uni.getStorageSync('he_offline_active') || ''); }
