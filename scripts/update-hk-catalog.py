@@ -14,11 +14,22 @@ def get(params):
  data=json.loads(body)
  if 'error' in data:raise ValueError(str(data['error']))
  return data
-features=[]
+features=[];seen_ids=set();last_id=None
 for page in range(10):
  data=get({'where':'1=1','outFields':'*','returnGeometry':'true','outSR':4326,'resultOffset':page*100,'resultRecordCount':100,'orderByFields':'OBJECTID','f':'json'})
- features.extend(data.get('features',[]))
- if not data.get('exceededTransferLimit'):break
+ page_features=data.get('features')
+ if not isinstance(page_features,list) or len(page_features)>100:raise ValueError('invalid official source page')
+ flag=data.get('exceededTransferLimit')
+ if flag is not None and not isinstance(flag,bool):raise ValueError('invalid official source pagination')
+ ids=[]
+ for feature in page_features:
+  identity=feature.get('attributes',{}).get('OBJECTID') if isinstance(feature,dict) else None
+  if not isinstance(identity,int) or isinstance(identity,bool) or identity<=0 or identity in seen_ids or (last_id is not None and identity<=last_id):raise ValueError('official source identity/order changed; previous catalog retained')
+  ids.append(identity);seen_ids.add(identity);last_id=identity
+ features.extend(page_features)
+ has_more=flag if flag is not None else len(page_features)==100
+ if has_more and not page_features:raise ValueError('official source pagination did not advance')
+ if not has_more:break
 else:raise SystemExit('Incomplete source; previous catalog retained')
 if not features:raise SystemExit('Empty source; previous catalog retained')
 now=dt.datetime.now(dt.timezone.utc).isoformat();routes=[];offline=[]
@@ -40,7 +51,8 @@ for feature in features:
  except ValueError:distance=None
  routes.append({'id':identifier,'name':name,'region':'中国 · 香港 · '+(a.get('REGION_TC') or ''),'center':center,'sourceUrl':BASE,'fetchedAt':now,'sourceTags':{'distanceKm':distance,'difficulty':a.get('DIFFICULTY_TC'),'officialUrl':a.get('WEBSITE'),'start':a.get('STARTpt_TC'),'finish':a.get('FINISHpt_TC')},'referencePaths':lines})
  offline.append({'type':'Feature','properties':{'name':name,'sourceId':identifier},'geometry':{'type':'MultiLineString','coordinates':lines}})
+if not routes:raise SystemExit('No usable official source routes; previous catalog retained')
 result={'schemaVersion':1,'generatedAt':now,'attribution':ATTR,'license':'DATA.GOV.HK-terms-1.2','licenseUrl':'https://data.gov.hk/en/terms-and-conditions','sourceUrl':BASE,'routes':routes}
 TARGET.parent.mkdir(parents=True,exist_ok=True);tmp=TARGET.with_suffix('.tmp');tmp.write_text(json.dumps(result,ensure_ascii=False,separators=(',',':'))+'\n');tmp.replace(TARGET)
 pack={'format':'hiking-earth-offline-v1','name':'香港郊野公园官方步道参考线','attribution':ATTR,'license':'DATA.GOV.HK 使用条款 1.2 · https://data.gov.hk/en/terms-and-conditions','geometry':{'type':'FeatureCollection','features':offline}}
-out=ROOT/'shared/data/offline/hk-afcd.json';out.parent.mkdir(parents=True,exist_ok=True);out.write_text(json.dumps(pack,ensure_ascii=False,separators=(',',':'))+'\n');print('Collected',len(routes),'AFCD trail records; reference geometry only. Offline bytes:',out.stat().st_size,flush=True)
+out=ROOT/'shared/data/offline/hk-afcd.json';out.parent.mkdir(parents=True,exist_ok=True);temp_offline=out.with_suffix('.tmp');temp_offline.write_text(json.dumps(pack,ensure_ascii=False,separators=(',',':'))+'\n');temp_offline.replace(out);print('Collected',len(routes),'AFCD trail records; reference geometry only. Offline bytes:',out.stat().st_size,flush=True)
