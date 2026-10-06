@@ -1,4 +1,4 @@
-// Only published operator-configured entries are returned; no invented products or prices.
+// Only published, rights-reviewed operator entries are returned; no invented products or prices.
 const cloud = require("wx-server-sdk");
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();
@@ -8,7 +8,7 @@ function safeLink(value) {
   try { const url = new URL(value); return url.protocol === "https:" && !url.username && !url.password && (!url.port || url.port === "443"); } catch { return false; }
 }
 exports.main = async () => {
-  const res = await db.collection("guide_items").where({ published: true }).limit(100).get();
-  const items = res.data.filter(i => typeof i._id === "string" && typeof i.title === "string" && i.title.trim() && i.title.length <= 200 && categories.has(i.category) && typeof i.summary === "string" && i.summary.length <= 2000 && safeLink(i.link)).map(i => ({id:i._id,title:i.title,category:i.category,summary:i.summary,image:"",link:i.link,priceHint:typeof i.priceHint === "string" && i.priceHint.length <= 100 ? i.priceHint : ""}));
+  const res = await db.collection("guide_items").where({ published: true, rightsConfirmed: true }).orderBy("_id", "asc").limit(100).get();
+  const items = res.data.filter(i => typeof i._id === "string" && typeof i.title === "string" && i.title.trim() && i.title.length <= 200 && categories.has(i.category) && typeof i.summary === "string" && i.summary.length <= 2000 && safeLink(i.link) && safeLink(i.sourceUrl) && typeof i.rightsNote === "string" && i.rightsNote.trim().length > 0 && i.rightsNote.length <= 1000).map(i => ({id:i._id,title:i.title,category:i.category,summary:i.summary,image:"",link:i.link,priceHint:typeof i.priceHint === "string" && i.priceHint.length <= 100 ? i.priceHint : ""}));
   return { items };
 };

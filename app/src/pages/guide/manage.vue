@@ -1,7 +1,7 @@
 <template><scroll-view scroll-y class="page">
 <text class="title">导购资料管理</text><text>仅已授权管理员可维护。归属确认不能代替实际使用授权。</text><text>{{error}}</text>
 <button :disabled="busy" @click="load(false)">刷新条目</button><button :disabled="busy" @click="create">新建条目</button>
-<view v-for="row in rows" :key="row._id" class="card"><text>{{row.title}} · {{row.published?'已发布':'未发布'}} · 版本{{row.version||0}}</text><button :disabled="busy" @click="edit(row)">编辑</button><button v-if="row.published" :disabled="busy" @click="unpublish(row)">撤下</button></view>
+<view v-for="row in rows" :key="row._id" class="card"><text>{{row.title}} · {{row.legacyCategory?'需核对分类':''}} · {{row.published?'已发布':'未发布'}} · 版本{{row.version||0}}</text><button :disabled="busy" @click="edit(row)">编辑</button><button v-if="row.published" :disabled="busy" @click="unpublish(row)">撤下</button></view>
 <button v-if="hasMore" :disabled="busy" @click="load(true)">加载更多</button>
 <view v-if="form" class="card"><input v-model="form.id" :disabled="busy||existing" placeholder="条目ID（字母、数字、下划线或短横线）"/><input v-model="form.title" :disabled="busy" maxlength="200" placeholder="标题"/>
 <picker :range="categories" :disabled="busy" @change="form.category=categories[Number($event.detail.value)]"><text>分类：{{form.category}}</text></picker>
@@ -17,7 +17,7 @@ import {onShow,onHide,onUnload} from '@dcloudio/uni-app';
 import {accountSession,onAccountChange} from '@/services/account';
 import {callCloud} from '@/services/cloud';
 type Form={id:string;title:string;summary:string;category:string;link:string;priceHint:string;sourceUrl:string;rightsNote:string;rightsConfirmed:boolean;published:boolean;version:number};
-type Row=Omit<Form,'id'>&{_id:string};
+type Row=Omit<Form,'id'>&{_id:string;legacyCategory:boolean};
 const categories=['鞋靴','背包','服装','露营','导航','应急','其他'];
 const rows=ref<Row[]>([]),form=ref<Form|null>(null),busy=ref(false),error=ref(''),hasMore=ref(false),existing=ref(false);
 let page=0,epoch=0,visible=false;
@@ -38,7 +38,7 @@ async function load(more:boolean){
  }catch(e){if(current(ctx))error.value=e instanceof Error?e.message:'加载失败';}finally{if(current(ctx))busy.value=false;}
 }
 function create(){if(busy.value)return;existing.value=false;form.value={id:'',title:'',summary:'',category:'其他',link:'',priceHint:'',sourceUrl:'',rightsNote:'',rightsConfirmed:false,published:false,version:0};}
-function edit(row:Row){if(busy.value)return;existing.value=true;form.value={id:row._id,title:row.title,summary:row.summary,category:row.category,link:row.link,priceHint:row.priceHint,sourceUrl:row.sourceUrl,rightsNote:row.rightsNote,rightsConfirmed:row.rightsConfirmed,published:row.published,version:row.version};}
+function edit(row:Row){if(busy.value)return;existing.value=true;form.value={id:row._id,title:row.title,summary:row.summary,category:row.legacyCategory?'其他':row.category,link:row.link,priceHint:row.priceHint,sourceUrl:row.sourceUrl,rightsNote:row.rightsNote,rightsConfirmed:row.rightsConfirmed,published:row.published,version:row.version};}
 async function unpublish(row:Row){
  if(busy.value)return;const ctx=context();if(!ctx)return;busy.value=true;error.value='';
  try{const answer=await uni.showModal({title:'撤下导购条目',content:`确认撤下“${row.title}”？`,confirmText:'撤下'});if(!current(ctx)||!answer.confirm)return;

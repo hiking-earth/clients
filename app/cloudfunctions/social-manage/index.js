@@ -15,7 +15,7 @@ exports.main=async event=>{
   if(action==='guides.list'){
    if(!admins().has(OPENID))return {errMsg:'需要管理员权限'};
    const rows=(await db.collection('guide_items').orderBy('_id','asc').skip(page*20).limit(20).get()).data;
-   return {items:rows.map(row=>({_id:row._id,title:typeof row.title==='string'?row.title:'',summary:typeof row.summary==='string'?row.summary:'',category:['鞋靴','背包','服装','露营','导航','应急','其他'].includes(row.category)?row.category:'其他',link:typeof row.link==='string'?row.link:'',priceHint:typeof row.priceHint==='string'?row.priceHint:'',sourceUrl:typeof row.sourceUrl==='string'?row.sourceUrl:'',rightsNote:typeof row.rightsNote==='string'?row.rightsNote:'',rightsConfirmed:row.rightsConfirmed===true,published:row.published===true,version:row.version===undefined?0:row.version})),hasMore:rows.length===20};
+   return {items:rows.map(row=>({_id:row._id,title:typeof row.title==='string'?row.title:'',summary:typeof row.summary==='string'?row.summary:'',category:['鞋靴','背包','服装','露营','导航','应急','其他'].includes(row.category)?row.category:'其他',legacyCategory:!['鞋靴','背包','服装','露营','导航','应急','其他'].includes(row.category),link:typeof row.link==='string'?row.link:'',priceHint:typeof row.priceHint==='string'?row.priceHint:'',sourceUrl:typeof row.sourceUrl==='string'?row.sourceUrl:'',rightsNote:typeof row.rightsNote==='string'?row.rightsNote:'',rightsConfirmed:row.rightsConfirmed===true,published:row.published===true,version:row.version===undefined?0:row.version})),hasMore:rows.length===20};
   }
   if(action==='guides.unpublish'){
    if(!admins().has(OPENID))return {errMsg:'需要管理员权限'};
