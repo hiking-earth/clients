@@ -12,6 +12,25 @@ exports.main=async event=>{
  const { OPENID } = cloud.getWXContext();if(!OPENID)return {errMsg:'请先登录'};
  try {
   const action=String(event.action||'');const page=Number.isInteger(event.page)&&event.page>=0&&event.page<=1000?event.page:0;
+  if(action==='guides.list'){
+   if(!admins().has(OPENID))return {errMsg:'需要管理员权限'};
+   const rows=(await db.collection('guide_items').orderBy('updatedAt','desc').skip(page*20).limit(20).get()).data;
+   return {items:rows.map(({updatedBy,...row})=>row),hasMore:rows.length===20};
+  }
+  if(action==='guides.save'){
+   if(!admins().has(OPENID))return {errMsg:'需要管理员权限'};
+   if(!text(event.id,128)||!/^[a-zA-Z0-9_-]+$/.test(event.id)||!text(event.title,200)||typeof event.summary!=='string'||event.summary.length>2000||!['鞋靴','背包','服装','露营','导航','应急','其他'].includes(event.category)||typeof event.published!=='boolean'||typeof event.priceHint!=='string'||event.priceHint.length>100||!Number.isInteger(event.version)||event.version<0)return {errMsg:'导购资料格式无效'};
+   let link,source;try{link=new URL(event.link);source=new URL(event.sourceUrl);}catch{return {errMsg:'需要有效商品链接和归属来源链接'};}
+   const valid=url=>url.protocol==='https:'&&!url.username&&!url.password&&(!url.port||url.port==='443');
+   if(!valid(link)||!valid(source)||event.link.length>2048||event.sourceUrl.length>2048||!text(event.rightsNote,1000)||event.rightsConfirmed!==true)return {errMsg:'请确认链接使用权并记录归属来源'};
+   return db.runTransaction(async tx=>{
+    const ref=tx.collection('guide_items').doc(event.id);const prior=(await ref.get()).data;
+    if(event.version!==(prior?.version||0))return {errMsg:'另一管理员已修改，请刷新后重试'};
+    const version=event.version+1;
+    await ref.set({data:{title:event.title.trim(),summary:event.summary.trim(),category:event.category,link:link.href,sourceUrl:source.href,rightsNote:event.rightsNote.trim(),rightsConfirmed:true,priceHint:event.priceHint.trim(),published:event.published,version,createdAt:prior?.createdAt||Date.now(),updatedAt:Date.now(),updatedBy:OPENID}});
+    return {saved:true,id:event.id,version};
+   });
+  }
   if(action==='comments.list'){
    if(!text(event.routeId,128))return {errMsg:'路线无效'};
    const rows=(await db.collection('user_documents').where({kind:'comment',routeId:event.routeId,status:'approved'}).orderBy('updatedAt','desc').skip(page*20).limit(20).field({body:true,nickname:true,updatedAt:true,routeId:true}).get()).data;
