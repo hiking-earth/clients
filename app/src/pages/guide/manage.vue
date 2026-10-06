@@ -1,7 +1,7 @@
 <template><scroll-view scroll-y class="page">
 <text class="title">导购资料管理</text><text>仅已授权管理员可维护。归属确认不能代替实际使用授权。</text><text>{{error}}</text>
 <button :disabled="busy" @click="load(false)">刷新条目</button><button :disabled="busy" @click="create">新建条目</button>
-<view v-for="row in rows" :key="row._id" class="card"><text>{{row.title}} · {{row.published?'已发布':'未发布'}} · 版本{{row.version||0}}</text><button :disabled="busy" @click="edit(row)">编辑</button></view>
+<view v-for="row in rows" :key="row._id" class="card"><text>{{row.title}} · {{row.published?'已发布':'未发布'}} · 版本{{row.version||0}}</text><button :disabled="busy" @click="edit(row)">编辑</button><button v-if="row.published" :disabled="busy" @click="unpublish(row)">撤下</button></view>
 <button v-if="hasMore" :disabled="busy" @click="load(true)">加载更多</button>
 <view v-if="form" class="card"><input v-model="form.id" :disabled="busy||existing" placeholder="条目ID（字母、数字、下划线或短横线）"/><input v-model="form.title" :disabled="busy" maxlength="200" placeholder="标题"/>
 <picker :range="categories" :disabled="busy" @change="form.category=categories[Number($event.detail.value)]"><text>分类：{{form.category}}</text></picker>
@@ -39,6 +39,16 @@ async function load(more:boolean){
 }
 function create(){if(busy.value)return;existing.value=false;form.value={id:'',title:'',summary:'',category:'其他',link:'',priceHint:'',sourceUrl:'',rightsNote:'',rightsConfirmed:false,published:false,version:0};}
 function edit(row:Row){if(busy.value)return;existing.value=true;form.value={id:row._id,title:row.title,summary:row.summary,category:row.category,link:row.link,priceHint:row.priceHint,sourceUrl:row.sourceUrl,rightsNote:row.rightsNote,rightsConfirmed:row.rightsConfirmed,published:row.published,version:row.version};}
+async function unpublish(row:Row){
+ if(busy.value)return;const ctx=context();if(!ctx)return;busy.value=true;error.value='';
+ try{const answer=await uni.showModal({title:'撤下导购条目',content:`确认撤下“${row.title}”？`,confirmText:'撤下'});if(!current(ctx)||!answer.confirm)return;
+  const res=await callCloud<{saved:boolean;id:string;version:number}>('social-manage',{action:'guides.unpublish',id:row._id,version:row.version});if(!current(ctx))return;
+  if(!res.ok||res.data?.saved!==true||res.data.id!==row._id||res.data.version!==row.version+1)throw new Error(res.errMsg||'撤下未确认，请刷新核对');
+  rows.value=rows.value.map(old=>old._id===row._id?{...old,published:false,version:row.version+1}:old);
+  if(form.value?.id===row._id)form.value=null;
+  uni.showToast({title:'已撤下',icon:'none'});
+ }catch(e){if(current(ctx))error.value=e instanceof Error?e.message:'撤下失败';}finally{if(current(ctx))busy.value=false;}
+}
 async function save(){
  if(busy.value||!form.value)return;const ctx=context();if(!ctx){error.value='请先登录';return;}const snapshot={...form.value};
  busy.value=true;error.value='';
