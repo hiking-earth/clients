@@ -3,7 +3,7 @@ import {publicSnapshot} from './public-data';
 import registry from '@shared/data/content/official-sources.json';
 import snapshot from '@shared/data/content/official-news.json';
 export type OfficialNews={sourceId:string;id:string;title:string;url:string;region:string;sourceLabel:string;sourceUrl:string;publishedAt:string|null;fetchedAt:string};
-export type NewsSourceState={id:string;label:string;lastSuccess?:string;lastAttempt?:string;lastError?:string|null};
+export type NewsSourceState={id:string;label:string;lastSuccess?:string;lastAttempt?:string;lastError?:string|null;lastCollectedCount?:number};
 const KEY='he_official_news_v1';
 export const news=reactive({items:[] as OfficialNews[],generatedAt:null as string|null,error:'',loading:false,sources:registry.sources.map(source=>({id:source.id,label:source.label})) as NewsSourceState[],retryAt:0});
 function officialUrl(value:unknown,hosts:readonly string[]):boolean{
@@ -25,8 +25,9 @@ function apply(data:any){
   if(!Array.isArray(sources)||sources.length>50||new Set(sources.map((r:any)=>r?.id)).size!==sources.length
     ||!sources.every((r:any)=>r&&registry.sources.some(source=>source.id===r.id&&source.label===r.label&&source.url===r.url)&&typeof r.id==='string'&&typeof r.label==='string'&&r.label.length<=200
       &&[r.lastSuccess,r.lastAttempt].every(v=>v===undefined||(typeof v==='string'&&Number.isFinite(Date.parse(v))&&Date.parse(v)<=Date.now()+30000))
+      &&(r.lastCollectedCount===undefined||(Number.isInteger(r.lastCollectedCount)&&r.lastCollectedCount>=0&&r.lastCollectedCount<=100))
       &&(r.lastError===undefined||r.lastError===null||typeof r.lastError==='string')))return false;
-  news.sources=registry.sources.map(source=>{const state=sources.find((r:any)=>r.id===source.id);return {id:source.id,label:source.label,...(state?{lastSuccess:state.lastSuccess,lastAttempt:state.lastAttempt,lastError:state.lastError}:{})};});
+  news.sources=registry.sources.map(source=>{const state=sources.find((r:any)=>r.id===source.id);return {id:source.id,label:source.label,...(state?{lastSuccess:state.lastSuccess,lastAttempt:state.lastAttempt,lastError:state.lastError,lastCollectedCount:state.lastCollectedCount}:{})};});
   news.items=data.items;news.generatedAt=data.generatedAt;return true;
 }
 apply(snapshot);

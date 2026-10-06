@@ -79,7 +79,7 @@ jobs:
           for source in registry['sources']:
               state = news_states.get(source['id'], {})
               health = 'failed' if state.get('lastError') else 'available' if state.get('lastSuccess') else 'pending'
-              news_sources.append({'id': source['id'], 'status': health, 'records': news_counts[source['id']], 'lastAttempt': state.get('lastAttempt'), 'lastSuccess': state.get('lastSuccess'), 'feedVerified': False})
+              news_sources.append({'id': source['id'], 'status': health, 'records': news_counts[source['id']], 'lastCollectedCount': state.get('lastCollectedCount'), 'lastAttempt': state.get('lastAttempt'), 'lastSuccess': state.get('lastSuccess'), 'feedVerified': False})
               rows.append(f"| Official notices: {source['id']} | {news_counts[source['id']]} | {health}; last success {state.get('lastSuccess', 'none')} |")
           status = {'schemaVersion': 1, 'checkedAt': datetime.datetime.now(datetime.timezone.utc).isoformat(), 'runId': os.environ['GITHUB_RUN_ID'], 'sourceCommit': os.environ['GITHUB_SHA'], 'outcomes': outcomes, 'newsSources': news_sources, 'snapshots': snapshots, 'accessVerified': False}
           status_path = Path('shared/public-catalog/collection-status.json')

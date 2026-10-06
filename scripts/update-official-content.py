@@ -38,8 +38,11 @@ def collect(source):
   data=response.read(2_000_001)
  if len(data)>2_000_000:raise ValueError('feed too large')
  if b'<!DOCTYPE' in data.upper() or b'<!ENTITY' in data.upper():raise ValueError('unsupported XML entity declarations')
- tree=ET.fromstring(data);rows=[];seen=set();now=dt.datetime.now(dt.timezone.utc).isoformat()
- for item in tree.findall('.//item')[:100]:
+ tree=ET.fromstring(data)
+ if tree.tag!='rss' or tree.find('channel') is None:raise ValueError('unsupported RSS structure')
+ feed_items=tree.findall('./channel/item')
+ rows=[];seen=set();now=dt.datetime.now(dt.timezone.utc).isoformat()
+ for item in feed_items[:100]:
   title=' '.join((item.findtext('title') or '').split())[:300]
   link=(item.findtext('link') or '').strip();parsed=urllib.parse.urlparse(link)
   if not title or parsed.scheme!='https' or parsed.hostname not in source['articleHosts'] or parsed.username or parsed.password or parsed.port:continue
@@ -51,7 +54,7 @@ def collect(source):
   try:published=email.utils.parsedate_to_datetime(stamp).isoformat()
   except (ValueError,TypeError,OverflowError):published=None
   rows.append({'id':source['id']+'-'+hashlib.sha256(link.encode()).hexdigest()[:20],'title':title,'url':link,'region':source['region'],**({'center':source['center']} if 'center' in source else {}),'industry':'开放管理','importance':'中','publishedAt':published,'sourceLabel':source['label'],'sourceUrl':source['url'],'fetchedAt':now,'verified':True,'sourceId':source['id']})
- if not rows and not (seen and source.get('titleKeywords')):raise ValueError('no valid official metadata')
+ if feed_items and not rows and not (seen and source.get('titleKeywords')):raise ValueError('no valid official metadata')
  return rows
 # Linux scheduled runners and macOS local collectors share a per-target OS lock.
 # The kernel releases it on process exit, including crashes; do not unlink it.
@@ -69,7 +72,7 @@ for source in SOURCES:
  try:
   rows=collect(source)
   for row in rows:items[row['id']]=row
-  states[source['id']]={**source,'lastSuccess':dt.datetime.now(dt.timezone.utc).isoformat(),'lastAttempt':dt.datetime.now(dt.timezone.utc).isoformat(),'lastError':None}
+  states[source['id']]={**source,'lastSuccess':dt.datetime.now(dt.timezone.utc).isoformat(),'lastAttempt':dt.datetime.now(dt.timezone.utc).isoformat(),'lastError':None,'lastCollectedCount':len(rows)}
   print(source['id'],len(rows),'official items',flush=True)
  except Exception as e:
   failed+=1;states[source['id']]={**states.get(source['id'],source),'lastError':str(e),'lastAttempt':dt.datetime.now(dt.timezone.utc).isoformat()}
