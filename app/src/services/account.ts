@@ -34,6 +34,15 @@ export function clearAccount(): void {
   stopLocationUpdates(); stopCompass(); stopBackgroundRecording();
   subscribers.forEach(callback => callback());
 }
+/** Clear pending creation metadata only after the server confirms account deletion. */
+export function clearDeletedAccountRequests(owner:string):boolean {
+  let complete=true;
+  try{uni.removeStorageSync(`he_team_creation_request_v1:${encodeURIComponent(owner)}`);}catch{complete=false;}
+  try{const raw=uni.getStorageSync('he_team_creation_request_v1');const value=typeof raw==='string'?JSON.parse(raw):raw;
+    if(value?.owner===owner)uni.removeStorageSync('he_team_creation_request_v1');
+  }catch{complete=false;}
+  return complete;
+}
 export function saveAccount(session: AccountSession): void {
   if (!session || !/^[a-f0-9]{64}$/.test(session.token) || typeof session.openid!=='string' || !session.openid || session.openid.length>128
     || typeof session.nickname!=='string' || session.nickname.length>24 || typeof session.username!=='string' || session.username.length>32

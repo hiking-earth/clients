@@ -43,7 +43,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { onShow, onUnload } from '@dcloudio/uni-app';
-import { accountApiConfigured, accountRequest, accountSession, clearAccount, saveAccount, onAccountChange } from '@/services/account';
+import { accountApiConfigured, accountRequest, accountSession, clearAccount, clearDeletedAccountRequests, saveAccount, onAccountChange } from '@/services/account';
 import type { AccountSession, AccountProfile } from '@/services/account';
 const modes = [{ value: 'sign-in', label: '登录' }, { value: 'register', label: '注册' }, { value: 'recover', label: '恢复密码' }] as const;
 const mode = ref<string>('sign-in'), username = ref(''), nickname = ref(''), password = ref(''), code = ref(''), newPassword = ref('');
@@ -119,8 +119,9 @@ function deleteAccount() {
       const result = await accountRequest<{ complete: boolean }>('auth.delete', { password: password.value });
       if(!sameSession(original))return;
       if (!result.ok) { message.value = result.errMsg || '注销未完成，请保留登录状态重试'; return; }
-      if (result.data?.complete) { clearAccount(); session.value = null; password.value = ''; message.value = '账号和云数据已注销'; }
-      else message.value = '账号已进入注销，部分数据已清理。请再次点击“继续注销”完成剩余清理。';
+      if (result.data?.complete===true) { const cleaned=clearDeletedAccountRequests(original.openid);clearAccount(); session.value = null; password.value = ''; message.value = cleaned?'账号和云数据已注销':'账号和云数据已注销，本机待创建请求清理失败'; }
+      else if(result.data?.complete===false) message.value = '账号已进入注销，部分数据已清理。请再次点击“继续注销”完成剩余清理。';
+      else message.value='注销回执格式无效，请保留登录状态重试确认';
     } finally { busy.value = false; }
   } });
 }
