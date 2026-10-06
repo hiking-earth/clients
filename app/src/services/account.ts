@@ -49,6 +49,16 @@ export function saveAccount(session: AccountSession): void {
   uni.setStorageSync('he_nickname', session.nickname);
   if (previous !== session.openid) subscribers.forEach(callback => callback());
 }
+// Compare without accountSession(): checking a delayed response must not
+// expire or otherwise mutate the newly selected session.
+function stillCurrentSession(expected:AccountSession|null):boolean {
+  if(!expected)return false;
+  try {
+    const raw=uni.getStorageSync(SESSION_KEY);
+    const current=typeof raw==='string'?JSON.parse(raw):raw;
+    return current?.token===expected.token && current?.openid===expected.openid;
+  } catch { return false; }
+}
 export async function accountRequest<T>(action: string, data: Record<string, unknown> = {}): Promise<AccountResponse<T>> {
   if (!accountApiConfigured()) return { ok: false, errMsg: '账号服务尚未配置，请稍后使用' };
   const session = accountSession();
@@ -58,7 +68,7 @@ export async function accountRequest<T>(action: string, data: Record<string, unk
       data: { action, data },
       success: response => {
         const result = response.data as AccountResponse<T>;
-        if (response.statusCode === 401 && session && result?.code === 'SESSION_EXPIRED') clearAccount();
+        if (response.statusCode === 401 && session && result?.code === 'SESSION_EXPIRED' && stillCurrentSession(session)) clearAccount();
         if (response.statusCode >= 200 && response.statusCode < 300 && result?.ok === true) resolve(result);
         else resolve({ ok: false, errMsg: result?.errMsg || '服务未完成本次操作' });
       }, fail: () => resolve({ ok: false, errMsg: '网络连接失败，请稍后重试' }),
@@ -66,8 +76,9 @@ export async function accountRequest<T>(action: string, data: Record<string, unk
   });
 }
 export async function signOutAccount(): Promise<AccountResponse<unknown>> {
+  const session=accountSession();
   const result = await accountRequest('auth.sign-out');
   // Keep the credential until remote revocation succeeds.
-  if (result.ok) clearAccount();
+  if (result.ok && stillCurrentSession(session)) clearAccount();
   return result;
 }

@@ -14,7 +14,8 @@
 </template>
 <script setup lang="ts">
 import { ref } from 'vue';
-import { onLoad, onShow, onUnload } from '@dcloudio/uni-app';
+import { onLoad, onShow, onHide, onUnload } from '@dcloudio/uni-app';
+import { onAccountChange } from '@/services/account';
 import { callCloud } from '@/services/cloud';
 import { getTrack, saveTrack, setTrackAutoSyncExcluded } from '@/services/tracks';
 import type { TrackRecord } from '@shared/types/track';
@@ -23,8 +24,12 @@ const rows = ref<Row[]>([]), busy = ref(false), error = ref(''), hasMore = ref(f
 let page = 0;
 let visible=true;
 const currentOwner=()=>String(uni.getStorageSync('he_openid')||'');
-onShow(()=>{visible=true;});
-onUnload(()=>{visible=false;rows.value=[];});
+let reloadPending=false;
+const unsubscribeAccount=onAccountChange(()=>{rows.value=[];page=0;hasMore.value=false;error.value='';reloadPending=true;if(visible&&!busy.value){reloadPending=false;reload();}});
+function resumePendingReload(){if(reloadPending&&visible&&!busy.value){reloadPending=false;reload();}}
+onShow(()=>{visible=true;resumePendingReload();});
+onHide(()=>{visible=false;reloadPending=true;});
+onUnload(()=>{visible=false;reloadPending=false;unsubscribeAccount();rows.value=[];});
 onLoad(reload);
 async function load() {
   if (busy.value) return;
@@ -42,7 +47,7 @@ async function load() {
     error.value = ''; page++; hasMore.value = res.data.hasMore;
     for (const t of res.data.tracks) if (!rows.value.some(r => r.trackId === t.trackId)) rows.value.push(t);
   } catch(e) { if(visible&&owner===currentOwner())error.value=e instanceof Error?e.message:'加载失败'; }
-  finally { busy.value=false; }
+  finally { busy.value=false;resumePendingReload(); }
 }
 function reload() { if (busy.value) return; rows.value = []; hasMore.value=false; page = 0; void load(); }
 function confirm(title: string, content: string) { return new Promise<boolean>(resolve => uni.showModal({ title, content, success: r => resolve(r.confirm === true), fail: () => resolve(false) })); }
@@ -62,8 +67,8 @@ async function restore(id: string) {
     saveTrack(res.data.track);
     setTrackAutoSyncExcluded(id,false);
     uni.showToast({ title: '已恢复到本机', icon: 'success' });
-  } catch (e) { error.value = e instanceof Error ? e.message : '保存失败'; }
-  finally { busy.value = false; }
+  } catch (e) { if(visible&&owner===currentOwner())error.value = e instanceof Error ? e.message : '保存失败'; }
+  finally { busy.value = false;resumePendingReload(); }
 }
 async function remove(id: string) {
   const owner=currentOwner();
@@ -79,7 +84,7 @@ async function remove(id: string) {
     const local = getTrack(id); if (local) saveTrack({ ...local, synced: false });
     removed=true;
   } catch(e) { if(visible&&owner===currentOwner())error.value=e instanceof Error?e.message:'删除失败'; }
-  finally { busy.value=false; }
+  finally { busy.value=false;resumePendingReload(); }
   if(removed)reload();
 }
 </script>
