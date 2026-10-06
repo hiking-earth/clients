@@ -13,12 +13,26 @@ import urllib.request
 import xml.etree.ElementTree as ET
 ROOT=pathlib.Path(__file__).resolve().parents[1]
 TARGET=ROOT/'shared/data/content/official-news.json'
-SOURCES=[{'id':'nps-grand-canyon-news','label':'美国国家公园管理局 · 大峡谷','url':'https://www.nps.gov/feeds/getNewsRSS.htm?id=grca','region':'美国 · 大峡谷','center':[-112.113,36.106]}, {'id':'nps-grand-canyon-backcountry','label':'美国国家公园管理局 · 大峡谷步道公告','url':'https://www.nps.gov/grca/planyourvisit/upload/grca-backcountry.xml','region':'美国 · 大峡谷','center':[-112.113,36.106]}]
+SOURCE_CONFIG=ROOT/'shared/data/content/official-sources.json'
+config=json.loads(SOURCE_CONFIG.read_text(encoding='utf-8'))
+if config.get('schemaVersion')!=1 or not isinstance(config.get('sources'),list) or not 0<len(config['sources'])<=50:raise ValueError('invalid official source registry')
+SOURCES=config['sources']
+seen_sources=set()
+for source in SOURCES:
+ if not isinstance(source,dict) or source.get('format')!='rss' or source.get('reuse')!='metadata-links-only':raise ValueError('unsupported official source policy')
+ if not isinstance(source.get('id'),str) or not source['id'] or source['id'] in seen_sources:raise ValueError('invalid duplicate source ID')
+ seen_sources.add(source['id'])
+ url=urllib.parse.urlparse(source.get('url',''))
+ hosts=source.get('articleHosts')
+ if not isinstance(hosts,list) or not hosts or any(not isinstance(host,str) or not host or '/' in host or ':' in host for host in hosts):raise ValueError('invalid source hosts')
+ if url.scheme!='https' or url.hostname not in hosts or url.username or url.password or url.port:raise ValueError('invalid official source URL')
+ if any(not isinstance(source.get(key),str) or not source[key] for key in ['label','region']):raise ValueError('invalid source attribution')
+
 def collect(source):
  req=urllib.request.Request(source['url'],headers={'User-Agent':'HikingEarth/0.2 (+https://github.com/hiking-earth/clients)','Accept':'application/rss+xml, application/xml, text/xml'})
  with urllib.request.urlopen(req,timeout=30) as response:
   redirect=urllib.parse.urlparse(response.url)
-  if redirect.scheme!='https' or redirect.hostname!='www.nps.gov' or redirect.username or redirect.password or redirect.port:raise ValueError('unexpected redirect domain')
+  if redirect.scheme!='https' or redirect.hostname!=urllib.parse.urlparse(source['url']).hostname or redirect.username or redirect.password or redirect.port:raise ValueError('unexpected redirect domain')
   data=response.read(2_000_001)
  if len(data)>2_000_000:raise ValueError('feed too large')
  if b'<!DOCTYPE' in data.upper() or b'<!ENTITY' in data.upper():raise ValueError('unsupported XML entity declarations')
@@ -26,7 +40,7 @@ def collect(source):
  for item in tree.findall('.//item')[:100]:
   title=' '.join((item.findtext('title') or '').split())[:300]
   link=(item.findtext('link') or '').strip();parsed=urllib.parse.urlparse(link)
-  if not title or parsed.scheme!='https' or parsed.hostname!='www.nps.gov' or parsed.username or parsed.password or parsed.port:continue
+  if not title or parsed.scheme!='https' or parsed.hostname not in source['articleHosts'] or parsed.username or parsed.password or parsed.port:continue
   if link in seen:raise ValueError('duplicate official item URL')
   seen.add(link)
   stamp=(item.findtext('pubDate') or '').strip()

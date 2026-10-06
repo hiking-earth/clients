@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "sources": [
+    {
+      "id": "nps-grand-canyon-news",
+      "label": "美国国家公园管理局 · 大峡谷",
+      "url": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "articleHosts": [
+        "www.nps.gov"
+      ],
+      "format": "rss",
+      "reuse": "metadata-links-only"
+    },
+    {
+      "id": "nps-grand-canyon-backcountry",
+      "label": "美国国家公园管理局 · 大峡谷步道公告",
+      "url": "https://www.nps.gov/grca/planyourvisit/upload/grca-backcountry.xml",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "articleHosts": [
+        "www.nps.gov"
+      ],
+      "format": "rss",
+      "reuse": "metadata-links-only"
+    }
+  ]
+}

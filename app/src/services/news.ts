@@ -1,7 +1,8 @@
 import {reactive} from 'vue';
 import {publicSnapshot} from './public-data';
+import registry from '@shared/data/content/official-sources.json';
 import snapshot from '@shared/data/content/official-news.json';
-export type OfficialNews={id:string;title:string;url:string;region:string;sourceLabel:string;sourceUrl:string;publishedAt:string|null;fetchedAt:string};
+export type OfficialNews={sourceId:string;id:string;title:string;url:string;region:string;sourceLabel:string;sourceUrl:string;publishedAt:string|null;fetchedAt:string};
 export type NewsSourceState={id:string;label:string;lastSuccess?:string;lastAttempt?:string;lastError?:string|null};
 const KEY='he_official_news_v1';
 export const news=reactive({items:[] as OfficialNews[],generatedAt:null as string|null,error:'',loading:false,sources:[] as NewsSourceState[],retryAt:0});
@@ -9,7 +10,7 @@ function officialUrl(value:unknown):boolean{
   if(typeof value!=='string'||value.length>2048)return false;
   return /^https:\/\/www\.nps\.gov\/[^\\\s\u0000-\u001f\u007f]*$/.test(value);
 }
-const valid=(r:any):r is OfficialNews=>!!r&&typeof r.id==='string'&&!!r.id&&r.id.length<=160
+const valid=(r:any):r is OfficialNews=>!!r&&registry.sources.some(source=>source.id===r.sourceId&&source.url===r.sourceUrl&&source.label===r.sourceLabel&&source.region===r.region)&&typeof r.id==='string'&&!!r.id&&r.id.length<=160
   &&typeof r.title==='string'&&!!r.title.trim()&&r.title.length<=300&&officialUrl(r.url)&&officialUrl(r.sourceUrl)
   &&typeof r.region==='string'&&r.region.length<=100&&typeof r.sourceLabel==='string'&&r.sourceLabel.length<=200
   &&typeof r.fetchedAt==='string'&&Number.isFinite(Date.parse(r.fetchedAt))&&Date.parse(r.fetchedAt)<=Date.now()+30000
