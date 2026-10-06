@@ -180,9 +180,12 @@ async function startShare() {
   }
   startingShare = true;
   const epoch = ++shareGeneration;
-  const ok = await startLocationUpdates(onMyLocation, "team");
-  if (epoch !== shareGeneration) return;
-  startingShare = false;
+  const original=snapshot();
+  let ok=false;
+  try{ok=await startLocationUpdates(onMyLocation,"team");}
+  catch{if(epoch===shareGeneration&&current(original))uni.showToast({title:'定位启动失败，请重试',icon:'none'});}
+  finally{if(epoch===shareGeneration)startingShare=false;}
+  if(epoch!==shareGeneration||!current(original))return;
   if (!ok) {
     uni.showToast({ title: "定位未启动，未开启共享", icon: "none" });
     return;
@@ -283,30 +286,40 @@ async function resolveSos() {
   else uni.showToast({ title: res.errMsg ?? "解除失败", icon: "none" });
 }
 function manageTeam() {
+  const original=snapshot();
   if (!team.value || team.value.createdBy !== myOpenid.value) return;
   uni.showActionSheet({ itemList: ['修改队名', '解散队伍'], success: choice => {
+    if(!current(original)||team.value?.createdBy!==myOpenid.value)return;
     if (choice.tapIndex === 0) uni.showModal({ title: '修改队名', editable: true, placeholderText: team.value?.name, success: async result => {
-      if (result.confirm) await manage('rename', { name: result.content });
+      if (result.confirm&&current(original)) await manage('rename', { name: result.content });
     } });
     else uni.showModal({ title: '解散队伍', content: '关闭邀请码，停止所有成员的位置共享。', success: async result => {
-      if (result.confirm) await manage('disband');
+      if (result.confirm&&current(original)) await manage('disband');
     } });
   } });
 }
 function manageMember(member: TeamMember) {
+  const original=snapshot();
   if (!team.value || team.value.createdBy !== myOpenid.value || member.openid === myOpenid.value) return;
   uni.showActionSheet({ itemList: ['移交队长', '移除成员'], success: choice => {
+    if(!current(original)||team.value?.createdBy!==myOpenid.value)return;
     const action = choice.tapIndex === 0 ? 'transfer' : 'remove';
     uni.showModal({ title: action === 'transfer' ? '移交队长' : '移除成员', content: `确认对“${member.nickname}”执行此操作？`, success: async result => {
-      if (result.confirm) await manage(action, { memberId: member.openid });
+      if (result.confirm&&current(original)) await manage(action, { memberId: member.openid });
     } });
   } });
 }
+let managing=false;
 async function manage(action: string, data: Record<string, unknown> = {}) {
-  if (!team.value) return;
-  const result = await callCloud('team-manage', { teamId: team.value.id, action, ...data });
-  if (!result.ok) { uni.showToast({ title: result.errMsg || '操作失败', icon: 'none' }); return; }
-  await poll();
+  if (!team.value || managing || team.value.createdBy!==myOpenid.value) return;
+  const original=snapshot();managing=true;
+  try{
+    const result = await callCloud('team-manage', { teamId: team.value.id, action, ...data });
+    if(!current(original))return;
+    if (!result.ok) { uni.showToast({ title: result.errMsg || '操作失败', icon: 'none' }); return; }
+    await poll();
+  }catch{if(current(original))uni.showToast({title:'队伍操作失败，请重试',icon:'none'});}
+  finally{managing=false;}
 }
 function copyCode() {
   uni.setClipboardData({ data: team.value!.inviteCode });
