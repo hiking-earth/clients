@@ -17,6 +17,7 @@
   <view v-if="tab==='messages'" class="card"><text class="title">队内消息</text><text>仅当前有效队伍成员可见。后台暂停轮询，返回后继续。</text><textarea :disabled="busy" v-model="body" maxlength="1000" placeholder="给队友发送消息" /><button :disabled="busy||!body.trim()" @click="send">发送</button></view>
   <view v-if="tab==='diaries'&&!publicFeed" class="card"><text>当前已加载的本人日记中，已到访 {{ footprintCount }} 条路线（手动标记）</text></view>
   <button :disabled="loading" @click="refresh">{{ loading?'加载中…':'刷新云端内容' }}</button>
+  <text class="feed-note">前台第一页自动检查更新：队聊和通知每10秒，其他内容每30秒；后台暂停。加载后续页时可手动刷新回到最新内容。</text>
   <text v-if="tab==='diaries'&&publicFeed" class="feed-note">这里只展示作者主动公开且审核通过的日记。</text>
   <view v-for="item in items" :key="item._id" class="card">
    <text class="title">{{ item.title || item.nickname || '徒步记录' }}</text><text v-if="item.body">{{ item.body }}</text>
@@ -48,8 +49,9 @@ function teamId(){try{const raw=uni.getStorageSync('he_team');const team=typeof 
 const identity=()=>accountSession()?.openid || String(uni.getStorageSync('he_openid')||'');
 function chooseRoute(id:string){if(busy.value)return;context++;routeId.value=id;keyword.value='';if(tab.value==='comments')void refresh();}
 function cancelEdit(force=false){if(busy.value&&!force)return;editing.value=null;title.value='';body.value='';isPublic.value=false;checkedIn.value=false;newId=`note-${Date.now()}-${Math.random().toString(36).slice(2)}`;}
-function selectTab(value:string){if(busy.value)return;context++;sequence++;items.value=[];hasMore.value=false;tab.value=value;cancelEdit();void refresh();}
+function selectTab(value:string){if(busy.value)return;context++;sequence++;items.value=[];hasMore.value=false;tab.value=value;cancelEdit();void refresh();startPolling();}
 function setDiaryFeed(value:boolean){if(publicFeed.value===value)return;publicFeed.value=value;context++;sequence++;page=0;items.value=[];hasMore.value=false;cancelEdit();void refresh();}
+function startPolling(){if(timer)clearInterval(timer);const interval=['messages','notifications'].includes(tab.value)?10000:30000;timer=setInterval(()=>{if(!loading.value&&!busy.value&&page===0)void load();},interval);}
 async function load(append=false){
  const token=++sequence,owner=identity(),sessionToken=accountSession()?.token,mode=tab.value;if(!owner){loading.value=false;hasMore.value=false;error.value='请先登录';items.value=[];return;}
  if(mode==='comments'&&!routeId.value){loading.value=false;hasMore.value=false;items.value=[];error.value='选择路线后查看留言';return;}
@@ -90,6 +92,6 @@ async function decide(item:any,decision:string){if(await mutate({action:'moderat
 function stop(){context++;mutationSequence++;busy.value=false;if(timer)clearInterval(timer);timer=undefined;sequence++;loading.value=false;}
 const unsubscribe=onAccountChange(()=>{stop();items.value=[];hasMore.value=false;cancelEdit(true);error.value='账号已变化，请刷新内容';});
 onLoad(query=>{if(query?.routeId)routeId.value=query.routeId;if(query?.tab&&modes.some(m=>m.key===query.tab))tab.value=query.tab;});
-onShow(()=>{void refresh();timer=setInterval(()=>{if(['messages','notifications'].includes(tab.value)&&!loading.value&&page===0)void load();},10000);});onHide(stop);onUnload(()=>{stop();unsubscribe();});
+onShow(()=>{void refresh();startPolling();});onHide(stop);onUnload(()=>{stop();unsubscribe();});
 </script>
 <style scoped>.page{background:#0f141b;min-height:100vh;padding:24rpx;box-sizing:border-box;color:#eef4ea}.tabs,.row{display:flex;gap:10rpx;flex-wrap:wrap}.tabs button{font-size:24rpx;padding:0 16rpx}.selected{background:#b8f36b}.diary-feed{margin-top:20rpx}.feed-note{display:block;color:#c4d1bf;margin:12rpx 0}.card{display:flex;flex-direction:column;gap:16rpx;background:#1a2430;border-radius:20rpx;padding:24rpx;margin:20rpx 0}.title{font-size:32rpx;font-weight:700}.error{color:#ffd166}input,textarea{background:#0f141b;border-radius:12rpx;padding:18rpx;width:100%;box-sizing:border-box}textarea{height:200rpx}button{margin:0;color:#142010}.choices{display:flex;flex-direction:column;gap:8rpx}</style>
