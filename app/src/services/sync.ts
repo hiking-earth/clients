@@ -38,9 +38,9 @@ export async function syncNow(force=false):Promise<void> {
     if(hasPrivacyConsent('trackCloudSync')) {
       for(const track of listTracks().filter(t=>t.state==='finished'&&!t.synced&&!trackAutoSyncExcluded(t.id)).slice(0,10)){
         if(!allowed(identity)||!hasPrivacyConsent('trackCloudSync'))return;
-        const result=await callCloud('track-sync',{track});
+        const result=await callCloud<{synced:boolean}>('track-sync',{track});
         if(!allowed(identity)||!hasPrivacyConsent('trackCloudSync'))return;
-        if(!result.ok)throw new Error(result.errMsg || '轨迹上传失败');
+        if(!result.ok||result.data?.synced!==true)throw new Error(result.errMsg || '云端未确认轨迹同步');
         if(JSON.stringify(getTrack(track.id))===JSON.stringify(track))markSynced(track.id);
       }
       const savedPage=Number(uni.getStorageSync(`he_auto_sync_page:${identity}`)||0);
