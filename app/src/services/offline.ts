@@ -14,7 +14,7 @@ async function commitLayers(update:(rows:OfflineLayer[])=>OfflineLayer[]):Promis
 }
 const bytesOf = (text: string) => encodeURIComponent(text).replace(/%[A-F\d]{2}|./g, 'x').length;
 export function offlineLayers():OfflineLayer[]{return state.layers;}
-export async function importOfflineLayer(text: string, sourceKey?:'hk-afcd'): Promise<OfflineLayer> {
+export async function importOfflineLayer(text: string, sourceKey?:'hk-afcd', options:{replaceOnly?:boolean;shouldApply?:()=>boolean}={}): Promise<OfflineLayer> {
   await restoreOfflineLayers();
   if (bytesOf(text) > 5 * 1024 * 1024) throw new Error('离线资料最多5 MB');
   const data = JSON.parse(text);
@@ -42,8 +42,10 @@ export async function importOfflineLayer(text: string, sourceKey?:'hk-afcd'): Pr
   layer.bytes = bytesOf(JSON.stringify(layer));
   let selected=layer;
   await commitLayers(rows=>{
+   if(options.shouldApply&&!options.shouldApply())throw new Error('参考线更新已停止，保留现有资料');
    if(sourceKey){
     const previous=rows.find(item=>item.sourceKey===sourceKey);
+    if(options.replaceOnly&&!previous)throw new Error('参考资料已删除，本轮不会重新下载');
     if(previous){layer.id=previous.id;layer.bytes=bytesOf(JSON.stringify(layer));}
     const all=[...rows.filter(item=>item.sourceKey!==sourceKey),layer];
     if(all.length>100||bytesOf(JSON.stringify(all))>8*1024*1024)throw new Error('离线资料总量最多8 MB和100份，请先删除不需要的资料');

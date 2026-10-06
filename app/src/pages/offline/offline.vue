@@ -3,6 +3,7 @@
   <view v-for="layer in layers" :key="layer.id" class="card"><text class="title">{{ layer.name }}</text><text class="hint">{{ layer.attribution }} · {{ layer.license }} · {{ (layer.bytes/1024).toFixed(0) }} KB</text><button :disabled="busy" @click="activate(layer.id)">{{ active === layer.id ? '正在使用' : '用于轨迹与导航示意' }}</button><button :disabled="busy" @click="remove(layer.id)">删除资料</button></view>
   <TrackCanvas v-if="preview" :points="[]" :layers="preview.paths" :attribution="preview.attribution" />
   <text class="title">官方参考资料</text><button :disabled="busy" @click="downloadHk">{{downloading ? '下载中…' : '下载香港郊野公园官方步道参考线'}}</button><text class="hint">来源：香港政府渔农自然护理署 / DATA.GOV.HK。参考线不包含底图、高程或当前开放许可；下载后可离线叠加查看。</text>
+  <view class="card"><text>前台自动更新已下载的官方参考线</text><switch :checked="offlineUpdateState.enabled" @change="toggleOfficialUpdates" /><text class="hint">默认关闭；开启后联网检查，会使用网络流量。只更新已有官方参考线，删除后不会自动重新下载。{{offlineUpdateState.message}}</text></view>
   <text class="title">导入资料</text>
   <!-- #ifdef APP-PLUS --><button @click="chooseNative">从系统文件选择</button><!-- #endif -->
   <!-- #ifdef H5 --><button @click="choose">选择 JSON 资料</button><!-- #endif -->
@@ -11,12 +12,14 @@
   <text class="hint">格式：format=hiking-earth-offline-v1，name、attribution、license均必填，geometry为GeoJSON FeatureCollection；支持LineString/MultiLineString/Polygon/MultiPolygon。每份最多5 MB、50000点，总量8 MB。导入后不会上传。</text>
 </scroll-view></template>
 <script setup lang="ts">
+import {offlineUpdateState,setOfficialOfflineUpdates} from '@/services/offline-updates';
 import {publicSnapshot} from '@/services/public-data';
 import { chooseNativeText } from '@/services/files';
 import { computed, ref } from 'vue';
 import { onShow } from '@dcloudio/uni-app';
 import TrackCanvas from '@/components/TrackCanvas.vue';
 import { offlineLayers, importOfflineLayer, deleteOfflineLayer, selectOfflineLayer, restoreOfflineLayers } from '@/services/offline';
+function toggleOfficialUpdates(event:any){try{setOfficialOfflineUpdates(event.detail.value===true);}catch{message.value='未能保存自动更新设置';}}
 const downloading=ref(false),mutating=ref(false);
 const busy=computed(()=>downloading.value||mutating.value);
 async function useSavedLayer(id:string,success:string){

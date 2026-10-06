@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import {refreshOfficialOffline,setOfflineUpdatesForeground} from '@/services/offline-updates';
 import { refreshRouteReviews } from '@/services/route-reviews';
 import { checkForUpdate } from '@/services/updates';
 import { startSync, setSyncForeground } from '@/services/sync';
@@ -15,8 +16,9 @@ onLaunch(() => {
 });
 onShow(() => {
   setSyncForeground(true);
+  setOfflineUpdatesForeground(true);
   if(foregroundRefreshTimer)clearInterval(foregroundRefreshTimer);
-  foregroundRefreshTimer=setInterval(()=>{refreshRouteCatalog();void refreshRouteReviews();void checkForUpdate();},15*60*1000);
+  foregroundRefreshTimer=setInterval(()=>{refreshRouteCatalog();void refreshRouteReviews();void checkForUpdate();void refreshOfficialOffline();},15*60*1000);
   void checkForUpdate();
   refreshRouteCatalog();
   void refreshRouteReviews();
@@ -24,6 +26,7 @@ onShow(() => {
 onHide(() => {
   if(foregroundRefreshTimer){clearInterval(foregroundRefreshTimer);foregroundRefreshTimer=undefined;}
   setSyncForeground(false);
+  setOfflineUpdatesForeground(false);
   console.log("App Hide");
 });
 </script>
