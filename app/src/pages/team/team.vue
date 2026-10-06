@@ -98,7 +98,7 @@ onLoad(async () => {
   // 恢复上次队伍
   const saved = uni.getStorageSync("he_team");
   if (saved) {
-    try { team.value = JSON.parse(saved); startPoll(); } catch { uni.removeStorageSync("he_team"); }
+    try { const restored=JSON.parse(saved);if(!validTeam(restored))throw new Error("invalid team");team.value=restored;startPoll(); } catch { uni.removeStorageSync("he_team"); }
   }
 });
 
@@ -137,7 +137,7 @@ async function joinTeam() {
   }
   const res = await callCloud<{ team: Team }>("team-join", { inviteCode: inviteCode.value });
   if(!current(original))return;
-  if (res.ok && res.data) {
+  if (res.ok && res.data && validTeam(res.data.team)) {
     team.value = res.data.team;
     uni.setStorageSync("he_team", JSON.stringify(team.value));
     startPoll();
@@ -236,13 +236,30 @@ function stopPoll() {
   pollTimer = null;
 }
 
+function validTeam(value:any):value is Team {
+  return !!value&&typeof value.id==='string'&&!!value.id&&typeof value.name==='string'&&typeof value.createdBy==='string'&&!!value.createdBy
+    &&typeof value.inviteCode==='string'&&/^\d{6}$/.test(value.inviteCode)&&typeof value.active==='boolean'&&Number.isFinite(value.createdAt)&&value.createdAt>0;
+}
+function validLocations(value:any,id:string):boolean {
+  if(!value||!validTeam(value.team)||value.team.id!==id||!value.team.active||!Array.isArray(value.members)||value.members.length>100||!Array.isArray(value.alerts)||value.alerts.length>10)return false;
+  const ids=new Set<string>();
+  if(!value.members.every((m:any)=>{
+    if(!m||m.teamId!==id||typeof m.openid!=='string'||!m.openid||ids.has(m.openid))return false;
+    ids.add(m.openid);
+    return typeof m.nickname==='string'&&typeof m.isLeader==='boolean'&&Number.isFinite(m.updatedAt)&&m.updatedAt>=0
+      &&((m.latitude===null&&m.longitude===null)||(Number.isFinite(m.latitude)&&Math.abs(m.latitude)<=90&&Number.isFinite(m.longitude)&&Math.abs(m.longitude)<=180));
+  }))return false;
+  const alertsSeen=new Set<string>();
+  return value.alerts.every((a:any)=>{if(!a||typeof a.id!=='string'||!a.id||alertsSeen.has(a.id))return false;alertsSeen.add(a.id);return typeof a.openid==='string'&&typeof a.message==='string'&&Number.isFinite(a.triggeredAt)&&a.triggeredAt>0;});
+}
+
 async function poll() {
   if (!team.value) return;
   const id = team.value.id;
   const original=snapshot(),sequence=++pollSequence;
   const res = await callCloud<{ members: TeamMember[]; alerts: Alert[]; team: Team }>("team-locations", { teamId: id });
   if (!current(original)||sequence!==pollSequence||team.value?.id !== id) return;
-  if (res.ok && res.data) {
+  if (res.ok && res.data && validLocations(res.data,id)) {
     team.value = res.data.team;
     uni.setStorageSync('he_team', JSON.stringify(team.value));
     members.value = res.data.members;
@@ -261,7 +278,7 @@ async function poll() {
 }
 
 function fresh(m: TeamMember): boolean {
-  return Number.isFinite(m.latitude) && Number.isFinite(m.longitude) && m.updatedAt > 0 && Date.now() - m.updatedAt <= 60000;
+  return Number.isFinite(m.latitude) && Number.isFinite(m.longitude) && Math.abs(m.latitude!)<=90 && Math.abs(m.longitude!)<=180 && Number.isFinite(m.updatedAt) && m.updatedAt > 0 && m.updatedAt<=Date.now()+30000 && Date.now() - m.updatedAt <= 60000;
 }
 function freshness(ts: number): string {
   if (!ts) return "未共享位置";
@@ -280,10 +297,17 @@ function rendezvous(m: TeamMember) {
   });
 }
 
+let resolving=false;
 async function resolveSos() {
-  const res = await callCloud("sos-trigger", { action: "resolve" });
-  if (res.ok) await poll();
-  else uni.showToast({ title: res.errMsg ?? "解除失败", icon: "none" });
+  if(resolving)return;
+  const original=snapshot();resolving=true;
+  try{
+    const res = await callCloud("sos-trigger", { action: "resolve" });
+    if(!current(original))return;
+    if (res.ok) await poll();
+    else uni.showToast({ title: res.errMsg ?? "解除失败", icon: "none" });
+  }catch{if(current(original))uni.showToast({title:'解除请求失败，请重试',icon:'none'});}
+  finally{resolving=false;}
 }
 function manageTeam() {
   const original=snapshot();
