@@ -15,6 +15,8 @@
       </view>
     </scroll-view>
 
+    <text v-if="error" class="notice">{{error}}</text>
+    <button :disabled="loading" @click="load">{{loading ? "正在加载" : "更新导购资料"}}</button>
     <view class="list">
       <view v-for="it in filtered" :key="it.id" class="card" @click="open(it)">
         <view class="card-l">
@@ -27,7 +29,7 @@
         </view>
         <text class="go">›</text>
       </view>
-      <view v-if="filtered.length === 0" class="empty">该分类暂无条目</view>
+      <view v-if="filtered.length === 0" class="empty">{{ loading ? "正在加载" : error ? "未取得导购资料" : "暂无已发布的导购条目" }}</view>
     </view>
 
     <view class="notice">导购链接跳转至第三方平台成交，价格与售后以第三方为准；本应用不收取货款。</view>
@@ -42,26 +44,42 @@ import { callCloud } from "@/services/cloud";
 
 const items = ref<GuideItem[]>([]);
 const category = ref("");
+const loading=ref(false),error=ref("");
 const categories = ["", "鞋靴", "背包", "服装", "露营", "导航", "应急", "其他"];
 
-onLoad(async () => {
-  const res = await callCloud<{ items: GuideItem[] }>("guide-list");
-  if (res.ok && res.data) items.value = res.data.items;
-});
+function safeLink(value:unknown):value is string {
+  return typeof value === "string" && value.length <= 2048 && /^https:\/\/[^\s/@:#?]+(?:\:443)?\/[^\\\s\u0000-\u001f\u007f]*$/.test(value);
+}
+async function load() {
+  if(loading.value)return;
+  loading.value=true;error.value="";
+  try {
+    const res=await callCloud<{items:GuideItem[]}>("guide-list");
+    if(!res.ok || !res.data || !Array.isArray(res.data.items))throw new Error("未取得导购资料，请稍后重试");
+    const rows=res.data.items;
+    if(rows.length>100 || rows.some(i=>!i || typeof i.id!=="string" || !i.id || typeof i.title!=="string" || !i.title.trim() || i.title.length>200 || typeof i.summary!=="string" || i.summary.length>2000 || !categories.includes(i.category) || !i.category || !safeLink(i.link)) || new Set(rows.map(i=>i.id)).size!==rows.length)throw new Error("导购资料格式有误，请稍后重试");
+    items.value=rows;
+  }catch(e){items.value=[];error.value=e instanceof Error?e.message:"加载失败，请稍后重试";}
+  finally{loading.value=false;}
+}
+onLoad(()=>{void load();});
 
 const filtered = computed(() =>
   category.value ? items.value.filter((i) => i.category === category.value) : items.value,
 );
 
 function open(it: GuideItem) {
-  if (!it.link) {
+  if (!safeLink(it.link)) {
     uni.showToast({ title: "导购链接待配置", icon: "none" });
     return;
   }
   // #ifdef H5
-  window.open(it.link, "_blank");
+  window.open(it.link, "_blank", "noopener,noreferrer");
   // #endif
-  // #ifndef H5
+  // #ifdef APP-PLUS
+  plus.runtime.openURL(it.link);
+  // #endif
+  // #ifdef MP-WEIXIN
   uni.setClipboardData({
     data: it.link,
     success: () => uni.showToast({ title: "链接已复制，去浏览器打开", icon: "none" }),
