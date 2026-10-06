@@ -55,6 +55,11 @@ import { onShow, onHide, onUnload } from "@dcloudio/uni-app";
 import { ROUTES } from "@/services/route-catalog";
 import type { CompanionPost } from "@shared/types/social";
 import { callCloud } from "@/services/cloud";
+import { accountSession, onAccountChange } from "@/services/account";
+let context = 0, loadSequence = 0;
+function identity(){return `${uni.getStorageSync("he_openid")||""}:${accountSession()?.token||""}`;}
+function snapshot(){return {owner:identity(),epoch:context};}
+function current(value:ReturnType<typeof snapshot>){return value.owner===identity()&&value.epoch===context;}
 
 const birth=ref(''),emergency=ref(''),contactConsent=ref(false),guardian=ref(false),joiningPost=ref<CompanionPost|null>(null);
 let creationId=`post-${Date.now()}-${Math.random().toString(36).slice(2)}`;
@@ -71,15 +76,20 @@ const form = ref({ title: "", content: "", departDate: "", maxMembers: 4, routeI
 const routeNames = ROUTES.map((r) => r.name);
 
 function cancelForm(){showForm.value=false;clearSensitive();}
-onHide(()=>{cancelRegistration();cancelForm();});
-onUnload(()=>{cancelRegistration();cancelForm();});
+function invalidate(){context++;loadSequence++;cancelRegistration();cancelForm();}
+const unsubscribeAccount=onAccountChange(()=>{invalidate();posts.value=[];myOpenid.value="";loadError.value="账号已变化，请刷新活动";});
+onHide(invalidate);
+onUnload(()=>{invalidate();unsubscribeAccount();});
 onShow(load);
 
 async function load() {
+  const original=snapshot(), sequence=++loadSequence;
   const login = await callCloud<{ openid: string }>("login");
+  if(!current(original)||sequence!==loadSequence)return;
   myOpenid.value = login.ok ? login.data?.openid ?? "" : "";
   const res = await callCloud<{ posts: CompanionPost[] }>("companion-list");
-  if (res.ok && res.data) { posts.value = res.data.posts; loadError.value = ""; }
+  if(!current(original)||sequence!==loadSequence)return;
+  if (res.ok && res.data && Array.isArray(res.data.posts)) { posts.value = res.data.posts; loadError.value = ""; }
   else { posts.value = []; loadError.value = res.errMsg ?? "加载失败"; }
 }
 
@@ -104,36 +114,47 @@ function newPost() {
   editingId.value = ''; form.value = { title: '', content: '', departDate: '', maxMembers: 4, routeId: '' }; showForm.value = true;
 }
 async function cancelJoin(post: CompanionPost) {
+  const original=snapshot();
   uni.showModal({ title: '取消报名', content: '确认退出该活动？', success: async result => {
-    if (result.confirm) await changePost(post, 'leave');
+    if (result.confirm && current(original)) await changePost(post, 'leave');
   } });
 }
 function managePost(post: CompanionPost) {
+  const original=snapshot();
   const labels = ['编辑活动', post.status === 'closed' ? '重新开放报名' : '关闭报名', '删除活动'];
   uni.showActionSheet({ itemList: labels, success: choice => {
+    if(!current(original)||submitting.value)return;
     if (choice.tapIndex === 0) {
       editingId.value = post.id; form.value = { title: post.title, content: post.content, departDate: post.departDate, maxMembers: post.maxMembers, routeId: post.routeId || '' }; showForm.value = true; return;
     }
     const action = choice.tapIndex === 2 ? 'delete' : post.status === 'closed' ? 'reopen' : 'close';
     uni.showModal({ title: labels[choice.tapIndex], content: action === 'delete' ? '删除后活动内容不再展示。此操作无法恢复。' : '确认更新报名状态？', success: async result => {
-      if (result.confirm) await changePost(post, action);
+      if (result.confirm && current(original)) await changePost(post, action);
     } });
   } });
 }
 async function changePost(post: CompanionPost, action: string) {
+  if(submitting.value)return;
+  const original=snapshot();
   const result = await callCloud('companion-manage', { postId: post.id, action });
+  if(!current(original))return;
   if (result.ok) await load();
   uni.showToast({ title: result.ok ? '已更新' : result.errMsg || '操作失败', icon: 'none' });
 }
 function reportPost(p: CompanionPost) {
+  const original=snapshot();
   uni.showActionSheet({ itemList: ["垃圾广告", "人身攻击或违法内容", "泄露个人信息", "其他违规内容"], success: async (r) => {
+    if(!current(original))return;
     const reasons = ["垃圾广告", "人身攻击或违法内容", "泄露个人信息", "其他违规内容"];
     const result = await callCloud("companion-report", { postId: p.id, reason: reasons[r.tapIndex] });
+    if(!current(original))return;
     uni.showToast({ title: result.ok ? "举报已提交，等待处理" : result.errMsg ?? "举报失败", icon: "none" });
   } });
 }
 
 async function submit() {
+  if(submitting.value)return;
+  const original=snapshot();
   if (!form.value.title.trim() || !form.value.content.trim()) {
     uni.showToast({ title: "请填写标题和内容", icon: "none" });
     return;
@@ -147,6 +168,7 @@ async function submit() {
     nickname: uni.getStorageSync('he_nickname') || '山友',
   });
   submitting.value = false;
+  if(!current(original))return;
   if (res.ok) {
     showForm.value = false;clearSensitive();
     form.value = { title: "", content: "", departDate: "", maxMembers: 4, routeId: "" };
