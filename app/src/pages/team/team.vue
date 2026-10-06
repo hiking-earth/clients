@@ -114,7 +114,22 @@ const unsubscribeAccount = onAccountChange(() => {
 onUnmounted(() => { context++;unsubscribePrivacy(); unsubscribeAccount(); stopPoll(); stopShare(); });
 
 let entering=false;
-let creationOwner='',creationRequest='';
+const CREATION_KEY='he_team_creation_request_v1';
+function pendingCreation():string{
+  const owner=String(uni.getStorageSync('he_openid')||myOpenid.value);
+  if(!owner)throw new Error('请先登录');
+  const raw=uni.getStorageSync(CREATION_KEY);
+  if(raw){const saved=typeof raw==='string'?JSON.parse(raw):raw;
+    if(!saved||typeof saved.owner!=='string'||typeof saved.id!=='string'||!/^team-[a-zA-Z0-9-]{1,100}$/.test(saved.id))throw new Error('创建请求缓存异常');
+    if(saved.owner===owner)return saved.id;
+  }
+  const id=`team-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  uni.setStorageSync(CREATION_KEY,JSON.stringify({owner,id}));return id;
+}
+function clearCreation(id:string){
+  try{const raw=uni.getStorageSync(CREATION_KEY);const saved=typeof raw==='string'?JSON.parse(raw):raw;if(saved?.id===id)uni.removeStorageSync(CREATION_KEY);}
+  catch{uni.showToast({title:'创建请求缓存清理失败',icon:'none'});}
+}
 function rememberTeam(){
   try{uni.setStorageSync('he_team',JSON.stringify(team.value));}
   catch{uni.showToast({title:'已加入队伍，本机缓存保存失败',icon:'none'});}
@@ -123,15 +138,15 @@ async function createTeam() {
   if(entering||team.value)return;
   const original=snapshot();entering=true;
   try{
-    if(creationOwner!==original.owner||!creationRequest){creationOwner=original.owner;creationRequest=`team-${Date.now()}-${Math.random().toString(36).slice(2)}`;}
+    const creationRequest=pendingCreation();
     const res=await callCloud<{teamId:string;inviteCode:string;requestExpired?:boolean}>('team-create',{name:'徒步小队',requestId:creationRequest});
     if(!current(original))return;
-    if(res.data?.requestExpired)creationRequest='';
+    if(res.code==='TEAM_REQUEST_EXPIRED')clearCreation(creationRequest);
     if(!res.ok||!res.data||typeof res.data.teamId!=='string'||!res.data.teamId||typeof res.data.inviteCode!=='string'||!/^\d{6}$/.test(res.data.inviteCode)){
       uni.showToast({title:res.errMsg||'创建返回资料无效，请刷新后重试',icon:'none'});return;
     }
     team.value={id:res.data.teamId,name:'徒步小队',inviteCode:res.data.inviteCode,createdBy:myOpenid.value,createdAt:Date.now(),active:true};
-    creationRequest='';rememberTeam();startPoll();
+    clearCreation(creationRequest);rememberTeam();startPoll();
   }catch{if(current(original))uni.showToast({title:'创建请求失败，请重试',icon:'none'});}
   finally{entering=false;}
 }

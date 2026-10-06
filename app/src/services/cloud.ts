@@ -10,7 +10,7 @@ import { accountApiConfigured, accountRequest, accountSession } from '@/services
 
 declare const wx: any;
 
-export type CloudResult<T> = { ok: boolean; data?: T; errMsg?: string };
+export type CloudResult<T> = { ok: boolean; data?: T; errMsg?: string; code?: string };
 
 let inited = false;
 
@@ -58,7 +58,7 @@ export async function callCloud<T = any>(name: string, data: Record<string, any>
     try {
       const res = await wx.cloud.callFunction({ name, data });
       if (res.result?.errMsg || res.result?.error || res.result?.ok === false) {
-        return { ok: false, errMsg: String(res.result.errMsg || res.result.error || "服务未完成本次操作") };
+        return { ok: false, errMsg: String(res.result.errMsg || res.result.error || "服务未完成本次操作"), code: res.result.code === "TEAM_REQUEST_EXPIRED" ? res.result.code : undefined };
       }
       return { ok: true, data: res.result as T };
     } catch (e: any) {

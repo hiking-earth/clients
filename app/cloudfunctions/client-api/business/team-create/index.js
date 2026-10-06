@@ -23,7 +23,7 @@ exports.main = async event => {
           const existingTeam=(await tx.collection('teams').doc(saved.teamId).get()).data;
           const savedMemberId=createHash('sha256').update(JSON.stringify([saved.teamId,OPENID])).digest('hex');
           const membership=(await tx.collection('team_members').doc(savedMemberId).get()).data;
-          reply=existingTeam?.active&&membership?{teamId:saved.teamId,inviteCode:existingTeam.inviteCode}:{errMsg:'原创建请求对应队伍已关闭或已退出',requestExpired:true};
+          reply=existingTeam?.active&&membership?{teamId:saved.teamId,inviteCode:existingTeam.inviteCode}:{errMsg:'原创建请求对应队伍已关闭或已退出',code:'TEAM_REQUEST_EXPIRED'};
           return;
         }
       }

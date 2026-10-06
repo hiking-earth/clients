@@ -205,7 +205,7 @@ exports.main = async event => {
     const data = request.data && typeof request.data === 'object' && !Array.isArray(request.data) ? request.data : {};
     const remote = String(event.requestContext?.identity?.sourceIp || event.requestContext?.sourceIp || 'unknown');
     const result = await dispatch(request.action, data, token, remote);
-    if (result?.errMsg || result?.ok === false) return response(400, { ok: false, errMsg: String(result.errMsg || '操作未完成') });
+    if (result?.errMsg || result?.ok === false) return response(400, { ok: false, errMsg: String(result.errMsg || '操作未完成'), code: result.code === 'TEAM_REQUEST_EXPIRED' ? result.code : undefined });
     return response(200, { ok: true, data: result });
   } catch (error) {
     // Never return headers, SDK exceptions or environment credentials.
