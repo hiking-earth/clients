@@ -15,7 +15,7 @@
    <button :disabled="busy" v-if="editing" @click="cancelEdit()">取消编辑</button>
   </view>
   <view v-if="tab==='messages'" class="card"><text class="title">队内消息</text><text>仅当前有效队伍成员可见。后台暂停轮询，返回后继续。</text><textarea :disabled="busy" v-model="body" maxlength="1000" placeholder="给队友发送消息" /><button :disabled="busy||!body.trim()" @click="send">发送</button></view>
-  <view v-if="tab==='diaries'" class="card"><text>已到访 {{ footprintCount }} 条路线（本页云日记手动标记）</text></view>
+  <view v-if="tab==='diaries'&&!publicFeed" class="card"><text>当前已加载的本人日记中，已到访 {{ footprintCount }} 条路线（手动标记）</text></view>
   <button :disabled="loading" @click="refresh">{{ loading?'加载中…':'刷新云端内容' }}</button>
   <text v-if="tab==='diaries'&&publicFeed" class="feed-note">这里只展示作者主动公开且审核通过的日记。</text>
   <view v-for="item in items" :key="item._id" class="card">
