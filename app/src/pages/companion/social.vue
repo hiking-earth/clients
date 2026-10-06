@@ -40,7 +40,7 @@ import {ROUTES} from '@/services/route-catalog';
 const modes=[{key:'diaries',name:'日记'},{key:'comments',name:'留言'},{key:'messages',name:'队聊'},{key:'notifications',name:'通知'},{key:'moderation',name:'审核'}];
 const statuses:Record<string,string>={private:'仅自己',pending:'待审核',approved:'已公开',rejected:'未通过'};
 const tab=ref('diaries'),publicFeed=ref(false),routeId=ref(''),keyword=ref(''),title=ref(''),body=ref(''),isPublic=ref(false),checkedIn=ref(false),editing=ref<any>(null);
-const items=ref<any[]>([]),error=ref(''),busy=ref(false),loading=ref(false),hasMore=ref(false);let newId=`note-${Date.now()}-${Math.random().toString(36).slice(2)}`,messageId=`msg-${Date.now()}-${Math.random().toString(36).slice(2)}`;let page=0,sequence=0,context=0,mutationSequence=0,timer:ReturnType<typeof setInterval>|undefined;
+const items=ref<any[]>([]),error=ref(''),busy=ref(false),loading=ref(false),hasMore=ref(false);let newId=`note-${Date.now()}-${Math.random().toString(36).slice(2)}`,messageId=`msg-${Date.now()}-${Math.random().toString(36).slice(2)}`;let page=0,sequence=0,context=0,mutationSequence=0,visible=false,timer:ReturnType<typeof setInterval>|undefined;
 const matching=computed(()=>ROUTES.filter(r=>`${r.name} ${r.region}`.toLowerCase().includes(keyword.value.toLowerCase())).slice(0,10));
 const footprintCount=computed(()=>new Set(items.value.filter(item=>item.mine&&item.checkedIn).map(item=>item.routeId)).size);
 function openAccount(){uni.navigateTo({url:'/pages/account/account'});}
@@ -51,7 +51,7 @@ function chooseRoute(id:string){if(busy.value)return;context++;routeId.value=id;
 function cancelEdit(force=false){if(busy.value&&!force)return;editing.value=null;title.value='';body.value='';isPublic.value=false;checkedIn.value=false;newId=`note-${Date.now()}-${Math.random().toString(36).slice(2)}`;}
 function selectTab(value:string){if(busy.value)return;context++;sequence++;items.value=[];hasMore.value=false;tab.value=value;cancelEdit();void refresh();startPolling();}
 function setDiaryFeed(value:boolean){if(publicFeed.value===value)return;publicFeed.value=value;context++;sequence++;page=0;items.value=[];hasMore.value=false;cancelEdit();void refresh();}
-function startPolling(){if(timer)clearInterval(timer);const interval=['messages','notifications'].includes(tab.value)?10000:30000;timer=setInterval(()=>{if(!loading.value&&!busy.value&&page===0)void load();},interval);}
+function startPolling(){visible=true;if(timer)clearInterval(timer);const interval=['messages','notifications'].includes(tab.value)?10000:30000;timer=setInterval(()=>{if(visible&&!loading.value&&!busy.value&&page===0)void load();},interval);}
 async function load(append=false){
  const token=++sequence,owner=identity(),sessionToken=accountSession()?.token,mode=tab.value;if(!owner){loading.value=false;hasMore.value=false;error.value='请先登录';items.value=[];return;}
  if(mode==='comments'&&!routeId.value){loading.value=false;hasMore.value=false;items.value=[];error.value='选择路线后查看留言';return;}
@@ -89,7 +89,7 @@ async function remove(item:any){const owner=identity(),originalContext=context;c
 async function send(){if(await mutate({action:'messages.send',teamId:teamId(),id:messageId,body:body.value})){body.value='';messageId=`msg-${Date.now()}-${Math.random().toString(36).slice(2)}`;await refresh();}}
 async function read(item:any){if(await mutate({action:'notifications.read',id:item._id}))await refresh();}
 async function decide(item:any,decision:string){if(await mutate({action:'moderation.decide',id:item._id,version:item.version,decision}))await refresh();}
-function stop(){context++;mutationSequence++;busy.value=false;if(timer)clearInterval(timer);timer=undefined;sequence++;loading.value=false;}
+function stop(){visible=false;context++;mutationSequence++;busy.value=false;if(timer)clearInterval(timer);timer=undefined;sequence++;loading.value=false;}
 const unsubscribe=onAccountChange(()=>{stop();items.value=[];hasMore.value=false;cancelEdit(true);error.value='账号已变化，请刷新内容';});
 onLoad(query=>{if(query?.routeId)routeId.value=query.routeId;if(query?.tab&&modes.some(m=>m.key===query.tab))tab.value=query.tab;});
 onShow(()=>{void refresh();startPolling();});onHide(stop);onUnload(()=>{stop();unsubscribe();});
