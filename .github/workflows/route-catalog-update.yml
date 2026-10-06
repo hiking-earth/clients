@@ -11,7 +11,7 @@ concurrency:
 jobs:
   collect:
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 55
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -48,7 +48,7 @@ jobs:
           echo "### Hiking catalog collection" >> "$GITHUB_STEP_SUMMARY"
           echo "USDA: $USDA_OUTCOME; OSM: $OSM_OUTCOME; Hong Kong AFCD: $HK_OUTCOME; official notices: $CONTENT_OUTCOME" >> "$GITHUB_STEP_SUMMARY"
           python - <<'PY'
-          import json, os
+          import datetime, hashlib, json, os
           from collections import Counter
           from pathlib import Path
           root = Path('shared/data')
@@ -58,15 +58,23 @@ jobs:
               ('Hong Kong AFCD', root/'catalog/hk-afcd.json', 'routes'),
               ('Official notices', root/'content/official-news.json', 'items'),
           ]
+          outcomes = dict(zip(('usfs','osm','hk','news'), (os.environ.get(key, 'unknown') for key in ('USDA_OUTCOME','OSM_OUTCOME','HK_OUTCOME','CONTENT_OUTCOME'))))
+          snapshots = {}
           rows = ['| Source snapshot | Records | Generated |', '|---|---:|---|']
           for label, path, key in sources:
-              data = json.loads(path.read_text())
+              raw = path.read_bytes()
+              data = json.loads(raw)
+              snapshots[label] = {'records': len(data.get(key, [])), 'generatedAt': data.get('generatedAt'), 'sha256': hashlib.sha256(raw).hexdigest()}
               rows.append(f"| {label} | {len(data.get(key, []))} | {data.get('generatedAt', 'unknown')} |")
           osm = json.loads((root/'catalog/osm.json').read_text())
           backfill = osm.get('backfill', {})
           regions = Counter(route.get('region', 'unknown') for route in osm.get('routes', []))
           rows.append('| OSM records by region | ' + '; '.join(f'{name}: {count}' for name, count in sorted(regions.items())) + ' | source tags only |')
           rows.append(f"| OSM grid backfill | {backfill.get('completedTiles', 0)} complete / {backfill.get('pendingTiles', 0)} pending | cycle {backfill.get('cycle', 0)} |")
+          status = {'schemaVersion': 1, 'checkedAt': datetime.datetime.now(datetime.timezone.utc).isoformat(), 'runId': os.environ['GITHUB_RUN_ID'], 'sourceCommit': os.environ['GITHUB_SHA'], 'outcomes': outcomes, 'snapshots': snapshots, 'accessVerified': False}
+          status_path = Path('shared/public-catalog/collection-status.json')
+          status_path.parent.mkdir(parents=True, exist_ok=True)
+          status_path.write_text(json.dumps(status, ensure_ascii=False, indent=2) + '\n')
           with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as summary:
               summary.write('\n'.join(rows) + '\n')
           PY
