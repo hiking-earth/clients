@@ -22,7 +22,8 @@ def fetch(query, byte_limit=24 * 1024 * 1024):
         except Exception: consumed = 0
         raise FetchFailure(f'HTTP {exc.code}: {exc.reason}', consumed) from exc
     except Exception as exc:
-        raise FetchFailure(str(exc)) from exc
+        partial=getattr(exc,'partial',b'')
+        raise FetchFailure(str(exc),len(partial) if isinstance(partial,(bytes,bytearray)) else 0) from exc
     if len(raw) >= byte_limit:
         raise FetchFailure(f'Response reached byte budget ({byte_limit}); watermark retained', len(raw))
     try:
