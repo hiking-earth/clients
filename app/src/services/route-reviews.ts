@@ -11,7 +11,7 @@ function applyReviews(){
  // Restore the last source baseline first. A removed review must not leave an
  // earlier open status or licensed track attached to the route.
  for(const route of ROUTES){const base=originals.get(route.id);if(base)Object.assign(route,base);}
- for(const route of ROUTES){if(route.status==='开放中'&&route.openingExpiresAt===undefined){route.status='待核验';route.openingExpiresAt=0;}}
+ for(const route of ROUTES){if(route.status==='开放中'&&(!Number.isFinite(route.openingExpiresAt)||route.openingExpiresAt!<=Date.now())){route.status='待核验';route.openingExpiresAt=0;}}
  const byId=new Map(ROUTES.map(route=>[route.id,route]));
  for(const review of reviews){const route=byId.get(review.routeId);if(!route)continue;
   if(!originals.has(route.id))originals.set(route.id,{status:route.status,summary:route.summary,archive:route.archive,path:route.path,trackMode:route.trackMode,openingExpiresAt:route.openingExpiresAt});
