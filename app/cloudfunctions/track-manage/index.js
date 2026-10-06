@@ -1,19 +1,33 @@
 const cloud = require('wx-server-sdk');
+const crypto = require('crypto');
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
-const db = cloud.database();
+const db = cloud.database({ throwOnNotFound: false });
 exports.main = async event => {
   const { OPENID } = cloud.getWXContext();
   if (!OPENID) return { errMsg: '请先登录' };
   if (event.action === 'list') {
     const page = Number.isInteger(event.page) && event.page >= 0 ? event.page : 0;
-    const result = await db.collection('tracks').where({ owner: OPENID }).orderBy('syncedAt', 'desc').skip(page * 20).limit(20).field({ trackId: true, name: true, distanceM: true, version: true, syncedAt: true }).get();
+    const result = await db.collection('tracks').where({ owner: OPENID, deleted: db.command.neq(true) }).orderBy('syncedAt', 'desc').skip(page * 20).limit(20).field({ trackId: true, name: true, distanceM: true, version: true, syncedAt: true }).get();
     return { tracks: result.data.map(t=>({trackId:t.trackId,name:t.name,distanceM:t.distanceM,version:t.version??0})), hasMore: result.data.length === 20 };
   }
   if (typeof event.trackId !== 'string' || !event.trackId || event.trackId.length > 128) return { errMsg: '轨迹无效' };
-  const query = db.collection('tracks').where({ owner: OPENID, trackId: event.trackId });
+  const query = db.collection('tracks').where({ owner: OPENID, trackId: event.trackId, deleted: db.command.neq(true) });
   if (event.action === 'delete') {
-    await query.remove();
-    return { deleted: true };
+    const expectedVersion=event.expectedVersion===undefined?0:event.expectedVersion;
+    if(!Number.isSafeInteger(expectedVersion)||expectedVersion<0)return {errMsg:'请刷新云端轨迹后再删除'};
+    const id=crypto.createHash('sha256').update(JSON.stringify([OPENID,event.trackId])).digest('hex');
+    return db.runTransaction(async tx=>{
+      const ref=tx.collection('tracks').doc(id),current=(await ref.get()).data;
+      if(!current||current.owner!==OPENID)return {errMsg:'云端轨迹已不存在，请刷新目录'};
+      if(current.version!==undefined&&(!Number.isSafeInteger(current.version)||current.version<0))return {errMsg:'云端轨迹版本无效，拒绝删除'};
+      const version=current.version??0;
+      if(current.deleted===true)return {deleted:true,version};
+      if(current.trackId!==event.trackId)return {errMsg:'云端轨迹已不存在，请刷新目录'};
+      if(version!==expectedVersion)return {errMsg:'云端轨迹已在其他设备更新，请刷新后再删除'};
+      const nextVersion=version+1,now=Date.now();
+      await ref.set({data:{owner:OPENID,deleted:true,version:nextVersion,deletedAt:now,syncedAt:now}});
+      return {deleted:true,version:nextVersion};
+    });
   }
   if (event.action === 'get') {
     const { data } = await query.orderBy('syncedAt', 'desc').limit(1).get();

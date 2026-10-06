@@ -36,7 +36,7 @@ export async function syncNow(force=false):Promise<void> {
       writeLibrary({favorites:remote.data.favorites,plans:remote.data.plans});setLibraryVersion(remote.data.version);
     }
     if(hasPrivacyConsent('trackCloudSync')) {
-      for(const track of listTracks().filter(t=>t.state==='finished'&&!t.synced&&!trackAutoSyncExcluded(t.id)).slice(0,10)){
+      for(const track of listTracks().filter(t=>t.state==='finished'&&!t.synced&&(!t.cloudOwner||t.cloudOwner===identity)&&!trackAutoSyncExcluded(t.id)).slice(0,10)){
         if(!allowed(identity)||!hasPrivacyConsent('trackCloudSync'))return;
         const uploaded=await uploadTrackToCloud(track);if(!uploaded.ok)throw new Error(uploaded.errMsg);
       }
@@ -53,6 +53,7 @@ export async function syncNow(force=false):Promise<void> {
         for(const item of listing.data.tracks){
           if(trackAutoSyncExcluded(item.trackId))continue;
           const baseline=getTrack(item.trackId);
+          if(baseline?.cloudOwner&&baseline.cloudOwner!==identity)throw new Error(`轨迹 ${item.trackId} 属于其他账号，请在当前账号手动恢复`);
           if(baseline&&!baseline.synced)throw new Error(`轨迹 ${item.trackId} 本机有未同步改动，请处理云端版本冲突`);
           if(baseline&&baseline.cloudVersion===item.version)continue;
           if(baseline&&baseline.cloudVersion!==undefined&&baseline.cloudVersion>item.version)
@@ -63,7 +64,7 @@ export async function syncNow(force=false):Promise<void> {
           if(!fetched.data.track||fetched.data.track.id!==item.trackId||fetched.data.track.state!=='finished'||fetched.data.track.synced!==true
             ||!Number.isSafeInteger(fetched.data.track.cloudVersion)||fetched.data.track.cloudVersion!==item.version)throw new Error('云端轨迹与请求不一致，本机资料未覆盖');
           if(JSON.stringify(getTrack(item.trackId))!==JSON.stringify(baseline))throw new Error('恢复期间本机轨迹已变化，本机资料未覆盖');
-          saveTrack(fetched.data.track);
+          saveTrack({...fetched.data.track,cloudOwner:identity});
         }
         if(listing.data.hasMore&&page>=100000)throw new Error('云端轨迹目录超过同步范围，请手动检查');
         page=listing.data.hasMore?page+1:0;

@@ -127,7 +127,13 @@ async function sync() {
   }
   const snapshot=track.value;syncing.value=true;uni.showLoading({title:"同步中"});
   try{
-    const result=await uploadTrackToCloud(snapshot);
+    const owner=String(uni.getStorageSync('he_openid')||'');
+    if(!owner){uni.showToast({title:'请先登录统一账号',icon:'none'});return;}
+    if(snapshot.cloudOwner&&snapshot.cloudOwner!==owner){
+      const accepted=await new Promise<boolean>(resolve=>uni.showModal({title:'转存其他账号的轨迹？',content:'此轨迹上次同步到其他账号。确认后会把本机轨迹复制到当前账号。',success:r=>resolve(r.confirm===true),fail:()=>resolve(false)}));
+      if(!accepted||owner!==String(uni.getStorageSync('he_openid')||''))return;
+    }
+    const result=await uploadTrackToCloud(snapshot,{restoreDeleted:true,transferAccount:true});
     if(result.ok){track.value=getTrack(snapshot.id);uni.showToast({title:"已同步",icon:"success"});}
     else uni.showToast({title:result.errMsg,icon:"none"});
   }finally{syncing.value=false;uni.hideLoading();}

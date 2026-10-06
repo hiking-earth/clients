@@ -1,6 +1,6 @@
 import { CLIENT_API_URL } from '@shared/constants';
 import { stopBackgroundRecording } from '@/services/background';
-import { listTracks, saveTrack } from '@/services/tracks';
+import { listTracks, saveTrack, setTrackAutoSyncExcluded } from '@/services/tracks';
 import { stopCompass, stopLocationUpdates } from '@/services/location';
 
 export type AccountProfile = { openid: string; nickname: string; username: string };
@@ -52,7 +52,10 @@ export function saveAccount(session: AccountSession): void {
     stopLocationUpdates(); stopCompass(); stopBackgroundRecording();
     uni.removeStorageSync('he_team');
     // A successful sync to another account is not a sync to this account.
-    listTracks().filter(track => track.synced || track.cloudVersion!==undefined).forEach(track => {const localOnly={...track,synced:false};delete localOnly.cloudVersion;saveTrack(localOnly);});
+    listTracks().filter(track => track.cloudOwner && track.cloudOwner!==session.openid).forEach(track => {
+      if(track.synced)saveTrack({...track,synced:false});
+      setTrackAutoSyncExcluded(track.id,true,session.openid);
+    });
   }
   uni.setStorageSync(SESSION_KEY, JSON.stringify(session));
   uni.setStorageSync('he_openid', session.openid);

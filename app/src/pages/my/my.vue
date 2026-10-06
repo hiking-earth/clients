@@ -108,19 +108,25 @@ async function syncAll() {
     });
     return;
   }
+  const owner=String(uni.getStorageSync('he_openid')||'');
+  if(!owner){uni.showModal({title:'请先登录',content:'登录统一账号后才能备份轨迹到云端。',showCancel:false});return;}
   const list = listTracks().filter((t) => !t.synced);
+  const transferCount=list.filter(t=>t.cloudOwner&&t.cloudOwner!==owner).length;
+  if(transferCount>0){
+    const accepted=await new Promise<boolean>(resolve=>uni.showModal({title:'转存其他账号的轨迹？',content:`有 ${transferCount} 条轨迹上次同步到其他账号。确认后会把本机轨迹复制到当前账号。`,success:r=>resolve(r.confirm===true),fail:()=>resolve(false)}));
+    if(!accepted||owner!==String(uni.getStorageSync('he_openid')||''))return;
+  }
   if (list.length === 0) {
     uni.showToast({ title: "没有待同步轨迹", icon: "none" });
     return;
   }
   syncingTracks=true;
   uni.showLoading({ title: "同步中" });
-  const owner=String(uni.getStorageSync("he_openid")||"");
   let okCount = 0,attempted=0,interrupted=false,cloudConflict=false;
   try { for (const t of list) {
     if(owner!==String(uni.getStorageSync("he_openid")||"")||!hasPrivacyConsent("trackCloudSync")){interrupted=true;break;}
     attempted++;
-    const result=await uploadTrackToCloud(t);if(result.ok)okCount++;else if(result.errMsg.includes('云端轨迹已在其他设备更新'))cloudConflict=true;
+    const result=await uploadTrackToCloud(t,{restoreDeleted:true,transferAccount:true});if(result.ok)okCount++;else if(result.errMsg.includes('云端轨迹已在其他设备更新'))cloudConflict=true;
     if(owner!==String(uni.getStorageSync("he_openid")||"")||!hasPrivacyConsent("trackCloudSync")){interrupted=true;break;}
   }} finally { syncingTracks=false;uni.hideLoading(); }
   unsynced.value = listTracks().filter((t) => !t.synced).length;

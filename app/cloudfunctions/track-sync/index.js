@@ -1,7 +1,7 @@
 // track-sync：轨迹云同步（用户手动触发；轨迹属敏感个人信息，仅本人可读）
 const cloud = require("wx-server-sdk");
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
-const db = cloud.database();
+const db = cloud.database({ throwOnNotFound: false });
 
 exports.main = async (event) => {
   const { OPENID } = cloud.getWXContext();
@@ -27,6 +27,7 @@ exports.main = async (event) => {
     if(current?.version!==undefined&&(!Number.isSafeInteger(current.version)||current.version<0))return {errMsg:'云端轨迹版本无效，拒绝覆盖'};
     const version=current?.version??0;
     if(version!==expectedVersion)return {errMsg:'云端轨迹已在其他设备更新，请先恢复最新云端副本'};
+    if(current?.deleted===true&&event.restoreDeleted!==true)return {errMsg:'云端轨迹已删除；请从本机手动发起重新备份'};
     const nextVersion=version+1;
     await ref.set({ data: {
       owner: OPENID, trackId: track.id, name: String(track.name ?? "").slice(0, 60),

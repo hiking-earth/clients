@@ -19,7 +19,7 @@ import { onAccountChange } from '@/services/account';
 import { callCloud } from '@/services/cloud';
 import { getTrack, saveTrack, setTrackAutoSyncExcluded } from '@/services/tracks';
 import type { TrackRecord } from '@shared/types/track';
-type Row = { trackId: string; name: string; distanceM: number };
+type Row = { trackId: string; name: string; distanceM: number; version:number };
 const rows = ref<Row[]>([]), busy = ref(false), error = ref(''), hasMore = ref(false);
 let page = 0;
 let visible=true;
@@ -42,7 +42,7 @@ async function load() {
     if(!Array.isArray(res.data.tracks)||res.data.tracks.length>20||typeof res.data.hasMore!=='boolean'
       ||(res.data.hasMore&&res.data.tracks.length!==20)
       ||!res.data.tracks.every(t=>t&&typeof t.trackId==='string'&&t.trackId.length>0&&t.trackId.length<=128
-        &&typeof t.name==='string'&&Number.isFinite(t.distanceM)&&t.distanceM>=0)
+        &&typeof t.name==='string'&&Number.isFinite(t.distanceM)&&t.distanceM>=0&&Number.isSafeInteger(t.version)&&t.version>=0)
       ||new Set(res.data.tracks.map(t=>t.trackId)).size!==res.data.tracks.length)throw new Error('云端轨迹目录格式无效');
     error.value = ''; page++; hasMore.value = res.data.hasMore;
     for (const t of res.data.tracks) if (!rows.value.some(r => r.trackId === t.trackId)) rows.value.push(t);
@@ -65,7 +65,7 @@ async function restore(id: string) {
     if(JSON.stringify(getTrack(id))!==baseline)throw new Error('本机轨迹已变化，请重新确认恢复');
     if(!res.data.track||res.data.track.id!==id||res.data.track.state!=='finished'||res.data.track.synced!==true
       ||!Number.isSafeInteger(res.data.track.cloudVersion)||res.data.track.cloudVersion<0)throw new Error('云端轨迹与请求不一致，本机资料未覆盖');
-    saveTrack(res.data.track);
+    saveTrack({...res.data.track,cloudOwner:owner});
     setTrackAutoSyncExcluded(id,false);
     uni.showToast({ title: '已恢复到本机', icon: 'success' });
   } catch (e) { if(visible&&owner===currentOwner())error.value = e instanceof Error ? e.message : '保存失败'; }
@@ -73,16 +73,17 @@ async function restore(id: string) {
 }
 async function remove(id: string) {
   const owner=currentOwner();
-  if (busy.value || !await confirm('删除云端轨迹？', '云端副本将永久删除，本机轨迹保留。')) return;
+  const row=rows.value.find(item=>item.trackId===id);if(!row)return;
+  if (busy.value || !await confirm('删除云端轨迹？', '云端轨迹点将删除；为防止旧设备恢复已删副本，服务器仅保留不含轨迹点的版本记录。本机轨迹保留。')) return;
   if(!visible||busy.value||owner!==currentOwner())return;
   busy.value = true;
   let removed=false;
   try {
-    const res = await callCloud<{deleted:boolean}>('track-manage', { action: 'delete', trackId: id });
+    const res = await callCloud<{deleted:boolean;version:number}>('track-manage', { action: 'delete', trackId: id, expectedVersion:row.version });
     if(!visible||owner!==currentOwner())return;
-    if (!res.ok || res.data?.deleted!==true) throw new Error(res.errMsg ?? '删除未确认，请刷新云端目录');
+    if (!res.ok || res.data?.deleted!==true || !Number.isSafeInteger(res.data.version) || res.data.version<1) throw new Error(res.errMsg ?? '删除未确认，请刷新云端目录');
     setTrackAutoSyncExcluded(id,true);
-    const local = getTrack(id); if (local) {const localOnly={...local,synced:false};delete localOnly.cloudVersion;saveTrack(localOnly);}
+    const local = getTrack(id); if (local) saveTrack({...local,synced:false,cloudOwner:owner,cloudVersion:res.data.version});
     removed=true;
   } catch(e) { if(visible&&owner===currentOwner())error.value=e instanceof Error?e.message:'删除失败'; }
   finally { busy.value=false;resumePendingReload(); }

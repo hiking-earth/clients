@@ -44,6 +44,8 @@ export type TrackRecord = {
   state: "recording" | "paused" | "finished";
   /** 是否已云同步 */
   synced: boolean;
+  /** 该云端版本所属的统一账号身份 */
+  cloudOwner?: string;
   /** 用户当前账号下云端轨迹的乐观并发版本 */
   cloudVersion?: number;
 };

@@ -39,33 +39,34 @@ export function deleteTrack(id: string): void {
 
 const trackUploads = new Set<string>();
 export type TrackUploadResult = { ok: true } | { ok: false; errMsg: string };
-export async function uploadTrackToCloud(track:TrackRecord):Promise<TrackUploadResult>{
+export async function uploadTrackToCloud(track:TrackRecord,options:{restoreDeleted?:boolean;transferAccount?:boolean}={}):Promise<TrackUploadResult>{
   if(!hasPrivacyConsent('trackCloudSync'))return {ok:false,errMsg:'未启用轨迹云备份授权'};
   if(track.state!=='finished'||!validRecord(track))return {ok:false,errMsg:'仅可同步格式有效的已完成轨迹'};
   if(trackUploads.has(track.id))return {ok:false,errMsg:'该轨迹正在同步'};
-  const expectedVersion=track.cloudVersion??0;
-  if(!Number.isSafeInteger(expectedVersion)||expectedVersion<0)return {ok:false,errMsg:'本机轨迹云端版本无效，请恢复云端副本'};
   const session=accountSession();
   const identity=session?.openid||String(uni.getStorageSync('he_openid')||'');
   const token=session?.token||'';
   if(!identity)return {ok:false,errMsg:'请先登录统一账号'};
+  if(track.cloudOwner&&track.cloudOwner!==identity&&!options.transferAccount)return {ok:false,errMsg:'该轨迹属于其他账号，请在确认转存后手动同步'};
+  const expectedVersion=track.cloudOwner&&track.cloudOwner!==identity?0:track.cloudVersion??0;
+  if(!Number.isSafeInteger(expectedVersion)||expectedVersion<0)return {ok:false,errMsg:'本机轨迹云端版本无效，请恢复云端副本'};
   if(JSON.stringify(getTrack(track.id))!==JSON.stringify(track))return {ok:false,errMsg:'本机轨迹已变化，请刷新后重试'};
   trackUploads.add(track.id);
   try{
-    const response=await callCloud<{synced:boolean;version:number}>('track-sync',{track,expectedVersion});
+    const response=await callCloud<{synced:boolean;version:number}>('track-sync',{track,expectedVersion,restoreDeleted:options.restoreDeleted===true});
     const latestSession=accountSession();
     const latestIdentity=latestSession?.openid||String(uni.getStorageSync('he_openid')||'');
     if(latestIdentity!==identity||(token&&latestSession?.token!==token)||!hasPrivacyConsent('trackCloudSync'))return {ok:false,errMsg:'账号或轨迹备份授权已变化，轨迹仍保留在本机'};
     if(!response.ok||response.data?.synced!==true||response.data.version!==expectedVersion+1)
       return {ok:false,errMsg:response.errMsg||'云端版本冲突或未确认；请从云端恢复最新副本后再同步'};
     if(JSON.stringify(getTrack(track.id))!==JSON.stringify(track))return {ok:false,errMsg:'同步期间本机轨迹已变化，云端回执未应用到本机'};
-    markSynced(track.id,response.data.version);return {ok:true};
+    markSynced(track.id,response.data.version,identity);return {ok:true};
   }catch{return {ok:false,errMsg:'云端未确认轨迹同步，轨迹仍保留待重试'};}finally{trackUploads.delete(track.id);}
 }
 
-export function markSynced(id: string, cloudVersion:number): void {
+export function markSynced(id: string, cloudVersion:number, cloudOwner:string): void {
   const t = getTrack(id);
-  if (t && Number.isSafeInteger(cloudVersion) && cloudVersion>=1) {saveTrack({ ...t, synced: true, cloudVersion });setTrackAutoSyncExcluded(id,false); }
+  if (t && Number.isSafeInteger(cloudVersion) && cloudVersion>=1 && typeof cloudOwner==='string' && cloudOwner.length>0) {saveTrack({ ...t, synced: true, cloudVersion, cloudOwner });setTrackAutoSyncExcluded(id,false); }
 }
 
 // 恢复时只恢复为暂停；不得在启动应用时自动取得定位权限。
@@ -95,6 +96,7 @@ function validRecord(t: any): t is TrackRecord {
     && (t.activeDurationMs === undefined || (Number.isFinite(t.activeDurationMs) && t.activeDurationMs >= 0))
     && ['recording', 'paused', 'finished'].includes(t.state) && typeof t.synced === 'boolean'
     && (t.cloudVersion===undefined || (Number.isSafeInteger(t.cloudVersion) && t.cloudVersion>=0))
+    && (t.cloudOwner===undefined || (typeof t.cloudOwner==='string' && t.cloudOwner.length>0 && t.cloudOwner.length<=128))
     && (t.routeId === undefined || typeof t.routeId === 'string')
     && t.points.every(validTrackPoint);
 }
@@ -105,8 +107,8 @@ export function trackAutoSyncExcluded(id:string):boolean {
   const items=uni.getStorageSync(`he_track_sync_excluded:${owner}`);
   return Array.isArray(items)&&items.includes(id);
 }
-export function setTrackAutoSyncExcluded(id:string,value:boolean):void {
-  const owner=String(uni.getStorageSync('he_openid')||'');
+export function setTrackAutoSyncExcluded(id:string,value:boolean,ownerOverride?:string):void {
+  const owner=ownerOverride??String(uni.getStorageSync('he_openid')||'');
   const key=`he_track_sync_excluded:${owner}`;const raw=uni.getStorageSync(key);
   const items=new Set<string>(Array.isArray(raw)?raw:[]);
   if(value)items.add(id);else items.delete(id);uni.setStorageSync(key,[...items]);
