@@ -46,7 +46,10 @@ def collect(source):
   title=' '.join((item.findtext('title') or '').split())[:300]
   link=(item.findtext('link') or '').strip();parsed=urllib.parse.urlparse(link)
   if not title or parsed.scheme!='https' or parsed.hostname not in source['articleHosts'] or parsed.username or parsed.password or parsed.port:continue
-  if link in seen:raise ValueError('duplicate official item URL')
+  # Feeds may repeat the same article in more than one item (for example,
+  # after changing categories). Keep the first valid occurrence instead of
+  # discarding the entire source snapshot.
+  if link in seen:continue
   seen.add(link)
   keywords=source.get('titleKeywords',[])
   if keywords and not any(word.casefold() in title.casefold() for word in keywords):continue
