@@ -20,9 +20,9 @@
    <text class="title">{{ item.title || item.nickname || '徒步记录' }}</text><text v-if="item.body">{{ item.body }}</text>
    <text v-if="item.status">{{ statuses[item.status] || item.status }} · 版本 {{ item.version }}</text>
    <text>{{ new Date(item.updatedAt || item.createdAt).toLocaleString() }}</text>
-   <view v-if="tab==='diaries'&&item.mine" class="row"><button :disabled="busy" @click="edit(item)">编辑</button><button @click="remove(item)">删除</button></view>
-   <button v-if="tab==='notifications'&&!item.read" @click="read(item)">标为已读</button>
-   <view v-if="tab==='moderation'" class="row"><button @click="decide(item,'approve')">通过</button><button @click="decide(item,'reject')">拒绝</button></view>
+   <view v-if="tab==='diaries'&&item.mine" class="row"><button :disabled="busy" @click="edit(item)">编辑</button><button :disabled="busy" @click="remove(item)">删除</button></view>
+   <button v-if="tab==='notifications'&&!item.read" :disabled="busy" @click="read(item)">标为已读</button>
+   <view v-if="tab==='moderation'" class="row"><button :disabled="busy" @click="decide(item,'approve')">通过</button><button :disabled="busy" @click="decide(item,'reject')">拒绝</button></view>
   </view>
   <text v-if="!items.length&&!loading">当前没有云端记录</text><button v-if="hasMore" :disabled="loading" @click="more">加载下一页</button>
  </scroll-view>
@@ -37,7 +37,7 @@ import {ROUTES} from '@/services/route-catalog';
 const modes=[{key:'diaries',name:'日记'},{key:'comments',name:'留言'},{key:'messages',name:'队聊'},{key:'notifications',name:'通知'},{key:'moderation',name:'审核'}];
 const statuses:Record<string,string>={private:'仅自己',pending:'待审核',approved:'已公开',rejected:'未通过'};
 const tab=ref('diaries'),routeId=ref(''),keyword=ref(''),title=ref(''),body=ref(''),isPublic=ref(false),checkedIn=ref(false),editing=ref<any>(null);
-const items=ref<any[]>([]),error=ref(''),busy=ref(false),loading=ref(false),hasMore=ref(false);let newId=`note-${Date.now()}-${Math.random().toString(36).slice(2)}`,messageId=`msg-${Date.now()}-${Math.random().toString(36).slice(2)}`;let page=0,sequence=0,context=0,timer:ReturnType<typeof setInterval>|undefined;
+const items=ref<any[]>([]),error=ref(''),busy=ref(false),loading=ref(false),hasMore=ref(false);let newId=`note-${Date.now()}-${Math.random().toString(36).slice(2)}`,messageId=`msg-${Date.now()}-${Math.random().toString(36).slice(2)}`;let page=0,sequence=0,context=0,mutationSequence=0,timer:ReturnType<typeof setInterval>|undefined;
 const matching=computed(()=>ROUTES.filter(r=>`${r.name} ${r.region}`.toLowerCase().includes(keyword.value.toLowerCase())).slice(0,10));
 const footprintCount=computed(()=>new Set(items.value.filter(item=>item.checkedIn).map(item=>item.routeId)).size);
 function openAccount(){uni.navigateTo({url:'/pages/account/account'});}
@@ -48,23 +48,43 @@ function chooseRoute(id:string){if(busy.value)return;context++;routeId.value=id;
 function cancelEdit(force=false){if(busy.value&&!force)return;editing.value=null;title.value='';body.value='';isPublic.value=false;checkedIn.value=false;newId=`note-${Date.now()}-${Math.random().toString(36).slice(2)}`;}
 function selectTab(value:string){if(busy.value)return;context++;sequence++;items.value=[];hasMore.value=false;tab.value=value;cancelEdit();void refresh();}
 async function load(append=false){
- const token=++sequence,owner=identity(),mode=tab.value;if(!owner){loading.value=false;hasMore.value=false;error.value='请先登录';items.value=[];return;}
+ const token=++sequence,owner=identity(),sessionToken=accountSession()?.token,mode=tab.value;if(!owner){loading.value=false;hasMore.value=false;error.value='请先登录';items.value=[];return;}
  if(mode==='comments'&&!routeId.value){loading.value=false;hasMore.value=false;items.value=[];error.value='选择路线后查看留言';return;}
  const action=mode==='moderation'?'moderation.list':`${mode}.list`;loading.value=true;error.value='';
  try{const result=await callCloud<{items:any[];hasMore:boolean}>('social-manage',{action,page,routeId:routeId.value,teamId:teamId()});
-  if(token!==sequence||owner!==identity())return;
+  if(token!==sequence||owner!==identity()||sessionToken!==accountSession()?.token)return;
   if(!result.ok||!result.data)throw new Error(result.errMsg||'加载失败');const rows=result.data.items;if(!Array.isArray(rows)||rows.length>(mode==='messages'?30:20)||typeof result.data.hasMore!=='boolean'||!rows.every(item=>item&&typeof item._id==='string'&&item._id.length>0)||new Set(rows.map(item=>item._id)).size!==rows.length)throw new Error('云端内容格式无效');items.value=append?[...items.value,...rows.filter(item=>!items.value.some(old=>old._id===item._id))]:rows;hasMore.value=result.data.hasMore;
  }catch(e:any){if(token===sequence){error.value=e.message;if(append)page=Math.max(0,page-1);}}finally{if(token===sequence)loading.value=false;}
 }
 function refresh(){page=0;return load();}function more(){if(loading.value)return;page++;void load(true);}
-async function mutate(data:Record<string,unknown>){if(busy.value)return false;const owner=identity(),originalContext=context;if(!owner){error.value='请先登录';return false;}busy.value=true;error.value='';try{const result=await callCloud('social-manage',data);if(owner!==identity()||originalContext!==context)return false;if(!result.ok)throw new Error(result.errMsg||'操作失败');return true;}catch(e:any){if(owner===identity()&&originalContext===context)error.value=e.message;return false;}finally{busy.value=false;}}
+function validReceipt(data:Record<string,unknown>,result:any){
+ if(!result||typeof result!=='object')return false;
+ switch(data.action){
+  case 'notifications.read':return result.updated===true;
+  case 'documents.remove':return result.deleted===true;
+  case 'messages.send':return result.sent===true;
+  case 'moderation.decide':return result.reviewed===true;
+  case 'diaries.save':case 'comments.create':return typeof result.id==='string'&&!!result.id&&result.version===Number(data.version)+1&&['pending','private'].includes(result.status);
+  default:return false;
+ }
+}
+async function mutate(data:Record<string,unknown>){
+ if(busy.value)return false;const owner=identity(),sessionToken=accountSession()?.token,originalContext=context,operation=++mutationSequence;
+ if(!owner){error.value='请先登录';return false;}
+ const current=()=>owner===identity()&&sessionToken===accountSession()?.token&&originalContext===context&&operation===mutationSequence;
+ busy.value=true;error.value='';
+ try{const result=await callCloud('social-manage',data);if(!current())return false;
+  if(!result.ok||!validReceipt(data,result.data))throw new Error(result.errMsg||'云端未确认操作，请刷新核对');return true;
+ }catch(e){if(current())error.value=e instanceof Error?e.message:'操作失败';return false;}finally{if(operation===mutationSequence)busy.value=false;}
+}
+
 async function save(){if(await mutate({action:tab.value==='diaries'?'diaries.save':'comments.create',id:editing.value?.clientId||newId,version:editing.value?.version||0,routeId:routeId.value,title:title.value,body:body.value,visibility:isPublic.value?'public':'private',checkedIn:checkedIn.value})){cancelEdit();await refresh();uni.showToast({title:tab.value==='comments'?'已提交审核':'已保存云端日记',icon:'none'});}}
 function edit(item:any){if(busy.value)return;context++;editing.value=item;title.value=item.title;body.value=item.body;routeId.value=item.routeId;isPublic.value=item.visibility==='public';checkedIn.value=item.checkedIn;}
 async function remove(item:any){const owner=identity(),originalContext=context;const result=await uni.showModal({title:'删除云端日记',content:'删除后其他设备也不再看到此记录，是否继续？'});if(result.confirm&&owner===identity()&&originalContext===context&&await mutate({action:'documents.remove',id:item._id}))await refresh();}
 async function send(){if(await mutate({action:'messages.send',teamId:teamId(),id:messageId,body:body.value})){body.value='';messageId=`msg-${Date.now()}-${Math.random().toString(36).slice(2)}`;await refresh();}}
 async function read(item:any){if(await mutate({action:'notifications.read',id:item._id}))await refresh();}
 async function decide(item:any,decision:string){if(await mutate({action:'moderation.decide',id:item._id,version:item.version,decision}))await refresh();}
-function stop(){context++;if(timer)clearInterval(timer);timer=undefined;sequence++;loading.value=false;}
+function stop(){context++;mutationSequence++;busy.value=false;if(timer)clearInterval(timer);timer=undefined;sequence++;loading.value=false;}
 const unsubscribe=onAccountChange(()=>{stop();items.value=[];hasMore.value=false;cancelEdit(true);error.value='账号已变化，请刷新内容';});
 onLoad(query=>{if(query?.routeId)routeId.value=query.routeId;if(query?.tab&&modes.some(m=>m.key===query.tab))tab.value=query.tab;});
 onShow(()=>{void refresh();timer=setInterval(()=>{if(['messages','notifications'].includes(tab.value)&&!loading.value&&page===0)void load();},10000);});onHide(stop);onUnload(()=>{stop();unsubscribe();});
