@@ -68,6 +68,35 @@ jobs:
               rows.append(f"| {label} | {len(data.get(key, []))} | {data.get('generatedAt', 'unknown')} |")
           osm = json.loads((root/'catalog/osm.json').read_text())
           backfill = osm.get('backfill', {})
+          membership = osm.get('backfillState', {})
+          usfs = json.loads((root/'catalog/usfs.json').read_text())
+          usfs_progress = usfs.get('backfill', {})
+          reconciliation = {
+              'osm': {
+                  'supported': membership.get('reconciliationVersion') == 1,
+                  'cycleStartedAt': membership.get('cycleStartedAt'),
+                  'lastCompletedAt': membership.get('lastCompletedAt'),
+                  'lastRemovedFromDiscovery': membership.get('lastRemovedFromDiscovery'),
+                  'pendingTiles': backfill.get('pendingTiles'),
+                  'currentCycleComplete': membership.get('reconciliationVersion') == 1 and backfill.get('pendingTiles') == 0,
+                  'lastAttemptSucceeded': outcomes['osm'] == 'success',
+              },
+              'usfs': {
+                  'supported': usfs_progress.get('reconciliationVersion') == 1,
+                  'cycleStartedAt': usfs_progress.get('cycleStartedAt'),
+                  'lastCompletedAt': usfs_progress.get('lastCompletedAt'),
+                  'lastRemovedFromDiscovery': usfs_progress.get('lastRemovedFromDiscovery'),
+                  'nextObjectId': usfs_progress.get('nextObjectId'),
+                  'currentCycleComplete': usfs_progress.get('reconciliationVersion') == 1 and usfs_progress.get('nextObjectId') is None and bool(usfs_progress.get('lastCompletedAt')),
+                  'lastAttemptSucceeded': outcomes['usfs'] == 'success',
+              },
+              'hk': {
+                  'mode': 'complete-source-replacement',
+                  'lastAttemptSucceeded': outcomes['hk'] == 'success',
+              },
+          }
+          for source, progress in reconciliation.items():
+              rows.append(f"| Membership reconciliation: {source} | last removed {progress.get('lastRemovedFromDiscovery', 'not recorded')} | complete {progress.get('currentCycleComplete', 'not applicable')}; attempt {outcomes[source]} |")
           regions = Counter(route.get('region', 'unknown') for route in osm.get('routes', []))
           rows.append('| OSM records by region | ' + '; '.join(f'{name}: {count}' for name, count in sorted(regions.items())) + ' | source tags only |')
           rows.append(f"| OSM grid backfill | {backfill.get('completedTiles', 0)} complete / {backfill.get('pendingTiles', 0)} pending | cycle {backfill.get('cycle', 0)} |")
@@ -81,7 +110,7 @@ jobs:
               health = 'failed' if state.get('lastError') else 'available' if state.get('lastSuccess') else 'pending'
               news_sources.append({'id': source['id'], 'status': health, 'records': news_counts[source['id']], 'lastCollectedCount': state.get('lastCollectedCount'), 'lastAttempt': state.get('lastAttempt'), 'lastSuccess': state.get('lastSuccess'), 'feedVerified': False})
               rows.append(f"| Official notices: {source['id']} | {news_counts[source['id']]} | {health}; last success {state.get('lastSuccess', 'none')} |")
-          status = {'schemaVersion': 1, 'checkedAt': datetime.datetime.now(datetime.timezone.utc).isoformat(), 'runId': os.environ['GITHUB_RUN_ID'], 'sourceCommit': os.environ['GITHUB_SHA'], 'outcomes': outcomes, 'newsSources': news_sources, 'snapshots': snapshots, 'accessVerified': False}
+          status = {'schemaVersion': 1, 'checkedAt': datetime.datetime.now(datetime.timezone.utc).isoformat(), 'runId': os.environ['GITHUB_RUN_ID'], 'sourceCommit': os.environ['GITHUB_SHA'], 'outcomes': outcomes, 'newsSources': news_sources, 'reconciliation': reconciliation, 'snapshots': snapshots, 'accessVerified': False}
           status_path = Path('shared/public-catalog/collection-status.json')
           status_path.parent.mkdir(parents=True, exist_ok=True)
           status_path.write_text(json.dumps(status, ensure_ascii=False, indent=2) + '\n')
