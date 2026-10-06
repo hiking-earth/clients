@@ -26,7 +26,7 @@ jobs:
         id: osm
         timeout-minutes: 25
         continue-on-error: true
-        run: python scripts/backfill-osm-catalog.py --tiles 8
+        run: python scripts/backfill-osm-catalog.py --tiles 24
       - name: Collect Hong Kong AFCD trails
         id: hk
         timeout-minutes: 5
