@@ -49,6 +49,8 @@ export function loadDraft(): TrackRecord | null {
     if (!raw) return null;
     const t = JSON.parse(raw);
     if (!validRecord(t)) return null;
+    // A completed local save takes precedence over a stale draft left by cleanup failure.
+    if (getTrack(t.id)?.state === "finished") return null;
     return { ...t, state: "paused", synced: false };
   } catch { return null; }
 }

@@ -211,18 +211,29 @@ function pause(store = true) {
   if (store) persist();
 }
 function finish() {
+  if (starting || state.value === 'idle') return;
   pause();
   if (points.value.length < 2) {
-    uni.showModal({ title: "轨迹点不足", content: "至少需要两个点。继续记录，或放弃本次记录。", confirmText: "继续记录", cancelText: "放弃", success: (r) => { if (!r.confirm) reset(); } });
+    const session = startedAt;
+    const epoch = generation;
+    uni.showModal({ title: "轨迹点不足", content: "至少需要两个点。继续记录，或放弃本次记录。", confirmText: "继续记录", cancelText: "放弃", success: (r) => {
+      if (r.confirm || disposed || generation !== epoch || startedAt !== session || state.value !== 'paused') return;
+      try { reset(); } catch { uni.showToast({ title: '草稿删除失败，记录已保留', icon: 'none' }); }
+    } });
     return;
   }
   try {
     saveTrack({ ...record("finished"), endedAt: Date.now() });
-    tracks.value = listTracks();
+  } catch {
+    uni.showToast({ title: "轨迹保存失败，当前记录仍保留", icon: "none" });
+    return;
+  }
+  tracks.value = listTracks();
+  try {
     reset();
     uni.showToast({ title: "轨迹已保存", icon: "success" });
   } catch {
-    uni.showToast({ title: "保存失败，草稿已保留", icon: "none" });
+    uni.showToast({ title: '轨迹已保存，草稿清理失败', icon: 'none' });
   }
 }
 function reset() {
