@@ -45,13 +45,13 @@ import { computed, ref } from "vue";
 import { onShow } from "@dcloudio/uni-app";
 import { ROUTES } from "@/services/route-catalog";
 import { isNavigable } from "@shared/types/route";
-import { listTracks } from "@/services/tracks";
+import { listCurrentOwnerTracks } from "@/services/tracks";
 import type { TrackRecord } from "@shared/types/track";
 
 const tracks = ref<TrackRecord[]>([]);
 
 onShow(() => {
-  tracks.value = listTracks().filter((t) => t.state === "finished" && t.points.length >= 2 && !t.points.slice(1).some(p => p.segmentStart));
+  tracks.value = listCurrentOwnerTracks().filter((t) => t.state === "finished" && t.points.length >= 2 && !t.points.slice(1).some(p => p.segmentStart));
 });
 
 const navigableRoutes = computed(() => ROUTES.filter(isNavigable));

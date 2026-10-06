@@ -31,24 +31,30 @@ import RouteMap from '@/components/RouteMap.vue';
 import { isDesktop, saveDesktopGpx } from '@/services/desktop';
 import { toMapPoint } from "@shared/api/coordinates";
 import { computed, ref } from "vue";
-import { onLoad,onShow } from "@dcloudio/uni-app";
+import { onLoad,onShow,onUnload } from "@dcloudio/uni-app";
 const offlineLayer = computed(()=>activeOfflineLayer());
 import { trackToGpx, type TrackRecord } from "@shared/types/track";
-import { deleteTrack, getTrack, uploadTrackToCloud, currentTrackOwner, trackNeedsManualBackup } from "@/services/tracks";
+import { deleteTrack, getCurrentOwnerTrack, uploadTrackToCloud, currentTrackOwner, trackNeedsManualBackup } from "@/services/tracks";
 import { hasPrivacyConsent } from "@/services/privacy";
+import { onAccountChange } from '@/services/account';
 
 declare const plus: any;
 declare const wx: any;
 const track = ref<TrackRecord | null>(null);
 const showSyncAction = computed(() => !!track.value && trackNeedsManualBackup(track.value));
 const trackId = ref('');
-onShow(()=>{void restoreOfflineLayers();if(trackId.value)track.value=getTrack(trackId.value);});
+function reloadOwnedTrack(){
+  if(!trackId.value)return;
+  track.value=getCurrentOwnerTrack(trackId.value);
+  if(!track.value){uni.showToast({title:'轨迹不存在或属于其他本机账号',icon:'none'});setTimeout(()=>uni.navigateBack(),600);}
+}
+onShow(()=>{void restoreOfflineLayers();reloadOwnedTrack();});
 
 onLoad((q) => {
   trackId.value = String(q?.id || '');
-  const t = getTrack(trackId.value);
+  const t = getCurrentOwnerTrack(trackId.value);
   if (!t) {
-    uni.showToast({ title: "轨迹不存在", icon: "none" });
+    uni.showToast({ title: "轨迹不存在或属于其他本机账号", icon: "none" });
     setTimeout(() => uni.navigateBack(), 1000);
     return;
   }
@@ -137,19 +143,22 @@ async function sync() {
       if(!accepted||owner!==currentTrackOwner())return;
     }
     const result=await uploadTrackToCloud(snapshot,{restoreDeleted:true,transferAccount:true});
-    if(result.ok){track.value=getTrack(snapshot.id);uni.showToast({title:"已同步",icon:"success"});}
+    if(result.ok){track.value=getCurrentOwnerTrack(snapshot.id);uni.showToast({title:"已同步",icon:"success"});}
     else uni.showToast({title:result.errMsg,icon:"none"});
   }finally{syncing.value=false;uni.hideLoading();}
 }
 
 function remove() {
+  const snapshot=track.value,owner=currentTrackOwner();if(!snapshot)return;
   uni.showModal({
     title: "删除该轨迹？",
     content: "删除本机轨迹后不可恢复；已上传的云端副本不会随之删除。",
     success: (r) => {
-      if (r.confirm) {
-        deleteTrack(track.value!.id);
+      if (r.confirm&&owner===currentTrackOwner()&&JSON.stringify(getCurrentOwnerTrack(snapshot.id))===JSON.stringify(snapshot)) {
+        deleteTrack(snapshot.id);
         uni.navigateBack();
+      } else if(r.confirm) {
+        uni.showToast({title:'账号或轨迹已变化，未删除；请刷新后重试',icon:'none'});
       }
     },
   });
@@ -159,6 +168,8 @@ function formatFull(ts: number): string {
   const d = new Date(ts);
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")} ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
 }
+const unsubscribeAccount=onAccountChange(reloadOwnedTrack);
+onUnload(unsubscribeAccount);
 </script>
 
 <style lang="scss" scoped>

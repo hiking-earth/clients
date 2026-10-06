@@ -54,8 +54,14 @@ function confirm(title: string, content: string) { return new Promise<boolean>(r
 async function restore(id: string) {
   if (busy.value) return;
   const owner=currentOwner();
-  const baseline=JSON.stringify(getTrack(id));
-  if (getTrack(id) && !await confirm('覆盖本机同名轨迹？', '本机已有相同 ID 的轨迹，恢复将用云端副本替换。')) return;
+  const local=getTrack(id),baseline=JSON.stringify(local);
+  if (local) {
+    const belongsElsewhere=local.localOwner!==owner;
+    const accepted=await confirm(belongsElsewhere?'覆盖其他账号本机轨迹？':'覆盖本机同名轨迹？',belongsElsewhere
+      ?'本机同ID轨迹属于其他账号或归属未确认。继续会用当前账号云端副本替换本机轨迹；原本机副本无法从此操作恢复。'
+      :'本机已有相同 ID 的轨迹，恢复将用云端副本替换。');
+    if(!accepted)return;
+  }
   if(!visible||busy.value||owner!==currentOwner())return;
   busy.value = true;
   try {
@@ -83,7 +89,7 @@ async function remove(id: string) {
     if(!visible||owner!==currentOwner())return;
     if (!res.ok || res.data?.deleted!==true || !Number.isSafeInteger(res.data.version) || res.data.version<1) throw new Error(res.errMsg ?? '删除未确认，请刷新云端目录');
     setTrackAutoSyncExcluded(id,true);
-    const local = getTrack(id); if (local) saveTrack({...local,synced:false,cloudOwner:owner,cloudVersion:res.data.version});
+    const local = getTrack(id); if (local&&(local.localOwner===owner||local.cloudOwner===owner)) saveTrack({...local,synced:false,cloudOwner:owner,cloudVersion:res.data.version});
     removed=true;
   } catch(e) { if(visible&&owner===currentOwner())error.value=e instanceof Error?e.message:'删除失败'; }
   finally { busy.value=false;resumePendingReload(); }

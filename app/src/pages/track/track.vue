@@ -24,6 +24,8 @@
     </view>
 
     <button @click="openImport">导入 GPX</button>
+    <view v-if="state==='idle'&&unassignedDraft" class="privacy-note"><text>发现一条匿名或未记录账号归属的旧轨迹草稿，默认隐藏。</text><button @click="claimLegacyDraft">确认归属后恢复草稿</button></view>
+    <text v-if="hiddenTrackCount" class="privacy-note">另有 {{ hiddenTrackCount }} 条其他账号或未归属轨迹在本机隐藏。需要转存时请到“我的 → 云同步全部轨迹”逐步确认。</text>
     <!-- 历史轨迹 -->
     <scroll-view scroll-y class="list">
       <view class="group-title">我的轨迹（{{ tracks.length }}）</view>
@@ -50,7 +52,7 @@ import { haversineM } from "@shared/api/navigation-core";
 import type { TrackPoint, TrackRecord } from "@shared/types/track";
 import { startLocationUpdates, stopLocationUpdates } from "@/services/location";
 import { onPrivacyChange } from "@/services/privacy";
-import { listTracks, saveTrack, loadDraft, saveDraft, clearDraft, currentTrackOwner } from "@/services/tracks";
+import { listTracks, listCurrentOwnerTracks, saveTrack, loadDraft, saveDraft, clearDraft, currentTrackOwner, currentLocalTrackOwner, hasUnassignedDraft, claimUnassignedDraft } from "@/services/tracks";
 
 const state = ref<"idle" | "recording" | "paused">("idle");
 const points = ref<TrackPoint[]>([]);
@@ -61,6 +63,7 @@ const elapsedText = ref("0:00");
 const speedText = ref("0.0");
 const tracks = ref<TrackRecord[]>([]);
 const backgroundOn = ref(false);
+const hiddenTrackCount=ref(0),unassignedDraft=ref(false);
 let flushingBackground = false;
 
 let startedAt = 0;
@@ -74,9 +77,8 @@ let generation = 0;
 let timer: ReturnType<typeof setInterval> | null = null;
 let lastAlt: number | null = null;
 
-onShow(() => { tracks.value = listTracks(); if (backgroundRecording()) flushBackground(); });
-const draft = loadDraft();
-if (draft) {
+function refreshTrackList(){const all=listTracks();tracks.value=listCurrentOwnerTracks();hiddenTrackCount.value=all.length-tracks.value.length;unassignedDraft.value=hasUnassignedDraft();}
+function applyDraft(draft:TrackRecord){
   points.value = draft.points;
   distanceM.value = draft.distanceM;
   ascentM.value = draft.ascentM;
@@ -96,6 +98,18 @@ if (draft) {
   }
   updateElapsed();
 }
+function restoreDraftForCurrentOwner(){if(state.value!=='idle')return;const draft=loadDraft();if(draft)applyDraft(draft);unassignedDraft.value=hasUnassignedDraft();}
+function claimLegacyDraft(){
+  if(!unassignedDraft.value)return;
+  const owner=currentLocalTrackOwner();
+  uni.showModal({title:'恢复匿名/未归属草稿？',content:'这条旧草稿没有账号归属或只属于匿名本机使用，可能包含其他使用者的定位记录。只有确认它属于你时才继续；恢复只会绑定到当前本机账号，不会上传云端。',success:choice=>{
+    if(!choice.confirm||owner!==currentLocalTrackOwner())return;
+    if(!claimUnassignedDraft(owner)){uni.showToast({title:'草稿已变化，未恢复',icon:'none'});return;}
+    unassignedDraft.value=false;restoreDraftForCurrentOwner();
+  }});
+}
+restoreDraftForCurrentOwner();
+onShow(() => { refreshTrackList(); restoreDraftForCurrentOwner(); if (backgroundRecording()) flushBackground(); });
 function duration() { return activeMs + (resumedAt ? Date.now() - resumedAt : 0); }
 function updateElapsed() {
   const s = Math.floor(duration() / 1000);
@@ -233,7 +247,7 @@ function finish() {
     uni.showToast({ title: "轨迹保存失败，当前记录仍保留", icon: "none" });
     return;
   }
-  tracks.value = listTracks();
+  refreshTrackList();
   try {
     reset();
     uni.showToast({ title: "轨迹已保存", icon: "success" });
@@ -253,6 +267,12 @@ function reset() {
   lastAlt = null;
 }
 
+function hideDraftForOtherAccount(){
+  generation++;stopBackgroundRecording();backgroundOn.value=false;stopLocationUpdates(onPoint);
+  if(timer)clearInterval(timer);timer=null;state.value='idle';points.value=[];
+  distanceM.value=ascentM.value=descentM.value=0;startedAt=activeMs=resumedAt=0;recordOwner='';elapsedText.value='0:00';speedText.value='0.0';lastAlt=null;
+}
+
 function openImport() { uni.navigateTo({ url: "/pages/track/import" }); }
 
 function goDetail(id: string) {
@@ -264,7 +284,12 @@ function formatDate(ts: number): string {
   return `${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
 }
 
-const unsubscribeAccount = onAccountChange(() => { if (state.value === 'recording') pause(); });
+const unsubscribeAccount = onAccountChange(() => {
+  const savedOwner=recordOwner;
+  if(state.value==='recording')pause();
+  if(savedOwner&&savedOwner!==currentLocalTrackOwner())hideDraftForOtherAccount();
+  refreshTrackList();
+});
 onUnmounted(() => {
   disposed = true;
   generation++;
@@ -295,4 +320,5 @@ onUnmounted(() => {
 .card-meta { font-size: 22rpx; color: #8a97a5; }
 .synced { font-size: 20rpx; color: #b8f36b; }
 .empty { color: #5c6a78; font-size: 24rpx; text-align: center; padding: 48rpx 0; }
+.privacy-note { display:block; margin:16rpx 32rpx; padding:20rpx; border-radius:16rpx; background:#202b37; color:#ffd166; font-size:22rpx; line-height:1.6; }
 </style>

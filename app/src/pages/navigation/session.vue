@@ -75,9 +75,10 @@ import {
 } from "@shared/api/navigation-core";
 import { MAP } from "@shared/constants";
 import { startCompass, stopCompass, startLocationUpdates, stopLocationUpdates } from "@/services/location";
-import { getTrack } from "@/services/tracks";
+import { getCurrentOwnerTrack, currentTrackOwner } from "@/services/tracks";
 import { callCloud } from "@/services/cloud";
 import { onPrivacyChange } from "@/services/privacy";
+import { accountSession, onAccountChange } from "@/services/account";
 import type { TrackPoint } from "@shared/types/track";
 
 /* ---------- 数据源：路线 / 我的轨迹 / 会合队友 ---------- */
@@ -90,6 +91,7 @@ const memberName = ref("");
 const memberPos = ref<LatLng | null>(null);
 const teamId = ref("");
 let memberTimer: ReturnType<typeof setInterval> | null = null;
+let sourceTrackId='';
 
 onLoad((q) => {
   if (q?.mode === "member") {
@@ -111,7 +113,8 @@ onLoad((q) => {
       path.value = r.path.map(([longitude, latitude]) => ({ latitude, longitude }));
     }
   } else if (q?.trackId) {
-    const t = getTrack(q.trackId);
+    sourceTrackId=String(q.trackId);
+    const t = getCurrentOwnerTrack(sourceTrackId);
     if (t && !t.points.slice(1).some(p => p.segmentStart)) {
       navTitle.value = t.name;
       path.value = t.points.map((p) => ({ latitude: p.latitude, longitude: p.longitude }));
@@ -146,6 +149,10 @@ const heading = ref(0);
 const position = ref<TrackPoint | null>(null);
 const hasFix = computed(() => position.value !== null);
 const unsubscribePrivacy = onPrivacyChange(c => { if (!c.location) { position.value = null; finished.value = false; } });
+const unsubscribeAccount=onAccountChange(()=>{
+  position.value=null;memberPos.value=null;stopCompass(onHeading);stopLocationUpdates(onLocation);
+  if(sourceTrackId||memberMode.value){path.value=[];if(timer)clearInterval(timer);if(memberTimer)clearInterval(memberTimer);uni.navigateBack();}
+});
 const targetBearing = ref(0);
 const targetDistance = ref(0);
 const waypointIndex = ref(0);
@@ -276,6 +283,7 @@ async function triggerSos() {
     uni.showToast({ title: "暂无定位，无法上报", icon: "none" });
     return;
   }
+  const owner=currentTrackOwner(),token=accountSession()?.token;
   let savedTeamId = teamId.value;
   if (!savedTeamId) { try { savedTeamId = JSON.parse(uni.getStorageSync("he_team") || "null")?.id ?? ""; } catch {} }
   const confirmed = await new Promise<boolean>((resolve) => uni.showModal({
@@ -283,7 +291,7 @@ async function triggerSos() {
     content: savedTeamId ? "将当前位置保存到云端，并在队友打开组队页面时显示求助信号。没有短信或系统推送，不会联系救援机构；紧急情况请直接拨打当地求救电话。" : "将当前位置保存到云端求助记录。当前没有队伍，不会通知联系人或救援机构；紧急情况请直接拨打当地求救电话。",
     success: (result) => resolve(result.confirm === true), fail: () => resolve(false),
   }));
-  if (!confirmed) return;
+  if (!confirmed||owner!==currentTrackOwner()||token!==accountSession()?.token) return;
   const res = await callCloud("sos-trigger", {
     teamId: savedTeamId, latitude: p.latitude, longitude: p.longitude, message: `导航「${navTitle.value}」中触发`,
   });
@@ -304,6 +312,7 @@ function quit() {
 onUnmounted(() => {
   disposed = true;
   unsubscribePrivacy();
+  unsubscribeAccount();
   stopCompass(onHeading);
   stopLocationUpdates(onLocation);
   if (timer) clearInterval(timer);
