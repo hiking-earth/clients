@@ -42,68 +42,82 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { onShow } from '@dcloudio/uni-app';
-import { accountApiConfigured, accountRequest, accountSession, clearAccount, saveAccount, signOutAccount } from '@/services/account';
+import { onShow, onUnload } from '@dcloudio/uni-app';
+import { accountApiConfigured, accountRequest, accountSession, clearAccount, saveAccount, onAccountChange } from '@/services/account';
 import type { AccountSession, AccountProfile } from '@/services/account';
 const modes = [{ value: 'sign-in', label: '登录' }, { value: 'register', label: '注册' }, { value: 'recover', label: '恢复密码' }] as const;
 const mode = ref<string>('sign-in'), username = ref(''), nickname = ref(''), password = ref(''), code = ref(''), newPassword = ref('');
 const recoveryCode = ref(''), message = ref(''), busy = ref(false), session = ref<AccountSession | null>(null);
 const configured = accountApiConfigured();
-onShow(() => { session.value = accountSession(); nickname.value = session.value?.nickname || ''; });
+function refreshSession(){session.value=accountSession();nickname.value=session.value?.nickname||'';}
+const unsubscribeAccount=onAccountChange(()=>{refreshSession();recoveryCode.value='';password.value='';newPassword.value='';code.value='';});
+onShow(refreshSession);
+onUnload(unsubscribeAccount);
+function sameSession(expected:AccountSession|null){const current=accountSession();return current?.openid===expected?.openid&&current?.token===expected?.token;}
 async function submit() {
   if (busy.value) return;
+  const original=accountSession();
   busy.value = true; message.value = '';
   try {
     const result = await accountRequest<AccountSession & { recoveryCode?: string }>(`auth.${mode.value}`, {
       username: username.value.trim(), nickname: nickname.value, password: password.value, recoveryCode: code.value.trim(),
     });
+    if(!sameSession(original))return;
     if (!result.ok || !result.data) { message.value = result.errMsg || '操作未完成'; return; }
-    recoveryCode.value = result.data.recoveryCode || '';
+    const newRecoveryCode=result.data.recoveryCode || '';
     // Recovery codes are displayed separately, never persisted with the session.
     const { token, expiresAt, openid, nickname: displayName, username: accountName } = result.data;
     saveAccount({ token, expiresAt, openid, nickname: displayName, username: accountName });
-    session.value = accountSession(); nickname.value = displayName;
+    recoveryCode.value=newRecoveryCode;session.value = accountSession(); nickname.value = displayName;
     message.value = '已登录，可返回使用云端功能';
   } catch { message.value = '本机无法保存登录状态，请检查存储空间后重新登录'; }
   finally { busy.value = false; password.value = ''; code.value = ''; }
 }
 async function updateNickname() {
   if (!session.value || busy.value) return;
+  const original=accountSession();if(!original)return;
   busy.value = true;
   try {
     const result = await accountRequest<AccountProfile>('auth.nickname', { nickname: nickname.value });
-    if (result.ok && result.data) { saveAccount({ ...session.value, ...result.data }); session.value = accountSession(); message.value = '昵称已更新'; }
+    if(!sameSession(original))return;
+    if (result.ok && result.data) { if(result.data.openid!==original.openid)throw new Error('账号响应不一致');saveAccount({ ...original, ...result.data }); session.value = accountSession(); message.value = '昵称已更新'; }
     else message.value = result.errMsg || '更新未完成';
-  } catch { message.value = '本机保存失败'; } finally { busy.value = false; }
+  } catch { if(sameSession(original))message.value = '本机保存失败'; } finally { busy.value = false; }
 }
 async function updatePassword() {
   if (busy.value) return;
+  const original=accountSession();if(!original)return;
   busy.value = true;
   try {
     const result = await accountRequest<AccountSession>('auth.password', { password: password.value, newPassword: newPassword.value });
-    if (result.ok && result.data) { saveAccount(result.data); session.value = accountSession(); message.value = '密码已更新，其他设备需重新登录'; }
+    if(!sameSession(original))return;
+    if (result.ok && result.data) { if(result.data.openid!==original.openid)throw new Error('账号响应不一致');saveAccount(result.data); session.value = accountSession(); message.value = '密码已更新，其他设备需重新登录'; }
     else message.value = result.errMsg || '更新未完成';
-  } catch { message.value = '本机保存失败，请用新密码重新登录'; }
+  } catch { if(sameSession(original))message.value = '本机保存失败，请用新密码重新登录'; }
   finally { busy.value = false; password.value = ''; newPassword.value = ''; }
 }
 function logout(all: boolean) {
+  const original=accountSession();if(!original)return;
   uni.showModal({ title: all ? '退出所有设备' : '退出账号', content: '保留本机轨迹，停止位置共享。', success: async choice => {
-    if (!choice.confirm || busy.value) return;
+    if (!choice.confirm || busy.value || !sameSession(original)) return;
     busy.value = true;
     try {
-      const result = all ? await accountRequest('auth.sign-out-all') : await signOutAccount();
+      const result = await accountRequest(all?'auth.sign-out-all':'auth.sign-out');
+      if(!sameSession(original))return;
       if (result.ok) { clearAccount(); session.value = null; message.value = '已退出'; }
       else message.value = result.errMsg || '退出未完成，请联网重试';
     } finally { busy.value = false; }
   } });
 }
 function deleteAccount() {
+  const original=accountSession();if(!original)return;
   if (!password.value) { message.value = '请先填写当前密码'; return; }
   uni.showModal({ title: '永久注销账号', content: '云端数据无法恢复；清理期间账号不能使用业务功能。确认后开始删除。', success: async choice => {
-    if (!choice.confirm || busy.value) return;
+    if (!choice.confirm || busy.value || !sameSession(original)) return;
     busy.value = true;
     try {
       const result = await accountRequest<{ complete: boolean }>('auth.delete', { password: password.value });
+      if(!sameSession(original))return;
       if (!result.ok) { message.value = result.errMsg || '注销未完成，请保留登录状态重试'; return; }
       if (result.data?.complete) { clearAccount(); session.value = null; password.value = ''; message.value = '账号和云数据已注销'; }
       else message.value = '账号已进入注销，部分数据已清理。请再次点击“继续注销”完成剩余清理。';

@@ -35,8 +35,9 @@ export function clearAccount(): void {
   subscribers.forEach(callback => callback());
 }
 export function saveAccount(session: AccountSession): void {
-  if (!session || !/^[a-f0-9]{64}$/.test(session.token) || !session.openid
-    || !Number.isFinite(session.expiresAt)) throw new Error('登录响应无效');
+  if (!session || !/^[a-f0-9]{64}$/.test(session.token) || typeof session.openid!=='string' || !session.openid || session.openid.length>128
+    || typeof session.nickname!=='string' || session.nickname.length>24 || typeof session.username!=='string' || session.username.length>32
+    || !Number.isFinite(session.expiresAt) || session.expiresAt<=Date.now()) throw new Error('登录响应无效');
   const previous = String(uni.getStorageSync('he_openid') || '');
   if (previous !== session.openid) {
     stopLocationUpdates(); stopCompass(); stopBackgroundRecording();
