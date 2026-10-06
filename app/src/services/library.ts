@@ -9,7 +9,14 @@ const LEGACY_KEY = 'he_library_v1';
 const QUARANTINE_KEY = 'he_library_legacy_unassigned_v1';
 const scopedKey = (owner: string) => `he_library_v2:${owner ? encodeURIComponent(owner) : 'anonymous'}`;
 
-export function libraryOwner(): string { return accountSession()?.openid || ''; }
+export function libraryOwner(): string {
+  const session = accountSession();
+  if (session) return session.openid;
+  // The mini-program can authenticate directly with WeChat without a unified
+  // account session; preserve its own cloud-library identity as a separate bucket.
+  const saved = String(uni.getStorageSync('he_openid') || '');
+  return saved && saved !== 'local-mock-user' && !saved.startsWith('account:') ? saved : '';
+}
 
 function emptyLibrary(): Library { return { favorites: [], plans: [] }; }
 function parseLibrary(raw: unknown): Library | null {

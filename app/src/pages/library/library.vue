@@ -16,7 +16,7 @@
       <button size="mini" @click="removePlan(plan.id)">删除行程</button>
     </view>
     <view v-if="legacy" class="card"><text class="hint">发现旧版本未绑定账号的本机资料（{{ legacy.favorites.length }} 条收藏、{{ legacy.plans.length }} 个行程）。这些资料不会自动并入账号或上传。</text><button :disabled="busy" @click="confirmLegacyImport">合并到当前本机资料</button></view>
-    <text class="heading">云端资料</text><button :disabled="busy || !owner" @click="push">保存收藏与行程到当前账号</button><button :disabled="busy || !owner" @click="pull">恢复当前账号的收藏与行程</button><text v-if="!owner" class="hint">登录统一账号后可使用云端资料。</text><text class="hint">{{ message }}</text>
+    <text class="heading">云端资料</text><button :disabled="busy || !owner" @click="push">保存收藏与行程到当前账号</button><button :disabled="busy || !owner" @click="pull">恢复当前账号的收藏与行程</button><text v-if="!owner" class="hint">登录后可使用云端资料。</text><text class="hint">{{ message }}</text>
   </scroll-view>
 </template>
 <script setup lang="ts">
