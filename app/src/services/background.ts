@@ -3,7 +3,7 @@ import type { TrackPoint } from '@shared/types/track';
 // #ifdef APP-PLUS
 import { startBackground, stopBackground, backgroundBuffer, acknowledgeBackground } from '@/uni_modules/hiking-background';
 // #endif
-let running = false;
+let running = false;let generation=0;
 export function backgroundSupported(): boolean {
   // #ifdef APP-PLUS
   return true;
@@ -15,12 +15,14 @@ export function backgroundSupported(): boolean {
 export function beginBackground(session: string, changed: () => void, error: (message: string) => void): boolean {
   if (!backgroundSupported() || !hasPrivacyConsent('location') || !hasPrivacyConsent('backgroundLocation')) return false;
   // #ifdef APP-PLUS
-  try { running = startBackground(session, changed, message => { running = false; error(message); }); }
+  const epoch=++generation;let failed=false;
+  try { const started=startBackground(session, ()=>{if(epoch===generation)changed();}, message => { if(epoch!==generation)return;failed=true;running = false; error(message); });running=epoch===generation&&started&&!failed; }
   catch { running = false; error('当前安装包未包含后台定位模块，请使用前台记录'); }
   // #endif
   return running;
 }
 export function stopBackgroundRecording(): void {
+  generation++;
   // #ifdef APP-PLUS
   try { stopBackground(); } catch {}
   // #endif

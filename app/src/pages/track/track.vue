@@ -165,8 +165,8 @@ async function begin() {
   if (starting || state.value === "recording") return;
   starting = true;
   const epoch = ++generation;
-  const ok = await startLocationUpdates(onPoint);
-  starting = false;
+  let ok=false;
+  try{ok=await startLocationUpdates(onPoint);}catch{uni.showToast({title:'定位启动失败，请重试',icon:'none'});}finally{starting=false;}
   if (disposed || epoch !== generation) { stopLocationUpdates(onPoint); return; }
   if (!ok) {
     uni.showToast({ title: "请启用隐私设置中的定位并授权", icon: "none" });
@@ -179,7 +179,7 @@ async function begin() {
   if (timer) clearInterval(timer);
   let ticks = 0;
   timer = setInterval(() => { updateElapsed(); if (++ticks % 5 === 0) persist(); }, 1000);
-  persist();
+  if(!persist())return;
   if (backgroundSupported() && hasPrivacyConsent('backgroundLocation')) {
     let startingNative = true;
     let failureMessage = '';
