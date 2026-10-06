@@ -31,6 +31,23 @@ def atomic_write(path, data):
 
 
 def prepare():
+    # Validate the pair before changing any public pointer or fallback file.
+    hk = json.loads((ROOT / 'shared/data/catalog/hk-afcd.json').read_bytes())
+    offline_bytes = (ROOT / 'shared/data/offline/hk-afcd.json').read_bytes()
+    offline = json.loads(offline_bytes)
+    expected_hash = hk.get('offlineSha256')
+    if expected_hash is not None and (expected_hash != hashlib.sha256(offline_bytes).hexdigest()
+                                    or offline.get('sourceGeneratedAt') != hk.get('generatedAt')):
+        raise ValueError('Hong Kong catalog/offline generation mismatch; publication stopped')
+    expected = {row['id']: row.get('referencePaths') for row in hk['routes']}
+    actual = {}
+    for feature in offline.get('geometry', {}).get('features', []):
+        identity = feature.get('properties', {}).get('sourceId')
+        if identity in actual:
+            raise ValueError('Duplicate Hong Kong offline source ID')
+        actual[identity] = feature.get('geometry', {}).get('coordinates')
+    if expected != actual:
+        raise ValueError('Hong Kong catalog/offline reference mismatch; publication stopped')
     for source, relative in SOURCES.items():
         raw = (ROOT / 'shared' / relative).read_bytes()
         data = json.loads(raw)
