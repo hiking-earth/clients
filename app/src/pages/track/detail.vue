@@ -127,10 +127,9 @@ async function sync() {
   }
   const snapshot=track.value;syncing.value=true;uni.showLoading({title:"同步中"});
   try{
-    if(await uploadTrackToCloud(snapshot)){
-      track.value=getTrack(snapshot.id);
-      uni.showToast({title:"已同步",icon:"success"});
-    }else uni.showToast({title:"云端未确认，轨迹仍保留在本机待同步",icon:"none"});
+    const result=await uploadTrackToCloud(snapshot);
+    if(result.ok){track.value=getTrack(snapshot.id);uni.showToast({title:"已同步",icon:"success"});}
+    else uni.showToast({title:result.errMsg,icon:"none"});
   }finally{syncing.value=false;uni.hideLoading();}
 }
 

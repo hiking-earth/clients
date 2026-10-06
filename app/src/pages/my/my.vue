@@ -116,15 +116,16 @@ async function syncAll() {
   syncingTracks=true;
   uni.showLoading({ title: "同步中" });
   const owner=String(uni.getStorageSync("he_openid")||"");
-  let okCount = 0,attempted=0,interrupted=false;
+  let okCount = 0,attempted=0,interrupted=false,cloudConflict=false;
   try { for (const t of list) {
     if(owner!==String(uni.getStorageSync("he_openid")||"")||!hasPrivacyConsent("trackCloudSync")){interrupted=true;break;}
     attempted++;
-    if(await uploadTrackToCloud(t))okCount++;
+    const result=await uploadTrackToCloud(t);if(result.ok)okCount++;else if(result.errMsg.includes('云端轨迹已在其他设备更新'))cloudConflict=true;
     if(owner!==String(uni.getStorageSync("he_openid")||"")||!hasPrivacyConsent("trackCloudSync")){interrupted=true;break;}
   }} finally { syncingTracks=false;uni.hideLoading(); }
   unsynced.value = listTracks().filter((t) => !t.synced).length;
-  uni.showToast({ title: interrupted?`已确认 ${okCount} 条；因账号或授权变化停止，${unsynced.value} 条仍待同步`:`已确认 ${okCount}/${attempted} 条；${unsynced.value} 条仍待同步`, icon: "none" });
+  const conflict=cloudConflict;
+  uni.showToast({ title: interrupted?`已确认 ${okCount} 条；因账号或授权变化停止，${unsynced.value} 条仍待同步`:conflict?`已确认 ${okCount}/${attempted} 条；存在云端新版本，请到云端轨迹恢复最新副本，${unsynced.value} 条仍待同步`:`已确认 ${okCount}/${attempted} 条；${unsynced.value} 条仍待同步`, icon: "none" });
 }
 
 function go(url: string) {

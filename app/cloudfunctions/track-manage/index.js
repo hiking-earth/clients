@@ -6,8 +6,8 @@ exports.main = async event => {
   if (!OPENID) return { errMsg: '请先登录' };
   if (event.action === 'list') {
     const page = Number.isInteger(event.page) && event.page >= 0 ? event.page : 0;
-    const result = await db.collection('tracks').where({ owner: OPENID }).orderBy('syncedAt', 'desc').skip(page * 20).limit(20).field({ trackId: true, name: true, distanceM: true, syncedAt: true }).get();
-    return { tracks: result.data, hasMore: result.data.length === 20 };
+    const result = await db.collection('tracks').where({ owner: OPENID }).orderBy('syncedAt', 'desc').skip(page * 20).limit(20).field({ trackId: true, name: true, distanceM: true, version: true, syncedAt: true }).get();
+    return { tracks: result.data.map(t=>({trackId:t.trackId,name:t.name,distanceM:t.distanceM,version:t.version??0})), hasMore: result.data.length === 20 };
   }
   if (typeof event.trackId !== 'string' || !event.trackId || event.trackId.length > 128) return { errMsg: '轨迹无效' };
   const query = db.collection('tracks').where({ owner: OPENID, trackId: event.trackId });
@@ -19,8 +19,9 @@ exports.main = async event => {
     const { data } = await query.orderBy('syncedAt', 'desc').limit(1).get();
     if (!data.length) return { errMsg: '云端轨迹不存在' };
     const t = data[0];
+    if(t.version!==undefined&&(!Number.isSafeInteger(t.version)||t.version<0))return {errMsg:'云端轨迹版本无效，无法安全恢复'};
     return { track: { id: t.trackId, name: t.name, routeId: t.routeId, points: t.points, distanceM: t.distanceM, ascentM: t.ascentM,
-      descentM: t.descentM ?? 0, activeDurationMs: t.activeDurationMs, startedAt: t.startedAt, endedAt: t.endedAt, state: 'finished', synced: true } };
+      descentM: t.descentM ?? 0, activeDurationMs: t.activeDurationMs, startedAt: t.startedAt, endedAt: t.endedAt, state: 'finished', synced: true, cloudVersion: t.version??0 } };
   }
   return { errMsg: '操作无效' };
 };

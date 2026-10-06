@@ -63,7 +63,8 @@ async function restore(id: string) {
     if (!res.ok || !res.data) throw new Error(res.errMsg ?? '恢复失败');
     if(!visible||owner!==currentOwner())return;
     if(JSON.stringify(getTrack(id))!==baseline)throw new Error('本机轨迹已变化，请重新确认恢复');
-    if(!res.data.track||res.data.track.id!==id||res.data.track.state!=='finished'||res.data.track.synced!==true)throw new Error('云端轨迹与请求不一致，本机资料未覆盖');
+    if(!res.data.track||res.data.track.id!==id||res.data.track.state!=='finished'||res.data.track.synced!==true
+      ||!Number.isSafeInteger(res.data.track.cloudVersion)||res.data.track.cloudVersion<0)throw new Error('云端轨迹与请求不一致，本机资料未覆盖');
     saveTrack(res.data.track);
     setTrackAutoSyncExcluded(id,false);
     uni.showToast({ title: '已恢复到本机', icon: 'success' });
@@ -81,7 +82,7 @@ async function remove(id: string) {
     if(!visible||owner!==currentOwner())return;
     if (!res.ok || res.data?.deleted!==true) throw new Error(res.errMsg ?? '删除未确认，请刷新云端目录');
     setTrackAutoSyncExcluded(id,true);
-    const local = getTrack(id); if (local) saveTrack({ ...local, synced: false });
+    const local = getTrack(id); if (local) {const localOnly={...local,synced:false};delete localOnly.cloudVersion;saveTrack(localOnly);}
     removed=true;
   } catch(e) { if(visible&&owner===currentOwner())error.value=e instanceof Error?e.message:'删除失败'; }
   finally { busy.value=false;resumePendingReload(); }

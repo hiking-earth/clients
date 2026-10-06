@@ -38,26 +38,32 @@ export async function syncNow(force=false):Promise<void> {
     if(hasPrivacyConsent('trackCloudSync')) {
       for(const track of listTracks().filter(t=>t.state==='finished'&&!t.synced&&!trackAutoSyncExcluded(t.id)).slice(0,10)){
         if(!allowed(identity)||!hasPrivacyConsent('trackCloudSync'))return;
-        if(!allowed(identity)||!hasPrivacyConsent('trackCloudSync'))return;
-        if(!await uploadTrackToCloud(track))throw new Error('云端未确认轨迹同步，轨迹保留待重试');
+        const uploaded=await uploadTrackToCloud(track);if(!uploaded.ok)throw new Error(uploaded.errMsg);
       }
       const savedPage=Number(uni.getStorageSync(`he_auto_sync_page:${identity}`)||0);
       let page=Number.isSafeInteger(savedPage)&&savedPage>=0&&savedPage<=100000?savedPage:0;
       for(let batch=0;batch<5;batch++){
-        const listing=await callCloud<{tracks:{trackId:string}[];hasMore:boolean}>('track-manage',{action:'list',page});
+        const listing=await callCloud<{tracks:{trackId:string;version:number}[];hasMore:boolean}>('track-manage',{action:'list',page});
         if(!allowed(identity)||!hasPrivacyConsent('trackCloudSync'))return;
         if(!listing.ok || !listing.data)throw new Error(listing.errMsg || '读取云轨迹失败');
         if(!Array.isArray(listing.data.tracks)||listing.data.tracks.length>20||typeof listing.data.hasMore!=='boolean'
           ||(listing.data.hasMore&&listing.data.tracks.length!==20)
-          ||!listing.data.tracks.every(item=>item&&typeof item.trackId==='string'&&item.trackId.length>0&&item.trackId.length<=128)
+          ||!listing.data.tracks.every(item=>item&&typeof item.trackId==='string'&&item.trackId.length>0&&item.trackId.length<=128&&Number.isSafeInteger(item.version)&&item.version>=0)
           ||new Set(listing.data.tracks.map(item=>item.trackId)).size!==listing.data.tracks.length)throw new Error('云端轨迹目录格式无效');
         for(const item of listing.data.tracks){
-          if(getTrack(item.trackId)||trackAutoSyncExcluded(item.trackId))continue;
+          if(trackAutoSyncExcluded(item.trackId))continue;
+          const baseline=getTrack(item.trackId);
+          if(baseline&&!baseline.synced)throw new Error(`轨迹 ${item.trackId} 本机有未同步改动，请处理云端版本冲突`);
+          if(baseline&&baseline.cloudVersion===item.version)continue;
+          if(baseline&&baseline.cloudVersion!==undefined&&baseline.cloudVersion>item.version)
+            throw new Error(`轨迹 ${item.trackId} 云端版本回退，未覆盖本机资料`);
           const fetched=await callCloud<{track:TrackRecord}>('track-manage',{action:'get',trackId:item.trackId});
           if(!allowed(identity)||!hasPrivacyConsent('trackCloudSync'))return;
           if(!fetched.ok||!fetched.data)throw new Error(fetched.errMsg || '恢复轨迹失败');
-          if(!fetched.data.track||fetched.data.track.id!==item.trackId||fetched.data.track.state!=='finished'||fetched.data.track.synced!==true)throw new Error('云端轨迹与请求不一致，本机资料未覆盖');
-          if(!getTrack(item.trackId))saveTrack(fetched.data.track);
+          if(!fetched.data.track||fetched.data.track.id!==item.trackId||fetched.data.track.state!=='finished'||fetched.data.track.synced!==true
+            ||!Number.isSafeInteger(fetched.data.track.cloudVersion)||fetched.data.track.cloudVersion!==item.version)throw new Error('云端轨迹与请求不一致，本机资料未覆盖');
+          if(JSON.stringify(getTrack(item.trackId))!==JSON.stringify(baseline))throw new Error('恢复期间本机轨迹已变化，本机资料未覆盖');
+          saveTrack(fetched.data.track);
         }
         if(listing.data.hasMore&&page>=100000)throw new Error('云端轨迹目录超过同步范围，请手动检查');
         page=listing.data.hasMore?page+1:0;

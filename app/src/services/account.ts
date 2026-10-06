@@ -52,7 +52,7 @@ export function saveAccount(session: AccountSession): void {
     stopLocationUpdates(); stopCompass(); stopBackgroundRecording();
     uni.removeStorageSync('he_team');
     // A successful sync to another account is not a sync to this account.
-    listTracks().filter(track => track.synced).forEach(track => saveTrack({ ...track, synced: false }));
+    listTracks().filter(track => track.synced || track.cloudVersion!==undefined).forEach(track => {const localOnly={...track,synced:false};delete localOnly.cloudVersion;saveTrack(localOnly);});
   }
   uni.setStorageSync(SESSION_KEY, JSON.stringify(session));
   uni.setStorageSync('he_openid', session.openid);

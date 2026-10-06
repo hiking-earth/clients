@@ -38,26 +38,34 @@ export function deleteTrack(id: string): void {
 }
 
 const trackUploads = new Set<string>();
-export async function uploadTrackToCloud(track:TrackRecord):Promise<boolean>{
-  if(!hasPrivacyConsent('trackCloudSync')||track.state!=='finished'||!validRecord(track)||trackUploads.has(track.id))return false;
+export type TrackUploadResult = { ok: true } | { ok: false; errMsg: string };
+export async function uploadTrackToCloud(track:TrackRecord):Promise<TrackUploadResult>{
+  if(!hasPrivacyConsent('trackCloudSync'))return {ok:false,errMsg:'未启用轨迹云备份授权'};
+  if(track.state!=='finished'||!validRecord(track))return {ok:false,errMsg:'仅可同步格式有效的已完成轨迹'};
+  if(trackUploads.has(track.id))return {ok:false,errMsg:'该轨迹正在同步'};
+  const expectedVersion=track.cloudVersion??0;
+  if(!Number.isSafeInteger(expectedVersion)||expectedVersion<0)return {ok:false,errMsg:'本机轨迹云端版本无效，请恢复云端副本'};
   const session=accountSession();
   const identity=session?.openid||String(uni.getStorageSync('he_openid')||'');
   const token=session?.token||'';
-  if(!identity||JSON.stringify(getTrack(track.id))!==JSON.stringify(track))return false;
+  if(!identity)return {ok:false,errMsg:'请先登录统一账号'};
+  if(JSON.stringify(getTrack(track.id))!==JSON.stringify(track))return {ok:false,errMsg:'本机轨迹已变化，请刷新后重试'};
   trackUploads.add(track.id);
   try{
-    const response=await callCloud<{synced:boolean}>('track-sync',{track});
+    const response=await callCloud<{synced:boolean;version:number}>('track-sync',{track,expectedVersion});
     const latestSession=accountSession();
     const latestIdentity=latestSession?.openid||String(uni.getStorageSync('he_openid')||'');
-    if(latestIdentity!==identity||(token&&latestSession?.token!==token)||!hasPrivacyConsent('trackCloudSync'))return false;
-    if(!response.ok||response.data?.synced!==true||JSON.stringify(getTrack(track.id))!==JSON.stringify(track))return false;
-    markSynced(track.id);return true;
-  }catch{return false;}finally{trackUploads.delete(track.id);}
+    if(latestIdentity!==identity||(token&&latestSession?.token!==token)||!hasPrivacyConsent('trackCloudSync'))return {ok:false,errMsg:'账号或轨迹备份授权已变化，轨迹仍保留在本机'};
+    if(!response.ok||response.data?.synced!==true||response.data.version!==expectedVersion+1)
+      return {ok:false,errMsg:response.errMsg||'云端版本冲突或未确认；请从云端恢复最新副本后再同步'};
+    if(JSON.stringify(getTrack(track.id))!==JSON.stringify(track))return {ok:false,errMsg:'同步期间本机轨迹已变化，云端回执未应用到本机'};
+    markSynced(track.id,response.data.version);return {ok:true};
+  }catch{return {ok:false,errMsg:'云端未确认轨迹同步，轨迹仍保留待重试'};}finally{trackUploads.delete(track.id);}
 }
 
-export function markSynced(id: string): void {
+export function markSynced(id: string, cloudVersion:number): void {
   const t = getTrack(id);
-  if (t) {saveTrack({ ...t, synced: true });setTrackAutoSyncExcluded(id,false); }
+  if (t && Number.isSafeInteger(cloudVersion) && cloudVersion>=1) {saveTrack({ ...t, synced: true, cloudVersion });setTrackAutoSyncExcluded(id,false); }
 }
 
 // 恢复时只恢复为暂停；不得在启动应用时自动取得定位权限。
@@ -86,6 +94,7 @@ function validRecord(t: any): t is TrackRecord {
     && [t.distanceM, t.ascentM, t.descentM].every(value => Number.isFinite(value) && value >= 0)
     && (t.activeDurationMs === undefined || (Number.isFinite(t.activeDurationMs) && t.activeDurationMs >= 0))
     && ['recording', 'paused', 'finished'].includes(t.state) && typeof t.synced === 'boolean'
+    && (t.cloudVersion===undefined || (Number.isSafeInteger(t.cloudVersion) && t.cloudVersion>=0))
     && (t.routeId === undefined || typeof t.routeId === 'string')
     && t.points.every(validTrackPoint);
 }

@@ -44,6 +44,8 @@ export type TrackRecord = {
   state: "recording" | "paused" | "finished";
   /** 是否已云同步 */
   synced: boolean;
+  /** 用户当前账号下云端轨迹的乐观并发版本 */
+  cloudVersion?: number;
 };
 
 /** GPX 导出的最小单元，保持与 TrackPoint 一对一 */
