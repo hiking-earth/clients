@@ -33,7 +33,6 @@ import { toMapPoint } from "@shared/api/coordinates";
 import { computed, ref } from "vue";
 import { onLoad,onShow } from "@dcloudio/uni-app";
 const offlineLayer = computed(()=>activeOfflineLayer());
-onShow(()=>{void restoreOfflineLayers();});
 import { trackToGpx, type TrackRecord } from "@shared/types/track";
 import { deleteTrack, getTrack, uploadTrackToCloud, currentTrackOwner, trackNeedsManualBackup } from "@/services/tracks";
 import { hasPrivacyConsent } from "@/services/privacy";
@@ -42,9 +41,12 @@ declare const plus: any;
 declare const wx: any;
 const track = ref<TrackRecord | null>(null);
 const showSyncAction = computed(() => !!track.value && trackNeedsManualBackup(track.value));
+const trackId = ref('');
+onShow(()=>{void restoreOfflineLayers();if(trackId.value)track.value=getTrack(trackId.value);});
 
 onLoad((q) => {
-  const t = getTrack(q?.id as string);
+  trackId.value = String(q?.id || '');
+  const t = getTrack(trackId.value);
   if (!t) {
     uni.showToast({ title: "轨迹不存在", icon: "none" });
     setTimeout(() => uni.navigateBack(), 1000);
