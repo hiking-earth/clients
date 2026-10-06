@@ -25,13 +25,15 @@ object HikingBackground {
         if (old.optString("session") != session && (old.optJSONArray("points")?.length() ?: 0) > 0) {
             error("还有未恢复的后台轨迹，请先恢复草稿"); return false
         }
-        if (old.optString("session") != session) prefs(context).edit().putString("buffer", JSONObject().put("session", session).put("points", JSONArray()).toString()).commit()
+        if (old.optString("session") != session && !prefs(context).edit().putString("buffer", JSONObject().put("session", session).put("points", JSONArray()).toString()).commit()) {
+            error("无法创建后台轨迹缓存，记录未启动"); return false
+        }
         this.changed = changed; this.error = error
         try {
             val intent = Intent(context, HikingLocationService::class.java)
             if (Build.VERSION.SDK_INT >= 26) context.startForegroundService(intent) else context.startService(intent)
             return true
-        } catch (_: Exception) { error("系统未允许后台定位服务，请保持应用在前台"); return false }
+        } catch (_: Exception) { this.changed = null; this.error = null; error("系统未允许后台定位服务，请保持应用在前台"); return false }
     }
     fun stop(context: Context) { HikingLocationService.instance?.stopUpdates(); context.stopService(Intent(context, HikingLocationService::class.java)); changed = null; error = null }
     @Synchronized fun append(context: Context, location: Location) {

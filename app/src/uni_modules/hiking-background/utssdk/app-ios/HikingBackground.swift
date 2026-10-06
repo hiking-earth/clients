@@ -3,6 +3,7 @@ import CoreLocation
 public class HikingBackground: NSObject, CLLocationManagerDelegate {
     private static let shared = HikingBackground()
     private let manager = CLLocationManager()
+    private var accepting = false
     private var changed: (() -> Void)?
     private var failed: ((String) -> Void)?
     private let key = "hiking_background_buffer"
@@ -35,9 +36,11 @@ public class HikingBackground: NSObject, CLLocationManagerDelegate {
         selfRef.manager.pausesLocationUpdatesAutomatically = false
         selfRef.manager.allowsBackgroundLocationUpdates = true
         selfRef.manager.showsBackgroundLocationIndicator = true
+        selfRef.accepting = true
         selfRef.manager.startUpdatingLocation(); return true
     }
     public static func stop() {
+        shared.accepting = false
         shared.manager.stopUpdatingLocation(); shared.manager.allowsBackgroundLocationUpdates = false
         shared.changed = nil; shared.failed = nil
     }
@@ -51,19 +54,28 @@ public class HikingBackground: NSObject, CLLocationManagerDelegate {
         value["points"] = points; _ = shared.store(value)
     }
     public func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        guard accepting else { return }
         var value = data(); var points = value["points"] as? [[String: Any]] ?? []
         for location in locations where location.horizontalAccuracy >= 0 {
-            if points.count >= 10000 { failed?("后台缓存已满，记录已停止，请返回应用保存轨迹"); HikingBackground.stop(); return }
+            if points.count >= 10000 {
+                value["points"] = points
+                let saved = store(value)
+                let callback = failed
+                HikingBackground.stop()
+                callback?(saved ? "后台缓存已满，记录已停止，请返回应用保存轨迹" : "后台轨迹缓存失败，记录已停止")
+                return
+            }
             var point: [String: Any] = ["latitude": location.coordinate.latitude, "longitude": location.coordinate.longitude, "timestamp": location.timestamp.timeIntervalSince1970 * 1000, "accuracy": location.horizontalAccuracy]
             if location.verticalAccuracy >= 0 { point["altitude"] = location.altitude }
             if location.speed >= 0 { point["speed"] = location.speed }
             points.append(point)
         }
         value["points"] = points
-        guard store(value) else { failed?("后台轨迹缓存失败，记录已停止"); HikingBackground.stop(); return }
+        guard store(value) else { let callback = failed; HikingBackground.stop(); callback?("后台轨迹缓存失败，记录已停止"); return }
         changed?()
     }
     public func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-        if (error as NSError).code == CLError.denied.rawValue { failed?("系统定位权限已撤回"); HikingBackground.stop() }
+        guard accepting else { return }
+        if (error as NSError).code == CLError.denied.rawValue { let callback = failed; HikingBackground.stop(); callback?("系统定位权限已撤回") }
     }
 }
