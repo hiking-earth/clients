@@ -49,7 +49,8 @@ def cells():
   for group in groups.values():
    if group:result.append(group.pop(0))
  return result
-parser=argparse.ArgumentParser();parser.add_argument('--tiles',type=int,default=8);args=parser.parse_args()
+parser=argparse.ArgumentParser();parser.add_argument('--tiles',type=int,default=8);parser.add_argument('--allow-public-worldwide-overpass-scan',action='store_true',help='explicitly acknowledge this resumable grid scan queries most of the world using public Overpass; prefer regional extracts or an authorized service');args=parser.parse_args()
+if not args.allow_public_worldwide_overpass_scan:raise SystemExit('Paused: public Overpass documentation discourages stitched worldwide bounding-box downloads. Preserve the checkpoint; migrate to regional extracts or an authorized sustainable service before resuming.')
 previous=json.loads(DEST.read_text());state=previous.get('backfillState') or (json.loads(STATE.read_text()) if STATE.exists() else {'schemaVersion':1,'queue':cells(),'completed':[],'cycle':0})
 if state.get('reconciliationVersion')!=1:
  state={'schemaVersion':1,'queue':cells(),'completed':[],'cycle':0,'reconciliationVersion':1}

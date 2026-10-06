@@ -1,23 +1,36 @@
 #!/usr/bin/env python3
 """Fetch named OSM hiking relations. ODbL snapshot; never infers access permission."""
-import argparse, datetime, json, math, pathlib, time, urllib.request, urllib.parse, os
+import argparse, datetime, json, math, pathlib, time, urllib.request, urllib.parse, urllib.error, os
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 REGIONS = {'china': (18,73,54,135), 'europe': (35,-11,71,35), 'north-america': (24,-130,60,-60), 'japan': (30,129,46,146), 'oceania': (-48,110,-10,179), 'south-america': (-56,-82,13,-34), 'africa': (-35,-18,37,52), 'south-asia': (5,65,36,100)}
-def fetch(query):
-    error = None
-    for attempt in range(3):
-        try:
-            req = urllib.request.Request('https://overpass-api.de/api/interpreter', data=urllib.parse.urlencode({'data':query}).encode(), headers={'User-Agent':'HikingEarthCatalog/1.0 (+https://github.com/hiking-earth/clients)'})
-            with urllib.request.urlopen(req, timeout=60) as response:
-                raw = response.read(24 * 1024 * 1024 + 1)
-            if len(raw) > 24 * 1024 * 1024: raise ValueError('Source exceeds response size budget')
-            data = json.loads(raw)
-            if data.get('remark'): raise ValueError(data['remark'])
-            return data
-        except Exception as exc:
-            error = exc
-            if attempt < 2: time.sleep(10 * (attempt + 1))
-    raise RuntimeError(str(error))
+MAX_DAILY_BYTES = 8 * 1024 * 1024
+MAX_DAILY_QUERIES = 64
+MAX_RESPONSE_BYTES = 1024 * 1024
+
+class FetchFailure(RuntimeError):
+    def __init__(self, message, bytes_read=0):
+        super().__init__(message)
+        self.bytes_read = bytes_read
+
+def fetch(query, byte_limit=24 * 1024 * 1024):
+    req = urllib.request.Request('https://overpass-api.de/api/interpreter', data=urllib.parse.urlencode({'data':query}).encode(), headers={'User-Agent':'HikingEarthCatalog/1.0 (+https://github.com/hiking-earth/clients)'})
+    try:
+        with urllib.request.urlopen(req, timeout=60) as response:
+            raw = response.read(byte_limit)
+    except urllib.error.HTTPError as exc:
+        try: consumed = len(exc.read(byte_limit))
+        except Exception: consumed = 0
+        raise FetchFailure(f'HTTP {exc.code}: {exc.reason}', consumed) from exc
+    except Exception as exc:
+        raise FetchFailure(str(exc)) from exc
+    if len(raw) >= byte_limit:
+        raise FetchFailure(f'Response reached byte budget ({byte_limit}); watermark retained', len(raw))
+    try:
+        data = json.loads(raw)
+        if data.get('remark'): raise ValueError(data['remark'])
+        return data, len(raw)
+    except Exception as exc:
+        raise FetchFailure(str(exc), len(raw)) from exc
 
 def parse_time(value):
     parsed=datetime.datetime.fromisoformat(value.replace('Z','+00:00'))
@@ -39,12 +52,22 @@ def main():
     now_dt=datetime.datetime.now(datetime.timezone.utc);now=now_dt.isoformat(timespec='seconds').replace('+00:00','Z')
     failures=[];counts={};cursors=previous.get('sourceCursors',{})
     if not isinstance(cursors,dict):cursors={}
+    today=now_dt.date().isoformat();old_budget=previous.get('sourceBudget',{})
+    if not isinstance(old_budget,dict) or old_budget.get('dateUTC')!=today:old_budget={}
+    budget={'dateUTC':today,'downloadedBytes':old_budget.get('downloadedBytes',0),'queryCount':old_budget.get('queryCount',0),'dailyByteLimit':MAX_DAILY_BYTES,'dailyQueryLimit':MAX_DAILY_QUERIES,'perResponseByteLimit':MAX_RESPONSE_BYTES}
+    for key in ('downloadedBytes','queryCount'):
+        if not isinstance(budget[key],int) or isinstance(budget[key],bool) or budget[key]<0:budget[key]=0
     state=previous.get('backfillState') or {}
     active_cycle=state.get('cycleStartedAt') if state.get('reconciliationVersion')==1 else None
     try:bootstrap=parse_time(previous['generatedAt'])-datetime.timedelta(hours=max(1,min(args.bootstrap_lookback_hours,168)))
     except (KeyError,TypeError,ValueError):bootstrap=now_dt-datetime.timedelta(hours=max(1,min(args.bootstrap_lookback_hours,168)))
     order=['china','japan','south-asia','europe','north-america','oceania','south-america','africa']
-    for region in sorted(args.regions,key=lambda item:order.index(item)):
+    ordered_regions=sorted(args.regions,key=lambda item:order.index(item))
+    for index,region in enumerate(ordered_regions):
+        if budget['queryCount']>=MAX_DAILY_QUERIES or budget['downloadedBytes']>=MAX_DAILY_BYTES:
+            failures.append({'region':region,'error':'Daily public-source budget exhausted; watermark retained'})
+            continue
+        byte_limit=min(MAX_RESPONSE_BYTES,MAX_DAILY_BYTES-budget['downloadedBytes'])
         bbox=','.join(str(v) for v in REGIONS[region])
         try:
             try:since=parse_time(cursors[region]) if isinstance(cursors.get(region),str) else bootstrap
@@ -52,7 +75,8 @@ def main():
             if since>now_dt+datetime.timedelta(minutes=10):since=bootstrap
             since_text=since.isoformat(timespec='seconds').replace('+00:00','Z')
             query=f'[out:json][timeout:45];relation["type"="route"]["route"~"^(hiking|foot)$"]["name"]({bbox})(newer:"{since_text}");out tags center;'
-            data=fetch(query);elements=data.get('elements')
+            budget['queryCount']+=1
+            data,bytes_read=fetch(query,byte_limit);budget['downloadedBytes']+=bytes_read;elements=data.get('elements')
             if not isinstance(elements,list):raise ValueError('Missing source relation list')
             watermark=data.get('osm3s',{}).get('timestamp_osm_base')
             next_cursor=None
@@ -84,10 +108,14 @@ def main():
             records.update(staged);counts[region]=len(staged)
             if next_cursor:cursors[region]=next_cursor.isoformat(timespec='seconds').replace('+00:00','Z')
         except Exception as exc:
+            budget['downloadedBytes']+=min(getattr(exc,'bytes_read',0),byte_limit)
             failures.append({'region':region,'error':str(exc)});print(region,'retained previous snapshot:',str(exc),flush=True)
-        time.sleep(3)
-    if not counts:raise SystemExit('All sources failed; catalog left unchanged')
-    snapshot=dict(previous);snapshot.update({'schemaVersion':1,'generatedAt':now,'license':'ODbL-1.0','attribution':'© OpenStreetMap contributors','licenseUrl':'https://www.openstreetmap.org/copyright','coverage':counts,'sourceCursors':cursors,'failures':failures,'routes':sorted(records.values(),key=lambda r:r['id'])})
+        if index<len(ordered_regions)-1:time.sleep(3)
+    snapshot=dict(previous);snapshot.update({'schemaVersion':1,'lastUpdateAttemptAt':now,'sourceBudget':budget,'sourceCursors':cursors,'failures':failures})
+    if counts:
+        snapshot.update({'generatedAt':now,'license':'ODbL-1.0','attribution':'© OpenStreetMap contributors','licenseUrl':'https://www.openstreetmap.org/copyright','coverage':counts,'routes':sorted(records.values(),key=lambda r:r['id'])})
     dest.parent.mkdir(parents=True,exist_ok=True);temp=dest.with_suffix('.tmp');temp.write_text(json.dumps(snapshot,ensure_ascii=False,indent=2)+'\n');os.replace(temp,dest)
-    print(json.dumps({'catalogCount':len(records),'coverage':counts,'sourceCursors':cursors,'failures':len(failures)},ensure_ascii=False))
+    result={'catalogCount':len(records),'coverage':counts,'sourceCursors':cursors,'failures':len(failures),'sourceBudget':budget}
+    print(json.dumps(result,ensure_ascii=False))
+    if not counts:raise SystemExit('No OSM regions refreshed; query budget and failure state saved without advancing source watermarks')
 if __name__=='__main__': main()

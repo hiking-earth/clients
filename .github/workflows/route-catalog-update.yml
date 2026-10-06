@@ -27,11 +27,6 @@ jobs:
         timeout-minutes: 30
         continue-on-error: true
         run: python scripts/update-route-catalog.py
-      - name: Reconcile OSM spatial membership
-        id: osm
-        timeout-minutes: 25
-        continue-on-error: true
-        run: python scripts/backfill-osm-catalog.py --tiles 24
       - name: Collect Hong Kong AFCD trails
         id: hk
         timeout-minutes: 5
@@ -47,12 +42,12 @@ jobs:
         env:
           USDA_OUTCOME: ${{ steps.usda.outcome }}
           OSM_INCREMENTAL_OUTCOME: ${{ steps.osm_incremental.outcome }}
-          OSM_RECONCILIATION_OUTCOME: ${{ steps.osm.outcome }}
+          OSM_RECONCILIATION_OUTCOME: paused-public-global-sweep
           HK_OUTCOME: ${{ steps.hk.outcome }}
           CONTENT_OUTCOME: ${{ steps.content.outcome }}
         run: |
           echo "### Hiking catalog collection" >> "$GITHUB_STEP_SUMMARY"
-          echo "USDA: $USDA_OUTCOME; OSM recent changes: $OSM_INCREMENTAL_OUTCOME; OSM full membership: $OSM_RECONCILIATION_OUTCOME; Hong Kong AFCD: $HK_OUTCOME; official notices: $CONTENT_OUTCOME" >> "$GITHUB_STEP_SUMMARY"
+          echo "USDA: $USDA_OUTCOME; OSM recent changes: $OSM_INCREMENTAL_OUTCOME; OSM worldwide full-membership sweep: $OSM_RECONCILIATION_OUTCOME; Hong Kong AFCD: $HK_OUTCOME; official notices: $CONTENT_OUTCOME" >> "$GITHUB_STEP_SUMMARY"
           python - <<'PY'
           import datetime, hashlib, json, os
           from collections import Counter
@@ -84,10 +79,12 @@ jobs:
                   'cycleStartedAt': membership.get('cycleStartedAt'),
                   'lastCompletedAt': membership.get('lastCompletedAt'),
                   'lastRemovedFromDiscovery': membership.get('lastRemovedFromDiscovery'),
-                  'pendingTiles': backfill.get('pendingTiles'),
-                  'currentCycleComplete': membership.get('reconciliationVersion') == 1 and backfill.get('pendingTiles') == 0,
-                  'lastAttemptSucceeded': outcomes['osm'] == 'success',
-                  'incrementalAttemptSucceeded': outcomes['osm_incremental'] == 'success',
+              'pendingTiles': backfill.get('pendingTiles'),
+              'currentCycleComplete': membership.get('reconciliationVersion') == 1 and backfill.get('pendingTiles') == 0,
+              'scheduled': False,
+              'pauseReason': 'Public Overpass documentation discourages stitching bounding boxes to scrape worldwide data; use regional extracts or an owner-approved sustainable service.',
+              'lastAttemptSucceeded': None,
+              'incrementalAttemptSucceeded': outcomes['osm_incremental'] == 'success',
               },
               'usfs': {
                   'supported': usfs_progress.get('reconciliationVersion') == 1,
@@ -109,6 +106,8 @@ jobs:
           rows.append('| OSM records by region | ' + '; '.join(f'{name}: {count}' for name, count in sorted(regions.items())) + ' | source tags only |')
           rows.append(f"| OSM grid backfill | {backfill.get('completedTiles', 0)} complete / {backfill.get('pendingTiles', 0)} pending | cycle {backfill.get('cycle', 0)} |")
           rows.append(f"| OSM recent changes | {len(osm.get('coverage', {}))} regions refreshed | incremental {outcomes['osm_incremental']} |")
+          budget = osm.get('sourceBudget', {})
+          rows.append(f"| OSM public API budget | {budget.get('downloadedBytes', 0)} / {budget.get('dailyByteLimit', 8388608)} bytes; {budget.get('queryCount', 0)} / {budget.get('dailyQueryLimit', 64)} queries | UTC day {budget.get('dateUTC', 'not recorded')} |")
           news = json.loads((root/'content/official-news.json').read_text())
           registry = json.loads((root/'content/official-sources.json').read_text())
           news_states = {source['id']: source for source in news.get('sources', [])}
@@ -140,7 +139,7 @@ jobs:
           git commit -m 'data: refresh sourced hiking discovery catalogs'
           git push
       - name: Report complete collection failure
-        if: ${{ !cancelled() && steps.usda.outcome == 'failure' && steps.osm_incremental.outcome == 'failure' && steps.osm.outcome == 'failure' && steps.hk.outcome == 'failure' && steps.content.outcome == 'failure' }}
+        if: ${{ !cancelled() && steps.usda.outcome == 'failure' && steps.osm_incremental.outcome == 'failure' && steps.hk.outcome == 'failure' && steps.content.outcome == 'failure' }}
         run: |
           echo "All collectors failed; previous snapshots retained."
           exit 1
