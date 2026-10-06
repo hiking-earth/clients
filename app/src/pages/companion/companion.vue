@@ -82,6 +82,23 @@ onHide(invalidate);
 onUnload(()=>{invalidate();unsubscribeAccount();});
 onShow(load);
 
+function validPosts(value:unknown):value is CompanionPost[]{
+  if(!Array.isArray(value)||value.length>50)return false;
+  const ids=new Set<string>();
+  return value.every(p=>{
+    if(!p||typeof p.id!=='string'||!p.id||ids.has(p.id))return false;
+    ids.add(p.id);
+    return typeof p.openid==='string'&&(!p.openid||p.openid===myOpenid.value)
+      &&typeof p.nickname==='string'&&p.nickname.length<=40&&typeof p.title==='string'&&p.title.length<=60
+      &&typeof p.content==='string'&&p.content.length<=1000&&typeof p.departDate==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(p.departDate)
+      &&(p.routeId===undefined||typeof p.routeId==='string')&&Number.isInteger(p.maxMembers)&&p.maxMembers>=2&&p.maxMembers<=50
+      &&Array.isArray(p.members)&&p.members.length<=1&&p.members.every((id:unknown)=>typeof id==='string'&&!!id&&id===myOpenid.value)
+      &&Number.isInteger(p.memberCount)&&p.memberCount>=p.members.length&&p.memberCount<=p.maxMembers
+      &&Number.isFinite(p.createdAt)&&p.createdAt>0&&['open','full','closed','pending'].includes(p.status)
+      &&(p.status!=='pending'||(!!myOpenid.value&&p.openid===myOpenid.value));
+  });
+}
+
 async function load() {
   const original=snapshot(), sequence=++loadSequence;
   const login = await callCloud<{ openid: string }>("login");
@@ -89,7 +106,7 @@ async function load() {
   myOpenid.value = login.ok ? login.data?.openid ?? "" : "";
   const res = await callCloud<{ posts: CompanionPost[] }>("companion-list");
   if(!current(original)||sequence!==loadSequence)return;
-  if (res.ok && res.data && Array.isArray(res.data.posts)) { posts.value = res.data.posts; loadError.value = ""; }
+  if (res.ok && res.data && validPosts(res.data.posts)) { posts.value = res.data.posts; loadError.value = ""; }
   else { posts.value = []; loadError.value = res.errMsg ?? "加载失败"; }
 }
 
@@ -121,7 +138,17 @@ async function submitRegistration(){
   if(!res.ok){uni.showToast({title:res.errMsg||'报名失败',icon:'none'});return;}
   cancelRegistration();await load();if(current(original))uni.showToast({title:'已报名',icon:'success'});
 }
-async function contacts(p:CompanionPost){const owner=String(uni.getStorageSync('he_openid')||'');const res=await callCloud<{items:{nickname?:string;emergency:string;adult:boolean;guardianConfirmed:boolean}[]}>('companion-manage',{action:'registrations',postId:p.id});if(owner!==String(uni.getStorageSync('he_openid')||''))return;if(!res.ok||!res.data){uni.showToast({title:res.errMsg||'读取失败',icon:'none'});return;}uni.showModal({title:'报名联系信息（仅发起人）',content:res.data.items.map((r,i)=>`${i+1}. ${r.nickname||'山友'}：${r.emergency}；${r.adult?'成年人':'未成年 / 监护人已确认'}`).join('\n')||'当前没有报名联系信息',showCancel:false});}
+async function contacts(p:CompanionPost){
+  if(submitting.value||!myOpenid.value||p.openid!==myOpenid.value)return;
+  const original=snapshot();
+  const res=await mutate('companion-manage',{action:'registrations',postId:p.id});
+  if(!res||!current(original))return;
+  const rows=res.data?.items;
+  if(!res.ok||!Array.isArray(rows)||rows.length>50||!rows.every((row:any)=>row&&typeof row.emergency==='string'&&row.emergency.length<=200&&(row.nickname===undefined||(typeof row.nickname==='string'&&row.nickname.length<=40))&&typeof row.adult==='boolean'&&typeof row.guardianConfirmed==='boolean')){
+    uni.showToast({title:res.errMsg||'联系资料格式无效，未显示',icon:'none'});return;
+  }
+  uni.showModal({title:'报名联系信息（仅发起人）',content:rows.map((row:any,i:number)=>`${i+1}. ${row.nickname||'山友'}：${row.emergency}；${row.adult?'成年人':row.guardianConfirmed?'未成年 / 监护人已确认':'未成年 / 监护人未确认'}`).join('\n')||'当前没有报名联系信息',showCancel:false});
+}
 
 function newPost() {
   if(submitting.value)return;
