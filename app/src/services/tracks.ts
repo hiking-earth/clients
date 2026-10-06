@@ -2,6 +2,7 @@
  * 本地轨迹存储（个保法：轨迹本地优先，云同步需用户手动触发）
  */
 import type { TrackRecord } from "@shared/types/track";
+import { validTrackPoint } from "@shared/types/track";
 
 const KEY = "he_tracks_v1";
 
@@ -41,6 +42,7 @@ export function markSynced(id: string): void {
 // 恢复时只恢复为暂停；不得在启动应用时自动取得定位权限。
 const DRAFT_KEY = "he_track_draft_v1";
 export function saveDraft(track: TrackRecord): void {
+  if (!validRecord(track)) throw new Error("轨迹草稿格式无效，未保存");
   uni.setStorageSync(DRAFT_KEY, JSON.stringify(track));
 }
 export function loadDraft(): TrackRecord | null {
@@ -57,9 +59,14 @@ export function loadDraft(): TrackRecord | null {
 export function clearDraft(): void { uni.removeStorageSync(DRAFT_KEY); }
 
 function validRecord(t: any): t is TrackRecord {
-  return t && typeof t.id === "string" && typeof t.name === "string" && Array.isArray(t.points)
-    && [t.startedAt, t.distanceM, t.ascentM, t.descentM].every(Number.isFinite)
-    && t.points.every((p: any) => p && Number.isFinite(p.latitude) && Math.abs(p.latitude) <= 90 && Number.isFinite(p.longitude) && Math.abs(p.longitude) <= 180 && Number.isFinite(p.timestamp));
+  const validTime = (value: unknown) => typeof value === 'number' && Number.isFinite(value) && value > 0 && value <= 8640000000000000;
+  return !!t && typeof t.id === "string" && !!t.id.trim() && typeof t.name === "string" && Array.isArray(t.points)
+    && validTime(t.startedAt) && (t.endedAt === undefined || (validTime(t.endedAt) && t.endedAt >= t.startedAt))
+    && [t.distanceM, t.ascentM, t.descentM].every(value => Number.isFinite(value) && value >= 0)
+    && (t.activeDurationMs === undefined || (Number.isFinite(t.activeDurationMs) && t.activeDurationMs >= 0))
+    && ['recording', 'paused', 'finished'].includes(t.state) && typeof t.synced === 'boolean'
+    && (t.routeId === undefined || typeof t.routeId === 'string')
+    && t.points.every(validTrackPoint);
 }
 
 // A local deletion remains local, including when automatic cloud restore runs.
