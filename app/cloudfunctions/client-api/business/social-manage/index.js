@@ -35,7 +35,7 @@ exports.main=async event=>{
   }
   if(action==='documents.remove'){
    if(!text(event.id,128))return {errMsg:'记录无效'};
-   return db.runTransaction(async tx=>{const ref=tx.collection('user_documents').doc(event.id);const row=(await ref.get()).data;if(!row||row.owner!==OPENID)return {errMsg:'无权删除记录'};await ref.remove();return {deleted:true};});
+   return db.runTransaction(async tx=>{const ref=tx.collection('user_documents').doc(event.id);const row=(await ref.get()).data;if(!row||row.owner!==OPENID||!['diary','comment'].includes(row.kind))return {errMsg:'无权删除记录'};await ref.remove();return {deleted:true};});
   }
   if(action==='messages.list'){
    if(!text(event.teamId,128))return {errMsg:'队伍无效'};await member(event.teamId,OPENID);
