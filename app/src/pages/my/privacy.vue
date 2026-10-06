@@ -2,7 +2,7 @@
   <scroll-view scroll-y class="page">
     <view class="intro">
       <text class="title">隐私设置</text>
-      <text class="desc">按需开启功能授权。关闭后，应用不会通过对应功能收集或上传数据；iPhone 系统权限仍可在“设置 → 徒步地球”管理。</text>
+      <text class="desc">按需开启功能授权。不同账号的授权分开保存，旧版本设备通用设置不会自动授予当前账号。关闭后，应用不会通过对应功能收集或上传数据；iPhone 系统权限仍可在“设置 → 徒步地球”管理。</text>
     </view>
 
     <view class="group">
@@ -26,8 +26,9 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import { onShow } from "@dcloudio/uni-app";
+import { onShow,onUnload } from "@dcloudio/uni-app";
 import { getPrivacyConsents, setPrivacyConsent, type PrivacyConsentKey, type PrivacyConsents } from "@/services/privacy";
+import { onAccountChange } from '@/services/account';
 
 const consents = ref<PrivacyConsents>(getPrivacyConsents());
 const options: { key: PrivacyConsentKey; title: string; description: string }[] = [
@@ -39,6 +40,8 @@ const options: { key: PrivacyConsentKey; title: string; description: string }[] 
 ];
 
 onShow(() => { consents.value = getPrivacyConsents(); });
+const unsubscribeAccount=onAccountChange(()=>{consents.value=getPrivacyConsents();});
+onUnload(unsubscribeAccount);
 
 function toggle(key: PrivacyConsentKey, event: Event | { detail: { value: boolean } }) {
   const detail = (event as { detail?: { value?: boolean } }).detail;

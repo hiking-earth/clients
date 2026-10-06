@@ -8,7 +8,7 @@ export function onPrivacyChange(listener: (consents: PrivacyConsents) => void): 
   return () => { listeners.delete(listener); };
 }
 
-const STORAGE_KEY = "he_privacy_consents_v1";
+const STORAGE_PREFIX = "he_privacy_consents_v2:";
 const DEFAULT_CONSENTS: PrivacyConsents = {
   location: false,
   backgroundLocation: false,
@@ -19,7 +19,8 @@ const DEFAULT_CONSENTS: PrivacyConsents = {
 
 export function getPrivacyConsents(): PrivacyConsents {
   try {
-    const saved = uni.getStorageSync(STORAGE_KEY);
+    const owner=String(uni.getStorageSync('he_openid')||'anonymous');
+    const saved = uni.getStorageSync(`${STORAGE_PREFIX}${encodeURIComponent(owner)}`);
     if (!saved || typeof saved !== "object") return { ...DEFAULT_CONSENTS };
     return {
       location: saved.location === true,
@@ -39,7 +40,8 @@ export function hasPrivacyConsent(key: PrivacyConsentKey): boolean {
 
 export function setPrivacyConsent(key: PrivacyConsentKey, enabled: boolean): PrivacyConsents {
   const next = { ...getPrivacyConsents(), [key]: enabled };
-  uni.setStorageSync(STORAGE_KEY, next);
+  const owner=String(uni.getStorageSync('he_openid')||'anonymous');
+  uni.setStorageSync(`${STORAGE_PREFIX}${encodeURIComponent(owner)}`, next);
   listeners.forEach((listener) => listener(next));
   return next;
 }
