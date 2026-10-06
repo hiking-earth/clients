@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-06T16:47:08.167983+00:00",
+  "generatedAt": "2026-10-06T17:04:58.960063+00:00",
   "license": "ODbL-1.0",
   "attribution": "© OpenStreetMap contributors",
   "licenseUrl": "https://www.openstreetmap.org/copyright",
@@ -11,10 +11,10 @@
     {
       "region": "china",
       "bbox": [
-        18,
-        121,
-        22,
-        125
+        46,
+        101,
+        50,
+        105
       ],
       "error": "HTTP Error 504: Gateway Timeout"
     },
@@ -22,9 +22,19 @@
       "region": "china",
       "bbox": [
         34,
-        85,
+        77,
         38,
-        89
+        81
+      ],
+      "error": "HTTP Error 504: Gateway Timeout"
+    },
+    {
+      "region": "china",
+      "bbox": [
+        50,
+        109,
+        54,
+        113
       ],
       "error": "HTTP Error 504: Gateway Timeout"
     }
@@ -39563,7 +39573,7 @@
       "id": "osm-relation-11568246",
       "name": "Tsang Chok La",
       "originalName": "Tsang Chok La",
-      "region": "south-asia",
+      "region": "china",
       "center": [
         79.1851403,
         31.3404198
@@ -39572,7 +39582,8 @@
       "sourceTags": {
         "network": "rwn"
       },
-      "fetchedAt": "2026-10-05T05:17:20.916757+00:00",
+      "fetchedAt": "2026-10-06T17:04:58.960063+00:00",
+      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
       "status": "待核验"
     },
     {
@@ -483915,213 +483926,15 @@
     }
   ],
   "backfill": {
-    "completedTiles": 107,
-    "pendingTiles": 1119,
+    "completedTiles": 128,
+    "pendingTiles": 1098,
     "cycle": 0,
-    "lastProcessedTiles": 22
+    "lastProcessedTiles": 21
   },
   "coverageNote": "Bounded full-membership spatial backfill and revisits; incomplete until the pending queue has been traversed. No opening or navigation permission implied.",
   "backfillState": {
     "schemaVersion": 1,
     "queue": [
-      {
-        "region": "china",
-        "bbox": [
-          42,
-          73,
-          46,
-          77
-        ]
-      },
-      {
-        "region": "china",
-        "bbox": [
-          46,
-          101,
-          50,
-          105
-        ]
-      },
-      {
-        "region": "china",
-        "bbox": [
-          22,
-          81,
-          26,
-          85
-        ]
-      },
-      {
-        "region": "china",
-        "bbox": [
-          50,
-          93,
-          54,
-          97
-        ]
-      },
-      {
-        "region": "china",
-        "bbox": [
-          50,
-          117,
-          54,
-          121
-        ]
-      },
-      {
-        "region": "china",
-        "bbox": [
-          50,
-          133,
-          54,
-          135
-        ]
-      },
-      {
-        "region": "china",
-        "bbox": [
-          46,
-          73,
-          50,
-          77
-        ]
-      },
-      {
-        "region": "china",
-        "bbox": [
-          18,
-          125,
-          22,
-          129
-        ]
-      },
-      {
-        "region": "china",
-        "bbox": [
-          18,
-          89,
-          22,
-          93
-        ]
-      },
-      {
-        "region": "china",
-        "bbox": [
-          50,
-          77,
-          54,
-          81
-        ]
-      },
-      {
-        "region": "china",
-        "bbox": [
-          38,
-          73,
-          42,
-          77
-        ]
-      },
-      {
-        "region": "china",
-        "bbox": [
-          18,
-          85,
-          22,
-          89
-        ]
-      },
-      {
-        "region": "china",
-        "bbox": [
-          34,
-          77,
-          38,
-          81
-        ]
-      },
-      {
-        "region": "china",
-        "bbox": [
-          30,
-          77,
-          34,
-          81
-        ]
-      },
-      {
-        "region": "china",
-        "bbox": [
-          30,
-          133,
-          34,
-          135
-        ]
-      },
-      {
-        "region": "china",
-        "bbox": [
-          50,
-          97,
-          54,
-          101
-        ]
-      },
-      {
-        "region": "china",
-        "bbox": [
-          26,
-          77,
-          30,
-          81
-        ]
-      },
-      {
-        "region": "china",
-        "bbox": [
-          50,
-          113,
-          54,
-          117
-        ]
-      },
-      {
-        "region": "china",
-        "bbox": [
-          22,
-          129,
-          26,
-          133
-        ]
-      },
-      {
-        "region": "china",
-        "bbox": [
-          50,
-          109,
-          54,
-          113
-        ]
-      },
-      {
-        "region": "china",
-        "bbox": [
-          50,
-          73,
-          54,
-          77
-        ]
-      },
-      {
-        "region": "china",
-        "bbox": [
-          26,
-          133,
-          30,
-          135
-        ]
-      },
       {
         "region": "china",
         "bbox": [
@@ -493980,10 +493793,10 @@
       {
         "region": "china",
         "bbox": [
-          18,
-          121,
-          22,
-          125
+          46,
+          101,
+          50,
+          105
         ],
         "lastError": "HTTP Error 504: Gateway Timeout"
       },
@@ -493991,9 +493804,19 @@
         "region": "china",
         "bbox": [
           34,
-          85,
+          77,
           38,
-          89
+          81
+        ],
+        "lastError": "HTTP Error 504: Gateway Timeout"
+      },
+      {
+        "region": "china",
+        "bbox": [
+          50,
+          109,
+          54,
+          113
         ],
         "lastError": "HTTP Error 504: Gateway Timeout"
       }
@@ -495076,6 +494899,218 @@
           133
         ],
         "watermark": "2026-10-06T16:51:26+00:00"
+      },
+      {
+        "region": "china",
+        "bbox": [
+          18,
+          121,
+          22,
+          125
+        ],
+        "lastError": "HTTP Error 504: Gateway Timeout",
+        "watermark": "2026-10-06T16:53:30+00:00"
+      },
+      {
+        "region": "china",
+        "bbox": [
+          34,
+          85,
+          38,
+          89
+        ],
+        "lastError": "HTTP Error 504: Gateway Timeout",
+        "watermark": "2026-10-06T16:54:36+00:00"
+      },
+      {
+        "region": "china",
+        "bbox": [
+          42,
+          73,
+          46,
+          77
+        ],
+        "watermark": "2026-10-06T16:54:36+00:00"
+      },
+      {
+        "region": "china",
+        "bbox": [
+          22,
+          81,
+          26,
+          85
+        ],
+        "watermark": "2026-10-06T16:55:36+00:00"
+      },
+      {
+        "region": "china",
+        "bbox": [
+          50,
+          93,
+          54,
+          97
+        ],
+        "watermark": "2026-10-06T16:55:36+00:00"
+      },
+      {
+        "region": "china",
+        "bbox": [
+          50,
+          117,
+          54,
+          121
+        ],
+        "watermark": "2026-10-06T16:56:36+00:00"
+      },
+      {
+        "region": "china",
+        "bbox": [
+          50,
+          133,
+          54,
+          135
+        ],
+        "watermark": "2026-10-06T16:57:35+00:00"
+      },
+      {
+        "region": "china",
+        "bbox": [
+          46,
+          73,
+          50,
+          77
+        ],
+        "watermark": "2026-10-06T16:58:36+00:00"
+      },
+      {
+        "region": "china",
+        "bbox": [
+          18,
+          125,
+          22,
+          129
+        ],
+        "watermark": "2026-10-06T16:58:36+00:00"
+      },
+      {
+        "region": "china",
+        "bbox": [
+          18,
+          89,
+          22,
+          93
+        ],
+        "watermark": "2026-10-06T16:58:36+00:00"
+      },
+      {
+        "region": "china",
+        "bbox": [
+          50,
+          77,
+          54,
+          81
+        ],
+        "watermark": "2026-10-06T16:59:37+00:00"
+      },
+      {
+        "region": "china",
+        "bbox": [
+          38,
+          73,
+          42,
+          77
+        ],
+        "watermark": "2026-10-06T16:59:37+00:00"
+      },
+      {
+        "region": "china",
+        "bbox": [
+          18,
+          85,
+          22,
+          89
+        ],
+        "watermark": "2026-10-06T17:00:41+00:00"
+      },
+      {
+        "region": "china",
+        "bbox": [
+          30,
+          77,
+          34,
+          81
+        ],
+        "watermark": "2026-10-06T17:02:48+00:00"
+      },
+      {
+        "region": "china",
+        "bbox": [
+          30,
+          133,
+          34,
+          135
+        ],
+        "watermark": "2026-10-06T17:02:48+00:00"
+      },
+      {
+        "region": "china",
+        "bbox": [
+          50,
+          97,
+          54,
+          101
+        ],
+        "watermark": "2026-10-06T17:02:48+00:00"
+      },
+      {
+        "region": "china",
+        "bbox": [
+          26,
+          77,
+          30,
+          81
+        ],
+        "watermark": "2026-10-06T17:04:49+00:00"
+      },
+      {
+        "region": "china",
+        "bbox": [
+          50,
+          113,
+          54,
+          117
+        ],
+        "watermark": "2026-10-06T17:04:49+00:00"
+      },
+      {
+        "region": "china",
+        "bbox": [
+          22,
+          129,
+          26,
+          133
+        ],
+        "watermark": "2026-10-06T17:04:49+00:00"
+      },
+      {
+        "region": "china",
+        "bbox": [
+          50,
+          73,
+          54,
+          77
+        ],
+        "watermark": "2026-10-06T17:06:50+00:00"
+      },
+      {
+        "region": "china",
+        "bbox": [
+          26,
+          133,
+          30,
+          135
+        ],
+        "watermark": "2026-10-06T17:06:50+00:00"
       }
     ],
     "cycle": 0,
