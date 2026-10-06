@@ -12,34 +12,41 @@
   </view>
 </scroll-view></template>
 <script setup lang="ts">
-import { ref } from 'vue';
-import { onShow } from '@dcloudio/uni-app';
-import { callCloud } from '@/services/cloud';
-type Report = { id: string; reason: string; createdAt: number; post: { title: string; content: string; nickname: string; status: string } | null };
-type PendingPost = { id: string; title: string; content: string; nickname: string; version: number };
-const pendingPosts = ref<PendingPost[]>([]);
-const reports = ref<Report[]>([]), message = ref(''), busy = ref(false);
-onShow(load);
-async function load() {
-  if (busy.value) return; busy.value = true;
-  try { const result = await callCloud<{ reports: Report[]; posts: PendingPost[] }>('community-moderate', { action: 'list' });
-    pendingPosts.value = result.ok ? result.data?.posts || [] : [];
-    reports.value = result.ok ? result.data?.reports || [] : []; message.value = result.ok ? reports.value.length || pendingPosts.value.length ? '' : '暂无待处理内容' : result.errMsg || '加载失败';
-  } finally { busy.value = false; }
+import {ref} from 'vue';
+import {onShow,onHide,onUnload} from '@dcloudio/uni-app';
+import {accountSession,onAccountChange} from '@/services/account';
+import {callCloud} from '@/services/cloud';
+type Report={id:string;reason:string;createdAt:number;post:{title:string;content:string;nickname:string;status:string}|null};
+type PendingPost={id:string;title:string;content:string;nickname:string;version:number};
+const pendingPosts=ref<PendingPost[]>([]),reports=ref<Report[]>([]),message=ref(''),busy=ref(false);
+let visible=false,generation=0;
+function reset(){generation++;busy.value=false;pendingPosts.value=[];reports.value=[];message.value='';}
+const unsubscribe=onAccountChange(()=>{reset();if(visible)void load();});
+onShow(()=>{visible=true;void load();});onHide(()=>{visible=false;reset();});onUnload(()=>{visible=false;reset();unsubscribe();});
+function context(){return {generation,token:accountSession()?.token};}
+function current(ctx:ReturnType<typeof context>){return visible&&ctx.generation===generation&&ctx.token===accountSession()?.token;}
+const text=(value:unknown,max:number)=>typeof value==='string'&&value.length<=max;
+async function load(){
+ if(busy.value)return;const ctx=context();busy.value=true;message.value='';
+ try{const result=await callCloud<{reports:Report[];posts:PendingPost[]}>('community-moderate',{action:'list'});if(!current(ctx))return;
+  if(!result.ok||!result.data)throw new Error(result.errMsg||'加载失败');
+  const data=result.data;
+  if(!Array.isArray(data.posts)||data.posts.length>50||!Array.isArray(data.reports)||data.reports.length>50||data.posts.some(p=>!p||!text(p.id,128)||!p.id||!text(p.title,200)||!text(p.content,5000)||!text(p.nickname,100)||!Number.isInteger(p.version)||p.version<0)||data.reports.some(r=>!r||!text(r.id,128)||!r.id||!text(r.reason,3000)||!Number.isFinite(r.createdAt)||r.createdAt<=0||r.createdAt>Date.now()+30000||r.post!==null&&(!r.post||!text(r.post.title,200)||!text(r.post.content,5000)||!text(r.post.nickname,100)||!text(r.post.status,100)))||new Set(data.posts.map(p=>p.id)).size!==data.posts.length||new Set(data.reports.map(r=>r.id)).size!==data.reports.length)throw new Error('审核资料格式无效');
+  pendingPosts.value=data.posts;reports.value=data.reports;message.value=data.posts.length||data.reports.length?'':'暂无待处理内容';
+ }catch(e){if(current(ctx)){pendingPosts.value=[];reports.value=[];message.value=e instanceof Error?e.message:'加载失败';}}finally{if(current(ctx))busy.value=false;}
 }
-function review(id: string, action: string, version: number) {
-  uni.showModal({ title: action === 'approve' ? '审核通过' : '不予发布', content: '确认本次审核结果？', success: async r => {
-    if (!r.confirm || busy.value) return; busy.value = true;
-    try { const result = await callCloud('community-moderate', { postId: id, action, version }); message.value = result.ok ? '已处理' : result.errMsg || '处理失败'; }
-    finally { busy.value = false; } await load();
-  } });
+async function mutate(id:string,action:string,version?:number){
+ if(busy.value)return;const ctx=context();busy.value=true;let completed=false;
+ try{const answer=await uni.showModal({title:action==='approve'?'审核通过':action==='reject'?'不予发布':action==='hide'?'隐藏帖子':'关闭举报',content:'确认提交处理结果？'});if(!answer.confirm||!current(ctx))return;
+  const postAction=action==='approve'||action==='reject';
+  if(postAction?!pendingPosts.value.some(p=>p.id===id&&p.version===version):!reports.value.some(r=>r.id===id))throw new Error('待处理资料已变化，请刷新');
+  const result=await callCloud<{handled:boolean}>('community-moderate',postAction?{postId:id,action,version}:{reportId:id,action});if(!current(ctx))return;
+  if(!result.ok||result.data?.handled!==true)throw new Error(result.errMsg||'处理未确认，请刷新核对');
+  completed=true;message.value='云端已确认处理';
+ }catch(e){if(current(ctx))message.value=e instanceof Error?e.message:'处理失败';}finally{if(current(ctx))busy.value=false;}
+ if(completed&&current(ctx))await load();
 }
-function handle(id: string, action: string) {
-  uni.showModal({ title: action === 'hide' ? '隐藏帖子' : '关闭举报', content: '确认提交处理结果？', success: async r => {
-    if (!r.confirm || busy.value) return; busy.value = true;
-    try { const result = await callCloud('community-moderate', { reportId: id, action }); message.value = result.ok ? '已处理' : result.errMsg || '处理失败'; }
-    finally { busy.value = false; } await load();
-  } });
-}
+function review(id:string,action:string,version:number){void mutate(id,action,version);}
+function handle(id:string,action:string){void mutate(id,action);}
 </script>
 <style scoped>.page{height:100vh;background:#0f141b;color:#eef4ea;padding:24px;box-sizing:border-box}.title{display:block;font-size:20px}.hint{display:block;color:#8a97a5;font-size:13px;margin:12px 0}.card{padding:16px;margin:16px 0;background:#151d27;border-radius:12px}.content,.reason{display:block;margin:12px 0;font-size:14px}.reason{color:#ffd166}button{margin-top:12px;font-size:14px;background:#b8f36b}</style>
