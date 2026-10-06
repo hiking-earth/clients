@@ -63,6 +63,13 @@ def prepare():
             raise ValueError('Hong Kong offline reconstruction hash mismatch; publication stopped')
         atomic_write(ROOT / 'shared/data/offline/hk-afcd.json', repaired)
         print('Recovered Hong Kong reference geometry from authoritative catalog')
+    pending = []
+    direct = {}
+    for source, relative in {'release': 'releases/stable.json', 'offline-hk': 'data/offline/hk-afcd.json'}.items():
+        payload = (ROOT / 'shared' / relative).read_bytes()
+        if len(payload) > 16 * 1024 * 1024:
+            raise ValueError(f'{source}: direct snapshot exceeds memory budget')
+        direct[source] = payload
     for source, relative in SOURCES.items():
         raw = (ROOT / 'shared' / relative).read_bytes()
         data = json.loads(raw)
@@ -104,29 +111,27 @@ def prepare():
         if len(manifest) > 1024 * 1024:
             raise ValueError(f'{source}: manifest exceeds metadata budget')
         atomic_write(version / 'manifest.json', manifest)
-        # Pointer is replaced last, only after all immutable page files exist.
-        atomic_write(folder / 'manifest.json', manifest)
         retained = {snapshot, previous}
-        for child in folder.iterdir():
-            if child.is_dir() and len(child.name) == 64 and all(c in '0123456789abcdef' for c in child.name) and child.name not in retained:
-                shutil.rmtree(child)
         fallback = ROOT / 'app/cloudfunctions/catalog-feed/snapshots' / source
         fallback.mkdir(parents=True, exist_ok=True)
-        for child in fallback.iterdir():
-            if child.is_dir() and child.name not in retained:
-                shutil.rmtree(child)
+        # Stage every retained immutable generation before exposing any pointer.
         for generation in retained:
             if generation and (folder / generation).is_dir():
                 shutil.copytree(folder / generation, fallback / generation, dirs_exist_ok=True)
-        atomic_write(fallback / 'manifest.json', manifest)
-        # Full raw files remain in shared/data; cloud fallback uses only shards.
-        (fallback.parent / (source + '.json')).unlink(missing_ok=True)
+        pending.append((source, folder, fallback, manifest, retained))
         print(f'{source}: prepared {len(rows)} records / {len(hashes)} pages; {snapshot[:12]}')
 
-    for source, relative in {'release': 'releases/stable.json', 'offline-hk': 'data/offline/hk-afcd.json'}.items():
-        payload = (ROOT / 'shared' / relative).read_bytes()
-        if len(payload) > 16 * 1024 * 1024:
-            raise ValueError(f'{source}: direct snapshot exceeds memory budget')
+    # All sources and direct payload budgets passed before pointer publication.
+    # Separate source pointers are independent, not one filesystem transaction.
+    for source, folder, fallback, manifest, retained in pending:
+        atomic_write(fallback / 'manifest.json', manifest)
+        atomic_write(folder / 'manifest.json', manifest)
+        for base in (folder, fallback):
+            for child in base.iterdir():
+                if child.is_dir() and len(child.name) == 64 and all(c in '0123456789abcdef' for c in child.name) and child.name not in retained:
+                    shutil.rmtree(child)
+        (fallback.parent / (source + '.json')).unlink(missing_ok=True)
+    for source, payload in direct.items():
         atomic_write(ROOT / 'app/cloudfunctions/catalog-feed/snapshots' / (source + '.json'), payload)
 
 
