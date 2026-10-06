@@ -32,7 +32,7 @@ export function stopBackgroundRecording(): void {
 export function backgroundRecording(): boolean { return running; }
 export function pendingBackground(): { session: string; points: TrackPoint[] } {
   // #ifdef APP-PLUS
-  try { const value = JSON.parse(backgroundBuffer()); return { session: String(value.session || ''), points: Array.isArray(value.points) ? value.points.filter(validTrackPoint).sort((a:TrackPoint,b:TrackPoint)=>a.timestamp-b.timestamp).slice(0,20000) : [] }; } catch {}
+  try { const value = JSON.parse(backgroundBuffer()); return { session: String(value.session || ''), points: Array.isArray(value.points) ? value.points.filter((point:unknown)=>validTrackPoint(point)&&point.timestamp<=Date.now()+30000).sort((a:TrackPoint,b:TrackPoint)=>a.timestamp-b.timestamp).slice(0,20000) : [] }; } catch {}
   // #endif
   return { session: '', points: [] };
 }
