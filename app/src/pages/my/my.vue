@@ -51,7 +51,7 @@
       </view>
     </view>
 
-    <view class="ver">徒步地球客户端 v0.2.0 · 全端客户端</view>
+    <view class="ver">徒步地球客户端 v{{ APP_VERSION }} · 全端客户端</view>
   </scroll-view>
 </template>
 
@@ -62,6 +62,7 @@ import { callCloud } from "@/services/cloud";
 import { listTracks, uploadTrackToCloud, currentTrackOwner, trackNeedsManualBackup } from "@/services/tracks";
 import { hasPrivacyConsent } from "@/services/privacy";
 import { accountSession, saveWeChatIdentity } from '@/services/account';
+import { APP_VERSION } from '@/services/updates';
 
 const openid = ref("");
 const nickname = ref("未登录");
