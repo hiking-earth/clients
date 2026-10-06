@@ -113,37 +113,36 @@ const unsubscribeAccount = onAccountChange(() => {
 });
 onUnmounted(() => { context++;unsubscribePrivacy(); unsubscribeAccount(); stopPoll(); stopShare(); });
 
-async function createTeam() {
-  const original=snapshot();
-  const res = await callCloud<{ teamId: string; inviteCode: string }>("team-create", { name: "徒步小队" });
-  if(!current(original))return;
-  if (res.ok && res.data) {
-    team.value = {
-      id: res.data.teamId, name: "徒步小队", inviteCode: res.data.inviteCode,
-      createdBy: myOpenid.value, createdAt: Date.now(), active: true,
-    };
-    uni.setStorageSync("he_team", JSON.stringify(team.value));
-    startPoll();
-  } else {
-    uni.showToast({ title: res.errMsg ?? "创建失败", icon: "none" });
-  }
+let entering=false;
+function rememberTeam(){
+  try{uni.setStorageSync('he_team',JSON.stringify(team.value));}
+  catch{uni.showToast({title:'已加入队伍，本机缓存保存失败',icon:'none'});}
 }
-
+async function createTeam() {
+  if(entering||team.value)return;
+  const original=snapshot();entering=true;
+  try{
+    const res=await callCloud<{teamId:string;inviteCode:string}>('team-create',{name:'徒步小队'});
+    if(!current(original))return;
+    if(!res.ok||!res.data||typeof res.data.teamId!=='string'||!res.data.teamId||typeof res.data.inviteCode!=='string'||!/^\d{6}$/.test(res.data.inviteCode)){
+      uni.showToast({title:res.errMsg||'创建返回资料无效，请刷新后重试',icon:'none'});return;
+    }
+    team.value={id:res.data.teamId,name:'徒步小队',inviteCode:res.data.inviteCode,createdBy:myOpenid.value,createdAt:Date.now(),active:true};
+    rememberTeam();startPoll();
+  }catch{if(current(original))uni.showToast({title:'创建请求失败，请重试',icon:'none'});}
+  finally{entering=false;}
+}
 async function joinTeam() {
-  const original=snapshot();
-  if (inviteCode.value.length !== 6) {
-    uni.showToast({ title: "请输入 6 位邀请码", icon: "none" });
-    return;
-  }
-  const res = await callCloud<{ team: Team }>("team-join", { inviteCode: inviteCode.value });
-  if(!current(original))return;
-  if (res.ok && res.data && validTeam(res.data.team)) {
-    team.value = res.data.team;
-    uni.setStorageSync("he_team", JSON.stringify(team.value));
-    startPoll();
-  } else {
-    uni.showToast({ title: res.errMsg ?? "加入失败", icon: "none" });
-  }
+  if(entering||team.value)return;
+  if(!/^\d{6}$/.test(inviteCode.value)){uni.showToast({title:'请输入六位数字邀请码',icon:'none'});return;}
+  const original=snapshot();entering=true;
+  try{
+    const res=await callCloud<{team:Team}>('team-join',{inviteCode:inviteCode.value});
+    if(!current(original))return;
+    if(!res.ok||!res.data||!validTeam(res.data.team)||!res.data.team.active){uni.showToast({title:res.errMsg||'加入返回资料无效',icon:'none'});return;}
+    team.value=res.data.team;rememberTeam();startPoll();
+  }catch{if(current(original))uni.showToast({title:'加入请求失败，请重试',icon:'none'});}
+  finally{entering=false;}
 }
 
 function leave() {
@@ -261,7 +260,7 @@ async function poll() {
   if (!current(original)||sequence!==pollSequence||team.value?.id !== id) return;
   if (res.ok && res.data && validLocations(res.data,id)) {
     team.value = res.data.team;
-    uni.setStorageSync('he_team', JSON.stringify(team.value));
+    rememberTeam();
     members.value = res.data.members;
     alerts.value = res.data.alerts ?? [];
     membersWithDistance.value = res.data.members.map((m) => {
