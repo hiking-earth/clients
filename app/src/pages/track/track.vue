@@ -159,7 +159,9 @@ function flushBackground() {
       if (state.value !== 'recording') break;
       processed = point.timestamp;
     }
-    if (persist() && processed) acknowledgeBackgroundPoints(processed);
+    if (persist() && processed && !acknowledgeBackgroundPoints(processed)) {
+      pause();uni.showToast({title:"轨迹已保存，后台缓存清理失败，记录已暂停",icon:"none"});
+    }
   } finally { flushingBackground = false; }
 }
 async function begin() {

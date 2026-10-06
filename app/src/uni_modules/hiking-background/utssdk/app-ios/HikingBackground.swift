@@ -48,10 +48,11 @@ public class HikingBackground: NSObject, CLLocationManagerDelegate {
         guard let bytes = try? JSONSerialization.data(withJSONObject: shared.data()), let text = String(data: bytes, encoding: .utf8) else { return "{}" }
         return text
     }
-    public static func ack(_ timestamp: NSNumber) {
+    public static func ack(_ timestamp: NSNumber) -> Bool {
+        guard timestamp.doubleValue.isFinite && timestamp.doubleValue > 0 else { return false }
         var value = shared.data()
         let points = (value["points"] as? [[String: Any]] ?? []).filter { ($0["timestamp"] as? Double ?? 0) > timestamp.doubleValue }
-        value["points"] = points; _ = shared.store(value)
+        value["points"] = points; return shared.store(value)
     }
     public func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard accepting else { return }

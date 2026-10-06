@@ -47,10 +47,13 @@ object HikingBackground {
         if (!prefs(context).edit().putString("buffer", data.toString()).commit()) { error?.invoke("后台轨迹缓存失败，记录已停止"); stop(context); return }
         changed?.invoke()
     }
-    @Synchronized fun ack(context: Context, timestamp: Number) {
+    @Synchronized fun ack(context: Context, timestamp: Number): Boolean {
+        if (!timestamp.toDouble().isFinite() || timestamp.toDouble() <= 0) return false
+        try {
         val data = JSONObject(buffer(context)); val all = data.optJSONArray("points") ?: JSONArray(); val remaining = JSONArray()
-        for (i in 0 until all.length()) { val p = all.getJSONObject(i); if (p.optDouble("timestamp") > timestamp.toDouble()) remaining.put(p) }
-        data.put("points", remaining); prefs(context).edit().putString("buffer", data.toString()).commit()
+        for (i in 0 until all.length()) { val p = all.optJSONObject(i); if (p == null || !p.optDouble("timestamp").isFinite() || p.optDouble("timestamp") > timestamp.toDouble()) remaining.put(all.get(i)) }
+        data.put("points", remaining); return prefs(context).edit().putString("buffer", data.toString()).commit()
+        } catch (_: Exception) { return false }
     }
 }
 class HikingLocationService : Service(), LocationListener {

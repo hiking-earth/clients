@@ -36,10 +36,13 @@ export function pendingBackground(): { session: string; points: TrackPoint[] } {
   // #endif
   return { session: '', points: [] };
 }
-export function acknowledgeBackgroundPoints(timestamp: number): void {
-  if(!Number.isFinite(timestamp)||timestamp<=0)return;
+export function acknowledgeBackgroundPoints(timestamp: number): boolean {
+  if(!Number.isFinite(timestamp)||timestamp<=0)return false;
   // #ifdef APP-PLUS
-  acknowledgeBackground(timestamp);
+  try { return acknowledgeBackground(timestamp)===true; } catch { return false; }
+  // #endif
+  // #ifndef APP-PLUS
+  return false;
   // #endif
 }
 onPrivacyChange(consents => { if (!consents.location || !consents.backgroundLocation) stopBackgroundRecording(); });
