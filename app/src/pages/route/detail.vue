@@ -7,6 +7,7 @@
         <text class="status">{{ route.status }}</text>
         <text class="region">{{ route.region }}</text>
       </view>
+<RegionPhoto :region="route.region" />
 <text class="name">{{ route.name }}</text>
       <button @click="favorite">{{ favorited ? '取消收藏' : '收藏路线' }}</button>
 
@@ -51,6 +52,7 @@
 
 <script setup lang="ts">
 function openSocial(){if(route.value)uni.navigateTo({url:`/pages/companion/social?tab=comments&routeId=${encodeURIComponent(route.value.id)}`});}
+import RegionPhoto from '@/components/RegionPhoto.vue';
 import { readLibrary, toggleFavorite } from '@/services/library';
 import { computed, ref } from "vue";
 import { onLoad } from "@dcloudio/uni-app";
