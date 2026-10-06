@@ -81,30 +81,37 @@ export function importLegacyLibrary(): { favorites: number; plans: number } {
 
 /** Move a deleted account's local-only library into the existing unassigned
  * archive so its owner can explicitly recover it under a later identity. */
-export function archiveDeletedAccountLibrary(owner: string): { status: 'archived' | 'empty' | 'failed'; favorites: number; plans: number } {
-  if (!owner || owner === 'anonymous') return { status: 'failed', favorites: 0, plans: 0 };
+export function archiveDeletedAccountLibrary(owner: string): { status: 'archived' | 'empty' | 'failed'; favorites: number; plans: number; metadataCleaned: boolean } {
+  if (!owner || owner === 'anonymous') return { status: 'failed', favorites: 0, plans: 0, metadataCleaned: false };
   const sourceKey = scopedKey(owner);
+  const cleanMetadata = () => {
+    let complete = true;
+    for (const key of [`he_library_version:${owner}`, `he_library_baseline:${owner}`]) {
+      try { uni.removeStorageSync(key); } catch { complete = false; }
+    }
+    return complete;
+  };
   try {
     const raw = uni.getStorageSync(sourceKey);
-    if (!raw) return { status: 'empty', favorites: 0, plans: 0 };
+    if (!raw) return { status: 'empty', favorites: 0, plans: 0, metadataCleaned: cleanMetadata() };
     const source = parseLibrary(raw);
-    if (!source) return { status: 'failed', favorites: 0, plans: 0 };
+    if (!source) return { status: 'failed', favorites: 0, plans: 0, metadataCleaned: false };
     const existingRaw = uni.getStorageSync(QUARANTINE_KEY);
     const existing = existingRaw ? parseLibrary(existingRaw) : emptyLibrary();
-    if (!existing) return { status: 'failed', favorites: 0, plans: 0 };
+    if (!existing) return { status: 'failed', favorites: 0, plans: 0, metadataCleaned: false };
     const merged: Library = {
       favorites: [...new Set([...existing.favorites, ...source.favorites])],
       plans: [...existing.plans],
     };
     const planIds = new Set(merged.plans.map(plan => plan.id));
     for (const plan of source.plans) if (!planIds.has(plan.id)) { merged.plans.push(plan); planIds.add(plan.id); }
-    if (merged.favorites.length > 200 || merged.plans.length > 100) return { status: 'failed', favorites: 0, plans: 0 };
+    if (merged.favorites.length > 200 || merged.plans.length > 100) return { status: 'failed', favorites: 0, plans: 0, metadataCleaned: false };
     const serialized = JSON.stringify(merged);
     uni.setStorageSync(QUARANTINE_KEY, serialized);
-    if (JSON.stringify(parseLibrary(uni.getStorageSync(QUARANTINE_KEY))) !== serialized) return { status: 'failed', favorites: 0, plans: 0 };
+    if (JSON.stringify(parseLibrary(uni.getStorageSync(QUARANTINE_KEY))) !== serialized) return { status: 'failed', favorites: 0, plans: 0, metadataCleaned: false };
     uni.removeStorageSync(sourceKey);
-    return { status: 'archived', favorites: source.favorites.length, plans: source.plans.length };
-  } catch { return { status: 'failed', favorites: 0, plans: 0 }; }
+    return { status: 'archived', favorites: source.favorites.length, plans: source.plans.length, metadataCleaned: cleanMetadata() };
+  } catch { return { status: 'failed', favorites: 0, plans: 0, metadataCleaned: false }; }
 }
 
 export function toggleFavorite(id: string): boolean {
