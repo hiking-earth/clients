@@ -59,13 +59,14 @@
 import { ref } from "vue";
 import { onShow } from "@dcloudio/uni-app";
 import { callCloud } from "@/services/cloud";
-import { listTracks, getTrack, markSynced } from "@/services/tracks";
+import { listTracks, uploadTrackToCloud } from "@/services/tracks";
 import { hasPrivacyConsent } from "@/services/privacy";
 import { accountSession } from '@/services/account';
 
 const openid = ref("");
 const nickname = ref("未登录");
 const unsynced = ref(0);
+let syncingTracks=false;
 
 onShow(() => {
   unsynced.value = listTracks().filter((t) => !t.synced).length;
@@ -98,6 +99,7 @@ async function login() {
 }
 
 async function syncAll() {
+  if(syncingTracks)return;
   if (!hasPrivacyConsent("trackCloudSync")) {
     uni.showModal({
       title: "需要轨迹备份授权",
@@ -111,20 +113,15 @@ async function syncAll() {
     uni.showToast({ title: "没有待同步轨迹", icon: "none" });
     return;
   }
+  syncingTracks=true;
   uni.showLoading({ title: "同步中" });
   const owner=String(uni.getStorageSync("he_openid")||"");
   let okCount = 0;
-  for (const t of list) {
+  try { for (const t of list) {
     if(owner!==String(uni.getStorageSync("he_openid")||"")||!hasPrivacyConsent("trackCloudSync"))break;
-    const snapshot=JSON.stringify(t);
-    const res = await callCloud("track-sync", { track: JSON.parse(snapshot) });
     if(owner!==String(uni.getStorageSync("he_openid")||"")||!hasPrivacyConsent("trackCloudSync"))break;
-    if (res.ok && JSON.stringify(getTrack(t.id))===snapshot) {
-      markSynced(t.id);
-      okCount++;
-    }
-  }
-  uni.hideLoading();
+    if(await uploadTrackToCloud(t))okCount++;
+  }} finally { syncingTracks=false;uni.hideLoading(); }
   unsynced.value = listTracks().filter((t) => !t.synced).length;
   uni.showToast({ title: `已同步 ${okCount}/${list.length} 条`, icon: "none" });
 }

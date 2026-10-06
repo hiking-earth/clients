@@ -3,7 +3,7 @@ import { accountSession, onAccountChange } from './account';
 import { onPrivacyChange, hasPrivacyConsent } from './privacy';
 import { callCloud } from './cloud';
 import { readLibrary, writeLibrary, libraryVersion, setLibraryVersion, validCloudLibrary, type Library } from './library';
-import { listTracks, markSynced, getTrack, saveTrack, trackAutoSyncExcluded } from './tracks';
+import { listTracks, getTrack, saveTrack, trackAutoSyncExcluded, uploadTrackToCloud } from './tracks';
 import type { TrackRecord } from '@shared/types/track';
 export const syncState=reactive({running:false,lastSuccess:0,error:'',conflict:false});
 let active=true;let started=false;let timer:ReturnType<typeof setInterval>|undefined;let lastAttempt=0;
@@ -38,10 +38,8 @@ export async function syncNow(force=false):Promise<void> {
     if(hasPrivacyConsent('trackCloudSync')) {
       for(const track of listTracks().filter(t=>t.state==='finished'&&!t.synced&&!trackAutoSyncExcluded(t.id)).slice(0,10)){
         if(!allowed(identity)||!hasPrivacyConsent('trackCloudSync'))return;
-        const result=await callCloud<{synced:boolean}>('track-sync',{track});
         if(!allowed(identity)||!hasPrivacyConsent('trackCloudSync'))return;
-        if(!result.ok||result.data?.synced!==true)throw new Error(result.errMsg || '云端未确认轨迹同步');
-        if(JSON.stringify(getTrack(track.id))===JSON.stringify(track))markSynced(track.id);
+        if(!await uploadTrackToCloud(track))throw new Error('云端未确认轨迹同步，轨迹保留待重试');
       }
       const savedPage=Number(uni.getStorageSync(`he_auto_sync_page:${identity}`)||0);
       let page=Number.isSafeInteger(savedPage)&&savedPage>=0&&savedPage<=100000?savedPage:0;

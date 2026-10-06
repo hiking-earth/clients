@@ -3,6 +3,9 @@
  */
 import type { TrackRecord } from "@shared/types/track";
 import { validTrackPoint } from "@shared/types/track";
+import { accountSession } from "@/services/account";
+import { hasPrivacyConsent } from "@/services/privacy";
+import { callCloud } from "@/services/cloud";
 
 const KEY = "he_tracks_v1";
 
@@ -32,6 +35,24 @@ export function saveTrack(track: TrackRecord): void {
 export function deleteTrack(id: string): void {
   setTrackAutoSyncExcluded(id, true);
   uni.setStorageSync(KEY, JSON.stringify(listTracks().filter((t) => t.id !== id)));
+}
+
+const trackUploads = new Set<string>();
+export async function uploadTrackToCloud(track:TrackRecord):Promise<boolean>{
+  if(!hasPrivacyConsent('trackCloudSync')||track.state!=='finished'||!validRecord(track)||trackUploads.has(track.id))return false;
+  const session=accountSession();
+  const identity=session?.openid||String(uni.getStorageSync('he_openid')||'');
+  const token=session?.token||'';
+  if(!identity||JSON.stringify(getTrack(track.id))!==JSON.stringify(track))return false;
+  trackUploads.add(track.id);
+  try{
+    const response=await callCloud<{synced:boolean}>('track-sync',{track});
+    const latestSession=accountSession();
+    const latestIdentity=latestSession?.openid||String(uni.getStorageSync('he_openid')||'');
+    if(latestIdentity!==identity||(token&&latestSession?.token!==token)||!hasPrivacyConsent('trackCloudSync'))return false;
+    if(!response.ok||response.data?.synced!==true||JSON.stringify(getTrack(track.id))!==JSON.stringify(track))return false;
+    markSynced(track.id);return true;
+  }catch{return false;}finally{trackUploads.delete(track.id);}
 }
 
 export function markSynced(id: string): void {

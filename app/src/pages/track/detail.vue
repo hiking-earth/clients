@@ -17,7 +17,7 @@
     <view class="actions">
       <button class="btn primary" @click="navAlong">沿此轨迹导航</button>
       <button class="btn" @click="exportGpx">导出 GPX</button>
-      <button v-if="!track.synced" class="btn" @click="sync">云同步</button>
+      <button v-if="!track.synced" class="btn" :disabled="syncing" @click="sync">{{syncing?'同步中…':'云同步'}}</button>
       <button class="btn danger" @click="remove">删除</button>
     </view>
   </view>
@@ -35,8 +35,7 @@ import { onLoad,onShow } from "@dcloudio/uni-app";
 const offlineLayer = computed(()=>activeOfflineLayer());
 onShow(()=>{void restoreOfflineLayers();});
 import { trackToGpx, type TrackRecord } from "@shared/types/track";
-import { deleteTrack, getTrack, markSynced } from "@/services/tracks";
-import { callCloud } from "@/services/cloud";
+import { deleteTrack, getTrack, uploadTrackToCloud } from "@/services/tracks";
 import { hasPrivacyConsent } from "@/services/privacy";
 
 declare const plus: any;
@@ -121,27 +120,18 @@ async function exportGpx() {
 }
 
 async function sync() {
+  if (!track.value || syncing.value) return;
   if (!hasPrivacyConsent("trackCloudSync")) {
-    uni.showModal({
-      title: "需要轨迹备份授权",
-      content: "请先在“我的 → 隐私设置”中启用云端轨迹备份。",
-      showCancel: false,
-    });
+    uni.showModal({title:"需要轨迹备份授权",content:"请先在“我的 → 隐私设置”中启用云端轨迹备份。",showCancel:false});
     return;
   }
-  uni.showLoading({ title: "同步中" });
-  const owner=String(uni.getStorageSync("he_openid")||"");
-  const snapshot=JSON.stringify(track.value);
-  const res = await callCloud("track-sync", { track: track.value });
-  uni.hideLoading();
-  if(owner!==String(uni.getStorageSync("he_openid")||"")||!hasPrivacyConsent("trackCloudSync")||JSON.stringify(getTrack(track.value!.id))!==snapshot)return;
-  if (res.ok) {
-    markSynced(track.value!.id);
-    track.value = getTrack(track.value!.id);
-    uni.showToast({ title: "已同步", icon: "success" });
-  } else {
-    uni.showToast({ title: "同步失败：" + res.errMsg, icon: "none" });
-  }
+  const snapshot=track.value;syncing.value=true;uni.showLoading({title:"同步中"});
+  try{
+    if(await uploadTrackToCloud(snapshot)){
+      track.value=getTrack(snapshot.id);
+      uni.showToast({title:"已同步",icon:"success"});
+    }else uni.showToast({title:"云端未确认，保留待同步状态",icon:"none"});
+  }finally{syncing.value=false;uni.hideLoading();}
 }
 
 function remove() {
@@ -179,3 +169,4 @@ function formatFull(ts: number): string {
 .btn.primary { background: #b8f36b; color: #0f141b; font-weight: 600; }
 .btn.danger { color: #ff7b72; }
 </style>
+const syncing=ref(false);
