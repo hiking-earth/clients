@@ -1,13 +1,30 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-06T18:04:47.120096+00:00",
+  "generatedAt": "2026-10-06T18:10:00Z",
   "license": "ODbL-1.0",
   "attribution": "© OpenStreetMap contributors",
   "licenseUrl": "https://www.openstreetmap.org/copyright",
   "coverage": {
-    "japan": 800
+    "china": 3,
+    "japan": 1,
+    "south-asia": 0,
+    "south-america": 3,
+    "africa": 2
   },
-  "failures": [],
+  "failures": [
+    {
+      "region": "europe",
+      "error": "[Errno 54] Connection reset by peer"
+    },
+    {
+      "region": "north-america",
+      "error": "[Errno 54] Connection reset by peer"
+    },
+    {
+      "region": "oceania",
+      "error": "HTTP Error 504: Gateway Timeout"
+    }
+  ],
   "routes": [
     {
       "id": "osm-relation-10000791",
@@ -120516,6 +120533,23 @@
       "status": "待核验"
     },
     {
+      "id": "osm-relation-13885751",
+      "name": "Travessia do Superagui",
+      "originalName": "Travessia do Superagui",
+      "region": "south-america",
+      "center": [
+        -48.1342992,
+        -25.346791
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/13885751",
+      "sourceTags": {
+        "network": "lwn"
+      },
+      "fetchedAt": "2026-10-06T18:10:00Z",
+      "status": "待核验",
+      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00"
+    },
+    {
       "id": "osm-relation-13887303",
       "name": "Rapelle-chiesetta degli alpini",
       "originalName": "Rapelle-chiesetta degli alpini",
@@ -165798,9 +165832,9 @@
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/15711322",
       "sourceTags": {},
-      "fetchedAt": "2026-10-06T17:34:33.769129+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
-      "status": "待核验"
+      "fetchedAt": "2026-10-06T18:10:00Z",
+      "status": "待核验",
+      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00"
     },
     {
       "id": "osm-relation-15711357",
@@ -190035,6 +190069,24 @@
       "status": "待核验"
     },
     {
+      "id": "osm-relation-16413235",
+      "name": "千里步道台北海線",
+      "originalName": "千里步道台北海線",
+      "region": "china",
+      "center": [
+        121.6438991,
+        25.1406048
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/16413235",
+      "sourceTags": {
+        "network": "nwn",
+        "operator": "台灣千里步道協會"
+      },
+      "fetchedAt": "2026-10-06T18:10:00Z",
+      "status": "待核验",
+      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00"
+    },
+    {
       "id": "osm-relation-16414474",
       "name": "Carasova - Cetatea Turcului",
       "originalName": "Carasova - Cetatea Turcului",
@@ -194472,8 +194524,9 @@
       "sourceTags": {
         "network": "rwn"
       },
-      "fetchedAt": "2026-10-05T05:23:35.519849+00:00",
-      "status": "待核验"
+      "fetchedAt": "2026-10-06T18:10:00Z",
+      "status": "待核验",
+      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00"
     },
     {
       "id": "osm-relation-16783969",
@@ -210882,6 +210935,24 @@
       },
       "fetchedAt": "2026-10-05T05:42:05.240567+00:00",
       "status": "待核验"
+    },
+    {
+      "id": "osm-relation-17461355",
+      "name": "漢北正脈",
+      "originalName": "한북정맥",
+      "region": "china",
+      "center": [
+        127.1271416,
+        37.9279554
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/17461355",
+      "sourceTags": {
+        "network": "nwn",
+        "website": "http://www.openbaekdudaegan.org"
+      },
+      "fetchedAt": "2026-10-06T18:10:00Z",
+      "status": "待核验",
+      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00"
     },
     {
       "id": "osm-relation-17461661",
@@ -237518,6 +237589,26 @@
       "status": "待核验"
     },
     {
+      "id": "osm-relation-18140891",
+      "name": "Caminho da Mata Atlântica - Litoral Caiçara",
+      "originalName": "Caminho da Mata Atlântica - Litoral Caiçara",
+      "region": "south-america",
+      "center": [
+        -48.37249,
+        -25.3913426
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/18140891",
+      "sourceTags": {
+        "network": "rwn",
+        "operator": "CMA",
+        "ref": "CMA",
+        "website": "https://caminhodamataatlantica.org.br/"
+      },
+      "fetchedAt": "2026-10-06T18:10:00Z",
+      "status": "待核验",
+      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00"
+    },
+    {
       "id": "osm-relation-18140934",
       "name": "Autour de Plouaret",
       "originalName": "Autour de Plouaret",
@@ -257878,6 +257969,23 @@
       "fetchedAt": "2026-10-06T17:34:33.769129+00:00",
       "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
       "status": "待核验"
+    },
+    {
+      "id": "osm-relation-19015166",
+      "name": "桃林鐵路步道",
+      "originalName": "桃林鐵路步道",
+      "region": "china",
+      "center": [
+        121.2988979,
+        25.0527538
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/19015166",
+      "sourceTags": {
+        "network": "lwn"
+      },
+      "fetchedAt": "2026-10-06T18:10:00Z",
+      "status": "待核验",
+      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00"
     },
     {
       "id": "osm-relation-19017688",
@@ -283972,8 +284080,9 @@
         "network": "nwn",
         "website": "https://kariayolu.com/"
       },
-      "fetchedAt": "2026-10-05T05:28:17.550598+00:00",
-      "status": "待核验"
+      "fetchedAt": "2026-10-06T18:10:00Z",
+      "status": "待核验",
+      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00"
     },
     {
       "id": "osm-relation-19837268",
@@ -320934,6 +321043,24 @@
       "sourceTags": {},
       "fetchedAt": "2026-10-05T06:11:33.759189+00:00",
       "status": "待核验"
+    },
+    {
+      "id": "osm-relation-21516594",
+      "name": "Circuito do P.E. Rio da Onça",
+      "originalName": "Circuito do P.E. Rio da Onça",
+      "region": "south-america",
+      "center": [
+        -48.5289742,
+        -25.7894271
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/21516594",
+      "sourceTags": {
+        "network": "lwn",
+        "operator": "IAT"
+      },
+      "fetchedAt": "2026-10-06T18:10:00Z",
+      "status": "待核验",
+      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00"
     },
     {
       "id": "osm-relation-2152576",
@@ -496056,5 +496183,12 @@
     "cycle": 0,
     "reconciliationVersion": 1,
     "cycleStartedAt": "2026-10-06T15:38:12.036152+00:00"
+  },
+  "sourceCursors": {
+    "china": "2026-10-06T17:58:46Z",
+    "japan": "2026-10-06T17:58:46Z",
+    "south-asia": "2026-10-06T17:59:46Z",
+    "south-america": "2026-10-06T18:04:51Z",
+    "africa": "2026-10-06T18:04:51Z"
   }
 }
