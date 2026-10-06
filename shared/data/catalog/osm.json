@@ -1,23 +1,24 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-06T13:20:54Z",
+  "generatedAt": "2026-10-06T22:38:33Z",
   "license": "ODbL-1.0",
   "attribution": "© OpenStreetMap contributors",
   "licenseUrl": "https://www.openstreetmap.org/copyright",
   "coverage": {
-    "china": 1,
+    "china": 0,
+    "japan": 1,
     "oceania": 0,
-    "south-america": 3,
-    "africa": 2,
+    "south-america": 0,
+    "africa": 0,
     "south-asia": 0
   },
   "sourceCursors": {
-    "china": "2026-10-06T13:20:54Z",
-    "japan": "2026-10-06T00:01:05Z",
-    "oceania": "2026-10-06T13:20:54Z",
-    "south-america": "2026-10-06T13:20:54Z",
-    "africa": "2026-10-06T13:20:54Z",
-    "south-asia": "2026-10-06T13:20:54Z"
+    "china": "2026-10-06T22:38:33Z",
+    "japan": "2026-10-06T22:38:33Z",
+    "oceania": "2026-10-06T22:38:33Z",
+    "south-america": "2026-10-06T22:38:33Z",
+    "africa": "2026-10-06T22:38:33Z",
+    "south-asia": "2026-10-06T22:38:33Z"
   },
   "failures": [
     {
@@ -26,10 +27,6 @@
     },
     {
       "region": "north-america",
-      "error": "HTTP Error 504: Gateway Timeout"
-    },
-    {
-      "region": "japan",
       "error": "HTTP Error 504: Gateway Timeout"
     }
   ],
@@ -31539,7 +31536,7 @@
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/15711322",
       "sourceTags": {},
-      "fetchedAt": "2026-10-04T21:21:03Z",
+      "fetchedAt": "2026-10-06T22:38:33Z",
       "status": "待核验"
     },
     {
