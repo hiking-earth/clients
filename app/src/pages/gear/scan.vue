@@ -181,10 +181,20 @@ function readAsBase64(path: string): Promise<string> {
     }, reject);
     // #endif
     // #ifdef MP-WEIXIN
-    uni.getFileSystemManager().readFile({
+    uni.getFileInfo({
       filePath: path,
-      encoding: "base64",
-      success: (res: any) => resolve(res.data as string),
+      success: (info: { size: number }) => {
+        if (!Number.isFinite(info.size) || info.size < 0 || info.size > 4 * 1024 * 1024) {
+          reject(new Error("请选择 4 MB 以内的照片"));
+          return;
+        }
+        uni.getFileSystemManager().readFile({
+          filePath: path,
+          encoding: "base64",
+          success: (res: any) => resolve(res.data as string),
+          fail: reject,
+        });
+      },
       fail: reject,
     });
     // #endif
