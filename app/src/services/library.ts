@@ -78,6 +78,35 @@ export function importLegacyLibrary(): { favorites: number; plans: number } {
   uni.removeStorageSync(QUARANTINE_KEY);
   return { favorites: legacy.favorites.length, plans: legacy.plans.length };
 }
+
+/** Move a deleted account's local-only library into the existing unassigned
+ * archive so its owner can explicitly recover it under a later identity. */
+export function archiveDeletedAccountLibrary(owner: string): { status: 'archived' | 'empty' | 'failed'; favorites: number; plans: number } {
+  if (!owner || owner === 'anonymous') return { status: 'failed', favorites: 0, plans: 0 };
+  const sourceKey = scopedKey(owner);
+  try {
+    const raw = uni.getStorageSync(sourceKey);
+    if (!raw) return { status: 'empty', favorites: 0, plans: 0 };
+    const source = parseLibrary(raw);
+    if (!source) return { status: 'failed', favorites: 0, plans: 0 };
+    const existingRaw = uni.getStorageSync(QUARANTINE_KEY);
+    const existing = existingRaw ? parseLibrary(existingRaw) : emptyLibrary();
+    if (!existing) return { status: 'failed', favorites: 0, plans: 0 };
+    const merged: Library = {
+      favorites: [...new Set([...existing.favorites, ...source.favorites])],
+      plans: [...existing.plans],
+    };
+    const planIds = new Set(merged.plans.map(plan => plan.id));
+    for (const plan of source.plans) if (!planIds.has(plan.id)) { merged.plans.push(plan); planIds.add(plan.id); }
+    if (merged.favorites.length > 200 || merged.plans.length > 100) return { status: 'failed', favorites: 0, plans: 0 };
+    const serialized = JSON.stringify(merged);
+    uni.setStorageSync(QUARANTINE_KEY, serialized);
+    if (JSON.stringify(parseLibrary(uni.getStorageSync(QUARANTINE_KEY))) !== serialized) return { status: 'failed', favorites: 0, plans: 0 };
+    uni.removeStorageSync(sourceKey);
+    return { status: 'archived', favorites: source.favorites.length, plans: source.plans.length };
+  } catch { return { status: 'failed', favorites: 0, plans: 0 }; }
+}
+
 export function toggleFavorite(id: string): boolean {
   const data = readLibrary(), exists = data.favorites.includes(id);
   data.favorites = exists ? data.favorites.filter(x => x !== id) : [...data.favorites, id];

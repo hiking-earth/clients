@@ -24,7 +24,7 @@
       <button :disabled="busy" @click="updatePassword">更新密码并退出其他设备</button>
       <button :disabled="busy" @click="logout(false)">退出当前设备</button>
       <button :disabled="busy" @click="logout(true)">退出所有设备</button>
-      <text class="hint">注销会删除云轨迹、约伴内容、报名和求助记录，解散你创建的队伍。本机轨迹保留。请先在上方输入当前密码。</text>
+      <text class="hint">注销会删除云轨迹、约伴内容、报名和求助记录，解散你创建的队伍。本机轨迹仍保留在原身份分区；收藏与行程会移入待确认的本机备份。以后可在新账号下明确确认转存或导入。</text>
       <button :disabled="busy" @click="deleteAccount">注销账号 / 继续注销</button>
     </view>
     <view v-if="recoveryCode" class="card recovery">
@@ -44,6 +44,7 @@
 import { ref } from 'vue';
 import { onShow, onUnload } from '@dcloudio/uni-app';
 import { accountApiConfigured, accountRequest, accountSession, clearAccount, clearDeletedAccountRequests, saveAccount, onAccountChange } from '@/services/account';
+import { archiveDeletedAccountLibrary } from '@/services/library';
 import type { AccountSession, AccountProfile } from '@/services/account';
 const modes = [{ value: 'sign-in', label: '登录' }, { value: 'register', label: '注册' }, { value: 'recover', label: '恢复密码' }] as const;
 const mode = ref<string>('sign-in'), username = ref(''), nickname = ref(''), password = ref(''), code = ref(''), newPassword = ref('');
@@ -112,14 +113,21 @@ function logout(all: boolean) {
 function deleteAccount() {
   const original=accountSession();if(!original)return;
   if (!password.value) { message.value = '请先填写当前密码'; return; }
-  uni.showModal({ title: '永久注销账号', content: '云端数据无法恢复；清理期间账号不能使用业务功能。确认后开始删除。', success: async choice => {
+  uni.showModal({ title: '永久注销账号', content: '云端数据删除后无法恢复。清理期间账号不能使用业务功能；完成后，本机收藏和行程转入待确认备份，轨迹仍留在原身份分区。确认开始注销？', success: async choice => {
     if (!choice.confirm || busy.value || !sameSession(original)) return;
     busy.value = true;
     try {
       const result = await accountRequest<{ complete: boolean }>('auth.delete', { password: password.value });
       if(!sameSession(original))return;
       if (!result.ok) { message.value = result.errMsg || '注销未完成，请保留登录状态重试'; return; }
-      if (result.data?.complete===true) { const cleaned=clearDeletedAccountRequests(original.openid);clearAccount(); session.value = null; password.value = ''; message.value = cleaned?'账号和云数据已注销':'账号和云数据已注销，本机待创建请求清理失败'; }
+      if (result.data?.complete===true) {
+        const archived=archiveDeletedAccountLibrary(original.openid);
+        const cleaned=clearDeletedAccountRequests(original.openid);clearAccount(); session.value = null; password.value = '';
+        message.value=archived.status==='failed'
+          ?'云端账号已注销；本机收藏与行程无法安全转入待确认备份，原本机分区仍保留，请勿清理应用数据'
+          :!cleaned?'账号和云数据已注销，本机待创建请求清理失败'
+          :archived.status==='archived'?`账号和云数据已注销；${archived.favorites}条收藏、${archived.plans}个行程已移入待确认备份`:'账号和云数据已注销';
+      }
       else if(result.data?.complete===false) message.value = '账号已进入注销，部分数据已清理。请再次点击“继续注销”完成剩余清理。';
       else message.value='注销回执格式无效，请保留登录状态重试确认';
     } finally { busy.value = false; }
