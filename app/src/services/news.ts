@@ -30,16 +30,18 @@ function apply(data:any){
 }
 apply(snapshot);
 try{apply(uni.getStorageSync(KEY));}catch{}
-let last=0,lastAttempt=0,failures=0;
+let last=0,lastAttempt=0,failures=0,foreground=true,generation=0;
+export function setNewsForeground(value:boolean){if(foreground!==value){foreground=value;generation++;}if(value)void refreshNews();}
 export async function refreshNews(force=false):Promise<void>{
   const now=Date.now();
-  if(news.loading||now-lastAttempt<30000||(!force&&(now<news.retryAt||now-last<60*60*1000)))return;
-  lastAttempt=now;news.loading=true;news.error='';
+  if(!foreground||news.loading||now-lastAttempt<30000||(!force&&(now<news.retryAt||now-last<60*60*1000)))return;
+  const epoch=generation;lastAttempt=now;news.loading=true;news.error='';
   try{
     const data=await publicSnapshot('news');
+    if(!foreground||epoch!==generation)return;
     if(!apply(data))throw new Error('公告格式无效，保留本机资料');
     last=Date.now();failures=0;news.retryAt=0;
     try{uni.setStorageSync(KEY,data);}catch{news.error='公告已更新，本机缓存保存失败';}
-  }catch(e:any){failures++;news.retryAt=Date.now()+Math.min(6*60*60*1000,15*60*1000*2**Math.min(failures-1,5));news.error=e?.message||'公告更新失败，保留本机资料';}
+  }catch(e:any){if(!foreground||epoch!==generation)return;failures++;news.retryAt=Date.now()+Math.min(6*60*60*1000,15*60*1000*2**Math.min(failures-1,5));news.error=e?.message||'公告更新失败，保留本机资料';}
   finally{news.loading=false;}
 }
