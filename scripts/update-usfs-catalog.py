@@ -6,7 +6,12 @@ SOURCE='https://apps.fs.usda.gov/arcx/rest/services/EDW/EDW_TrailNFSPublishWithD
 dest=ROOT/'shared/data/catalog/usfs.json'
 previous=json.loads(dest.read_text()) if dest.exists() else {'routes':[]}
 state_path=ROOT/'shared/data/catalog/usfs-backfill-state.json'
-state=json.loads(state_path.read_text()) if state_path.exists() else {'nextObjectId':None,'completedCycles':0}
+# The snapshot and its cursor are one authoritative atomic checkpoint.
+# Older snapshots migrate from the separate compatibility state file.
+state=previous.get('backfill')
+if not isinstance(state,dict):
+    state=json.loads(state_path.read_text()) if state_path.exists() else {'nextObjectId':None,'completedCycles':0}
+state=dict(state)
 cursor=state.get('nextObjectId');next_cursor=cursor
 records={r['id']:r for r in previous['routes']}; seen=set();now=datetime.datetime.now(datetime.timezone.utc).isoformat()
 # Refresh the newest page and advance a persistent historical keyset cursor.
@@ -48,8 +53,9 @@ for page in range(5):
     if not result.get('exceededTransferLimit'):break
     time.sleep(2)
 if not seen:raise SystemExit('No usable source records; retained previous snapshot')
-snapshot={'schemaVersion':1,'generatedAt':now,'attribution':'USDA Forest Service','license':'USDA source terms; retain attribution and source metadata','licenseUrl':'https://data.fs.usda.gov/geodata/edw/datasets.php?xmlKeyword=recreation','sourceUrl':SOURCE,'coverage':'Persistent historical backfill plus refreshed newest eligible source segments; grouped by trail identity, not a complete US inventory','routes':list(records.values())}
+state.update({'schemaVersion':1,'nextObjectId':next_cursor,'updatedAt':now})
+snapshot={'backfill':state,'schemaVersion':1,'generatedAt':now,'attribution':'USDA Forest Service','license':'USDA source terms; retain attribution and source metadata','licenseUrl':'https://data.fs.usda.gov/geodata/edw/datasets.php?xmlKeyword=recreation','sourceUrl':SOURCE,'coverage':'Persistent historical backfill plus refreshed newest eligible source segments; grouped by trail identity, not a complete US inventory','routes':list(records.values())}
 dest=ROOT/'shared/data/catalog/usfs.json';temp=dest.with_suffix('.tmp');temp.write_text(json.dumps(snapshot,ensure_ascii=False,indent=2)+'\n');os.replace(temp,dest);print('USFS discovered routes',len(records),flush=True)
 
-state.update({'schemaVersion':1,'nextObjectId':next_cursor,'updatedAt':now})
+# Compatibility mirror; failure here cannot advance or regress the next run.
 temp=state_path.with_suffix('.tmp');temp.write_text(json.dumps(state,indent=2)+'\n');os.replace(temp,state_path)
