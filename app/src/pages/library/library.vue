@@ -22,7 +22,7 @@
 import { ref } from 'vue';
 import { onShow } from '@dcloudio/uni-app';
 import { ROUTES } from '@/services/route-catalog';
-import { readLibrary, writeLibrary, toggleFavorite, libraryVersion, setLibraryVersion } from '@/services/library';
+import { readLibrary, writeLibrary, toggleFavorite, libraryVersion, setLibraryVersion, validCloudLibrary } from '@/services/library';
 import type { Library } from '@/services/library';
 import { callCloud } from '@/services/cloud';
 const library = ref(readLibrary()), selected = ref(''), date = ref(''), notes = ref(''), message = ref(''), busy = ref(false);
@@ -43,10 +43,11 @@ async function push() {
   if (busy.value) return; busy.value = true;
   const owner = String(uni.getStorageSync('he_openid') || '');
   const snapshot=JSON.parse(JSON.stringify(library.value)) as Library;
-  try { const result = await callCloud<{ version: number }>('library-manage', { action: 'save', ...snapshot, version: libraryVersion() });
+  const version=libraryVersion();
+  try { const result = await callCloud<{ version: number }>('library-manage', { action: 'save', ...snapshot, version });
     if (owner !== String(uni.getStorageSync('he_openid') || '')) return;
-    if (result.ok && result.data) { setLibraryVersion(result.data.version,snapshot); message.value = '云端资料已保存'; } else message.value = result.errMsg || '保存失败';
-  } finally { busy.value = false; }
+    if (result.ok && result.data) { if(!Number.isSafeInteger(result.data.version)||result.data.version!==version+1){message.value='云端版本响应无效，请重新同步';return;} setLibraryVersion(result.data.version,snapshot); message.value = '云端资料已保存'; } else message.value = result.errMsg || '保存失败';
+  } catch { if(owner===String(uni.getStorageSync('he_openid')||''))message.value='云端保存未完成，请稍后重试'; } finally { busy.value = false; }
 }
 function pull() {
   uni.showModal({ title: '恢复云端资料', content: '用当前账号的云端收藏与行程替换本机资料。', success: async choice => {
@@ -56,7 +57,7 @@ function pull() {
     try { const result = await callCloud<Library & { version: number }>('library-manage', { action: 'get' });
       if (owner !== String(uni.getStorageSync('he_openid') || '')) return;
       if(JSON.stringify(readLibrary())!==original){message.value='本机资料已变化，请重新确认恢复';return;}
-      if (result.ok && result.data) { writeLibrary({ favorites: result.data.favorites, plans: result.data.plans }); setLibraryVersion(result.data.version); library.value = readLibrary(); message.value = '已恢复'; }
+      if (result.ok && result.data) { if(!validCloudLibrary(result.data)){message.value='云端资料格式无效，本机资料未覆盖';return;} writeLibrary({ favorites: result.data.favorites, plans: result.data.plans }); setLibraryVersion(result.data.version); library.value = readLibrary(); message.value = '已恢复'; }
       else message.value = result.errMsg || '恢复失败';
     } catch { message.value = '本机保存失败'; } finally { busy.value = false; }
   } });
