@@ -6,12 +6,12 @@ export type OfficialNews={sourceId:string;id:string;title:string;url:string;regi
 export type NewsSourceState={id:string;label:string;lastSuccess?:string;lastAttempt?:string;lastError?:string|null};
 const KEY='he_official_news_v1';
 export const news=reactive({items:[] as OfficialNews[],generatedAt:null as string|null,error:'',loading:false,sources:registry.sources.map(source=>({id:source.id,label:source.label})) as NewsSourceState[],retryAt:0});
-function officialUrl(value:unknown):boolean{
+function officialUrl(value:unknown,hosts:readonly string[]):boolean{
   if(typeof value!=='string'||value.length>2048)return false;
-  return /^https:\/\/www\.nps\.gov\/[^\\\s\u0000-\u001f\u007f]*$/.test(value);
+  const match=/^https:\/\/([^/?#]+)\/[^\\\s\u0000-\u001f\u007f]*$/.exec(value);return !!match&&hosts.includes(match[1]);
 }
-const valid=(r:any):r is OfficialNews=>!!r&&registry.sources.some(source=>source.id===r.sourceId&&source.url===r.sourceUrl&&source.label===r.sourceLabel&&source.region===r.region)&&typeof r.id==='string'&&!!r.id&&r.id.length<=160
-  &&typeof r.title==='string'&&!!r.title.trim()&&r.title.length<=300&&officialUrl(r.url)&&officialUrl(r.sourceUrl)
+const valid=(r:any):r is OfficialNews=>!!r&&registry.sources.some(source=>source.id===r.sourceId&&source.url===r.sourceUrl&&source.label===r.sourceLabel&&source.region===r.region&&officialUrl(r.url,source.articleHosts)&&officialUrl(r.sourceUrl,source.articleHosts))&&typeof r.id==='string'&&!!r.id&&r.id.length<=160
+  &&typeof r.title==='string'&&!!r.title.trim()&&r.title.length<=300
   &&typeof r.region==='string'&&r.region.length<=100&&typeof r.sourceLabel==='string'&&r.sourceLabel.length<=200
   &&typeof r.fetchedAt==='string'&&Number.isFinite(Date.parse(r.fetchedAt))&&Date.parse(r.fetchedAt)<=Date.now()+30000
   &&(r.publishedAt===null||(typeof r.publishedAt==='string'&&Number.isFinite(Date.parse(r.publishedAt))));

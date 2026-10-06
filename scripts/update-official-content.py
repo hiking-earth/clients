@@ -26,6 +26,8 @@ for source in SOURCES:
  hosts=source.get('articleHosts')
  if not isinstance(hosts,list) or not hosts or any(not isinstance(host,str) or not host or '/' in host or ':' in host for host in hosts):raise ValueError('invalid source hosts')
  if url.scheme!='https' or url.hostname not in hosts or url.username or url.password or url.port:raise ValueError('invalid official source URL')
+ keywords=source.get('titleKeywords',[])
+ if not isinstance(keywords,list) or len(keywords)>30 or any(not isinstance(word,str) or not word.strip() for word in keywords):raise ValueError('invalid source title filter')
  if any(not isinstance(source.get(key),str) or not source[key] for key in ['label','region']):raise ValueError('invalid source attribution')
 
 def collect(source):
@@ -43,11 +45,13 @@ def collect(source):
   if not title or parsed.scheme!='https' or parsed.hostname not in source['articleHosts'] or parsed.username or parsed.password or parsed.port:continue
   if link in seen:raise ValueError('duplicate official item URL')
   seen.add(link)
+  keywords=source.get('titleKeywords',[])
+  if keywords and not any(word.casefold() in title.casefold() for word in keywords):continue
   stamp=(item.findtext('pubDate') or '').strip()
   try:published=email.utils.parsedate_to_datetime(stamp).isoformat()
   except (ValueError,TypeError,OverflowError):published=None
   rows.append({'id':source['id']+'-'+hashlib.sha256(link.encode()).hexdigest()[:20],'title':title,'url':link,'region':source['region'],**({'center':source['center']} if 'center' in source else {}),'industry':'开放管理','importance':'中','publishedAt':published,'sourceLabel':source['label'],'sourceUrl':source['url'],'fetchedAt':now,'verified':True,'sourceId':source['id']})
- if not rows:raise ValueError('no valid official metadata')
+ if not rows and not (seen and source.get('titleKeywords')):raise ValueError('no valid official metadata')
  return rows
 # Linux scheduled runners and macOS local collectors share a per-target OS lock.
 # The kernel releases it on process exit, including crashes; do not unlink it.

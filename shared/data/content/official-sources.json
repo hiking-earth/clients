@@ -44,6 +44,29 @@
       "evidenceUrl": "https://www.nps.gov/yell/learn/news/index.htm",
       "verifiedLinkAt": "2026-10-06",
       "feedAcceptance": "pending-unified-verification"
+    },
+    {
+      "id": "hk-government-outdoor-news",
+      "label": "香港特区政府新闻公报 · 户外相关标题筛选",
+      "url": "https://www.info.gov.hk/gia/rss/general_zh.xml",
+      "region": "中国 · 香港",
+      "articleHosts": [
+        "www.info.gov.hk"
+      ],
+      "format": "rss",
+      "reuse": "metadata-links-only",
+      "titleKeywords": [
+        "郊野",
+        "行山",
+        "遠足",
+        "步道",
+        "露營",
+        "地質公園",
+        "登山"
+      ],
+      "evidenceUrl": "https://data.gov.hk/en-data/dataset/hk-isd-gnmis-gnmis/resource/68cd851b-703d-41cc-9da2-e63f8afb8fc0",
+      "verifiedLinkAt": "2026-10-06",
+      "feedAcceptance": "pending-unified-verification"
     }
   ]
 }
