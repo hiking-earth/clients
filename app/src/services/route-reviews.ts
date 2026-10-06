@@ -6,7 +6,7 @@ const KEY='he_route_reviews_v1';
 const seedIds=new Set(ROUTES.map(route=>route.id));
 const originals=new Map(ROUTES.map(r=>[r.id,{status:r.status,summary:r.summary,archive:r.archive,path:r.path,trackMode:r.trackMode,openingExpiresAt:r.openingExpiresAt}]));
 let reviews:Review[]=[];let running=false,last=0;
-function valid(r:any):r is Review{return !!r&&typeof r.routeId==='string'&&['开放中','即将开放','临时关闭','永久关闭','待核验'].includes(r.status)&&typeof r.sourceUrl==='string'&&/^https:\/\//.test(r.sourceUrl)&&typeof r.summary==='string'&&typeof r.riskNotice==='string'&&Number.isFinite(Date.parse(r.checkedAt))&&Number.isFinite(r.expiresAt)&&Number.isInteger(r.version);}
+function valid(r:any):r is Review{return !!r&&typeof r.routeId==='string'&&['开放中','即将开放','临时关闭','永久关闭','待核验'].includes(r.status)&&typeof r.sourceUrl==='string'&&/^https:\/\//.test(r.sourceUrl)&&typeof r.summary==='string'&&typeof r.riskNotice==='string'&&Number.isFinite(Date.parse(r.checkedAt))&&Date.parse(r.checkedAt)<=Date.now()&&Number.isFinite(r.expiresAt)&&r.expiresAt>=Date.parse(r.checkedAt)&&r.expiresAt<=Date.parse(r.checkedAt)+7*86400000&&Number.isInteger(r.version);}
 function applyReviews(){
  // Restore the last source baseline first. A removed review must not leave an
  // earlier open status or licensed track attached to the route.
