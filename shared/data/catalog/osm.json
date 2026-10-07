@@ -1,29 +1,29 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-06T22:38:33Z",
+  "generatedAt": "2026-10-07T05:54:54Z",
   "license": "ODbL-1.0",
   "attribution": "© OpenStreetMap contributors",
   "licenseUrl": "https://www.openstreetmap.org/copyright",
   "coverage": {
     "china": 0,
-    "japan": 1,
-    "oceania": 0,
+    "japan": 0,
+    "oceania": 1,
     "south-america": 0,
     "africa": 0,
     "south-asia": 0
   },
   "sourceCursors": {
-    "china": "2026-10-06T22:38:33Z",
-    "japan": "2026-10-06T22:38:33Z",
-    "oceania": "2026-10-06T22:38:33Z",
-    "south-america": "2026-10-06T22:38:33Z",
-    "africa": "2026-10-06T22:38:33Z",
-    "south-asia": "2026-10-06T22:38:33Z"
+    "china": "2026-10-07T05:54:54Z",
+    "japan": "2026-10-07T05:54:54Z",
+    "oceania": "2026-10-07T05:54:54Z",
+    "south-america": "2026-10-07T05:54:54Z",
+    "africa": "2026-10-07T05:54:54Z",
+    "south-asia": "2026-10-07T05:54:54Z"
   },
   "failures": [
     {
       "region": "europe",
-      "error": "HTTP Error 504: Gateway Timeout"
+      "error": "The read operation timed out"
     },
     {
       "region": "north-america",
@@ -85496,7 +85496,7 @@
         "ref": "TA02a",
         "website": "https://www.teararoa.org.nz/auckland/mangawhai-pakiri/"
       },
-      "fetchedAt": "2026-10-05T05:34:30Z",
+      "fetchedAt": "2026-10-07T05:54:54Z",
       "status": "待核验"
     },
     {
