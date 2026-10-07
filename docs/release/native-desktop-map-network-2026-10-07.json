@@ -21,12 +21,15 @@
     "cargoCheck": "passed",
     "cargoTests": {
       "filenameValidation": "passed",
-      "publicCatalogRequest": "failed after 15.01 seconds with map request failure"
+      "publicCatalogRequest": "passed",
+      "actualMapDownloadBytes": 1168799,
+      "actualMapShaMatchesCatalog": true
     }
   },
   "limitations": [
-    "New native adapter has not been packaged or accepted in Tauri window.",
-    "Real Rust public network request failed; diagnose native network/proxy configuration before claiming readiness.",
-    "Binary IPC and persistent map rendering need device acceptance."
-  ]
+    "New native adapter not yet packaged or accepted in Tauri window.",
+    "Binary IPC and persistent map rendering need device acceptance.",
+    "Public hosted static map CORS remains absent; native transport handles desktop requests."
+  ],
+  "networkChange": "Enabled reqwest system-proxy feature; subsequent requests passed. Previous failure root cause not conclusively established."
 }

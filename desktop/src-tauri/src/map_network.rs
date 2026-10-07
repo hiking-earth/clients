@@ -21,7 +21,10 @@ async fn fetch_bounded(name: &str, limit: u64, exact: bool) -> Result<Vec<u8>, S
         .connect_timeout(Duration::from_secs(15))
         .user_agent("Mozilla/5.0 HikingEarthDesktop/0.2.3")
         .build().map_err(|_| "地图网络服务不可用".to_string())?;
-    let mut response = client.get(format!("{BASE}{name}")).send().await.map_err(|_| "地图请求失败".to_string())?;
+    let mut response = client.get(format!("{BASE}{name}")).send().await.map_err(|error| {
+        #[cfg(test)] eprintln!("map request failure: timeout={} connect={} cause={}", error.is_timeout(), error.is_connect(), error);
+        "地图请求失败".to_string()
+    })?;
     if response.status() != reqwest::StatusCode::OK { return Err("地图请求未成功".into()); }
     if let Some(length) = response.content_length() {
         if length > limit || (exact && length != limit) { return Err("地图响应大小不一致".into()); }
@@ -53,6 +56,15 @@ mod tests {
         let rows: serde_json::Value = serde_json::from_str(&text).expect("catalog JSON");
         assert!(!rows.as_array().expect("catalog array").is_empty());
         assert!(text.len() <= 256 * 1024);
+        let row = &rows.as_array().unwrap()[0];
+        let name = row["name"].as_str().expect("name");
+        let size = row["bytes"].as_u64().expect("size");
+        assert!(valid_name(name));
+        assert!((127..=MAX_MAP).contains(&size));
+        let data = tauri::async_runtime::block_on(fetch_bounded(name, size, true)).expect("real map download");
+        use sha2::{Digest, Sha256};
+        assert_eq!(format!("{:x}", Sha256::digest(&data)), row["sha256"].as_str().expect("SHA"));
+        println!("real map byte count and SHA verified: {} bytes", data.len());
     }
     #[test] fn filenames_are_confined() {
         assert!(valid_name("monaco-20261006.pmtiles"));
