@@ -1,32 +1,41 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-07T05:54:54Z",
+  "generatedAt": "2026-10-07T13:17:28Z",
   "license": "ODbL-1.0",
   "attribution": "© OpenStreetMap contributors",
   "licenseUrl": "https://www.openstreetmap.org/copyright",
   "coverage": {
-    "china": 0,
+    "china": 1,
     "japan": 0,
-    "oceania": 1,
-    "south-america": 0,
-    "africa": 0,
-    "south-asia": 0
+    "south-america": 0
   },
   "sourceCursors": {
-    "china": "2026-10-07T05:54:54Z",
-    "japan": "2026-10-07T05:54:54Z",
+    "china": "2026-10-07T13:17:28Z",
+    "japan": "2026-10-07T13:17:28Z",
     "oceania": "2026-10-07T05:54:54Z",
-    "south-america": "2026-10-07T05:54:54Z",
+    "south-america": "2026-10-07T13:17:28Z",
     "africa": "2026-10-07T05:54:54Z",
     "south-asia": "2026-10-07T05:54:54Z"
   },
   "failures": [
     {
       "region": "europe",
-      "error": "The read operation timed out"
+      "error": "runtime error: Query timed out in \"query\" at line 1 after 46 seconds."
     },
     {
       "region": "north-america",
+      "error": "runtime error: Query timed out in \"query\" at line 1 after 53 seconds."
+    },
+    {
+      "region": "oceania",
+      "error": "HTTP Error 504: Gateway Timeout"
+    },
+    {
+      "region": "africa",
+      "error": "HTTP Error 504: Gateway Timeout"
+    },
+    {
+      "region": "south-asia",
       "error": "HTTP Error 504: Gateway Timeout"
     }
   ],
@@ -45586,6 +45595,24 @@
       "sourceUrl": "https://www.openstreetmap.org/relation/21301021",
       "sourceTags": {},
       "fetchedAt": "2026-10-04T21:21:03Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-21312113",
+      "name": "Chande To Maan Trail",
+      "originalName": "Chande To Maan Trail",
+      "region": "china",
+      "center": [
+        73.6912136,
+        18.5691975
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/21312113",
+      "sourceTags": {
+        "network": "lwn",
+        "operator": "KYBTrails - Satchit",
+        "ref": "KYB-CM-H01"
+      },
+      "fetchedAt": "2026-10-07T13:17:28Z",
       "status": "待核验"
     },
     {
