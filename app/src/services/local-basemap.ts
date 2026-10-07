@@ -1,0 +1,38 @@
+import { PMTiles, TileType, type Source } from 'pmtiles';
+import type { StyleSpecification } from 'maplibre-gl';
+const MAX_PACK=64*1024*1024,MAX_RANGE=8*1024*1024;
+export type LocalRangeReader=(offset:number,length:number)=>Promise<ArrayBuffer>;
+/** Local-only archive adapter. No URL fallback and no network access. */
+export async function openLocalBasemap(id:string,bytes:number,read:LocalRangeReader){
+ if(!/^[a-z0-9-]{1,96}$/.test(id)||!Number.isSafeInteger(bytes)||bytes<127||bytes>MAX_PACK)throw new Error('离线地图包信息无效或超过64 MB');
+ const key=`offline-basemap-${id}`;
+ const source:Source={getKey:()=>key,getBytes:async(offset,length,signal)=>{
+  if(signal?.aborted)throw new Error('地图读取已取消');
+  if(!Number.isSafeInteger(offset)||!Number.isSafeInteger(length)||offset<0||length<=0||length>MAX_RANGE||offset>=bytes)throw new Error('地图读取范围无效');
+  const expected=Math.min(length,bytes-offset),data=await read(offset,expected);
+  if(signal?.aborted)throw new Error('地图读取已取消');
+  if(!(data instanceof ArrayBuffer)||data.byteLength!==expected)throw new Error('地图包读取不完整');
+  return {data};
+ }};
+ const archive=new PMTiles(source),header=await archive.getHeader();
+ if(header.specVersion!==3||header.tileType!==TileType.Mvt||header.minZoom<0||header.maxZoom>15||header.minZoom>header.maxZoom||!Number.isFinite(header.minLon)||!Number.isFinite(header.maxLon)||!Number.isFinite(header.minLat)||!Number.isFinite(header.maxLat)||header.minLon>=header.maxLon||header.minLat>=header.maxLat||header.minLon< -180||header.maxLon>180||header.minLat< -85.05112878||header.maxLat>85.05112878)throw new Error('仅支持有效的PMTiles v3矢量底图包');
+ const metadata=await archive.getMetadata() as Record<string,unknown>;
+ const layers=metadata.vector_layers;
+ if(metadata.name!=='Protomaps Basemap'||typeof metadata.version!=='string'||!/^4\.\d+\.\d+$/.test(metadata.version)||!Array.isArray(layers)||layers.length>32||!layers.some(layer=>layer?.id==='roads')||!layers.some(layer=>layer?.id==='water'))throw new Error('当前视图仅支持Protomaps v4区域底图');
+ return {key,archive,header};
+}
+/** Geometry styles are fully local; labels/glyphs are a separate next layer. */
+export function localBasemapStyle(key:string):StyleSpecification{
+ if(!/^offline-basemap-[a-z0-9-]{1,96}$/.test(key))throw new Error('离线地图标识无效');
+ return {version:8,sources:{basemap:{type:'vector',url:`pmtiles://${key}`,attribution:'© OpenStreetMap contributors · Protomaps'}},layers:[
+  {id:'background',type:'background',paint:{'background-color':'#142024'}},
+  {id:'earth',type:'fill',source:'basemap','source-layer':'earth',paint:{'fill-color':'#24332a'}},
+  {id:'landuse',type:'fill',source:'basemap','source-layer':'landuse',paint:{'fill-color':'#304537','fill-opacity':0.7}},
+  {id:'water',type:'fill',source:'basemap','source-layer':'water',filter:['==',['geometry-type'],'Polygon'],paint:{'fill-color':'#193c56'}},
+  {id:'water-lines',type:'line',source:'basemap','source-layer':'water',filter:['==',['geometry-type'],'LineString'],paint:{'line-color':'#2f6684','line-width':1.2}},
+  {id:'buildings',type:'fill',source:'basemap','source-layer':'buildings',minzoom:12,paint:{'fill-color':'#607067','fill-opacity':0.55}},
+  {id:'roads',type:'line',source:'basemap','source-layer':'roads',paint:{'line-color':'#b8bc9e','line-width':['interpolate',['linear'],['zoom'],8,0.5,15,2.5]}},
+  {id:'paths',type:'line',source:'basemap','source-layer':'roads',filter:['==',['get','kind'],'path'],paint:{'line-color':'#b8f36b','line-width':1.5,'line-dasharray':[2,2]}},
+  {id:'boundaries',type:'line',source:'basemap','source-layer':'boundaries',paint:{'line-color':'#8b9794','line-width':0.8,'line-dasharray':[3,3]}},
+ ]};
+}

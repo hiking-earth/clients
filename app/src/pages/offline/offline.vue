@@ -2,6 +2,9 @@
   <text class="title">离线资料</text><text class="hint">本机轨迹可离线查看。本页可导入你有权使用的WGS84 GeoJSON道路或边界资料，不下载商业地图瓦片，不含地形高程。</text>
   <view v-for="layer in layers" :key="layer.id" class="card"><text class="title">{{ layer.name }}</text><text class="hint">{{ layer.attribution }} · {{ layer.license }} · {{ (layer.bytes/1024).toFixed(0) }} KB</text><button :disabled="busy" @click="activate(layer.id)">{{ active === layer.id ? '正在使用' : '用于轨迹与导航示意' }}</button><button :disabled="busy" @click="remove(layer.id)">删除资料</button></view>
   <TrackCanvas v-if="preview" :points="[]" :layers="preview.paths" :attribution="preview.attribution" />
+  <!-- #ifdef H5 -->
+  <text class="title">区域离线底图</text><button :disabled="busy" @click="chooseBasemap">打开本机PMTiles地图包</button><text class="hint">支持最多64 MB的PMTiles v3矢量地图包。本机读取，不上传；当前为道路和地物视图，尚未保存到应用目录。</text><OfflineBasemap v-if="basemapFile" :file="basemapFile" />
+  <!-- #endif -->
   <text class="title">全球离线概览</text><button :disabled="busy" @click="saveWorld">保存全球陆地轮廓到本机</button><text class="hint">内置 Natural Earth 公共领域全球陆地轮廓（1:110m），无需联网即可保存和查看。仅供全球概览，不含详细道路、地形高程和导航信息。</text>
   <text class="title">官方参考资料</text><button :disabled="busy" @click="downloadHk">{{downloading ? '下载中…' : '下载香港郊野公园官方步道参考线'}}</button><text class="hint">来源：香港政府渔农自然护理署 / DATA.GOV.HK。参考线不包含底图、高程或当前开放许可；下载后可离线叠加查看。</text>
   <view class="card"><text>前台自动更新已下载的官方参考线</text><switch :checked="offlineUpdateState.enabled" @change="toggleOfficialUpdates" /><text class="hint">默认关闭；开启后联网检查，会使用网络流量。只更新已有官方参考线，删除后不会自动重新下载。{{offlineUpdateState.message}}</text></view>
@@ -21,6 +24,11 @@ import { onShow } from '@dcloudio/uni-app';
 import TrackCanvas from '@/components/TrackCanvas.vue';
 import { offlineLayers, importOfflineLayer, deleteOfflineLayer, selectOfflineLayer, restoreOfflineLayers } from '@/services/offline';
 import world from '@/data/offline-world.json';
+// #ifdef H5
+import OfflineBasemap from '@/components/OfflineBasemap.vue';
+const basemapFile=ref<File|null>(null);
+function chooseBasemap(){const input=document.createElement('input');input.type='file';input.accept='.pmtiles';input.onchange=()=>{const file=input.files?.[0];if(!file)return;if(file.size>64*1024*1024){message.value='地图包超过64 MB';return;}basemapFile.value=file;};input.click();}
+// #endif
 async function saveWorld(){if(busy.value)return;mutating.value=true;try{const layer=await importOfflineLayer(JSON.stringify(world));await useSavedLayer(layer.id,'全球陆地轮廓已保存，可离线查看');}catch(e){message.value=e instanceof Error?e.message:'全球轮廓保存失败';}finally{mutating.value=false;}}
 function toggleOfficialUpdates(event:any){try{setOfficialOfflineUpdates(event.detail.value===true);}catch{message.value='未能保存自动更新设置';}}
 const downloading=ref(false),mutating=ref(false);

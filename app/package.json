@@ -64,6 +64,7 @@
     "@tensorflow/tfjs-core": "4.22.0",
     "fast-xml-parser": "^5.11.2",
     "maplibre-gl": "6.4.1",
+    "pmtiles": "4.5.0",
     "qrcode": "^1.5.4",
     "vue": "^3.4.21",
     "vue-i18n": "^9.1.9"
