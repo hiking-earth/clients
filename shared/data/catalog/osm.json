@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-07T17:25:38Z",
+  "generatedAt": "2026-10-07T17:48:17Z",
   "license": "ODbL-1.0",
   "attribution": "© OpenStreetMap contributors",
   "licenseUrl": "https://www.openstreetmap.org/copyright",
@@ -22785,15 +22785,15 @@
       "originalName": "Yalung base camp trek",
       "region": "south-asia",
       "center": [
-        88.0177073,
-        27.5894882
+        88.01770735,
+        27.58948815
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/11073390",
       "sourceTags": {
         "network": "nwn",
         "ref": "YBC"
       },
-      "fetchedAt": "2026-10-05T05:08:43.836608+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -22824,8 +22824,8 @@
       "originalName": "Tsum Valley trek",
       "region": "south-asia",
       "center": [
-        85.00399,
-        28.5090585
+        85.00399005,
+        28.50905855
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/11074323",
       "sourceTags": {
@@ -22833,7 +22833,7 @@
         "operator": "Manaslu Conservation area Project",
         "ref": "TV"
       },
-      "fetchedAt": "2026-10-05T05:08:43.836608+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -22971,7 +22971,7 @@
       "originalName": "Tilicho Trek",
       "region": "south-asia",
       "center": [
-        83.8740468,
+        83.87404685,
         28.7194151
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/11077478",
@@ -22980,7 +22980,7 @@
         "operator": "Annapurna Conservation Area Project",
         "ref": "TT"
       },
-      "fetchedAt": "2026-10-05T05:08:43.836608+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -22990,13 +22990,13 @@
       "region": "south-asia",
       "center": [
         84.0505628,
-        28.6675169
+        28.66751695
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/11082014",
       "sourceTags": {
         "network": "rwn"
       },
-      "fetchedAt": "2026-10-05T05:08:43.836608+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -23453,15 +23453,15 @@
       "originalName": "Dhaulagiri Trek",
       "region": "south-asia",
       "center": [
-        83.5090968,
-        28.5682503
+        83.50909680000001,
+        28.568250300000003
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/11096629",
       "sourceTags": {
         "network": "nwn",
         "ref": "DT"
       },
-      "fetchedAt": "2026-10-05T05:08:43.836608+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -23858,7 +23858,7 @@
       "originalName": "Lower Dolpo Circuit",
       "region": "south-asia",
       "center": [
-        82.9628815,
+        82.96288150000001,
         28.9281565
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/11103213",
@@ -23866,7 +23866,7 @@
         "network": "nwn",
         "ref": "LD"
       },
-      "fetchedAt": "2026-10-05T05:08:43.836608+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -23875,15 +23875,15 @@
       "originalName": "Upper Dolpo Circuit",
       "region": "south-asia",
       "center": [
-        83.0029951,
-        29.1504943
+        83.00299505000001,
+        29.15049425
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/11104197",
       "sourceTags": {
         "network": "nwn",
         "ref": "UD"
       },
-      "fetchedAt": "2026-10-05T05:17:20.916757+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -24022,15 +24022,15 @@
       "originalName": "Jomsom to Dolpo",
       "region": "south-asia",
       "center": [
-        83.3038389,
-        29.010556
+        83.30383885,
+        29.01055595
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/11107384",
       "sourceTags": {
         "network": "nwn",
         "ref": "J2D"
       },
-      "fetchedAt": "2026-10-05T05:17:20.916757+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -24168,15 +24168,15 @@
       "originalName": "DHORPATAN TREK",
       "region": "south-asia",
       "center": [
-        83.1642106,
-        28.5372723
+        83.16421059999999,
+        28.537272299999998
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/11109999",
       "sourceTags": {
         "description": "not completely",
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-05T05:08:43.836608+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -39606,7 +39606,7 @@
       "sourceTags": {
         "network": "rwn"
       },
-      "fetchedAt": "2026-10-07T17:09:15Z",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -48161,8 +48161,8 @@
       "originalName": "Annapurna Circuit",
       "region": "south-asia",
       "center": [
-        84.0017592,
-        28.5481933
+        84.00175920000001,
+        28.548193249999997
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/1187310",
       "sourceTags": {
@@ -48172,7 +48172,7 @@
         "operator": "Annapurna Conservation Area Project",
         "ref": "AC"
       },
-      "fetchedAt": "2026-10-05T05:08:43.836608+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -81752,7 +81752,7 @@
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-05T05:08:43.836608+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -81856,14 +81856,14 @@
       "originalName": "Jugal Himal",
       "region": "south-asia",
       "center": [
-        85.8073477,
-        28.0320356
+        85.80734774999999,
+        28.03203555
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/12658318",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-05T05:08:43.836608+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -82137,11 +82137,11 @@
       "region": "south-asia",
       "center": [
         87.8909118,
-        27.574895
+        27.57489495
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/12664914",
       "sourceTags": {},
-      "fetchedAt": "2026-10-05T05:08:43.836608+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -82150,12 +82150,12 @@
       "originalName": "Kanchendjunga 1: Suketar - Base Camp",
       "region": "south-asia",
       "center": [
-        87.9035923,
+        87.90359225,
         27.5720439
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/12664915",
       "sourceTags": {},
-      "fetchedAt": "2026-10-05T05:08:43.836608+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -83427,14 +83427,14 @@
       "region": "south-asia",
       "center": [
         85.4545214,
-        28.1834926
+        28.183492649999998
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/1269089",
       "sourceTags": {
         "description": "Trekking from the town of Syabru Bensi (1500m) to the village of Kyanjin Gompa (3880m)",
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-05T05:08:43.836608+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -85215,14 +85215,14 @@
       "originalName": "Lespar - Sahasradhara temple",
       "region": "south-asia",
       "center": [
-        83.6665344,
-        28.324911
+        83.66653435,
+        28.32491095
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/12719467",
       "sourceTags": {
         "network": "lwn"
       },
-      "fetchedAt": "2026-10-05T05:08:43.836608+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -85231,14 +85231,14 @@
       "originalName": "Nangi - Mohare danda",
       "region": "south-asia",
       "center": [
-        83.6596613,
-        28.3590776
+        83.65966135,
+        28.35907755
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/12719575",
       "sourceTags": {
         "network": "rwn"
       },
-      "fetchedAt": "2026-10-05T05:08:43.836608+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -101736,8 +101736,8 @@
       "originalName": "Manaslu Circuit",
       "region": "south-asia",
       "center": [
-        84.6291219,
-        28.3576253
+        84.62912185,
+        28.35762535
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/1328173",
       "sourceTags": {
@@ -101745,7 +101745,7 @@
         "network": "nwn",
         "operator": "Manaslu Conservation area Project"
       },
-      "fetchedAt": "2026-10-05T05:08:43.836608+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -111160,14 +111160,14 @@
       "originalName": "Ghang La track",
       "region": "south-asia",
       "center": [
-        87.8497775,
-        27.79668
+        87.84977745,
+        27.796679949999998
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/13572063",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-05T05:08:43.836608+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -111181,7 +111181,7 @@
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/13572259",
       "sourceTags": {},
-      "fetchedAt": "2026-10-07T17:09:15Z",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -111191,12 +111191,11 @@
       "region": "china",
       "center": [
         87.7513144,
-        27.7498438
+        27.749843849999998
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/13572286",
       "sourceTags": {},
-      "fetchedAt": "2026-10-06T16:34:17.556692+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -132229,13 +132228,13 @@
       "region": "south-asia",
       "center": [
         85.4093943,
-        27.7993383
+        27.79933835
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/14280706",
       "sourceTags": {
         "network": "rwn"
       },
-      "fetchedAt": "2026-10-05T05:08:43.836608+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -132498,12 +132497,12 @@
       "originalName": "Nangi Gumba - Shivapuri Peak",
       "region": "south-asia",
       "center": [
-        85.3865719,
-        27.7974133
+        85.38657194999999,
+        27.79741335
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/14284596",
       "sourceTags": {},
-      "fetchedAt": "2026-10-05T05:08:43.836608+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -139799,7 +139798,7 @@
         "description": "Currently used alternative for this section of the original Makalu Trail which is overgrown and seems less used",
         "network": "lwn"
       },
-      "fetchedAt": "2026-10-07T17:09:15Z",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -178144,14 +178143,14 @@
       "originalName": "GHT lower trails",
       "region": "south-asia",
       "center": [
-        87.2688844,
-        27.6627265
+        87.26888439999999,
+        27.662726499999998
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/15961817",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-05T05:08:43.836608+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -188043,15 +188042,15 @@
       "originalName": "Naar-Phu trek",
       "region": "south-asia",
       "center": [
-        84.2273427,
-        28.6685434
+        84.22734270000001,
+        28.66854345
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/1634863",
       "sourceTags": {
         "network": "nwn",
         "ref": "NPT"
       },
-      "fetchedAt": "2026-10-05T05:08:43.836608+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -208328,14 +208327,14 @@
       "originalName": "Lumthi to Simikot",
       "region": "south-asia",
       "center": [
-        81.3235796,
+        81.32357955,
         29.8863859
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/17386583",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-05T05:17:20.916757+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -208364,14 +208363,14 @@
       "originalName": "Simikot to Piplang",
       "region": "south-asia",
       "center": [
-        81.9456594,
+        81.94565945,
         29.8608202
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/17386956",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-05T05:17:20.916757+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -208381,13 +208380,13 @@
       "region": "south-asia",
       "center": [
         82.3018537,
-        29.7840425
+        29.784042550000002
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/17386992",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-05T05:17:20.916757+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -208396,14 +208395,14 @@
       "originalName": "Bhijer to Saidang",
       "region": "south-asia",
       "center": [
-        82.9980546,
+        82.99805455,
         29.4383458
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/17387025",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-05T05:17:20.916757+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -208431,13 +208430,13 @@
       "region": "south-asia",
       "center": [
         83.247402,
-        29.2689957
+        29.26899565
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/17387136",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-05T05:17:20.916757+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -208558,13 +208557,13 @@
       "region": "south-asia",
       "center": [
         82.2914306,
-        29.6498262
+        29.649826150000003
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/17388964",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-05T05:17:20.916757+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -208573,14 +208572,14 @@
       "originalName": "Siraanchaur to Bhijer",
       "region": "south-asia",
       "center": [
-        82.7206831,
+        82.72068305,
         29.5684447
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/17388980",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-05T05:17:20.916757+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -208589,14 +208588,14 @@
       "originalName": "Bhijer to Shey",
       "region": "south-asia",
       "center": [
-        82.9498086,
+        82.94980855,
         29.4020886
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/17388988",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-05T05:17:20.916757+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -208605,14 +208604,14 @@
       "originalName": "Khorlabesi to Borang",
       "region": "south-asia",
       "center": [
-        84.9698803,
+        84.96988025,
         28.2058255
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/17389209",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-05T05:08:43.836608+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -208621,14 +208620,14 @@
       "originalName": "Somdang to Syabru Bensi",
       "region": "south-asia",
       "center": [
-        85.26796,
-        28.1727069
+        85.26795995,
+        28.17270685
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/17389344",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-05T05:08:43.836608+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -208638,13 +208637,13 @@
       "region": "south-asia",
       "center": [
         85.6883639,
-        28.100508
+        28.10050795
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/17389384",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-05T05:08:43.836608+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -208764,14 +208763,14 @@
       "originalName": "Bhote Koshi to Balephi Khola",
       "region": "south-asia",
       "center": [
-        85.8507761,
+        85.85077609999999,
         27.9306229
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/17395262",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-05T05:08:43.836608+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -212292,7 +212291,7 @@
       "sourceTags": {
         "network": "rwn"
       },
-      "fetchedAt": "2026-10-05T05:08:43.836608+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -213578,7 +213577,7 @@
       "originalName": "Annapurna Base Camp Trek",
       "region": "south-asia",
       "center": [
-        83.8626886,
+        83.86268855,
         28.4686916
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/17548991",
@@ -213586,7 +213585,7 @@
         "network": "nwn",
         "ref": "ABC"
       },
-      "fetchedAt": "2026-10-05T05:08:43.836608+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -215439,7 +215438,7 @@
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-05T05:17:20.916757+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -215449,13 +215448,13 @@
       "region": "south-asia",
       "center": [
         82.689111,
-        29.0697298
+        29.06972975
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/17641212",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-05T05:17:20.916757+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -215464,14 +215463,14 @@
       "originalName": "Mendokiin La to Shey",
       "region": "south-asia",
       "center": [
-        82.9307673,
+        82.93076735,
         29.3492219
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/17641218",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-05T05:17:20.916757+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -215487,7 +215486,7 @@
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-05T05:17:20.916757+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -215497,13 +215496,13 @@
       "region": "south-asia",
       "center": [
         83.2182793,
-        29.2440296
+        29.24402955
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/17641231",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-05T05:17:20.916757+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -215512,14 +215511,14 @@
       "originalName": "Shreenagar to Ripa",
       "region": "south-asia",
       "center": [
-        81.8522095,
-        29.7286922
+        81.85220955,
+        29.72869215
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/17641334",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-05T05:17:20.916757+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -215528,14 +215527,14 @@
       "originalName": "Jyanta La to Chhoila Bhaniyan",
       "region": "south-asia",
       "center": [
-        83.1568333,
-        29.2343124
+        83.15683325,
+        29.23431235
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/17641342",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-05T05:17:20.916757+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -215545,13 +215544,13 @@
       "region": "south-asia",
       "center": [
         83.2666098,
-        29.141506
+        29.14150605
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/17641344",
       "sourceTags": {
         "network": "rwn"
       },
-      "fetchedAt": "2026-10-05T05:17:20.916757+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -215560,14 +215559,14 @@
       "originalName": "Khanigaon to Chharka Bhot",
       "region": "south-asia",
       "center": [
-        83.2084433,
-        28.9870881
+        83.20844325,
+        28.987088149999998
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/17641418",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-05T05:17:20.916757+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -215583,7 +215582,7 @@
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-05T05:08:43.836608+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -215599,7 +215598,7 @@
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-05T05:17:20.916757+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -215615,7 +215614,7 @@
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-05T05:08:43.836608+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -215625,13 +215624,13 @@
       "region": "south-asia",
       "center": [
         84.1658171,
-        28.3769087
+        28.376908649999997
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/17641583",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-05T05:08:43.836608+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -215641,13 +215640,13 @@
       "region": "south-asia",
       "center": [
         84.1138259,
-        28.4025863
+        28.402586300000003
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/17641586",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-05T05:08:43.836608+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -215663,7 +215662,7 @@
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-05T05:08:43.836608+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -215672,14 +215671,14 @@
       "originalName": "Dudh Kund",
       "region": "south-asia",
       "center": [
-        86.5443398,
-        27.6502305
+        86.54433975,
+        27.65023045
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/17641765",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-05T05:08:43.836608+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -215688,14 +215687,14 @@
       "originalName": "Panggom La",
       "region": "south-asia",
       "center": [
-        86.7602844,
+        86.76028439999999,
         27.6113394
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/17641769",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-05T05:08:43.836608+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -215704,14 +215703,14 @@
       "originalName": "Surki La",
       "region": "south-asia",
       "center": [
-        86.8107024,
+        86.81070245,
         27.6131055
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/17641777",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-05T05:08:43.836608+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -215721,13 +215720,13 @@
       "region": "south-asia",
       "center": [
         86.4165325,
-        27.6806382
+        27.68063815
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/17641923",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-05T05:08:43.836608+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -215736,14 +215735,14 @@
       "originalName": "Baramji",
       "region": "south-asia",
       "center": [
-        86.2861076,
+        86.28610760000001,
         27.6944194
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/17641933",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-05T05:08:43.836608+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -215752,14 +215751,14 @@
       "originalName": "Lamidada to Thorthali",
       "region": "south-asia",
       "center": [
-        86.0535102,
-        27.7626623
+        86.05351024999999,
+        27.762662249999998
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/17641936",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-05T05:08:43.836608+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -215768,14 +215767,14 @@
       "originalName": "Rupina La",
       "region": "south-asia",
       "center": [
-        84.8054747,
+        84.80547465000001,
         28.3292254
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/17641970",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-05T05:08:43.836608+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -215785,13 +215784,13 @@
       "region": "south-asia",
       "center": [
         83.3926085,
-        28.8443112
+        28.84431125
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/17641990",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-05T05:08:43.836608+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -221009,7 +221008,7 @@
         "network": "nwn",
         "name:zh": "珠穆朗玛峰南坡登顶路线"
       },
-      "fetchedAt": "2026-10-07T17:09:15Z",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -240232,14 +240231,14 @@
       "originalName": "Darchula to Khandeshwari",
       "region": "south-asia",
       "center": [
-        80.7280225,
-        29.8518359
+        80.72802254999999,
+        29.85183585
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/18211794",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-05T05:17:20.916757+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -240249,13 +240248,13 @@
       "region": "south-asia",
       "center": [
         81.6950276,
-        29.903233
+        29.90323295
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/18211996",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-05T05:17:20.916757+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -240265,13 +240264,13 @@
       "region": "south-asia",
       "center": [
         81.8045258,
-        29.8255389
+        29.825538950000002
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/18214661",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-05T05:17:20.916757+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -240280,14 +240279,14 @@
       "originalName": "Ripa to Piplang",
       "region": "south-asia",
       "center": [
-        81.9625668,
+        81.96256679999999,
         29.7750043
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/18214674",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-05T05:17:20.916757+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -240296,14 +240295,14 @@
       "originalName": "Lampata to Kawadi",
       "region": "south-asia",
       "center": [
-        81.7271822,
+        81.72718225,
         29.718122
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/18215493",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-05T05:17:20.916757+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -240402,14 +240401,14 @@
       "originalName": "Puwa to Talphi",
       "region": "south-asia",
       "center": [
-        82.3806798,
-        29.4385403
+        82.38067975000001,
+        29.438540250000003
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/18216113",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-05T05:17:20.916757+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -240490,14 +240489,14 @@
       "originalName": "gadigau to chotra gramin sadak",
       "region": "south-asia",
       "center": [
-        82.3776254,
-        29.2540385
+        82.37762545,
+        29.25403855
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/18216676",
       "sourceTags": {
         "network": "Translink"
       },
-      "fetchedAt": "2026-10-05T05:17:20.916757+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -241117,14 +241116,14 @@
       "originalName": "Juphal to Pelma",
       "region": "south-asia",
       "center": [
-        82.872633,
-        28.8178415
+        82.87263304999999,
+        28.81784145
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/18246650",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-05T05:08:43.836608+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -245684,14 +245683,14 @@
       "originalName": "Phaliyagaon to Kalapani",
       "region": "south-asia",
       "center": [
-        83.4655945,
-        28.5641208
+        83.46559450000001,
+        28.56412075
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/18521669",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-05T05:08:43.836608+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -263256,7 +263255,7 @@
       "originalName": "Kajinsara Trek",
       "region": "south-asia",
       "center": [
-        84.2407179,
+        84.24071789999999,
         28.5510727
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/19216866",
@@ -263265,7 +263264,7 @@
         "network": "rwn",
         "operator": "Annapurna Conservation Area Project"
       },
-      "fetchedAt": "2026-10-05T05:08:43.836608+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -263981,15 +263980,15 @@
       "originalName": "Mardi Himal trek",
       "region": "south-asia",
       "center": [
-        83.8578801,
-        28.3761745
+        83.85788015,
+        28.376174499999998
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/19267496",
       "sourceTags": {
         "network": "rwn",
         "ref": "MH"
       },
-      "fetchedAt": "2026-10-05T05:08:43.836608+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -271750,7 +271749,7 @@
       "sourceTags": {
         "network": "rwn"
       },
-      "fetchedAt": "2026-10-05T05:08:43.836608+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -275553,7 +275552,7 @@
       "sourceTags": {
         "network": "rwn"
       },
-      "fetchedAt": "2026-10-05T05:08:43.836608+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -276470,12 +276469,12 @@
       "originalName": "Muktinath to Jharkot",
       "region": "south-asia",
       "center": [
-        83.857732,
-        28.8187159
+        83.85773195,
+        28.81871585
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/19564075",
       "sourceTags": {},
-      "fetchedAt": "2026-10-05T05:08:43.836608+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -285977,14 +285976,14 @@
       "originalName": "Kanchendjunga 2 Base Camp",
       "region": "south-asia",
       "center": [
-        87.7958053,
-        27.5073366
+        87.79580525,
+        27.507336600000002
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/19875975",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-05T05:08:43.836608+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -286000,7 +285999,7 @@
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-05T05:08:43.836608+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -286009,14 +286008,14 @@
       "originalName": "Lumba Samba Pass",
       "region": "south-asia",
       "center": [
-        87.5850999,
-        27.725357
+        87.58509985,
+        27.725357000000002
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/19876051",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-05T05:08:43.836608+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -286032,7 +286031,7 @@
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-07T17:09:15Z",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -286042,13 +286041,13 @@
       "region": "south-asia",
       "center": [
         87.1328213,
-        27.7849674
+        27.784967350000002
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/19876100",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-05T05:08:43.836608+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -286064,7 +286063,7 @@
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-07T17:09:15Z",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -286074,14 +286073,14 @@
       "region": "south-asia",
       "center": [
         86.4364029,
-        27.8647725
+        27.864772549999998
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/19876391",
       "sourceTags": {
         "network": "nwn",
         "website": "https://greathimalayatrail.com/"
       },
-      "fetchedAt": "2026-10-05T05:08:43.836608+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -286108,13 +286107,13 @@
       "region": "south-asia",
       "center": [
         86.1579576,
-        27.8181873
+        27.818187350000002
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/19876422",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-05T05:08:43.836608+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -286147,7 +286146,7 @@
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-05T05:08:43.836608+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -286207,14 +286206,14 @@
       "originalName": "Manaslu",
       "region": "south-asia",
       "center": [
-        84.6291219,
-        28.4604357
+        84.62912185,
+        28.460435699999998
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/19876603",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-05T05:08:43.836608+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -286223,14 +286222,14 @@
       "originalName": "Annapurna",
       "region": "south-asia",
       "center": [
-        84.0697227,
-        28.6784192
+        84.06972275,
+        28.67841925
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/19876645",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-05T05:08:43.836608+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -286239,14 +286238,14 @@
       "originalName": "Sangda La",
       "region": "south-asia",
       "center": [
-        83.5928664,
-        28.966754
+        83.59286639999999,
+        28.96675405
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/19876659",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-05T05:17:20.916757+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -286328,7 +286327,7 @@
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-05T05:08:43.836608+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -296225,13 +296224,13 @@
       "region": "south-asia",
       "center": [
         86.943903,
-        27.3306637
+        27.330663700000002
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/20268170",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-05T05:08:43.836608+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -297696,7 +297695,7 @@
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/20338099",
       "sourceTags": {},
-      "fetchedAt": "2026-10-07T17:09:15Z",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -331653,7 +331652,7 @@
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-05T05:08:43.836608+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -332691,12 +332690,12 @@
       "originalName": "Tourist Route 1",
       "region": "south-asia",
       "center": [
-        85.3294021,
-        27.670937
+        85.32940210000001,
+        27.670936949999998
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/2836852",
       "sourceTags": {},
-      "fetchedAt": "2026-10-05T05:08:43.836608+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -332753,14 +332752,14 @@
       "originalName": "Tourist Route 1",
       "region": "south-asia",
       "center": [
-        85.3294263,
-        27.6748914
+        85.32942625000001,
+        27.67489145
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/2841077",
       "sourceTags": {
         "network": "lwn"
       },
-      "fetchedAt": "2026-10-05T05:08:43.836608+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -332769,14 +332768,14 @@
       "originalName": "Tourist Route 2",
       "region": "south-asia",
       "center": [
-        85.3290065,
+        85.32900645000001,
         27.6719868
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/2841103",
       "sourceTags": {
         "network": "lwn"
       },
-      "fetchedAt": "2026-10-05T05:08:43.836608+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -339350,12 +339349,12 @@
       "originalName": "Bagbazaar- Ratnapark",
       "region": "south-asia",
       "center": [
-        85.3162162,
-        27.7062119
+        85.31621615,
+        27.706268
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/3067910",
       "sourceTags": {},
-      "fetchedAt": "2026-10-05T05:08:43.836608+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -339364,14 +339363,14 @@
       "originalName": "Purano Bus Park-Ratnapark",
       "region": "south-asia",
       "center": [
-        85.3158571,
+        85.31585709999999,
         27.704532
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/3067911",
       "sourceTags": {
         "ref": "on foot"
       },
-      "fetchedAt": "2026-10-05T05:08:43.836608+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -346630,12 +346629,12 @@
       "originalName": "Ratnapark - Bagbazar",
       "region": "south-asia",
       "center": [
-        85.3159909,
-        27.7062144
+        85.31599095,
+        27.7062706
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/3470509",
       "sourceTags": {},
-      "fetchedAt": "2026-10-05T05:08:43.836608+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -369882,13 +369881,13 @@
       "region": "south-asia",
       "center": [
         86.0250839,
-        27.7332149
+        27.733214850000003
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/4820120",
       "sourceTags": {
         "network": "lwn"
       },
-      "fetchedAt": "2026-10-05T05:08:43.836608+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -369928,11 +369927,11 @@
       "region": "south-asia",
       "center": [
         86.0331299,
-        27.7524606
+        27.75246065
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/4823328",
       "sourceTags": {},
-      "fetchedAt": "2026-10-05T05:08:43.836608+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -370466,14 +370465,14 @@
       "originalName": "Helambu Trek",
       "region": "south-asia",
       "center": [
-        85.4731566,
+        85.47315660000001,
         27.8812445
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/4867728",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-05T05:08:43.836608+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -370482,14 +370481,14 @@
       "originalName": "GosainKunda Trek",
       "region": "south-asia",
       "center": [
-        85.4026008,
+        85.40260075,
         28.0818433
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/4867746",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-05T05:08:43.836608+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -412375,14 +412374,14 @@
       "originalName": "Mera Peak trek (via Zatrw La)",
       "region": "south-asia",
       "center": [
-        86.8388073,
+        86.83880730000001,
         27.747311
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/6829677",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-05T05:08:43.836608+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -435728,14 +435727,14 @@
       "originalName": "Numbur Cheese Circuit",
       "region": "south-asia",
       "center": [
-        86.4095538,
-        27.6616771
+        86.40955375,
+        27.66167705
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/7837105",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-05T05:08:43.836608+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -456034,7 +456033,7 @@
       "sourceTags": {
         "network": "rwn"
       },
-      "fetchedAt": "2026-10-05T05:08:43.836608+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -466043,15 +466042,15 @@
       "originalName": "Makalu base camp trek with Arun valley",
       "region": "south-asia",
       "center": [
-        87.1794019,
-        27.6964298
+        87.17940195,
+        27.69642975
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/9387979",
       "sourceTags": {
         "network": "nwn",
         "ref": "MT"
       },
-      "fetchedAt": "2026-10-05T05:08:43.836608+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -466369,14 +466368,14 @@
       "originalName": "Sundarijal-Chisapani",
       "region": "south-asia",
       "center": [
-        85.434814,
+        85.43481405,
         27.792666
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/9400763",
       "sourceTags": {
         "network": "rwn"
       },
-      "fetchedAt": "2026-10-05T05:08:43.836608+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -466385,7 +466384,7 @@
       "originalName": "Chisapani-Nagarkot",
       "region": "south-asia",
       "center": [
-        85.4849608,
+        85.48496080000001,
         27.7725728
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/9400905",
@@ -466393,7 +466392,7 @@
         "description": "around 7h walking time",
         "network": "rwn"
       },
-      "fetchedAt": "2026-10-05T05:08:43.836608+00:00",
+      "fetchedAt": "2026-10-07T17:48:17Z",
       "status": "待核验"
     },
     {
@@ -495787,6 +495786,19 @@
       "importedRelations": 90,
       "skippedIncompleteRelations": 0,
       "skippedNestedRelations": 0
+    },
+    {
+      "sourceId": "asia/nepal/261006",
+      "region": "south-asia",
+      "sourceUrl": "https://download.geofabrik.de/asia/nepal-261006.osm.pbf",
+      "sourceTimestamp": "2026-10-06T20:21:06Z",
+      "sha256": "5e6bd07c96e66cdeda49a2346e2b496faefedda353c88944c35bab215ba04db1",
+      "bytes": 414545110,
+      "importedAt": "2026-10-07T17:48:17Z",
+      "candidateRelations": 114,
+      "importedRelations": 111,
+      "skippedIncompleteRelations": 3,
+      "skippedNestedRelations": 1
     }
   ]
 }
