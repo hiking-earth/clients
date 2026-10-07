@@ -110,6 +110,11 @@ for name in args.functions:
     source = backup / 'sent-source' / name
     shutil.copytree(ROOT / 'app/cloudfunctions' / name, source,
                     ignore=shutil.ignore_patterns('node_modules', '.git'))
+    if name == 'gear-scan':
+        dependencies = ROOT / 'app/cloudfunctions/gear-scan/node_modules'
+        if not dependencies.is_dir():
+            raise SystemExit('Run npm ci in gear-scan before deployment; no functions were updated.')
+        shutil.copytree(dependencies, source / 'node_modules')
     sources[name] = source
 
 # Resolve existing versus new functions from the structured function listing;
