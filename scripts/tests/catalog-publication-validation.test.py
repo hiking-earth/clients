@@ -113,6 +113,20 @@ class NewsCatalogValidationTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'has not been accepted'):
             validation.validate_news_catalog(data)
 
+    def test_accepted_feed_requires_a_current_verification_date(self):
+        for verified, error in [(None, 'invalid feed verification date'),
+                                ('2026-10-08', 'in the future'),
+                                ('2026-07-08', 'has expired')]:
+            data = self.catalog()
+            data['sources'][0].update(feedAcceptance='accepted')
+            if verified is not None:
+                data['sources'][0]['feedVerifiedAt'] = verified
+            with self.assertRaisesRegex(ValueError, error):
+                validation.validate_news_catalog(data, now=validation.datetime(2026, 10, 7, tzinfo=validation.timezone.utc))
+        data = self.catalog()
+        data['sources'][0].update(feedAcceptance='accepted', feedVerifiedAt='2026-07-09')
+        self.assertEqual(validation.validate_news_catalog(data, now=validation.datetime(2026, 10, 7, tzinfo=validation.timezone.utc)), 1)
+
 
 if __name__ == '__main__':
     unittest.main()

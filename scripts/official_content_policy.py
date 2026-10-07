@@ -3,6 +3,26 @@ import datetime as dt
 from urllib.parse import urlsplit
 
 MAX_METADATA_AGE = dt.timedelta(days=90)
+MAX_FEED_VERIFICATION_AGE = dt.timedelta(days=90)
+
+
+def feed_acceptance_error(source, now):
+    """Require a dated, current acceptance when a feed opts into gated publication."""
+    acceptance = source.get('feedAcceptance')
+    if acceptance is None:
+        return None
+    if acceptance != 'accepted':
+        return 'source-feed-not-accepted'
+    try:
+        verified = dt.date.fromisoformat(source['feedVerifiedAt'])
+    except (KeyError, TypeError, ValueError):
+        return 'source-feed-verification-invalid'
+    today = now.date()
+    if verified > today:
+        return 'source-feed-verification-future'
+    if today - verified > MAX_FEED_VERIFICATION_AGE:
+        return 'source-feed-verification-expired'
+    return None
 
 
 def review_metadata(row, sources, now):
@@ -10,8 +30,8 @@ def review_metadata(row, sources, now):
     if not isinstance(row.get('sourceId'), str): return 'invalid-source-id'
     source = sources.get(row.get('sourceId'))
     if not source or source.get('reuse') != 'metadata-links-only': return 'source-not-approved'
-    acceptance = source.get('feedAcceptance')
-    if acceptance is not None and acceptance != 'accepted': return 'source-feed-not-accepted'
+    feed_error = feed_acceptance_error(source, now)
+    if feed_error: return feed_error
     if row.get('verified') is not True or row.get('sourceUrl') != source.get('url'):
         return 'provenance-mismatch'
     if not isinstance(row.get('id'), str) or not row['id'].strip() or len(row['id']) > 160: return 'invalid-record-id'

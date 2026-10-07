@@ -3,7 +3,7 @@
 This validates source records and provenance only. It never grants trail access,
 turns a discovery row into a navigable route, or substitutes for human review.
 """
-from datetime import datetime
+from datetime import date, datetime, timezone
 import re
 from urllib.parse import urlparse
 
@@ -108,7 +108,7 @@ def validate_route_catalog(source, data):
     return len(rows)
 
 
-def validate_news_catalog(data):
+def validate_news_catalog(data, now=None):
     """Validate curated metadata-only official-news links and their source hosts."""
     if not isinstance(data, dict) or data.get('schemaVersion') != 1:
         raise ValueError('news: unsupported catalog schema')
@@ -116,6 +116,7 @@ def validate_news_catalog(data):
     sources = data.get('sources')
     if not isinstance(rows, list) or not isinstance(sources, list):
         raise ValueError('news: items and sources must be lists')
+    today = (now or datetime.now(timezone.utc)).date()
     source_by_id = {}
     for source in sources:
         if not isinstance(source, dict) or not isinstance(source.get('id'), str):
@@ -148,6 +149,15 @@ def validate_news_catalog(data):
         acceptance = source.get('feedAcceptance')
         if acceptance is not None and acceptance != 'accepted':
             raise ValueError(f'{label}: source {row["sourceId"]} feed has not been accepted')
+        if acceptance == 'accepted':
+            try:
+                verified_date = date.fromisoformat(source['feedVerifiedAt'])
+            except (KeyError, TypeError, ValueError) as error:
+                raise ValueError(f'{label}: source {row["sourceId"]} has invalid feed verification date') from error
+            if verified_date > today:
+                raise ValueError(f'{label}: source {row["sourceId"]} feed verification date is in the future')
+            if (today - verified_date).days > 90:
+                raise ValueError(f'{label}: source {row["sourceId"]} feed verification has expired')
         article_host = _https_host(row.get('url'), label)
         if article_host not in allowed_hosts:
             raise ValueError(f'{label}: article host is not allowed for source {row["sourceId"]}')

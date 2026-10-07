@@ -35,6 +35,19 @@ class MetadataPolicy(unittest.TestCase):
         self.assertFalse(rows)
         self.assertEqual(rejected[0]['reason'], 'source-feed-not-accepted')
         self.assertEqual(rejected[0]['record'], original)
+    def test_feed_acceptance_requires_current_verification_date(self):
+        cases = [({}, 'source-feed-verification-invalid'),
+                 ({'feedVerifiedAt':'2026-10-08'}, 'source-feed-verification-future'),
+                 ({'feedVerifiedAt':'2026-07-08'}, 'source-feed-verification-expired')]
+        for patch, reason in cases:
+            source = {**self.sources[0], 'feedAcceptance':'accepted', **patch}
+            rows, rejected = apply_metadata_policy([self.row()], [source], self.now)
+            self.assertFalse(rows)
+            self.assertEqual(rejected[0]['reason'], reason)
+        source = {**self.sources[0], 'feedAcceptance':'accepted', 'feedVerifiedAt':'2026-07-09'}
+        rows, rejected = apply_metadata_policy([self.row()], [source], self.now)
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rejected, [])
     def test_invalid_source_and_date(self):
         for row in [None, self.row(sourceId=[]), self.row(fetchedAt='bad'), self.row(fetchedAt='2026-10-07T00:00:00'),
                     self.row(publishedAt='bad'), self.row(publishedAt='2026-10-07T00:00:00')]:
