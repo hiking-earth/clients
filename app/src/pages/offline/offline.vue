@@ -37,7 +37,7 @@ const mapCatalog=createMapCatalog(bundledBasemaps,()=>isDesktop()?requestDesktop
 const availableBasemaps=ref(mapCatalog.snapshot());
 onShow(async()=>{try{availableBasemaps.value=await mapCatalog.refresh();}catch{message.value='地图目录暂时无法更新，保留已有目录';}});
 import {downloadBasemap,downloadDesktopBasemap,type BasemapDownload} from '@/services/basemap-download';
-async function downloadMapPack(pack:BasemapDownload){if(busy.value)return;mutating.value=true;try{const file=isDesktop()?await downloadDesktopBasemap(pack,requestDesktopMapDownload):await downloadBasemap(pack,mapBase,undefined,bytes=>{message.value=`地图下载 ${(bytes/1048576).toFixed(2)} MiB`;});const saved=await saveBasemap(file);await refreshBasemaps();basemapFile.value=saved.blob;message.value='地图已校验并保存';}catch(e){message.value=e instanceof Error?e.message:'地图下载失败';}finally{mutating.value=false;}}
+async function downloadMapPack(pack:BasemapDownload){if(busy.value)return;mutating.value=true;message.value='正在下载并校验地图，请稍候';try{const file=isDesktop()?await downloadDesktopBasemap(pack,requestDesktopMapDownload):await downloadBasemap(pack,mapBase,undefined,bytes=>{message.value=`地图下载 ${(bytes/1048576).toFixed(2)} MiB`;});const saved=await saveBasemap(file);await refreshBasemaps();basemapFile.value=saved.blob;message.value='地图已校验并保存';}catch(e){message.value=e instanceof Error?e.message:'地图下载失败';}finally{mutating.value=false;}}
 import {listBasemaps,saveBasemap,deleteBasemap,type SavedBasemap} from '@/services/basemap-store';
 const basemapFile=ref<Blob|null>(null),savedBasemaps=ref<SavedBasemap[]>([]);
 async function refreshBasemaps(){try{savedBasemaps.value=await listBasemaps();}catch(e){message.value=e instanceof Error?e.message:'地图目录读取失败';}}
