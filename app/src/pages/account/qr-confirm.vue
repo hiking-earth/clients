@@ -40,7 +40,7 @@ async function login(){if(busy.value||disposed)return;const epoch=generation,tok
  initCloud();const reply=await wx.cloud.callFunction({name:'login',data:{}});
  const result=await accountRequest<AccountSession>('auth.wechat.exchange',{ticket:reply.result?.ticket});
  if(disposed||generation!==epoch||accountSession()?.token!==token)return;
- if(!result.ok||!result.data)throw new Error(result.errMsg||'微信登录未完成');const scanned=challenge.value;saveAccount(result.data);challenge.value=scanned;if(challenge.value)await inspect();else message.value='已登录，请扫描二维码';
+ if(!result.ok||!result.data)throw new Error(result.errMsg||'微信登录未完成');const scanned=challenge.value;saveAccount(result.data);signedIn.value=!!accountSession();challenge.value=scanned;if(challenge.value)await inspect();else message.value='已登录，请扫描二维码';
  // #endif
  // #ifndef MP-WEIXIN
  message.value='请在微信小程序内登录';
