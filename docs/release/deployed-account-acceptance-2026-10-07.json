@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "scope": "deployed HTTP account/library workflow; excludes client UI and native/device permissions",
-  "checkedAt": "2026-10-07T02:26:42.291Z",
+  "scope": "CloudBase direct HTTP account/library/private diary/team/chat/synthetic track workflow; excludes client UI and native/device permissions",
+  "checkedAt": "2026-10-07T11:38:41.739Z",
   "passed": true,
   "failure": "",
   "checks": [
@@ -83,6 +83,138 @@
     },
     {
       "name": "second device session",
+      "passed": true
+    },
+    {
+      "name": "private diary creation",
+      "passed": true
+    },
+    {
+      "name": "private diary cross-session recovery",
+      "passed": true
+    },
+    {
+      "name": "private diary account isolation",
+      "passed": true
+    },
+    {
+      "name": "other account cannot delete diary",
+      "passed": true
+    },
+    {
+      "name": "private diary next revision",
+      "passed": true
+    },
+    {
+      "name": "private diary stale revision denied",
+      "passed": true
+    },
+    {
+      "name": "ordinary account cannot moderate",
+      "passed": true
+    },
+    {
+      "name": "private test diary cleanup",
+      "passed": true
+    },
+    {
+      "name": "create private test team",
+      "passed": true
+    },
+    {
+      "name": "team creation idempotency",
+      "passed": true
+    },
+    {
+      "name": "nonmember cannot read team chat",
+      "passed": true
+    },
+    {
+      "name": "join private test team",
+      "passed": true
+    },
+    {
+      "name": "ordinary member cannot manage team",
+      "passed": true
+    },
+    {
+      "name": "send private team message",
+      "passed": true
+    },
+    {
+      "name": "team message idempotency",
+      "passed": true
+    },
+    {
+      "name": "member receives message once",
+      "passed": true
+    },
+    {
+      "name": "leader removes member",
+      "passed": true
+    },
+    {
+      "name": "removed member cannot read chat",
+      "passed": true
+    },
+    {
+      "name": "removed member cannot send chat",
+      "passed": true
+    },
+    {
+      "name": "private test team closed",
+      "passed": true
+    },
+    {
+      "name": "closed team rejects admission",
+      "passed": true
+    },
+    {
+      "name": "synthetic track versioned backup",
+      "passed": true
+    },
+    {
+      "name": "synthetic track cross-session restore",
+      "passed": true
+    },
+    {
+      "name": "other account cannot read track",
+      "passed": true
+    },
+    {
+      "name": "other account cannot delete track",
+      "passed": true
+    },
+    {
+      "name": "synthetic track next revision",
+      "passed": true
+    },
+    {
+      "name": "stale track backup rejected",
+      "passed": true
+    },
+    {
+      "name": "stale track deletion rejected",
+      "passed": true
+    },
+    {
+      "name": "track deletion creates revision tombstone",
+      "passed": true
+    },
+    {
+      "name": "deleted track hidden from directory",
+      "passed": true
+    },
+    {
+      "name": "automatic deleted track revival rejected",
+      "passed": true
+    },
+    {
+      "name": "explicit track rebackup allowed",
+      "passed": true
+    },
+    {
+      "name": "synthetic track cleanup",
       "passed": true
     },
     {
