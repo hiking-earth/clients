@@ -63,11 +63,11 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { onShow } from "@dcloudio/uni-app";
-import { callCloud } from "@/services/cloud";
 import { listTracks, uploadTrackToCloud, currentTrackOwner, trackNeedsManualBackup, trackStorageValid, rawTrackStoreSnapshot } from "@/services/tracks";
 import { saveLocalTextFile } from '@/services/files';
 import { hasPrivacyConsent } from "@/services/privacy";
-import { accountSession, accountRequest, saveAccount, type AccountSession } from '@/services/account';
+import { accountSession, saveAccount } from '@/services/account';
+import { exchangeMiniProgramWeChat } from '@/services/wechat-login';
 import { APP_VERSION } from '@/services/version';
 
 const openid = ref("");
@@ -93,20 +93,14 @@ onShow(() => {
 
 async function login() {
   // #ifdef MP-WEIXIN
-  const res = await callCloud<{ openid: string; nickname: string; ticket: string }>("login");
-  const loginData = res.data;
-  if (res.ok && loginData) {
-    try{
-      const exchanged = await accountRequest<AccountSession>('auth.wechat.exchange', { ticket: loginData.ticket });
-      if (!exchanged.ok || !exchanged.data) throw new Error(exchanged.errMsg || '微信账号登录未完成');
-      saveAccount(exchanged.data);
-      openid.value = loginData.openid;
-      nickname.value = loginData.nickname ?? "山友";
-      uni.showToast({ title: "登录成功", icon: "success" });
-    }catch(error){uni.showToast({title:error instanceof Error?error.message:'微信身份无法保存',icon:'none'});}
-  } else {
-    uni.showToast({ title: res.errMsg ?? "登录失败", icon: "none" });
-  }
+  try {
+    const session = await exchangeMiniProgramWeChat();
+    if (accountSession()) throw new Error('账号已改变，请确认当前账号后重试');
+    saveAccount(session);
+    openid.value = session.openid;
+    nickname.value = session.nickname;
+    uni.showToast({ title: "登录成功", icon: "success" });
+  } catch (error) { uni.showToast({ title: error instanceof Error ? error.message : '微信登录失败', icon: 'none' }); }
   // #endif
   // #ifndef MP-WEIXIN
   go('/pages/account/account');

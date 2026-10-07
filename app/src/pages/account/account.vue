@@ -12,6 +12,13 @@
     </view>
     <!-- #endif -->
     <view v-if="!session" class="card">
+      <!-- #ifdef MP-WEIXIN -->
+      <view class="wechat-login">
+        <text class="subtitle">微信一键登录</text>
+        <text class="hint">使用本小程序的微信身份创建或登录徒步地球账号，可用于网页和桌面扫码。首次微信登录会创建微信账号；现有账号不会自动合并，请继续使用原登录方式。</text>
+        <button class="primary" :disabled="busy" @click="loginWithWeChat">{{ busy ? '正在确认微信身份…' : '微信一键登录' }}</button>
+      </view>
+      <!-- #endif -->
       <view class="tabs">
         <button v-for="item in modes" :key="item.value" :class="{ active: mode === item.value }" @click="mode = item.value">{{ item.label }}</button>
       </view>
@@ -57,6 +64,7 @@ import { ref, computed } from 'vue';
 import { onShow, onUnload } from '@dcloudio/uni-app';
 import { accountApiConfigured, accountRequest, accountSession, clearAccount, clearDeletedAccountRequests, saveAccount, onAccountChange } from '@/services/account';
 import { beginDeviceLogin, claimDeviceLogin, cancelDeviceLogin, type DeviceChallenge } from '@/services/qr-login';
+import { exchangeMiniProgramWeChat } from '@/services/wechat-login';
 import { archiveDeletedAccountLibrary } from '@/services/library';
 import type { AccountSession, AccountProfile } from '@/services/account';
 const modes = [{ value: 'sign-in', label: '登录' }, { value: 'register', label: '注册' }, { value: 'recover', label: '恢复密码' }] as const;
@@ -82,6 +90,17 @@ async function startQr(){if(qrStarting.value)return;stopQr();const generation=qr
  }catch(error){message.value=error instanceof Error?error.message:'生成失败';}finally{qrStarting.value=false;}}
 
 function sameSession(expected:AccountSession|null){const current=accountSession();return current?.openid===expected?.openid&&current?.token===expected?.token;}
+async function loginWithWeChat(){
+  if(busy.value)return;
+  const original=accountSession();if(original){session.value=original;message.value='当前已有账号登录，请先退出后再切换微信身份';return;}
+  busy.value=true;message.value='';
+  try{
+    const result=await exchangeMiniProgramWeChat();
+    if(!sameSession(original))return;
+    saveAccount(result);refreshSession();password.value='';code.value='';message.value='微信账号已登录，可在网页和桌面扫码使用';
+  }catch(error){if(sameSession(original))message.value=error instanceof Error?error.message:'微信登录未完成';}
+  finally{busy.value=false;}
+}
 async function submit() {
   if (busy.value) return;
   const original=accountSession();

@@ -10,9 +10,8 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { onLoad, onShow, onUnload } from '@dcloudio/uni-app';
-import { accountRequest, accountSession, saveAccount, onAccountChange, type AccountSession } from '@/services/account';
-import { initCloud } from '@/services/cloud';
-declare const wx: any;
+import { accountRequest, accountSession, saveAccount, onAccountChange } from '@/services/account';
+import { exchangeMiniProgramWeChat } from '@/services/wechat-login';
 const challenge=ref(''),device=ref(''),message=ref('打开网页或桌面的登录二维码，然后在这里扫描。'),busy=ref(false),completed=ref(false);
 const signedIn=ref(!!accountSession());
 let generation=0,disposed=false;
@@ -37,10 +36,9 @@ function scan(){
 }
 async function login(){if(busy.value||disposed)return;const epoch=generation,token=accountSession()?.token;busy.value=true;try{
  // #ifdef MP-WEIXIN
- initCloud();const reply=await wx.cloud.callFunction({name:'login',data:{}});
- const result=await accountRequest<AccountSession>('auth.wechat.exchange',{ticket:reply.result?.ticket});
+ const result=await exchangeMiniProgramWeChat();
  if(disposed||generation!==epoch||accountSession()?.token!==token)return;
- if(!result.ok||!result.data)throw new Error(result.errMsg||'微信登录未完成');const scanned=challenge.value;saveAccount(result.data);signedIn.value=!!accountSession();challenge.value=scanned;if(challenge.value)await inspect();else message.value='已登录，请扫描二维码';
+ const scanned=challenge.value;saveAccount(result);signedIn.value=!!accountSession();challenge.value=scanned;if(challenge.value)await inspect();else message.value='已登录，请扫描二维码';
  // #endif
  // #ifndef MP-WEIXIN
  message.value='请在微信小程序内登录';
