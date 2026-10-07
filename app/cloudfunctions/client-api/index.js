@@ -31,6 +31,7 @@ function equalHex(a, b) {
   return crypto.timingSafeEqual(Buffer.from(a, 'hex'), Buffer.from(b, 'hex'));
 }
 const limit = require('./rate-limit').createLimiter({ db, hash, fail });
+const catalogLimit = require('./catalog-rate-limit').createLimiter({ db, hash, fail });
 async function newSession(account) {
   const token = random(); const expiresAt = Date.now() + SESSION_MS;
   await db.runTransaction(async tx => {
@@ -159,7 +160,7 @@ async function dispatch(action, data, token, remoteAddress) {
   if (publicHandlers.has(action)||(action==='route-manage'&&data.action==='list')) {
     let stage = 'public-rate-limit';
     try {
-      if(action==='catalog-feed')await limit(`catalog:${hash(remoteAddress)}`,500);
+      if(action==='catalog-feed')await catalogLimit(`catalog:${hash(remoteAddress)}`,500);
       stage = 'public-session';
       const identity = token ? (await verifiedSession(token)).identity : '';
       stage = 'public-business';
