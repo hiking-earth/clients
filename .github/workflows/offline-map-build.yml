@@ -7,12 +7,13 @@ on:
       - 'scripts/build-offline-region.py'
       - 'scripts/build-offline-regions.py'
       - 'scripts/export-offline-map-inventory.py'
+      - 'scripts/install-offline-map-batch.py'
       - 'shared/maps/regions.json'
   workflow_dispatch:
   schedule:
     - cron: '43 3 * * 1'
 permissions:
-  contents: read
+  contents: write
 concurrency:
   group: offline-map-build-${{ github.ref }}
   cancel-in-progress: false
@@ -40,6 +41,16 @@ jobs:
         run: python scripts/build-offline-regions.py --regions shared/maps/regions.json --output regional-maps --pmtiles "$RUNNER_TEMP/pmtiles/pmtiles"
       - name: Verify distributable map inventory
         run: python scripts/export-offline-map-inventory.py --input regional-maps --output regional-maps/catalog.json --regions shared/maps/regions.json
+      - name: Update client map catalog and immutable source assets
+        run: |
+          set -euo pipefail
+          python scripts/install-offline-map-batch.py --input regional-maps --regions shared/maps/regions.json --pmtiles "$RUNNER_TEMP/pmtiles/pmtiles"
+          git add app/map-assets/static/offline-maps/ app/src/data/basemap-packs.json
+          if git diff --cached --quiet; then exit 0; fi
+          git config user.name 'hiking-earth-maps[bot]'
+          git config user.email 'maps@users.noreply.github.com'
+          git commit -m 'data: update verified regional offline maps'
+          git push
       - name: Preserve maps, checksums and failure checkpoints
         if: always()
         uses: actions/upload-artifact@v4
@@ -51,4 +62,4 @@ jobs:
       - name: Record delivery boundary
         if: always()
         run: |
-          echo 'Region artifacts retain source, attribution and SHA256. They are not automatically promoted to the public site; partial runs must not replace its prior catalog. Basemaps do not verify trail access or provide terrain elevations.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Complete verified batches update the source catalog; partial runs retain its prior version. Public site deployment and runtime acceptance remain separate. Basemaps do not verify trail access or provide terrain elevations.' >> "$GITHUB_STEP_SUMMARY"
