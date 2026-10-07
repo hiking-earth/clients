@@ -28,7 +28,7 @@ import world from '@/data/offline-world.json';
 import OfflineBasemap from '@/components/OfflineBasemap.vue';
 import availableBasemaps from '@/data/basemap-packs.json';
 import {downloadBasemap,type BasemapDownload} from '@/services/basemap-download';
-async function downloadMapPack(pack:BasemapDownload){if(busy.value)return;mutating.value=true;try{const file=await downloadBasemap(pack,location.origin,undefined,bytes=>{message.value=`地图下载 ${(bytes/1048576).toFixed(2)} MiB`;});const saved=await saveBasemap(file);await refreshBasemaps();basemapFile.value=saved.blob;message.value='地图已校验并保存';}catch(e){message.value=e instanceof Error?e.message:'地图下载失败';}finally{mutating.value=false;}}
+async function downloadMapPack(pack:BasemapDownload){if(busy.value)return;mutating.value=true;try{const file=await downloadBasemap(pack,new URL(import.meta.env.BASE_URL,location.href).href,undefined,bytes=>{message.value=`地图下载 ${(bytes/1048576).toFixed(2)} MiB`;});const saved=await saveBasemap(file);await refreshBasemaps();basemapFile.value=saved.blob;message.value='地图已校验并保存';}catch(e){message.value=e instanceof Error?e.message:'地图下载失败';}finally{mutating.value=false;}}
 import {listBasemaps,saveBasemap,deleteBasemap,type SavedBasemap} from '@/services/basemap-store';
 const basemapFile=ref<Blob|null>(null),savedBasemaps=ref<SavedBasemap[]>([]);
 async function refreshBasemaps(){try{savedBasemaps.value=await listBasemaps();}catch(e){message.value=e instanceof Error?e.message:'地图目录读取失败';}}
