@@ -1,0 +1,42 @@
+import {isLocalMapPath} from './basemap-file-reader';
+export type WechatMapPack={id:string;name:string;path:string;bytes:number;savedAt:number};
+export interface SavedMapApi{
+ getStorageSync(key:string):unknown;setStorageSync(key:string,value:unknown):void;
+ getSavedFileInfo(options:{filePath:string;success:(value:{size:number})=>void;fail:()=>void}):void;
+ saveFile(options:{tempFilePath:string;success:(value:{savedFilePath:string})=>void;fail:()=>void}):void;
+ removeSavedFile(options:{filePath:string;success:()=>void;fail:()=>void}):void;
+}
+const KEY='he_wechat_basemaps_v1',MAX_PACK=64*1024*1024,BUDGET=192*1024*1024;
+export function validateWechatMapInventory(value:unknown):WechatMapPack[]{
+ if(value===undefined||value===null||value==='')return [];
+ if(!Array.isArray(value)||value.length>128)throw new Error('本机地图目录损坏，请保留原包');
+ let total=0;const ids=new Set<string>(),paths=new Set<string>();
+ for(const row of value){if(!row||typeof row!=='object'||!/^wm-[a-z0-9-]{1,80}$/.test(row.id)||ids.has(row.id)||typeof row.name!=='string'||!row.name.trim()||row.name.length>120||!isLocalMapPath(row.path)||paths.has(row.path)||!Number.isSafeInteger(row.bytes)||row.bytes<127||row.bytes>MAX_PACK||!Number.isSafeInteger(row.savedAt)||row.savedAt<1)throw new Error('本机地图目录损坏，请保留原包');ids.add(row.id);paths.add(row.path);total+=row.bytes;}
+ if(total>BUDGET)throw new Error('本机地图容量超过192 MiB');return value.map(row=>({...row}));
+}
+export function createWechatMapStore(api:SavedMapApi,validateFile:(path:string,bytes:number)=>Promise<unknown>){
+ let tail:Promise<unknown>=Promise.resolve();
+ function serial<T>(work:()=>Promise<T>):Promise<T>{const result=tail.then(work);tail=result.catch(()=>{});return result;}
+ const inventory=()=>validateWechatMapInventory(api.getStorageSync(KEY));
+ const size=(path:string)=>new Promise<number>((resolve,reject)=>api.getSavedFileInfo({filePath:path,success:r=>resolve(r.size),fail:()=>reject(new Error('已保存地图文件不存在或无法读取'))}));
+ const unlink=(path:string)=>new Promise<void>((resolve,reject)=>api.removeSavedFile({filePath:path,success:resolve,fail:()=>reject(new Error('未能删除地图文件'))}));
+ return {
+ list:()=>serial(async()=>{const rows=inventory();for(const row of rows){if(await size(row.path)!==row.bytes)throw new Error('本机地图文件大小变化，请保留原包');}return rows;}),
+ save:(path:string,bytes:number,name:string)=>serial(async()=>{
+  if(typeof name!=='string'||!name.trim()||name.length>120||!Number.isSafeInteger(bytes)||bytes<127||bytes>MAX_PACK)throw new Error('地图包无效或超过64 MB');
+  const rows=inventory();if(rows.length>=128||rows.reduce((n,r)=>n+r.bytes,0)+bytes>BUDGET)throw new Error('本机地图已满，请先删除不使用的地图包');
+  await validateFile(path,bytes);
+  const saved=await new Promise<string>((resolve,reject)=>api.saveFile({tempFilePath:path,success:r=>resolve(r.savedFilePath),fail:()=>reject(new Error('地图保存失败，可能已达到微信文件空间限制'))}));
+  if(!isLocalMapPath(saved)||rows.some(row=>row.path===saved))throw new Error('地图保存路径无效或与已有文件冲突，请保留原包');
+  try{if(await size(saved)!==bytes)throw new Error('保存后的地图大小不一致');await validateFile(saved,bytes);
+   const row={id:`wm-${Date.now().toString(36)}-${Math.random().toString(36).slice(2,10)}`,name:name.trim(),path:saved,bytes,savedAt:Date.now()};
+   const next=validateWechatMapInventory([...rows,row]);api.setStorageSync(KEY,next);return row;
+  }catch(error){try{await unlink(saved);}catch{throw new Error('地图保存未完成，残留文件未能清理；请保留原包并检查微信存储空间');}throw error;}
+ }),
+ remove:(id:string)=>serial(async()=>{const rows=inventory(),row=rows.find(r=>r.id===id);if(!row)throw new Error('地图不在本机目录中');
+  // Commit inventory before deleting bytes; restore it if filesystem removal fails.
+  api.setStorageSync(KEY,rows.filter(r=>r.id!==id));
+  try{await unlink(row.path);}catch(error){try{api.setStorageSync(KEY,rows);}catch{throw new Error('文件未删除且目录恢复失败，请保留原包并检查微信存储空间');}throw error;}
+ })
+ };
+}

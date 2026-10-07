@@ -2,8 +2,11 @@
 export interface BinaryFileManager {
  readFile(options:{filePath:string;position:number;length:number;success:(result:{data:unknown})=>void;fail:()=>void}):void;
 }
+export function isLocalMapPath(path:unknown):path is string{
+ return typeof path==='string'&&path.length>0&&path.length<=1024&&!/[\x00-\x1f?#]/.test(path)&&!path.split('/').includes('..')&&(!/^https?:\/\//i.test(path)||/^http:\/\/(?:usr|tmp)\//.test(path));
+}
 export function fileRangeReader(manager:BinaryFileManager,filePath:string,bytes:number){
- if(!filePath||filePath.length>1024||/https?:\/\//i.test(filePath)||filePath.split('/').includes('..')||!Number.isSafeInteger(bytes)||bytes<127||bytes>64*1024*1024)throw new Error('本机地图文件无效');
+ if(!isLocalMapPath(filePath)||!Number.isSafeInteger(bytes)||bytes<127||bytes>64*1024*1024)throw new Error('本机地图文件无效');
  return (offset:number,length:number):Promise<ArrayBuffer>=>new Promise((resolve,reject)=>{
   if(!Number.isSafeInteger(offset)||!Number.isSafeInteger(length)||offset<0||offset>=bytes||length<1||length>8*1024*1024){reject(new Error('地图读取范围无效'));return;}
   const count=Math.min(length,bytes-offset);
