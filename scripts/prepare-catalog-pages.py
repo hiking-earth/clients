@@ -12,6 +12,7 @@ import os
 from pathlib import Path
 import shutil
 import tempfile
+from catalog_publication_validation import validate_news_catalog, validate_route_catalog
 
 ROOT = Path(__file__).resolve().parents[1]
 PAGE_SIZE = 400
@@ -77,6 +78,10 @@ def prepare():
         rows = data[key]
         if data.get('schemaVersion') != 1 or not isinstance(rows, list) or len(rows) > 250000:
             raise ValueError(f'{source}: unsupported catalog format or source record budget exceeded')
+        if source == 'news':
+            validate_news_catalog(data)
+        else:
+            validate_route_catalog(source, data)
         snapshot = hashlib.sha256(raw).hexdigest()
         folder = ROOT / 'shared/public-catalog' / source
         previous = None
