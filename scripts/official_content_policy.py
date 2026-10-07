@@ -51,9 +51,9 @@ def review_metadata(row, sources, now):
         if (url.scheme != 'https' or url.hostname not in hosts
                 or url.username or url.password or url.port): return 'article-host-mismatch'
         fetched = dt.datetime.fromisoformat(row['fetchedAt'].replace('Z', '+00:00'))
-        if fetched.tzinfo is None: return 'invalid-freshness-date'
+        if fetched.tzinfo is None or fetched.utcoffset() is None: return 'invalid-freshness-date'
         published = dt.datetime.fromisoformat(row['publishedAt'].replace('Z', '+00:00'))
-        if published.tzinfo is None: return 'invalid-publication-date'
+        if published.tzinfo is None or published.utcoffset() is None: return 'invalid-publication-date'
     except (ValueError, TypeError, KeyError, AttributeError): return 'invalid-record'
     if fetched > now + dt.timedelta(minutes=5): return 'future-freshness-date'
     if now - fetched > MAX_METADATA_AGE: return 'metadata-freshness-expired'

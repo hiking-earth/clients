@@ -19,6 +19,7 @@ class MetadataPolicy(unittest.TestCase):
     def test_withhold_and_preserve_original(self):
         cases = [({'fetchedAt':(self.now-dt.timedelta(days=91)).isoformat()},'metadata-freshness-expired'),
                  ({'url':'https://other.example/a'},'article-host-mismatch'),
+                 ({'url':'https://official.example:8443/a'},'article-host-mismatch'),
                  ({'imageUrl':'https://official.example/image'},'unsupported-content-rights'),
                  ({'sourceId':'removed'},'source-not-approved'),
                  ({'fetchedAt':(self.now+dt.timedelta(days=1)).isoformat()},'future-freshness-date'),

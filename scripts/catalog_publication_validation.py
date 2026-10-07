@@ -22,8 +22,8 @@ def _https_host(value, label):
     if not isinstance(value, str):
         raise ValueError(f'{label}: missing URL')
     parsed = urlparse(value)
-    if parsed.scheme != 'https' or not parsed.hostname or parsed.username or parsed.password:
-        raise ValueError(f'{label}: URL must be an HTTPS URL without credentials')
+    if parsed.scheme != 'https' or not parsed.hostname or parsed.username or parsed.password or parsed.port:
+        raise ValueError(f'{label}: URL must be HTTPS without credentials or an explicit port')
     return parsed.hostname.lower().rstrip('.')
 
 
@@ -31,9 +31,11 @@ def _timestamp(value, label):
     if not isinstance(value, str) or not value.strip():
         raise ValueError(f'{label}: missing timestamp')
     try:
-        datetime.fromisoformat(value.strip().replace('Z', '+00:00'))
+        parsed = datetime.fromisoformat(value.strip().replace('Z', '+00:00'))
     except ValueError as error:
         raise ValueError(f'{label}: invalid ISO-8601 timestamp') from error
+    if parsed.tzinfo is None or parsed.utcoffset() is None:
+        raise ValueError(f'{label}: timestamp must include a timezone')
 
 
 def _center(value, label):

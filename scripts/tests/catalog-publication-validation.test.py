@@ -110,6 +110,24 @@ class NewsCatalogValidationTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'not allowed'):
             validation.validate_news_catalog(data)
 
+    def test_rejects_nonstandard_url_ports(self):
+        data = self.catalog()
+        data['items'][0]['url'] = 'https://news.example.gov:8443/notice/1'
+        with self.assertRaisesRegex(ValueError, 'explicit port'):
+            validation.validate_news_catalog(data)
+        data = self.catalog()
+        data['sources'][0]['url'] = 'https://feed.example.gov:8443/rss'
+        data['items'][0]['sourceUrl'] = data['sources'][0]['url']
+        with self.assertRaisesRegex(ValueError, 'explicit port'):
+            validation.validate_news_catalog(data)
+
+    def test_rejects_timestamps_without_timezone(self):
+        for field in ('publishedAt', 'fetchedAt'):
+            data = self.catalog()
+            data['items'][0][field] = '2026-10-07T00:00:00'
+            with self.subTest(field=field), self.assertRaisesRegex(ValueError, 'must include a timezone'):
+                validation.validate_news_catalog(data)
+
     def test_rejects_unverified_link_and_unknown_source(self):
         data = self.catalog()
         data['items'][0]['verified'] = False
