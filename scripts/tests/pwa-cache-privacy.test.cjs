@@ -18,3 +18,17 @@ test('public assets cached but request no-store bypasses worker',async()=>{
  const h=harness({'cache-control':'public, max-age=3600'});assert.equal(await h.get('/asset'),true);assert.equal(h.stored.size,1);assert.equal(await h.get('/fresh',{cache:'no-store'}),false);assert.equal(h.stored.size,1);
 });
 test('website and Sites worker source stay identical',()=>assert.equal(fs.readFileSync('web/public/sw.js','utf8'),fs.readFileSync('site-release/public/sw.js','utf8')));
+
+test('activation removes only old hiking caches before claiming clients',async()=>{
+ const events={},removed=[],sequence=[];
+ const ctx={self:{addEventListener:(n,f)=>events[n]=f,clients:{claim:async()=>sequence.push('claim')}},caches:{keys:async()=>['hiking-earth-v024','hiking-earth-v025-client','other-app-cache'],delete:async k=>{removed.push(k);sequence.push('delete');}}};
+ vm.runInNewContext(fs.readFileSync('web/public/sw.js','utf8'),ctx);
+ let work;events.activate({waitUntil:p=>work=p});await work;
+ assert.deepEqual(removed,['hiking-earth-v024']);assert.deepEqual(sequence,['delete','claim']);
+});
+test('failed shell install cannot activate incomplete offline cache',async()=>{
+ const events={};let skipped=false;
+ const ctx={self:{addEventListener:(n,f)=>events[n]=f,skipWaiting:()=>{skipped=true;}},caches:{open:async()=>({addAll:async()=>{throw new Error('offline shell download failed');}})}};
+ vm.runInNewContext(fs.readFileSync('web/public/sw.js','utf8'),ctx);
+ let work;events.install({waitUntil:p=>work=p});await assert.rejects(work,/offline shell download failed/);assert.equal(skipped,false);
+});
