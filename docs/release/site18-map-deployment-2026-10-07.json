@@ -12,5 +12,16 @@
     "matchesBuild": true,
     "pythonLimits": "Python3.14 SSL failure; system Python HTTP403"
   },
-  "onlineBrowserAcceptance": false
+  "onlineBrowserAcceptance": {
+    "downloadSave": true,
+    "reloadListRestore": true,
+    "render": true,
+    "screenshot": "site18-map-runtime-2026-10-07.png",
+    "offlineNetworkReload": false
+  },
+  "serviceWorker": {
+    "status": 200,
+    "matchesStampedBuild": true,
+    "sha256": "498bd1f9db29b0fa29310b34bd692794a242c325d6de38dc5b2affd85cb44ae6"
+  }
 }
