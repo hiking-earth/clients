@@ -11,10 +11,20 @@
   "localFullFunctionPositive": "cup candidate99% in2401ms",
   "cloudInvocation": {
     "first": "API transport ECONNRESET, CLI exit5; no function result",
-    "retry1": "running; inspect actual exec session from current turn"
+    "retry1": {
+      "passed": true,
+      "durationMs": 17808,
+      "memoryBytes": 128225280,
+      "items": [
+        {
+          "name": "杯子 · 候选 99%",
+          "category": "饮食"
+        }
+      ]
+    }
   },
   "limitations": [
-    "Cloud inference not accepted yet.",
+    "Direct cloud invocation passed; account HTTP gateway and mobile UI still need acceptance.",
     "No cross-platform device photo request acceptance.",
     "Runtime dependencies shipped in code bundle, dependency files excluded by standard source readback comparator."
   ]
