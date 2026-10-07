@@ -75,6 +75,33 @@ try{
  check('ordinary account cannot moderate',!deniedModeration.payload.ok);
  const removedDiary=await request('social-manage',{action:'documents.remove',id:diaryId},a.secondToken);
  check('private test diary cleanup',removedDiary.payload.ok&&removedDiary.payload.data.deleted===true);
+ const createdTeam=await request('team-create',{name:'隔离验收小队',requestId:'team-acceptance'},a.token);
+ check('create private test team',createdTeam.payload.ok&&typeof createdTeam.payload.data.teamId==='string');
+ const team=createdTeam.payload.data;
+ const replayTeam=await request('team-create',{name:'隔离验收小队',requestId:'team-acceptance'},a.token);
+ check('team creation idempotency',replayTeam.payload.ok&&replayTeam.payload.data.teamId===team.teamId);
+ const outsider=await request('social-manage',{action:'messages.list',teamId:team.teamId},b.token);
+ check('nonmember cannot read team chat',!outsider.payload.ok);
+ const joined=await request('team-join',{inviteCode:team.inviteCode},b.token);
+ check('join private test team',joined.payload.ok);
+ const notLeader=await request('team-manage',{action:'rename',teamId:team.teamId,name:'未经授权改名'},b.token);
+ check('ordinary member cannot manage team',!notLeader.payload.ok);
+ const sent=await request('social-manage',{action:'messages.send',teamId:team.teamId,id:'acceptance-message',body:'隔离队聊验收'},a.token);
+ check('send private team message',sent.payload.ok&&sent.payload.data.sent===true);
+ const repeated=await request('social-manage',{action:'messages.send',teamId:team.teamId,id:'acceptance-message',body:'隔离队聊验收'},a.token);
+ check('team message idempotency',repeated.payload.ok&&repeated.payload.data.sent===true);
+ const chat=await request('social-manage',{action:'messages.list',teamId:team.teamId},b.token);
+ check('member receives message once',chat.payload.ok&&chat.payload.data.items.filter(row=>row.body==='隔离队聊验收').length===1);
+ const removed=await request('team-manage',{action:'remove',teamId:team.teamId,memberId:b.openid},a.token);
+ check('leader removes member',removed.payload.ok&&removed.payload.data.removed===true);
+ const revoked=await request('social-manage',{action:'messages.list',teamId:team.teamId},b.token);
+ check('removed member cannot read chat',!revoked.payload.ok);
+ const revokedSend=await request('social-manage',{action:'messages.send',teamId:team.teamId,id:'revoked-message',body:'拒绝的消息'},b.token);
+ check('removed member cannot send chat',!revokedSend.payload.ok);
+ const disbanded=await request('team-manage',{action:'disband',teamId:team.teamId},a.token);
+ check('private test team closed',disbanded.payload.ok&&disbanded.payload.data.disbanded===true);
+ const closedJoin=await request('team-join',{inviteCode:team.inviteCode},b.token);
+ check('closed team rejects admission',!closedJoin.payload.ok);
  const cross=await request('library-manage',{action:'get'},a.secondToken);
  check('cross session recovery',cross.payload.ok&&cross.payload.data.version===2);
  const out=await request('auth.sign-out',{},a.token);
@@ -94,7 +121,7 @@ try{
    records.push({name:'isolated account cleanup',passed:done});
   }catch{records.push({name:'isolated account cleanup',passed:false});}
  }
- const report={schemaVersion:1,scope:(siteMode?'Sites same-origin':'CloudBase direct')+' HTTP account/library/private diary workflow; excludes client UI and native/device permissions',checkedAt:new Date().toISOString(),passed:!failure&&records.every(r=>r.passed),failure,checks:records};
+ const report={schemaVersion:1,scope:(siteMode?'Sites same-origin':'CloudBase direct')+' HTTP account/library/private diary/team/chat workflow; excludes client UI and native/device permissions',checkedAt:new Date().toISOString(),passed:!failure&&records.every(r=>r.passed),failure,checks:records};
  fs.writeFileSync(`docs/release/deployed-account${siteMode?'-site':''}-acceptance-2026-10-07.json`,JSON.stringify(report,null,2)+'\n');
  console.log(JSON.stringify(report,null,2));if(!report.passed)process.exitCode=1;
 }

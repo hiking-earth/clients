@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "scope": "Sites same-origin HTTP account/library/private diary/team/chat workflow; excludes client UI and native/device permissions",
-  "checkedAt": "2026-10-07T03:32:06.196Z",
+  "scope": "Sites same-origin HTTP account/library/private diary workflow; excludes client UI and native/device permissions",
+  "checkedAt": "2026-10-07T03:30:15.961Z",
   "passed": true,
   "failure": "",
   "checks": [
@@ -115,58 +115,6 @@
     },
     {
       "name": "private test diary cleanup",
-      "passed": true
-    },
-    {
-      "name": "create private test team",
-      "passed": true
-    },
-    {
-      "name": "team creation idempotency",
-      "passed": true
-    },
-    {
-      "name": "nonmember cannot read team chat",
-      "passed": true
-    },
-    {
-      "name": "join private test team",
-      "passed": true
-    },
-    {
-      "name": "ordinary member cannot manage team",
-      "passed": true
-    },
-    {
-      "name": "send private team message",
-      "passed": true
-    },
-    {
-      "name": "team message idempotency",
-      "passed": true
-    },
-    {
-      "name": "member receives message once",
-      "passed": true
-    },
-    {
-      "name": "leader removes member",
-      "passed": true
-    },
-    {
-      "name": "removed member cannot read chat",
-      "passed": true
-    },
-    {
-      "name": "removed member cannot send chat",
-      "passed": true
-    },
-    {
-      "name": "private test team closed",
-      "passed": true
-    },
-    {
-      "name": "closed team rejects admission",
       "passed": true
     },
     {
