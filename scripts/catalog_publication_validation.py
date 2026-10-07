@@ -10,7 +10,9 @@ from urllib.parse import urlparse
 
 DISCOVERY_IDS = {
     'osm': re.compile(r'^osm-relation-[1-9][0-9]*$'),
-    'usfs': re.compile(r'^usfs-[1-9][0-9]*$'),
+    # USDA's official trail_cn may be either an integer or a dotted trail
+    # number (for example 5022.010011). Preserve that source identity exactly.
+    'usfs': re.compile(r'^usfs-[1-9][0-9]*(?:\.[0-9]+)?$'),
     'hk': re.compile(r'^hk-afcd-[1-9][0-9]*$'),
 }
 PENDING_STATUS = '待核验'

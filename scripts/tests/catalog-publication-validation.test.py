@@ -36,6 +36,19 @@ class RouteCatalogValidationTests(unittest.TestCase):
             with self.subTest(source=source):
                 self.assertEqual(validation.validate_route_catalog(source, self.route(source)), 1)
 
+    def test_accepts_official_dotted_usfs_trail_number(self):
+        data = self.route('usfs')
+        data['routes'][0]['id'] = 'usfs-5022.010011'
+        self.assertEqual(validation.validate_route_catalog('usfs', data), 1)
+
+    def test_rejects_malformed_usfs_trail_number(self):
+        for identity in ('usfs-.010011', 'usfs-5022.', 'usfs-5022..010011', 'usfs-05022'):
+            with self.subTest(identity=identity):
+                data = self.route('usfs')
+                data['routes'][0]['id'] = identity
+                with self.assertRaisesRegex(ValueError, 'invalid source record ID'):
+                    validation.validate_route_catalog('usfs', data)
+
     def test_rejects_duplicate_ids(self):
         data = self.route()
         data['routes'].append(dict(data['routes'][0]))
