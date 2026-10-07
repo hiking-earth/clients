@@ -56,7 +56,13 @@
             "minified" : true
         },
         "usingComponents" : true,
-        "lazyCodeLoading" : "requiredComponents"
+        "lazyCodeLoading" : "requiredComponents",
+        "permission" : {
+            "scope.userLocation" : {
+                "desc" : "仅在你主动开始导航、轨迹记录或队伍位置共享并授权后，用于提供对应的定位功能"
+            }
+        },
+        "requiredPrivateInfos" : [ "getLocation", "startLocationUpdate", "onLocationChange" ]
     },
     "uniStatistics" : {
         "enable" : false
