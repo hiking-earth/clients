@@ -86,11 +86,19 @@ const imagePath = ref("");
 const analyzing = ref(false);
 const result = ref<GearResult | null>(null);
 
-let generation=0,visible=true;
+let generation=0,visible=true,selectionEpoch=0;
+let pendingSelection:{path:string;epoch:number;token:string|undefined}|null=null;
 function invalidate(){generation++;analyzing.value=false;result.value=null;}
-const offAccount=onAccountChange(()=>{invalidate();imagePath.value="";});
+function applySelection(){
+ const pending=pendingSelection;
+ if(!visible||!pending)return;
+ pendingSelection=null;
+ if(pending.epoch!==selectionEpoch||accountSession()?.token!==pending.token)return;
+ imagePath.value=pending.path;result.value=null;
+}
+const offAccount=onAccountChange(()=>{selectionEpoch++;pendingSelection=null;invalidate();imagePath.value="";});
 const offPrivacy=onPrivacyChange(consents=>{if(!consents.gearImageUpload)invalidate();});
-onShow(()=>{visible=true;});onHide(()=>{visible=false;invalidate();});onUnload(()=>{visible=false;invalidate();offAccount();offPrivacy();});
+onShow(()=>{visible=true;applySelection();});onHide(()=>{visible=false;invalidate();});onUnload(()=>{visible=false;selectionEpoch++;pendingSelection=null;invalidate();offAccount();offPrivacy();});
 function validResult(value:any):value is GearResult{
  const text=(v:any,max:number)=>typeof v==="string"&&v.trim().length>0&&v.length<=max;
  return !!value&&Array.isArray(value.items)&&value.items.length<=100&&value.items.every((i:any)=>i&&text(i.name,200)&&text(i.category,100))&&Array.isArray(value.missing)&&value.missing.length<=100&&value.missing.every((i:any)=>i&&text(i.name,200)&&text(i.reason,1000))&&Array.isArray(value.usage)&&value.usage.length<=30&&value.usage.every((i:any)=>text(i,1000))&&Array.isArray(value.plan)&&value.plan.length<=100&&value.plan.every((i:any)=>i&&text(i.name,200));
@@ -103,14 +111,16 @@ function onRouteSelected(route: { id: string; name: string } | null) {
 
 function chooseImage() {
   if(analyzing.value)return;
-  const epoch=++generation;
+  invalidate();
+  const epoch=++selectionEpoch,token=accountSession()?.token;
+  pendingSelection=null;
   uni.chooseImage({
     count: 1,
     sourceType: ["camera", "album"],
     success: (res) => {
-      if(!visible||epoch!==generation)return;
-      imagePath.value = res.tempFilePaths[0];
-      result.value = null;
+      if(epoch!==selectionEpoch||accountSession()?.token!==token||!res.tempFilePaths[0])return;
+      pendingSelection={path:res.tempFilePaths[0],epoch,token};
+      applySelection();
     },
   });
 }
