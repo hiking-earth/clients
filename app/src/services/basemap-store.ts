@@ -34,7 +34,7 @@ export async function saveBasemap(file:File):Promise<SavedBasemap>{
   const tx=db.transaction('maps','readwrite'),store=tx.objectStore('maps'),request=store.getAll();
   let failure='地图保存失败，可能设备空间不足';
   tx.oncomplete=()=>resolve();tx.onerror=()=>reject(new Error(failure));tx.onabort=()=>reject(new Error(failure));
-  request.onsuccess=()=>{let total:number;try{total=basemapStorageBytes(request.result);}catch{failure='地图目录损坏，原资料已保留';tx.abort();return;}if(total+item.bytes>BASEMAP_BUDGET){failure='区域地图总量超过192 MiB，请先删除不再使用的地图';tx.abort();return;}store.add(item);};
+  request.onsuccess=()=>{let total:number;try{total=basemapStorageBytes(request.result);}catch{failure='地图目录损坏，原资料已保留';tx.abort();return;}if(request.result.length>=4096){failure='地图包数量达到上限，请先删除不再使用的地图';tx.abort();return;}if(total+item.bytes>BASEMAP_BUDGET){failure='区域地图总量超过192 MiB，请先删除不再使用的地图';tx.abort();return;}store.add(item);};
  });return item;
 }
 export async function deleteBasemap(id:string):Promise<void>{
