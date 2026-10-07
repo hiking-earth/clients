@@ -106,7 +106,7 @@ def prepare():
         atomic_write(version / 'index.json.gz', packed_index)
         manifest = encode({'schemaVersion': 1, 'snapshot': snapshot, 'key': key,
                           'total': len(rows), 'pageSize': PAGE_SIZE, 'previousSnapshot': previous,
-                          'metadata': {k: v for k, v in data.items() if k not in ('routes', 'items', 'failures')},
+                          'metadata': {k: v for k, v in data.items() if k not in ('routes', 'items', 'failures', 'withheldItems')},
                           'pages': hashes, 'indexHash': hashlib.sha256(index).hexdigest()})
         if len(manifest) > 1024 * 1024:
             raise ValueError(f'{source}: manifest exceeds metadata budget')

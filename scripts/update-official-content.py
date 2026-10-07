@@ -11,6 +11,7 @@ import sys
 import urllib.parse
 import urllib.request
 import xml.etree.ElementTree as ET
+from official_content_policy import apply_metadata_policy
 ROOT=pathlib.Path(__file__).resolve().parents[1]
 TARGET=ROOT/'shared/data/content/official-news.json'
 SOURCE_CONFIG=ROOT/'shared/data/content/official-sources.json'
@@ -93,6 +94,17 @@ if failed==len(SOURCES):
 else:
  result={'schemaVersion':1,'generatedAt':dt.datetime.now(dt.timezone.utc).isoformat(),'items':sorted(items.values(),key=order_time,reverse=True)[:500],'sources':list(states.values()),'notice':'官方公告索引；查看原文确认生效范围，不据此自动开放路线。'}
 TARGET.parent.mkdir(parents=True,exist_ok=True)
+published,withheld=apply_metadata_policy(result.get('items',[]),SOURCES,dt.datetime.now(dt.timezone.utc))
+result['items']=published
+# Keep withheld source metadata recoverable without exposing it as current news.
+# This is a freshness policy for an index, never an automatic trail opening decision.
+prior_withheld=old.get('withheldItems',[])
+history={item.get('record',{}).get('id'):item for item in prior_withheld if isinstance(item,dict) and isinstance(item.get('record'),dict) and item['record'].get('id')}
+for item in withheld:
+ if isinstance(item['record'],dict) and item['record'].get('id'):history[item['record']['id']]=item
+for row in published:history.pop(row.get('id'),None)
+result['withheldItems']=list(history.values())[-500:]
+result['publicationPolicy']={'version':1,'scope':'metadata-links-only','maxFreshnessAgeDays':90,'reviewedAt':dt.datetime.now(dt.timezone.utc).isoformat(),'withheldCount':len(withheld),'accessVerified':False}
 # Unique sibling temp file keeps incomplete writes separate from the snapshot.
 with tempfile.NamedTemporaryFile(mode='w',encoding='utf-8',dir=TARGET.parent,prefix=TARGET.name+'.',suffix='.tmp',delete=False) as file:
  file.write(json.dumps(result,ensure_ascii=False,indent=2)+'\n');temporary=pathlib.Path(file.name)
