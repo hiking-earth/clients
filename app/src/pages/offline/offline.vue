@@ -5,6 +5,9 @@
   <!-- #ifdef H5 -->
   <text class="title">区域离线底图</text><button :disabled="busy" @click="chooseBasemap">打开本机PMTiles地图包</button><text class="hint">支持最多64 MB的PMTiles v3矢量地图包。本机读取，不上传；当前为道路和地物视图，导入后保存到本机，总量最多192 MiB。浏览器清理站点数据会删除地图，请保留原包。</text><view v-for="pack in availableBasemaps" :key="pack.name" class="card"><text>{{pack.label}} · {{(pack.bytes/1048576).toFixed(2)}} MiB</text><text class="hint">{{pack.attribution}} · {{pack.license}}。仅底图，不代表步道开放许可。</text><button :disabled="busy" @click="downloadMapPack(pack)">下载并保存区域地图</button></view><view v-for="pack in savedBasemaps" :key="pack.id" class="card"><text>{{pack.name}} · {{(pack.bytes/1048576).toFixed(2)}} MiB</text><button :disabled="busy" @click="basemapFile=pack.blob">查看地图</button><button :disabled="busy" @click="removeBasemap(pack.id)">删除地图包</button></view><OfflineBasemap v-if="basemapFile" :file="basemapFile" />
   <!-- #endif -->
+  <!-- #ifdef MP-WEIXIN -->
+  <text class="title">区域离线底图</text><button :disabled="busy" @click="chooseWechatBasemap">从聊天文件打开PMTiles地图</button><text class="hint">最多64 MB，读取本机文件、不上传。本入口尚未保存永久副本，请保留原包。</text><WechatBasemap v-if="wechatBasemap" :key="wechatBasemap.path" :file-path="wechatBasemap.path" :bytes="wechatBasemap.bytes" />
+  <!-- #endif -->
   <text class="title">全球离线概览</text><button :disabled="busy" @click="saveWorld">保存全球陆地轮廓到本机</button><text class="hint">内置 Natural Earth 公共领域全球陆地轮廓（1:110m），无需联网即可保存和查看。仅供全球概览，不含详细道路、地形高程和导航信息。</text>
   <text class="title">官方参考资料</text><button :disabled="busy" @click="downloadHk">{{downloading ? '下载中…' : '下载香港郊野公园官方步道参考线'}}</button><text class="hint">来源：香港政府渔农自然护理署 / DATA.GOV.HK。参考线不包含底图、高程或当前开放许可；下载后可离线叠加查看。</text>
   <view class="card"><text>前台自动更新已下载的官方参考线</text><switch :checked="offlineUpdateState.enabled" @change="toggleOfficialUpdates" /><text class="hint">默认关闭；开启后联网检查，会使用网络流量。只更新已有官方参考线，删除后不会自动重新下载。{{offlineUpdateState.message}}</text></view>
@@ -60,6 +63,9 @@ function choose() {
 }
 // #endif
 // #ifdef MP-WEIXIN
+import WechatBasemap from '@/components/WechatBasemap.vue';
+const wechatBasemap=ref<{path:string;bytes:number}|null>(null);
+function chooseWechatBasemap(){if(busy.value)return;uni.chooseMessageFile({count:1,type:'file',extension:['pmtiles'],success:r=>{const file=r.tempFiles[0];if(!file||!Number.isSafeInteger(file.size)||file.size<127||file.size>64*1024*1024){message.value='地图包无效或超过64 MB';return;}wechatBasemap.value={path:file.path,bytes:file.size};},fail:()=>{message.value='未打开地图文件';}});}
 function chooseWechat() { uni.chooseMessageFile({ count: 1, type: 'file', extension: ['json','geojson'], success: r => {
   const file = r.tempFiles[0]; if (file.size > 5*1024*1024) { message.value = '资料超过5 MB'; return; }
   uni.getFileSystemManager().readFile({ filePath: file.path, encoding: 'utf8', success: r => { source.value = String(r.data); }, fail: () => { message.value = '读取失败'; } });
