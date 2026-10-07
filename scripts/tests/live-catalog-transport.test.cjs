@@ -3,7 +3,7 @@ const ts=require('../../site-release/node_modules/typescript');
 const code=ts.transpileModule(fs.readFileSync(path.resolve(__dirname,'../../site-release/data/live-catalog.ts'),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText;
 test('public catalog and reviews use direct verified gateway without account credentials',async()=>{
  const original=global.fetch,calls=[],exports={};
- const requireStub=name=>name==='./routes'?{ROUTES:[]}:{staticManifest:async()=>{throw new Error('offline static')}};
+ const requireStub=name=>name==='./routes'?{ROUTES:[]}:name==='./gateway-relay'?{needsGatewayRelay:()=>false}:{staticManifest:async()=>{throw new Error('offline static')}};
  new Function('require','exports',code)(requireStub,exports);
  global.fetch=async(url,options)=>{
   assert.equal(url,'https://cloud1-d9g4fl3fu2491914f-1499973049.ap-shanghai.app.tcloudbase.com/client-api');

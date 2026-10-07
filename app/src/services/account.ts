@@ -1,4 +1,7 @@
 import { CLIENT_API_URL } from '@shared/constants';
+// #ifdef H5
+import { needsGatewayRelay, gatewayRelayRequest } from '@shared/network/gateway-relay';
+// #endif
 import { stopBackgroundRecording } from '@/services/background';
 import { listTracks, saveTrack, setTrackAutoSyncExcluded, trackStorageValid } from '@/services/tracks';
 import { stopCompass, stopLocationUpdates } from '@/services/location';
@@ -97,6 +100,17 @@ function stillCurrentSession(expected:AccountSession|null):boolean {
 export async function accountRequest<T>(action: string, data: Record<string, unknown> = {}): Promise<AccountResponse<T>> {
   if (!accountApiConfigured()) return { ok: false, errMsg: '账号服务尚未配置，请稍后使用' };
   const session = accountSession();
+  // #ifdef H5
+  if(needsGatewayRelay()){
+    try{
+      const response=await gatewayRelayRequest(action,data,session?.token,['gear-scan','catalog-feed'].includes(action)?60000:20000);
+      const result=response.body as AccountResponse<T>;
+      if(response.status===401&&session&&result?.code==='SESSION_EXPIRED'&&stillCurrentSession(session))clearAccount();
+      if(response.status>=200&&response.status<300&&result?.ok===true)return result;
+      return {ok:false,errMsg:result?.errMsg||'服务未完成本次操作',code:result?.code==='TEAM_REQUEST_EXPIRED'?result.code:undefined};
+    }catch{return {ok:false,errMsg:'网络请求未完成，请确认操作结果后重试'};}
+  }
+  // #endif
   return new Promise(resolve => {
     uni.request({ url: API_URL, method: 'POST', timeout: ['gear-scan','catalog-feed'].includes(action) ? 60000 : 20000,
       header: { 'Content-Type': 'application/json', ...(session ? { Authorization: `Bearer ${session.token}` } : {}) },
