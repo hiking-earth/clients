@@ -105,12 +105,16 @@ export async function accountRequest<T>(action: string, data: Record<string, unk
   try {
     wx.cloud.init({env:CLOUD_ENV,traceUser:false});
     const reply = await wx.cloud.callFunction({name:'client-api',data:{transport:'wechat-cloud',action,data,token:session?.token||''}});
-    const response = reply.result;
+    const response = typeof reply.result === 'string' ? JSON.parse(reply.result) : reply.result;
     const result = JSON.parse(response.body) as AccountResponse<T>;
     if(response.statusCode===401&&session&&result?.code==='SESSION_EXPIRED'&&stillCurrentSession(session))clearAccount();
     if(response.statusCode>=200&&response.statusCode<300&&result?.ok===true)return result;
     return {ok:false,errMsg:result?.errMsg||'服务未完成本次操作',code:result?.code==='TEAM_REQUEST_EXPIRED'?result.code:undefined};
-  } catch { return {ok:false,errMsg:'云服务请求未完成，请确认操作结果后重试'}; }
+  } catch (error:any) {
+    const code=String(error?.errCode||error?.code||'INVALID_RESPONSE');
+    console.warn('[account-cloud]',/^[A-Z0-9_.-]{1,64}$/i.test(code)?code:'REQUEST_FAILED');
+    return {ok:false,errMsg:'云服务请求未完成，请确认操作结果后重试'};
+  }
   // #endif
   // #ifdef H5
   if(needsGatewayRelay()){
