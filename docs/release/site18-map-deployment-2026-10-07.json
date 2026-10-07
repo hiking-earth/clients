@@ -4,6 +4,13 @@
   "clientSource": "94507e915eccc00787bbee99e01bb267de40b085",
   "deployment": "appgdep_6ac5d68d125c8191ae01ed39c499a216",
   "status": "succeeded",
-  "assetVerification": "Python3.14 SSL failure; system Python actual asset HTTP403; curl session97997 pending",
+  "assetVerification": {
+    "HTTP": 200,
+    "method": "curl",
+    "bytes": 1168799,
+    "sha256": "40231fd7abdc9a12261afba0ccfa23bf1ea8870d051cea6c0e943e7b0e87dc88",
+    "matchesBuild": true,
+    "pythonLimits": "Python3.14 SSL failure; system Python HTTP403"
+  },
   "onlineBrowserAcceptance": false
 }
