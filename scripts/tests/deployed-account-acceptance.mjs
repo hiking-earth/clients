@@ -102,6 +102,33 @@ try{
  check('private test team closed',disbanded.payload.ok&&disbanded.payload.data.disbanded===true);
  const closedJoin=await request('team-join',{inviteCode:team.inviteCode},b.token);
  check('closed team rejects admission',!closedJoin.payload.ok);
+ // Explicit synthetic fixture near (0,0); never records device GPS or navigation data.
+ const now=Date.now(),track={id:'synthetic-acceptance',name:'合成轨迹验收',state:'finished',startedAt:now-2000,endedAt:now,
+  points:[{latitude:0,longitude:0,timestamp:now-2000},{latitude:0.001,longitude:0.001,timestamp:now}],distanceM:157,activeDurationMs:2000};
+ const backup=await request('track-sync',{track,expectedVersion:0},a.token);
+ check('synthetic track versioned backup',backup.payload.ok&&backup.payload.data.version===1);
+ const recovered=await request('track-manage',{action:'get',trackId:track.id},a.secondToken);
+ check('synthetic track cross-session restore',recovered.payload.ok&&recovered.payload.data.track.cloudVersion===1&&recovered.payload.data.track.points.length===2);
+ const deniedTrack=await request('track-manage',{action:'get',trackId:track.id},b.token);
+ check('other account cannot read track',!deniedTrack.payload.ok);
+ const deniedTrackDelete=await request('track-manage',{action:'delete',trackId:track.id,expectedVersion:1},b.token);
+ check('other account cannot delete track',!deniedTrackDelete.payload.ok);
+ const trackUpdate=await request('track-sync',{track:{...track,name:'合成轨迹第二版'},expectedVersion:1},a.secondToken);
+ check('synthetic track next revision',trackUpdate.payload.ok&&trackUpdate.payload.data.version===2);
+ const staleTrack=await request('track-sync',{track,expectedVersion:1},a.token);
+ check('stale track backup rejected',!staleTrack.payload.ok);
+ const staleTrackDelete=await request('track-manage',{action:'delete',trackId:track.id,expectedVersion:1},a.token);
+ check('stale track deletion rejected',!staleTrackDelete.payload.ok);
+ const trackDeleted=await request('track-manage',{action:'delete',trackId:track.id,expectedVersion:2},a.secondToken);
+ check('track deletion creates revision tombstone',trackDeleted.payload.ok&&trackDeleted.payload.data.version===3);
+ const hiddenTrack=await request('track-manage',{action:'list',afterCursor:''},a.token);
+ check('deleted track hidden from directory',hiddenTrack.payload.ok&&!hiddenTrack.payload.data.tracks.some(row=>row.trackId===track.id));
+ const revival=await request('track-sync',{track,expectedVersion:3},a.token);
+ check('automatic deleted track revival rejected',!revival.payload.ok);
+ const explicitRestore=await request('track-sync',{track,expectedVersion:3,restoreDeleted:true},a.secondToken);
+ check('explicit track rebackup allowed',explicitRestore.payload.ok&&explicitRestore.payload.data.version===4);
+ const finalTrackDelete=await request('track-manage',{action:'delete',trackId:track.id,expectedVersion:4},a.secondToken);
+ check('synthetic track cleanup',finalTrackDelete.payload.ok&&finalTrackDelete.payload.data.deleted===true);
  const cross=await request('library-manage',{action:'get'},a.secondToken);
  check('cross session recovery',cross.payload.ok&&cross.payload.data.version===2);
  const out=await request('auth.sign-out',{},a.token);
@@ -121,7 +148,7 @@ try{
    records.push({name:'isolated account cleanup',passed:done});
   }catch{records.push({name:'isolated account cleanup',passed:false});}
  }
- const report={schemaVersion:1,scope:(siteMode?'Sites same-origin':'CloudBase direct')+' HTTP account/library/private diary/team/chat workflow; excludes client UI and native/device permissions',checkedAt:new Date().toISOString(),passed:!failure&&records.every(r=>r.passed),failure,checks:records};
+ const report={schemaVersion:1,scope:(siteMode?'Sites same-origin':'CloudBase direct')+' HTTP account/library/private diary/team/chat/synthetic track workflow; excludes client UI and native/device permissions',checkedAt:new Date().toISOString(),passed:!failure&&records.every(r=>r.passed),failure,checks:records};
  fs.writeFileSync(`docs/release/deployed-account${siteMode?'-site':''}-acceptance-2026-10-07.json`,JSON.stringify(report,null,2)+'\n');
  console.log(JSON.stringify(report,null,2));if(!report.passed)process.exitCode=1;
 }

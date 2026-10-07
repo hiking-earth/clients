@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "scope": "Sites same-origin HTTP account/library/private diary/team/chat/synthetic track workflow; excludes client UI and native/device permissions",
-  "checkedAt": "2026-10-07T03:36:00.979Z",
+  "scope": "Sites same-origin HTTP account/library/private diary/team/chat workflow; excludes client UI and native/device permissions",
+  "checkedAt": "2026-10-07T03:32:06.196Z",
   "passed": true,
   "failure": "",
   "checks": [
@@ -167,54 +167,6 @@
     },
     {
       "name": "closed team rejects admission",
-      "passed": true
-    },
-    {
-      "name": "synthetic track versioned backup",
-      "passed": true
-    },
-    {
-      "name": "synthetic track cross-session restore",
-      "passed": true
-    },
-    {
-      "name": "other account cannot read track",
-      "passed": true
-    },
-    {
-      "name": "other account cannot delete track",
-      "passed": true
-    },
-    {
-      "name": "synthetic track next revision",
-      "passed": true
-    },
-    {
-      "name": "stale track backup rejected",
-      "passed": true
-    },
-    {
-      "name": "stale track deletion rejected",
-      "passed": true
-    },
-    {
-      "name": "track deletion creates revision tombstone",
-      "passed": true
-    },
-    {
-      "name": "deleted track hidden from directory",
-      "passed": true
-    },
-    {
-      "name": "automatic deleted track revival rejected",
-      "passed": true
-    },
-    {
-      "name": "explicit track rebackup allowed",
-      "passed": true
-    },
-    {
-      "name": "synthetic track cleanup",
       "passed": true
     },
     {
