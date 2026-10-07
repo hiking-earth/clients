@@ -14,7 +14,7 @@ exports.forecast = async data => {
       if (Date.now() < retryAfter || Date.now() - lastRequest < 250) throw new Error('backoff');
       lastRequest = Date.now();
       task = (async () => {
-        const headers = { 'User-Agent': 'HikingEarth/0.2 https://github.com/hiking-earth/clients', Accept: 'application/json' };
+        const headers = { 'User-Agent': 'HikingEarth/0.2 (https://github.com/hiking-earth/clients; support: 2308582955@qq.com)', Accept: 'application/json' };
         if (prior?.modified) headers['If-Modified-Since'] = prior.modified;
         const response = await fetch(`https://api.met.no/weatherapi/locationforecast/2.0/compact?lat=${lat}&lon=${lon}`, { headers, redirect: 'error', signal: AbortSignal.timeout(10000) });
         if ([403,429].includes(response.status)) retryAfter = Date.now() + 60000;
