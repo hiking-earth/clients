@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-07T18:11:11Z",
+  "generatedAt": "2026-10-07T18:34:32Z",
   "license": "ODbL-1.0",
   "attribution": "© OpenStreetMap contributors",
   "licenseUrl": "https://www.openstreetmap.org/copyright",
@@ -20103,6 +20103,60 @@
         "network": "lwn"
       },
       "fetchedAt": "2026-10-05T05:37:03.029222+00:00",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-10931771",
+      "name": "Cerro Alto - Sendero Verde",
+      "originalName": "Cerro Alto - Sendero Verde",
+      "region": "north-america",
+      "center": [
+        -83.9520871,
+        9.744192949999999
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/10931771",
+      "sourceTags": {
+        "network": "lwn",
+        "operator": "Reserva Natural Cerro Alto",
+        "website": "https://www.cabinasturisticascerroalto.com/senderos"
+      },
+      "fetchedAt": "2026-10-07T18:23:51Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-10931772",
+      "name": "Cerro Alto - Sendero Amarillo",
+      "originalName": "Cerro Alto - Sendero Amarillo",
+      "region": "north-america",
+      "center": [
+        -83.95262174999999,
+        9.744128199999999
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/10931772",
+      "sourceTags": {
+        "network": "lwn",
+        "operator": "Reserva Natural Cerro Alto",
+        "website": "https://www.cabinasturisticascerroalto.com/senderos"
+      },
+      "fetchedAt": "2026-10-07T18:23:51Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-10931773",
+      "name": "Cerro Alto - Sendero Rojo",
+      "originalName": "Cerro Alto - Sendero Rojo",
+      "region": "north-america",
+      "center": [
+        -83.9529101,
+        9.74470405
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/10931773",
+      "sourceTags": {
+        "network": "lwn",
+        "operator": "Reserva Natural Cerro Alto",
+        "website": "https://www.cabinasturisticascerroalto.com/senderos"
+      },
+      "fetchedAt": "2026-10-07T18:23:51Z",
       "status": "待核验"
     },
     {
@@ -94972,6 +95026,70 @@
       "status": "待核验"
     },
     {
+      "id": "osm-relation-12987727",
+      "name": "Sendero Los Quetzales",
+      "originalName": "Sendero Los Quetzales",
+      "region": "north-america",
+      "center": [
+        -82.51664405,
+        8.8488203
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/12987727",
+      "sourceTags": {
+        "operator": "Parque_Nacional_Volcán_Barú"
+      },
+      "fetchedAt": "2026-10-07T18:24:29Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-12987771",
+      "name": "Camino_de_Cruces",
+      "originalName": "Camino_de_Cruces",
+      "region": "north-america",
+      "center": [
+        -79.628911,
+        9.06742745
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/12987771",
+      "sourceTags": {
+        "operator": "Parque_Nacional_Camino_de_Cruces"
+      },
+      "fetchedAt": "2026-10-07T18:24:29Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-12987772",
+      "name": "Camino_de_Cruces",
+      "originalName": "Camino_de_Cruces",
+      "region": "north-america",
+      "center": [
+        -79.66433825,
+        9.12466505
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/12987772",
+      "sourceTags": {
+        "operator": "Parque_Nacional_Soberanía"
+      },
+      "fetchedAt": "2026-10-07T18:24:29Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-12987817",
+      "name": "Camino_de_Cruces",
+      "originalName": "Camino_de_Cruces",
+      "region": "north-america",
+      "center": [
+        -79.64210274999999,
+        9.1216099
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/12987817",
+      "sourceTags": {
+        "operator": "Parque_Nacional_Soberanía"
+      },
+      "fetchedAt": "2026-10-07T18:24:29Z",
+      "status": "待核验"
+    },
+    {
       "id": "osm-relation-12988530",
       "name": "Rifugio Sambucito - Linguaggio della Forca",
       "originalName": "Rifugio Sambucito - Linguaggio della Forca",
@@ -96386,6 +96504,23 @@
         "network": "lwn"
       },
       "fetchedAt": "2026-10-05T06:11:33.759189+00:00",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-13039195",
+      "name": "Camino del Oleoducto",
+      "originalName": "Camino del Oleoducto",
+      "region": "north-america",
+      "center": [
+        -79.76583915,
+        9.1834574
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/13039195",
+      "sourceTags": {
+        "operator": "Parque Nacional Soberanía",
+        "ref": "842"
+      },
+      "fetchedAt": "2026-10-07T18:24:29Z",
       "status": "待核验"
     },
     {
@@ -119447,6 +119582,20 @@
       "status": "待核验"
     },
     {
+      "id": "osm-relation-13801941",
+      "name": "Acceso a Poza Las Indias",
+      "originalName": "Acceso a Poza Las Indias",
+      "region": "north-america",
+      "center": [
+        -87.53269565,
+        14.9837001
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/13801941",
+      "sourceTags": {},
+      "fetchedAt": "2026-10-07T18:30:46Z",
+      "status": "待核验"
+    },
+    {
       "id": "osm-relation-13802240",
       "name": "Balade Littorale de Fautea",
       "originalName": "Balade Littorale de Fautea",
@@ -120607,6 +120756,20 @@
         "ref": "BL"
       },
       "fetchedAt": "2026-10-05T05:32:57.492949+00:00",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-13840718",
+      "name": "Sendero Fustete-Morlotte",
+      "originalName": "Sendero Fustete-Morlotte",
+      "region": "north-america",
+      "center": [
+        -77.53465825,
+        19.864137149999998
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/13840718",
+      "sourceTags": {},
+      "fetchedAt": "2026-10-07T18:33:39Z",
       "status": "待核验"
     },
     {
@@ -124413,6 +124576,34 @@
         "ref": "CALC"
       },
       "fetchedAt": "2026-10-05T05:32:57.492949+00:00",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-13983044",
+      "name": "Bateria Alta de la Socapa",
+      "originalName": "Bateria Alta de la Socapa",
+      "region": "north-america",
+      "center": [
+        -75.87580355,
+        19.972992599999998
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/13983044",
+      "sourceTags": {},
+      "fetchedAt": "2026-10-07T18:33:39Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-13983045",
+      "name": "Sendero al Viso",
+      "originalName": "Sendero al Viso",
+      "region": "north-america",
+      "center": [
+        -75.7701997,
+        20.0552161
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/13983045",
+      "sourceTags": {},
+      "fetchedAt": "2026-10-07T18:33:39Z",
       "status": "待核验"
     },
     {
@@ -136543,6 +136734,20 @@
       "status": "待核验"
     },
     {
+      "id": "osm-relation-14372586",
+      "name": "Sendero al Volcán Barú",
+      "originalName": "Sendero al Volcán Barú",
+      "region": "north-america",
+      "center": [
+        -82.5641998,
+        8.81093655
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/14372586",
+      "sourceTags": {},
+      "fetchedAt": "2026-10-07T18:24:29Z",
+      "status": "待核验"
+    },
+    {
       "id": "osm-relation-1437448",
       "name": "S, Szent-György-hegyi körséta",
       "originalName": "S, Szent-György-hegyi körséta",
@@ -137185,6 +137390,20 @@
       "status": "待核验"
     },
     {
+      "id": "osm-relation-14392436",
+      "name": "Plantation_Road",
+      "originalName": "Plantation_Road",
+      "region": "north-america",
+      "center": [
+        -79.65046050000001,
+        9.097069699999999
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/14392436",
+      "sourceTags": {},
+      "fetchedAt": "2026-10-07T18:24:29Z",
+      "status": "待核验"
+    },
+    {
       "id": "osm-relation-14392880",
       "name": "TC074 Puigcerdà Onzès Llívia Ur Rigolisa Puigcerdà",
       "originalName": "TC074 Puigcerdà Onzès Llívia Ur Rigolisa Puigcerdà",
@@ -137202,6 +137421,20 @@
         "website": "https://www.cerdanya.eu/2018/07/29/tc074peu-puigcerd%C3%A0-la-guingueta-onz%C3%A8s-ll%C3%ADvia-ur-rigolisa-puigcerd%C3%A0/"
       },
       "fetchedAt": "2026-10-05T05:32:57.492949+00:00",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-14393197",
+      "name": "Sendero_El_Charco",
+      "originalName": "Sendero_El_Charco",
+      "region": "north-america",
+      "center": [
+        -79.66372905,
+        9.0874777
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/14393197",
+      "sourceTags": {},
+      "fetchedAt": "2026-10-07T18:24:29Z",
       "status": "待核验"
     },
     {
@@ -174553,6 +174786,22 @@
       "status": "待核验"
     },
     {
+      "id": "osm-relation-15879731",
+      "name": "El reto mae",
+      "originalName": "El reto mae",
+      "region": "north-america",
+      "center": [
+        -84.1646113,
+        9.41078895
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/15879731",
+      "sourceTags": {
+        "network": "lwn"
+      },
+      "fetchedAt": "2026-10-07T18:23:51Z",
+      "status": "待核验"
+    },
+    {
       "id": "osm-relation-15879856",
       "name": "Corfu Paths CC02 - Stavros Loop Hike",
       "originalName": "Corfu Paths CC02 - Stavros Loop Hike",
@@ -195882,6 +196131,23 @@
       "status": "待核验"
     },
     {
+      "id": "osm-relation-16779496",
+      "name": "Sendero del Mono",
+      "originalName": "Sendero del Mono",
+      "region": "north-america",
+      "center": [
+        -84.16941270000001,
+        9.396784799999999
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/16779496",
+      "sourceTags": {
+        "network": "lwn",
+        "access": "customers"
+      },
+      "fetchedAt": "2026-10-07T18:23:51Z",
+      "status": "待核验"
+    },
+    {
       "id": "osm-relation-16780748",
       "name": "gele wandelroute",
       "originalName": "gele wandelroute",
@@ -196673,6 +196939,25 @@
       "status": "待核验"
     },
     {
+      "id": "osm-relation-16828739",
+      "name": "Caminata al Volcán Cosigüina",
+      "originalName": "Caminata al Volcán Cosigüina",
+      "region": "north-america",
+      "center": [
+        -87.53282645,
+        12.9909383
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/16828739",
+      "sourceTags": {
+        "distance": "7.7",
+        "network": "rwn",
+        "website": "https://vianica.com/sp/tours/264",
+        "description": "Ruta hasta Volcán Cosigüina (Potosí)"
+      },
+      "fetchedAt": "2026-10-07T18:31:38Z",
+      "status": "待核验"
+    },
+    {
       "id": "osm-relation-16829160",
       "name": "厦门山海健康步道",
       "originalName": "厦门山海健康步道",
@@ -196852,6 +197137,26 @@
         "website": "https://www.fedamon.com/senderos/prs/huelva/PR-A%20467%20folleto.pdf"
       },
       "fetchedAt": "2026-10-04T16:31:44.762078+00:00",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-16836197",
+      "name": "Caminata al Volcán San Cristóbal",
+      "originalName": "Caminata al Volcán San Cristóbal",
+      "region": "north-america",
+      "center": [
+        -87.02069085,
+        12.688803400000001
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/16836197",
+      "sourceTags": {
+        "distance": "6.1",
+        "ascent": "500",
+        "network": "rwn",
+        "website": "https://vianica.com/attraction/234/san-cristobal-volcano",
+        "description": "The San Cristóbal is the highest active volcano in Nicaragua. This high, cone-shaped, smoking mountain exhibits all characteristics of a 'traditional' volcano. There are several volcanoes located around the San Cristóbal."
+      },
+      "fetchedAt": "2026-10-07T18:31:38Z",
       "status": "待核验"
     },
     {
@@ -203657,6 +203962,20 @@
       "status": "待核验"
     },
     {
+      "id": "osm-relation-17064064",
+      "name": "Sendero circular principal",
+      "originalName": "Sendero circular principal",
+      "region": "north-america",
+      "center": [
+        -84.09553935,
+        10.06473295
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/17064064",
+      "sourceTags": {},
+      "fetchedAt": "2026-10-07T18:23:51Z",
+      "status": "待核验"
+    },
+    {
       "id": "osm-relation-17064697",
       "name": "Καρβούνης δυτικά",
       "originalName": "Καρβούνης δυτικά",
@@ -206363,6 +206682,22 @@
       "status": "待核验"
     },
     {
+      "id": "osm-relation-1725499",
+      "name": "Godet - Morne Jojo Hiking Route",
+      "originalName": "Godet - Morne Jojo Hiking Route",
+      "region": "north-america",
+      "center": [
+        -72.32753890000001,
+        18.431554300000002
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/1725499",
+      "sourceTags": {
+        "network": "lwn"
+      },
+      "fetchedAt": "2026-10-07T18:34:32Z",
+      "status": "待核验"
+    },
+    {
       "id": "osm-relation-17256774",
       "name": "Sentiero della Masseta",
       "originalName": "Sentiero della Masseta",
@@ -207318,6 +207653,22 @@
         "website": "https://cc-castelrenaudais.fr/wp-content/uploads/2021/12/rando-Autreche_2021.pdf"
       },
       "fetchedAt": "2026-10-05T05:49:53.235873+00:00",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-1730265",
+      "name": "Morne Crausaz Hiking Route",
+      "originalName": "Morne Crausaz Hiking Route",
+      "region": "north-america",
+      "center": [
+        -71.9204682,
+        18.35562115
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/1730265",
+      "sourceTags": {
+        "network": "lwn"
+      },
+      "fetchedAt": "2026-10-07T18:34:32Z",
       "status": "待核验"
     },
     {
@@ -254233,6 +254584,62 @@
       "status": "待核验"
     },
     {
+      "id": "osm-relation-18743099",
+      "name": "Eagle Trail",
+      "originalName": "Eagle Trail",
+      "region": "north-america",
+      "center": [
+        -84.16206980000001,
+        10.16423595
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/18743099",
+      "sourceTags": {},
+      "fetchedAt": "2026-10-07T18:23:51Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-18743100",
+      "name": "Evergreen Trail",
+      "originalName": "Evergreen Trail",
+      "region": "north-america",
+      "center": [
+        -84.15871465000001,
+        10.16210865
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/18743100",
+      "sourceTags": {},
+      "fetchedAt": "2026-10-07T18:23:51Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-18743101",
+      "name": "Oak Trail",
+      "originalName": "Oak Trail",
+      "region": "north-america",
+      "center": [
+        -84.1613839,
+        10.165769449999999
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/18743101",
+      "sourceTags": {},
+      "fetchedAt": "2026-10-07T18:23:51Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-18743102",
+      "name": "Quetzal Trail",
+      "originalName": "Quetzal Trail",
+      "region": "north-america",
+      "center": [
+        -84.16242464999999,
+        10.16424455
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/18743102",
+      "sourceTags": {},
+      "fetchedAt": "2026-10-07T18:23:51Z",
+      "status": "待核验"
+    },
+    {
       "id": "osm-relation-18752058",
       "name": "Sentiero dei Carbonai",
       "originalName": "Sentiero dei Carbonai",
@@ -273954,6 +274361,34 @@
         "network": "lwn"
       },
       "fetchedAt": "2026-10-05T05:37:03.029222+00:00",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-19382938",
+      "name": "El Retoño",
+      "originalName": "El Retoño",
+      "region": "north-america",
+      "center": [
+        -82.61721685,
+        8.89305075
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/19382938",
+      "sourceTags": {},
+      "fetchedAt": "2026-10-07T18:24:29Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-19382939",
+      "name": "El Retoño",
+      "originalName": "El Retoño",
+      "region": "north-america",
+      "center": [
+        -82.61611135,
+        8.892499449999999
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/19382939",
+      "sourceTags": {},
+      "fetchedAt": "2026-10-07T18:24:29Z",
       "status": "待核验"
     },
     {
@@ -305475,6 +305910,20 @@
       "status": "待核验"
     },
     {
+      "id": "osm-relation-20420561",
+      "name": "Main trail",
+      "originalName": "Main trail",
+      "region": "north-america",
+      "center": [
+        -84.26465995000001,
+        10.25476455
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/20420561",
+      "sourceTags": {},
+      "fetchedAt": "2026-10-07T18:23:51Z",
+      "status": "待核验"
+    },
+    {
       "id": "osm-relation-20420707",
       "name": "Monastiraki Karvasaras - Marathos",
       "originalName": "Monastiraki Karvasaras - Marathos",
@@ -312589,6 +313038,23 @@
       "status": "待核验"
     },
     {
+      "id": "osm-relation-2080918",
+      "name": "Jardín Etno-Botanico del Caribe UCR",
+      "originalName": "Jardín Etno-Botanico del Caribe UCR",
+      "region": "north-america",
+      "center": [
+        -83.06323739999999,
+        9.9828865
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/2080918",
+      "sourceTags": {
+        "network": "lwn",
+        "ref": "1"
+      },
+      "fetchedAt": "2026-10-07T18:23:51Z",
+      "status": "待核验"
+    },
+    {
       "id": "osm-relation-2080923",
       "name": "La balade à André",
       "originalName": "La balade à André",
@@ -317004,6 +317470,22 @@
         "network": "lwn"
       },
       "fetchedAt": "2026-10-05T05:49:53.235873+00:00",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-2107983",
+      "name": "camine rapido",
+      "originalName": "camine rapido",
+      "region": "north-america",
+      "center": [
+        -83.0602548,
+        9.983810349999999
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/2107983",
+      "sourceTags": {
+        "network": "nwn"
+      },
+      "fetchedAt": "2026-10-07T18:23:51Z",
       "status": "待核验"
     },
     {
@@ -327988,6 +328470,22 @@
       "status": "待核验"
     },
     {
+      "id": "osm-relation-2310326",
+      "name": "Sendero El Cráter",
+      "originalName": "Sendero El Cráter",
+      "region": "north-america",
+      "center": [
+        -85.9775381,
+        11.835449650000001
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/2310326",
+      "sourceTags": {
+        "network": "Volcán Mombacho"
+      },
+      "fetchedAt": "2026-10-07T18:31:38Z",
+      "status": "待核验"
+    },
+    {
       "id": "osm-relation-2315605",
       "name": "Sinaia - Șaua Vârfului cu Dor - Cabana Padina",
       "originalName": "Sinaia - Șaua Vârfului cu Dor - Cabana Padina",
@@ -328411,6 +328909,22 @@
         "ref": "113"
       },
       "fetchedAt": "2026-10-05T05:32:57.492949+00:00",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-2361271",
+      "name": "Parque del Este",
+      "originalName": "Parque del Este",
+      "region": "north-america",
+      "center": [
+        -69.85380425,
+        18.4795938
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/2361271",
+      "sourceTags": {
+        "network": "nwn"
+      },
+      "fetchedAt": "2026-10-07T18:34:32Z",
       "status": "待核验"
     },
     {
@@ -330745,6 +331259,57 @@
         "website": "https://wandelen.groteroutepaden.be/nl/gr-131-brugse-ommeland---ieperboog"
       },
       "fetchedAt": "2026-10-05T06:11:33.759189+00:00",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-2459907",
+      "name": "O Nature Trail",
+      "originalName": "O Nature Trail",
+      "region": "north-america",
+      "center": [
+        -85.7315406,
+        11.106781699999999
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/2459907",
+      "sourceTags": {
+        "network": "lwn",
+        "ref": "0"
+      },
+      "fetchedAt": "2026-10-07T18:31:38Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-2459909",
+      "name": "O Nature Trail",
+      "originalName": "O Nature Trail",
+      "region": "north-america",
+      "center": [
+        -85.7315406,
+        11.106781699999999
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/2459909",
+      "sourceTags": {
+        "network": "rwn",
+        "ref": "0"
+      },
+      "fetchedAt": "2026-10-07T18:31:38Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-2459911",
+      "name": "O Nature Trail",
+      "originalName": "O Nature Trail",
+      "region": "north-america",
+      "center": [
+        -85.7315406,
+        11.106781699999999
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/2459911",
+      "sourceTags": {
+        "network": "nwn",
+        "ref": "0"
+      },
+      "fetchedAt": "2026-10-07T18:31:38Z",
       "status": "待核验"
     },
     {
@@ -338530,6 +339095,22 @@
         "ref": "S■"
       },
       "fetchedAt": "2026-10-05T05:42:05.240567+00:00",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-2902094",
+      "name": "Bassin Mambo",
+      "originalName": "Bassin Mambo",
+      "region": "north-america",
+      "center": [
+        -72.11825085000001,
+        19.61858865
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/2902094",
+      "sourceTags": {
+        "description": "De Limonade à Bassin Mambo"
+      },
+      "fetchedAt": "2026-10-07T18:34:32Z",
       "status": "待核验"
     },
     {
@@ -352456,6 +353037,38 @@
       "status": "待核验"
     },
     {
+      "id": "osm-relation-3558171",
+      "name": "La Cascada",
+      "originalName": "La Cascada",
+      "region": "north-america",
+      "center": [
+        -82.61733054999999,
+        8.89631755
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/3558171",
+      "sourceTags": {
+        "operator": "ANAM"
+      },
+      "fetchedAt": "2026-10-07T18:24:29Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-3558172",
+      "name": "Panama Verde",
+      "originalName": "Panama Verde",
+      "region": "north-america",
+      "center": [
+        -82.6144328,
+        8.8932274
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/3558172",
+      "sourceTags": {
+        "operator": "ANAM"
+      },
+      "fetchedAt": "2026-10-07T18:24:29Z",
+      "status": "待核验"
+    },
+    {
       "id": "osm-relation-3558214",
       "name": "San Zadornil",
       "originalName": "San Zadornil",
@@ -354509,6 +355122,22 @@
         "operator": "PTTK Gorlice"
       },
       "fetchedAt": "2026-10-05T06:11:33.759189+00:00",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-369422",
+      "name": "Ascenso volcán de agua",
+      "originalName": "Ascenso volcán de agua",
+      "region": "north-america",
+      "center": [
+        -90.72567534999999,
+        14.48044115
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/369422",
+      "sourceTags": {
+        "description": "Ruta de ascenso al volcán de agua por el \"extravío\""
+      },
+      "fetchedAt": "2026-10-07T18:29:14Z",
       "status": "待核验"
     },
     {
@@ -365768,6 +366397,38 @@
         "ref": "por mecanica"
       },
       "fetchedAt": "2026-10-07T18:11:11Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-4442698",
+      "name": "Alexander Humbold park hike",
+      "originalName": "Alexander Humbold park hike",
+      "region": "north-america",
+      "center": [
+        -74.7141496,
+        20.5128677
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/4442698",
+      "sourceTags": {
+        "network": "lwn"
+      },
+      "fetchedAt": "2026-10-07T18:33:39Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-4442854",
+      "name": "Waterfall horse ride",
+      "originalName": "Waterfall horse ride",
+      "region": "north-america",
+      "center": [
+        -79.9739186,
+        21.8288018
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/4442854",
+      "sourceTags": {
+        "operator": "Casa Muñoz"
+      },
+      "fetchedAt": "2026-10-07T18:33:39Z",
       "status": "待核验"
     },
     {
@@ -398990,6 +399651,244 @@
       "status": "待核验"
     },
     {
+      "id": "osm-relation-6090326",
+      "name": "Atajo",
+      "originalName": "Atajo",
+      "region": "north-america",
+      "center": [
+        -85.9072768,
+        13.001864000000001
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/6090326",
+      "sourceTags": {
+        "distance": "370",
+        "descent": "50",
+        "network": "lwn",
+        "operator": "Selva Negra",
+        "description": "Medium difficulty"
+      },
+      "fetchedAt": "2026-10-07T18:31:38Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-6090327",
+      "name": "Bavaria",
+      "originalName": "Bavaria",
+      "region": "north-america",
+      "center": [
+        -85.9058824,
+        13.001567699999999
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/6090327",
+      "sourceTags": {
+        "distance": "570",
+        "descent": "20",
+        "network": "lwn",
+        "operator": "Selva Negra",
+        "description": "Medium difficulty"
+      },
+      "fetchedAt": "2026-10-07T18:31:38Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-6090328",
+      "name": "Canal",
+      "originalName": "Canal",
+      "region": "north-america",
+      "center": [
+        -85.902864,
+        13.0041394
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/6090328",
+      "sourceTags": {
+        "distance": "520",
+        "descent": "160",
+        "network": "lwn",
+        "operator": "Selva Negra",
+        "description": "Medium difficulty"
+      },
+      "fetchedAt": "2026-10-07T18:31:38Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-6090329",
+      "name": "Cody",
+      "originalName": "Cody",
+      "region": "north-america",
+      "center": [
+        -85.9095627,
+        13.000111700000001
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/6090329",
+      "sourceTags": {
+        "distance": "610",
+        "descent": "20",
+        "network": "lwn",
+        "operator": "Selva Negra",
+        "description": "Easy"
+      },
+      "fetchedAt": "2026-10-07T18:31:38Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-6090330",
+      "name": "Fountain of Youth",
+      "originalName": "Fountain of Youth",
+      "region": "north-america",
+      "center": [
+        -85.91148035,
+        13.00409445
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/6090330",
+      "sourceTags": {
+        "distance": "650",
+        "descent": "200",
+        "network": "lwn",
+        "operator": "Selva Negra",
+        "description": "Difficult"
+      },
+      "fetchedAt": "2026-10-07T18:31:38Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-6090331",
+      "name": "La Mosquitia",
+      "originalName": "La Mosquitia",
+      "region": "north-america",
+      "center": [
+        -85.90629565,
+        13.00658465
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/6090331",
+      "sourceTags": {
+        "distance": "2800",
+        "descent": "70",
+        "network": "lwn",
+        "operator": "Selva Negra",
+        "description": "difficult"
+      },
+      "fetchedAt": "2026-10-07T18:31:38Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-6090332",
+      "name": "Las Pavas",
+      "originalName": "Las Pavas",
+      "region": "north-america",
+      "center": [
+        -85.90394459999999,
+        13.002476600000001
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/6090332",
+      "sourceTags": {
+        "distance": "1200",
+        "descent": "130",
+        "network": "lwn",
+        "operator": "Selva Negra",
+        "description": "Difficult"
+      },
+      "fetchedAt": "2026-10-07T18:31:38Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-6090333",
+      "name": "Las Pilas",
+      "originalName": "Las Pilas",
+      "region": "north-america",
+      "center": [
+        -85.91225005,
+        13.00069735
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/6090333",
+      "sourceTags": {
+        "distance": "300",
+        "descent": "50",
+        "network": "lwn",
+        "operator": "Selva Negra",
+        "description": "Easy"
+      },
+      "fetchedAt": "2026-10-07T18:31:38Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-6090334",
+      "name": "Peter & Helen",
+      "originalName": "Peter & Helen",
+      "region": "north-america",
+      "center": [
+        -85.9082877,
+        13.0048326
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/6090334",
+      "sourceTags": {
+        "distance": "690",
+        "network": "lwn",
+        "operator": "Selva Negra",
+        "description": "difficult"
+      },
+      "fetchedAt": "2026-10-07T18:31:38Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-6090335",
+      "name": "Playitas",
+      "originalName": "Playitas",
+      "region": "north-america",
+      "center": [
+        -85.9101347,
+        12.9994828
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/6090335",
+      "sourceTags": {
+        "distance": "150",
+        "descent": "0",
+        "network": "lwn",
+        "operator": "Selva Negra",
+        "description": "Easy"
+      },
+      "fetchedAt": "2026-10-07T18:31:38Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-6090336",
+      "name": "Quetzal",
+      "originalName": "Quetzal",
+      "region": "north-america",
+      "center": [
+        -85.9047883,
+        13.0018457
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/6090336",
+      "sourceTags": {
+        "distance": "1800",
+        "descent": "160",
+        "network": "lwn",
+        "operator": "Selva Negra",
+        "description": "Difficult"
+      },
+      "fetchedAt": "2026-10-07T18:31:38Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-6090337",
+      "name": "Romántico",
+      "originalName": "Romántico",
+      "region": "north-america",
+      "center": [
+        -85.9093422,
+        13.00186735
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/6090337",
+      "sourceTags": {
+        "distance": "960",
+        "descent": "0",
+        "network": "lwn",
+        "description": "Medium difficulty"
+      },
+      "fetchedAt": "2026-10-07T18:31:38Z",
+      "status": "待核验"
+    },
+    {
       "id": "osm-relation-6090647",
       "name": "P+",
       "originalName": "P+",
@@ -408404,6 +409303,24 @@
       "status": "待核验"
     },
     {
+      "id": "osm-relation-6461509",
+      "name": "August Town Celebration Route",
+      "originalName": "August Town Celebration Route",
+      "region": "north-america",
+      "center": [
+        -76.73730705,
+        17.9921797
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/6461509",
+      "sourceTags": {
+        "network": "Jamaica Tourism",
+        "operator": "August Town Community",
+        "ref": "august_town_tour"
+      },
+      "fetchedAt": "2026-10-07T18:33:01Z",
+      "status": "待核验"
+    },
+    {
       "id": "osm-relation-6462792",
       "name": "Spookwegelwandeling",
       "originalName": "Spookwegelwandeling",
@@ -413867,6 +414784,20 @@
       "status": "待核验"
     },
     {
+      "id": "osm-relation-6677124",
+      "name": "Ruta Bonanza Urbano",
+      "originalName": "Ruta Bonanza Urbano",
+      "region": "north-america",
+      "center": [
+        -84.59903455,
+        14.0279113
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/6677124",
+      "sourceTags": {},
+      "fetchedAt": "2026-10-07T18:31:38Z",
+      "status": "待核验"
+    },
+    {
       "id": "osm-relation-6677771",
       "name": "Camino Aragonés",
       "originalName": "Camino Aragonés",
@@ -416725,6 +417656,38 @@
       "status": "待核验"
     },
     {
+      "id": "osm-relation-6785280",
+      "name": "Los Robles",
+      "originalName": "Los Robles",
+      "region": "north-america",
+      "center": [
+        -83.7958569,
+        9.5468004
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/6785280",
+      "sourceTags": {
+        "network": "lwn"
+      },
+      "fetchedAt": "2026-10-07T18:23:51Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-6785281",
+      "name": "La Quebrada",
+      "originalName": "La Quebrada",
+      "region": "north-america",
+      "center": [
+        -83.80169495000001,
+        9.547078599999999
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/6785281",
+      "sourceTags": {
+        "network": "lwn"
+      },
+      "fetchedAt": "2026-10-07T18:23:51Z",
+      "status": "待核验"
+    },
+    {
       "id": "osm-relation-6785417",
       "name": "Μονή Κυπριανού - Κιάφα Πίνη",
       "originalName": "Μονή Κυπριανού - Κιάφα Πίνη",
@@ -416792,6 +417755,22 @@
         "ref": "GPT09"
       },
       "fetchedAt": "2026-10-07T17:53:53Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-6789447",
+      "name": "Selvatura Hangingbridges",
+      "originalName": "Selvatura Hangingbridges",
+      "region": "north-america",
+      "center": [
+        -84.79911245,
+        10.33899815
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/6789447",
+      "sourceTags": {
+        "network": "lcn"
+      },
+      "fetchedAt": "2026-10-07T18:23:51Z",
       "status": "待核验"
     },
     {
@@ -425551,6 +426530,23 @@
       "status": "待核验"
     },
     {
+      "id": "osm-relation-7144818",
+      "name": "Parque Otto Casco Montenegro <=> Cubulcán",
+      "originalName": "Parque Otto Casco Montenegro <=> Cubulcán",
+      "region": "north-america",
+      "center": [
+        -85.9996549,
+        13.0813727
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/7144818",
+      "sourceTags": {
+        "network": "lwn",
+        "operator": "Senderistas en acciòn por el clima"
+      },
+      "fetchedAt": "2026-10-07T18:31:38Z",
+      "status": "待核验"
+    },
+    {
       "id": "osm-relation-7144830",
       "name": "Circuit de la Chantlée",
       "originalName": "Circuit de la Chantlée",
@@ -432774,6 +433770,65 @@
         "website": "https://www.cm-oaz.pt/turismo.356/o_que_fazer.510/rotas_e_percursos.521/percursos.876/pr_espigueiros.a4229.html"
       },
       "fetchedAt": "2026-10-05T05:32:57.492949+00:00",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-7423509",
+      "name": "Vegas Grandes",
+      "originalName": "Vegas Grandes",
+      "region": "north-america",
+      "center": [
+        -80.00387620000001,
+        21.907984499999998
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/7423509",
+      "sourceTags": {
+        "distance": "5.53",
+        "ascent": "411",
+        "descent": "507",
+        "network": "lcn",
+        "operator": "Gaviota S.A."
+      },
+      "fetchedAt": "2026-10-07T18:33:39Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-7423577",
+      "name": "La Alfombra Mágica",
+      "originalName": "La Alfombra Mágica",
+      "region": "north-america",
+      "center": [
+        -80.0413593,
+        21.89708255
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/7423577",
+      "sourceTags": {
+        "distance": "6.32",
+        "ascent": "200",
+        "descent": "234",
+        "network": "lwn",
+        "operator": "Gaviota, S.A."
+      },
+      "fetchedAt": "2026-10-07T18:33:39Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-7423594",
+      "name": "Salto del Caburní",
+      "originalName": "Salto del Caburní",
+      "region": "north-america",
+      "center": [
+        -80.0098573,
+        21.9201007
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/7423594",
+      "sourceTags": {
+        "distance": "9.15",
+        "ascent": "446",
+        "network": "lwn",
+        "operator": "Gaviota, S.A."
+      },
+      "fetchedAt": "2026-10-07T18:33:39Z",
       "status": "待核验"
     },
     {
@@ -440504,6 +441559,90 @@
         "website": "https://www.viadifrancesco.it/"
       },
       "fetchedAt": "2026-10-05T05:32:57.492949+00:00",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-7792956",
+      "name": "Soroa - Comunidad El Brujito",
+      "originalName": "Soroa - Comunidad El Brujito",
+      "region": "north-america",
+      "center": [
+        -83.0284279,
+        22.79356595
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/7792956",
+      "sourceTags": {
+        "distance": "11.7",
+        "ascent": "404",
+        "descent": "404",
+        "network": "rwn",
+        "operator": "?",
+        "description": "hiking path"
+      },
+      "fetchedAt": "2026-10-07T18:33:39Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-7792957",
+      "name": "Soroa - Mirador",
+      "originalName": "Soroa - Mirador",
+      "region": "north-america",
+      "center": [
+        -83.00512745,
+        22.79576265
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/7792957",
+      "sourceTags": {
+        "distance": "2.8",
+        "ascent": "230",
+        "descent": "230",
+        "network": "rwn",
+        "operator": "?",
+        "description": "hiking path"
+      },
+      "fetchedAt": "2026-10-07T18:33:39Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-7792970",
+      "name": "Sendero del Taburete",
+      "originalName": "Sendero del Taburete",
+      "region": "north-america",
+      "center": [
+        -82.92438154999999,
+        22.8343854
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/7792970",
+      "sourceTags": {
+        "distance": "13.5",
+        "ascent": "350",
+        "descent": "350",
+        "network": "rwn",
+        "operator": "?",
+        "description": "hiking path in Las Terrazzas"
+      },
+      "fetchedAt": "2026-10-07T18:33:39Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-7792971",
+      "name": "Sendero El Contento",
+      "originalName": "Sendero El Contento",
+      "region": "north-america",
+      "center": [
+        -82.9196065,
+        22.8319098
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/7792971",
+      "sourceTags": {
+        "distance": "6.1",
+        "ascent": "177",
+        "descent": "188",
+        "network": "rwn",
+        "operator": "?",
+        "description": "hiking path in Las Terrazzas"
+      },
+      "fetchedAt": "2026-10-07T18:33:39Z",
       "status": "待核验"
     },
     {
@@ -470185,6 +471324,36 @@
       "status": "待核验"
     },
     {
+      "id": "osm-relation-9305925",
+      "name": "Jinotega - Santa Clara",
+      "originalName": "Jinotega - Santa Clara",
+      "region": "north-america",
+      "center": [
+        -85.99041065,
+        13.1109393
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/9305925",
+      "sourceTags": {
+        "network": "lcn"
+      },
+      "fetchedAt": "2026-10-07T18:31:38Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-9306024",
+      "name": "Jinotega - Peña de La Cruz",
+      "originalName": "Jinotega - Peña de La Cruz",
+      "region": "north-america",
+      "center": [
+        -86.0081522,
+        13.091363699999999
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/9306024",
+      "sourceTags": {},
+      "fetchedAt": "2026-10-07T18:31:38Z",
+      "status": "待核验"
+    },
+    {
       "id": "osm-relation-9314853",
       "name": "歴史と文化の散歩道 目黒田園調布コース",
       "originalName": "歴史と文化の散歩道 目黒田園調布コース",
@@ -475470,6 +476639,22 @@
         "ref": "27"
       },
       "fetchedAt": "2026-10-05T05:49:53.235873+00:00",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-9492181",
+      "name": "Ruta a La Gran Piedra",
+      "originalName": "Ruta a La Gran Piedra",
+      "region": "north-america",
+      "center": [
+        -75.67123855,
+        20.00373005
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/9492181",
+      "sourceTags": {
+        "network": "rwn"
+      },
+      "fetchedAt": "2026-10-07T18:33:39Z",
       "status": "待核验"
     },
     {
@@ -490687,6 +491872,38 @@
       "status": "待核验"
     },
     {
+      "id": "osm-relation-9853476",
+      "name": "Sende a Cueva de los Murcielagos",
+      "originalName": "Sende a Cueva de los Murcielagos",
+      "region": "north-america",
+      "center": [
+        -76.28770035,
+        19.981327800000003
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/9853476",
+      "sourceTags": {
+        "ref": "SN"
+      },
+      "fetchedAt": "2026-10-07T18:33:39Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-9854368",
+      "name": "Sendero al Pico Turquino",
+      "originalName": "Sendero al Pico Turquino",
+      "region": "north-america",
+      "center": [
+        -76.85385195,
+        19.96467045
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/9854368",
+      "sourceTags": {
+        "ref": "Via Santiago de Cuba"
+      },
+      "fetchedAt": "2026-10-07T18:33:39Z",
+      "status": "待核验"
+    },
+    {
       "id": "osm-relation-9854725",
       "name": "circuit Èvre et Loire",
       "originalName": "circuit Èvre et Loire",
@@ -491860,6 +493077,22 @@
         "network": "lwn"
       },
       "fetchedAt": "2026-10-05T05:42:05.240567+00:00",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-9968308",
+      "name": "Sendero al Pico Turquino",
+      "originalName": "Sendero al Pico Turquino",
+      "region": "north-america",
+      "center": [
+        -76.8652436,
+        20.0034956
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/9968308",
+      "sourceTags": {
+        "ref": "Vía Granma"
+      },
+      "fetchedAt": "2026-10-07T18:33:39Z",
       "status": "待核验"
     },
     {
@@ -503746,6 +504979,110 @@
       "importedRelations": 70,
       "skippedIncompleteRelations": 1,
       "skippedNestedRelations": 1
+    },
+    {
+      "sourceId": "central-america/costa-rica-261007",
+      "region": "north-america",
+      "sourceUrl": "https://download.geofabrik.de/central-america/costa-rica.html",
+      "sourceTimestamp": "2026-10-06T20:21:06Z",
+      "sha256": "af8c31e21389aac29aa1a885bd2d9cfa2e032fae0cb5ec5d26fda0c693d318ca",
+      "bytes": 39052623,
+      "importedAt": "2026-10-07T18:23:51Z",
+      "candidateRelations": 16,
+      "importedRelations": 16,
+      "skippedIncompleteRelations": 0,
+      "skippedNestedRelations": 0
+    },
+    {
+      "sourceId": "central-america/panama-latest",
+      "region": "north-america",
+      "sourceUrl": "https://download.geofabrik.de/central-america/panama.html",
+      "sourceTimestamp": "2026-10-06T20:21:06Z",
+      "sha256": "bc885e4d3a58e9241e3b7e56ec5d7ab35652528a36e37ac092b5ad34d523b5cd",
+      "bytes": 36272681,
+      "importedAt": "2026-10-07T18:24:29Z",
+      "candidateRelations": 13,
+      "importedRelations": 12,
+      "skippedIncompleteRelations": 1,
+      "skippedNestedRelations": 1
+    },
+    {
+      "sourceId": "central-america/guatemala-latest",
+      "region": "north-america",
+      "sourceUrl": "https://download.geofabrik.de/central-america/guatemala.html",
+      "sourceTimestamp": "2026-10-06T20:21:06Z",
+      "sha256": "ad048aabaa76f83a56a1616fe9370f07415ad2f8cd6033e2b22c71d07474e920",
+      "bytes": 131357015,
+      "importedAt": "2026-10-07T18:29:14Z",
+      "candidateRelations": 1,
+      "importedRelations": 1,
+      "skippedIncompleteRelations": 0,
+      "skippedNestedRelations": 0
+    },
+    {
+      "sourceId": "central-america/honduras-latest",
+      "region": "north-america",
+      "sourceUrl": "https://download.geofabrik.de/central-america/honduras.html",
+      "sourceTimestamp": "2026-10-06T20:21:06Z",
+      "sha256": "f4c5c0fb61a301d5805f00067f219c0af5e93661721c129e4d577d6b0f48ebff",
+      "bytes": 74359131,
+      "importedAt": "2026-10-07T18:30:46Z",
+      "candidateRelations": 1,
+      "importedRelations": 1,
+      "skippedIncompleteRelations": 0,
+      "skippedNestedRelations": 0
+    },
+    {
+      "sourceId": "central-america/nicaragua-latest",
+      "region": "north-america",
+      "sourceUrl": "https://download.geofabrik.de/central-america/nicaragua.html",
+      "sourceTimestamp": "2026-10-06T20:21:06Z",
+      "sha256": "816a2d8f8ba0bef1b0c357c48e5d0087d3852c1d9f3a525f21ab43fad7b3aa7e",
+      "bytes": 61666017,
+      "importedAt": "2026-10-07T18:31:38Z",
+      "candidateRelations": 22,
+      "importedRelations": 22,
+      "skippedIncompleteRelations": 0,
+      "skippedNestedRelations": 0
+    },
+    {
+      "sourceId": "central-america/jamaica-latest",
+      "region": "north-america",
+      "sourceUrl": "https://download.geofabrik.de/central-america/jamaica.html",
+      "sourceTimestamp": "2026-10-06T20:21:06Z",
+      "sha256": "2ebe58b5b85320fdbe17820c8620a00348511625c98cc88b3960571a13f84034",
+      "bytes": 38617098,
+      "importedAt": "2026-10-07T18:33:01Z",
+      "candidateRelations": 1,
+      "importedRelations": 1,
+      "skippedIncompleteRelations": 0,
+      "skippedNestedRelations": 0
+    },
+    {
+      "sourceId": "central-america/cuba-latest",
+      "region": "north-america",
+      "sourceUrl": "https://download.geofabrik.de/central-america/cuba.html",
+      "sourceTimestamp": "2026-10-06T20:21:06Z",
+      "sha256": "065d4fbaf9d8ae87a995bfbd2aa37e44922f5d4cff5a05134ba2626abd1dd948",
+      "bytes": 62477010,
+      "importedAt": "2026-10-07T18:33:39Z",
+      "candidateRelations": 16,
+      "importedRelations": 16,
+      "skippedIncompleteRelations": 0,
+      "skippedNestedRelations": 0
+    },
+    {
+      "sourceId": "central-america/haiti-and-domrep-latest",
+      "region": "north-america",
+      "sourceUrl": "https://download.geofabrik.de/central-america/haiti-and-domrep.html",
+      "sourceTimestamp": "2026-10-06T20:21:06Z",
+      "sha256": "6c8daf1fd655936bbbbf09da498b3b0015a56c0e25f5bcf96b6396d659566c6a",
+      "bytes": 88732633,
+      "importedAt": "2026-10-07T18:34:32Z",
+      "candidateRelations": 4,
+      "importedRelations": 4,
+      "skippedIncompleteRelations": 0,
+      "skippedNestedRelations": 0
     }
   ]
 }
