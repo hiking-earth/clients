@@ -33,6 +33,27 @@ def stop(message):
     raise SystemExit(message)
 
 
+def require_version_advance(version, pages):
+    """Do not move the stable updater channel backwards or republish its version."""
+    if not isinstance(pages, list) or any(not isinstance(page, list) for page in pages):
+        stop("Published release inventory is invalid")
+    candidate = tuple(map(int, version.split(".")))
+    for page in pages:
+        for release in page:
+            if not isinstance(release, dict):
+                stop("Published release record is invalid")
+            if release.get("draft") is True or release.get("prerelease") is True:
+                continue
+            if release.get("draft") is not False or release.get("prerelease") is not False:
+                stop("Published release status is ambiguous")
+            tag = release.get("tag_name")
+            if not isinstance(tag, str) or not re.fullmatch(r"v\d+\.\d+\.\d+", tag):
+                stop("Published stable release has no comparable semantic version")
+            prior = tuple(map(int, tag[1:].split(".")))
+            if candidate <= prior:
+                stop("Desktop stable version must advance beyond every published stable release")
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("tag", help="Existing desktop candidate tag, for example v0.2.1")
@@ -125,6 +146,8 @@ def main():
                     or verification.get("size") != artifact_meta.get("size")):
                 stop(f"Release asset differs from the updater artifact accepted for {report_key}")
 
+        inventory = gh_json(f"repos/{REPO}/releases?per_page=100", "--paginate", "--slurp")
+        require_version_advance(version, inventory)
         published = gh_json(f"repos/{REPO}/releases/{release['id']}", "-X", "PATCH",
                             "-F", "draft=false", "-f", "make_latest=true")
         if published.get("draft") is not False or published.get("tag_name") != args.tag:

@@ -4,6 +4,15 @@ PATH=pathlib.Path(__file__).resolve().parents[1]/'promote-desktop-release.py'
 spec=importlib.util.spec_from_file_location('promotion',PATH)
 module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
 class Platforms(unittest.TestCase):
+ def test_stable_version_must_advance_across_every_page(self):
+  prior={'draft':False,'prerelease':False,'tag_name':'v0.2.2'}
+  module.require_version_advance('0.2.3',[[prior]])
+  for version in ['0.2.2','0.2.1']:
+   with self.assertRaisesRegex(SystemExit,'must advance'):module.require_version_advance(version,[[],[prior]])
+  module.require_version_advance('0.2.3',[[{**prior,'tag_name':'v9.0.0','draft':True},{**prior,'tag_name':'v8.0.0','prerelease':True}]])
+ def test_ambiguous_stable_inventory_rejected(self):
+  for pages in [{},[{}],[[{}]],[[{'draft':False,'prerelease':False,'tag_name':'desktop-21'}]]]:
+   with self.assertRaises(SystemExit):module.require_version_advance('0.2.3',pages)
  def test_every_reported_desktop_architecture_is_verified(self):
   self.assertEqual(set(module.PLATFORMS),set(module.DESKTOP_REPORT_KEYS))
   self.assertEqual(set(module.PLATFORMS),{'windows-x86_64','darwin-aarch64','darwin-x86_64','linux-x86_64'})
