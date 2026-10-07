@@ -5,6 +5,7 @@ This adds discovery metadata and a bounds-center only. It does not create a
 navigable track or infer opening/access status. Source files are never modified.
 """
 import argparse
+import atexit
 import datetime as dt
 import hashlib
 import json
@@ -14,6 +15,7 @@ from pathlib import Path
 import re
 import shutil
 import tempfile
+from importlib.machinery import SourceFileLoader
 from urllib.parse import urlsplit
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -28,6 +30,9 @@ TAG_ALLOWLIST = (
 )
 MAX_IMPORT_BYTES = 20 * 1024 * 1024 * 1024
 MAX_CATALOG_RECORDS = 250_000
+OSM_CATALOG_LOCK = SourceFileLoader(
+    "hiking_osm_catalog_lock", str(Path(__file__).with_name("update-route-catalog.py"))
+).load_module()
 
 
 def sha256_file(path):
@@ -128,6 +133,9 @@ def main():
     except ImportError as exc:
         raise SystemExit("Install the pinned reader dependency: python3 -m pip install -r scripts/requirements-pbf.txt") from exc
 
+    # Serialize catalog reads and atomic replacement against both OSM update
+    # scripts, so an extract cannot overwrite a newer concurrent snapshot.
+    atexit.register(OSM_CATALOG_LOCK.acquire_catalog_run_lock())
     snapshot = valid_catalog(catalog_path) if catalog_path.exists() else {
         "schemaVersion": 1, "routes": [], "license": "ODbL-1.0",
         "attribution": "© OpenStreetMap contributors",
