@@ -1,42 +1,33 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-07T13:17:28Z",
+  "generatedAt": "2026-10-07T23:03:16Z",
   "license": "ODbL-1.0",
   "attribution": "© OpenStreetMap contributors",
   "licenseUrl": "https://www.openstreetmap.org/copyright",
   "coverage": {
-    "china": 1,
-    "japan": 0,
-    "south-america": 0
+    "china": 0,
+    "japan": 1,
+    "oceania": 0,
+    "south-america": 0,
+    "africa": 2,
+    "south-asia": 1
   },
   "sourceCursors": {
-    "china": "2026-10-07T13:17:28Z",
-    "japan": "2026-10-07T13:17:28Z",
-    "oceania": "2026-10-07T05:54:54Z",
-    "south-america": "2026-10-07T13:17:28Z",
-    "africa": "2026-10-07T05:54:54Z",
-    "south-asia": "2026-10-07T05:54:54Z"
+    "china": "2026-10-07T23:03:16Z",
+    "japan": "2026-10-07T23:03:16Z",
+    "oceania": "2026-10-07T23:03:16Z",
+    "south-america": "2026-10-07T23:03:16Z",
+    "africa": "2026-10-07T23:03:16Z",
+    "south-asia": "2026-10-07T23:03:16Z"
   },
   "failures": [
     {
       "region": "europe",
-      "error": "runtime error: Query timed out in \"query\" at line 1 after 46 seconds."
+      "error": "The read operation timed out"
     },
     {
       "region": "north-america",
-      "error": "runtime error: Query timed out in \"query\" at line 1 after 53 seconds."
-    },
-    {
-      "region": "oceania",
-      "error": "HTTP Error 504: Gateway Timeout"
-    },
-    {
-      "region": "africa",
-      "error": "HTTP Error 504: Gateway Timeout"
-    },
-    {
-      "region": "south-asia",
-      "error": "HTTP Error 504: Gateway Timeout"
+      "error": "runtime error: Query timed out in \"query\" at line 1 after 50 seconds."
     }
   ],
   "routes": [
@@ -45601,7 +45592,7 @@
       "id": "osm-relation-21312113",
       "name": "Chande To Maan Trail",
       "originalName": "Chande To Maan Trail",
-      "region": "china",
+      "region": "south-asia",
       "center": [
         73.6912136,
         18.5691975
@@ -45612,7 +45603,7 @@
         "operator": "KYBTrails - Satchit",
         "ref": "KYB-CM-H01"
       },
-      "fetchedAt": "2026-10-07T13:17:28Z",
+      "fetchedAt": "2026-10-07T23:03:16Z",
       "status": "待核验"
     },
     {
@@ -46218,7 +46209,7 @@
       "sourceTags": {
         "network": "rwn"
       },
-      "fetchedAt": "2026-10-04T21:21:03Z",
+      "fetchedAt": "2026-10-07T23:03:16Z",
       "status": "待核验"
     },
     {
@@ -48545,7 +48536,7 @@
         "network": "nwn",
         "operator": "itc"
       },
-      "fetchedAt": "2026-10-04T21:21:03Z",
+      "fetchedAt": "2026-10-07T23:03:16Z",
       "status": "待核验"
     },
     {
@@ -53283,7 +53274,7 @@
         "network": "nwn",
         "website": "https://www.elcaminoconcorreos.com/es/blog/via-augusta-el-camino-de-santiago-desde-cadiz"
       },
-      "fetchedAt": "2026-10-04T21:21:03Z",
+      "fetchedAt": "2026-10-07T23:03:16Z",
       "status": "待核验"
     },
     {
