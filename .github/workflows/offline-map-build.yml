@@ -1,0 +1,46 @@
+name: Build free regional offline maps
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '43 3 * * 1'
+permissions:
+  contents: read
+concurrency:
+  group: offline-map-build-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  maps:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned official PMTiles tool
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/pmtiles"
+          curl --fail --location --retry 2 --max-time 120 \
+            https://github.com/protomaps/go-pmtiles/releases/download/v1.31.2/go-pmtiles_1.31.2_Linux_x86_64.tar.gz \
+            -o "$RUNNER_TEMP/pmtiles/tool.tar.gz"
+          echo '3ed7dbf4ec2e6dfe5e25b6f70d1ffc932729f93c86db353bf514dd71010a312f  '"$RUNNER_TEMP/pmtiles/tool.tar.gz" | sha256sum --check
+          tar -xzf "$RUNNER_TEMP/pmtiles/tool.tar.gz" -C "$RUNNER_TEMP/pmtiles" pmtiles
+          "$RUNNER_TEMP/pmtiles/pmtiles" version
+      - name: Build configured regions from one upstream snapshot
+        run: python scripts/build-offline-regions.py --regions shared/maps/regions.json --output regional-maps --pmtiles "$RUNNER_TEMP/pmtiles/pmtiles"
+      - name: Verify distributable map inventory
+        run: python scripts/export-offline-map-inventory.py --input regional-maps --output regional-maps/catalog.json
+      - name: Preserve maps, checksums and failure checkpoints
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: regional-maps-${{ github.run_id }}-${{ github.run_attempt }}
+          path: regional-maps/
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Record delivery boundary
+        if: always()
+        run: |
+          echo 'Region artifacts retain source, attribution and SHA256. They are not automatically promoted to the public site; partial runs must not replace its prior catalog. Basemaps do not verify trail access or provide terrain elevations.' >> "$GITHUB_STEP_SUMMARY"
