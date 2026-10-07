@@ -124,6 +124,7 @@ def main():
 
     try:
         import osmium
+        from osmium.replication import get_replication_header
     except ImportError as exc:
         raise SystemExit("Install the pinned reader dependency: python3 -m pip install -r scripts/requirements-pbf.txt") from exc
 
@@ -158,8 +159,7 @@ def main():
         print(json.dumps({"skipped": "same sourceId and PBF SHA-256 already imported", "sourceId": args.source_id}))
         return
     try:
-        replication = osmium.replication.get_replication_header(str(pbf))
-        source_time = replication.timestamp
+        source_time = get_replication_header(str(pbf)).timestamp
         if source_time and source_time.tzinfo is None:
             source_time = source_time.replace(tzinfo=dt.timezone.utc)
         source_timestamp = source_time.astimezone(dt.timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z") if source_time else None
