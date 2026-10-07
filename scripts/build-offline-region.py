@@ -12,13 +12,15 @@ def parse_bounds(value):
     if east-west>0.5 or north-south>0.5:raise ValueError('region must be at most 0.5 degrees per axis')
     return bounds
 
-def latest_build():
+def latest_build(key=None):
     req=urllib.request.Request('https://build-metadata.protomaps.dev/builds.json',headers={'User-Agent':'HikingEarthOfflineBuilder/1.0'})
     with urllib.request.urlopen(req,timeout=30) as response:
         raw=response.read(2*1024*1024+1)
     if len(raw)>2*1024*1024:raise ValueError('build metadata exceeds budget')
     rows=json.loads(raw)
     valid=[r for r in rows if isinstance(r,dict) and re.fullmatch(r'20\d{6}\.pmtiles',str(r.get('key',''))) and str(r.get('version','')).startswith('4.') and isinstance(r.get('uploaded'),str)]
+    if key is not None:
+        valid=[row for row in valid if row['key']==key]
     if not valid:raise ValueError('no compatible official build')
     return max(valid,key=lambda r:r['uploaded'])
 
@@ -46,12 +48,14 @@ def main():
     parser.add_argument('--minzoom',type=int,default=8)
     parser.add_argument('--maxzoom',type=int,default=15)
     parser.add_argument('--output',required=True,type=pathlib.Path)
+    parser.add_argument('--build-key',help='Pin an official metadata-listed build for a reproducible batch')
     args=parser.parse_args()
     if not re.fullmatch(r'[a-z0-9][a-z0-9-]{0,63}',args.id):parser.error('invalid region id')
     bounds=parse_bounds(args.bbox)
     if not 0<=args.minzoom<=args.maxzoom<=15:parser.error('zoom range must be within 0..15')
     if not args.name.strip() or len(args.name)>80:parser.error('invalid region name')
-    build=latest_build();source='https://build.protomaps.com/'+build['key']
+    if args.build_key and not re.fullmatch(r'20\d{6}\.pmtiles',args.build_key):parser.error('invalid official build key')
+    build=latest_build(args.build_key);source='https://build.protomaps.com/'+build['key']
     args.output.mkdir(parents=True,exist_ok=True)
     basename=args.id+'-'+build['key'].removesuffix('.pmtiles')
     target=args.output/(basename+'.pmtiles');manifest=args.output/(basename+'.json')
