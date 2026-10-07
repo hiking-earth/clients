@@ -39,7 +39,7 @@ jobs:
       - name: Build configured regions from one upstream snapshot
         run: python scripts/build-offline-regions.py --regions shared/maps/regions.json --output regional-maps --pmtiles "$RUNNER_TEMP/pmtiles/pmtiles"
       - name: Verify distributable map inventory
-        run: python scripts/export-offline-map-inventory.py --input regional-maps --output regional-maps/catalog.json
+        run: python scripts/export-offline-map-inventory.py --input regional-maps --output regional-maps/catalog.json --regions shared/maps/regions.json
       - name: Preserve maps, checksums and failure checkpoints
         if: always()
         uses: actions/upload-artifact@v4
