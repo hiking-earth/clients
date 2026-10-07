@@ -134,9 +134,9 @@
     "withinLimit": true
   },
   "localPmtilesFiles": {
-    "count": 12,
-    "totalBytes": 38215966,
-    "note": "Includes historical unreferenced packs retained on disk."
+    "count": 7,
+    "totalBytes": 27217419,
+    "note": "Only the current seven referenced catalog packs remain; five stale regional snapshots were pruned."
   },
   "verification": {
     "allGeneratedPacksPmtilesVerifyPassed": true,
@@ -144,5 +144,9 @@
     "allGeneratedPacksBelow64MiB": true,
     "sourceCopyrightAttributionPresent": true
   },
-  "productTestsBuildDeploymentDeviceAcceptancePerformed": false
+  "productTestsBuildDeploymentDeviceAcceptancePerformed": false,
+  "updateInstaller": {
+    "unreferencedGeneratedPacksPruned": true,
+    "verifiedClientCatalogBytes": 27217419
+  }
 }

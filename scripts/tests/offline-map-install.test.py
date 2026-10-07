@@ -13,6 +13,12 @@ class InstallTests(fixture.InventoryTests):
         installer.install(self.root,self.repo,self.config,lambda path:None);saved=self.index.read_bytes()
         installer.install(self.root,self.repo,self.config,lambda path:None)
         self.assertEqual(self.index.read_bytes(),saved);self.assertEqual(len(list(self.assets.glob('*.pmtiles'))),1)
+    def test_install_prunes_unreferenced_historical_packs(self):
+        (self.assets/'example-20261005.pmtiles').write_bytes(b'o'*127)
+        (self.assets/'other-region-20261005.pmtiles').write_bytes(b'o'*127)
+        installer.install(self.root,self.repo,self.config,lambda path:None)
+        self.assertEqual(sorted(path.name for path in self.assets.glob('*.pmtiles')),
+                         ['example-20261006.pmtiles'])
     def test_verify_failure_keeps_catalog(self):
         before=self.index.read_bytes()
         def fail(path):raise ValueError('invalid structure')

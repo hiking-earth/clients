@@ -21,17 +21,17 @@ def install(source,repo,config,verify):
             if path.is_symlink() or not path.is_file() or path.stat().st_size!=row['bytes'] or hashlib.sha256(path.read_bytes()).hexdigest()!=row['sha256']:raise ValueError('retained map bytes mismatch')
             if not row.get('attribution') or row.get('license')!='ODbL-1.0 Produced Work':raise ValueError('retained map attribution missing')
             verify(path);keep.append(row)
-    added=[];newbytes=0
+    added=[]
     for row in catalog['maps']:
         path=target/row['file']
         if path.is_symlink():raise ValueError('map target is a symbolic link')
         verify(source/row['file'])
         if path.exists():
             if path.stat().st_size!=row['bytes'] or hashlib.sha256(path.read_bytes()).hexdigest()!=row['sha256']:raise ValueError('immutable map name collision')
-        else:newbytes+=row['bytes']
         added.append({'name':row['file'],'label':row['name'],'url':'static/offline-maps/'+row['file'],'bytes':row['bytes'],'sha256':row['sha256'],'attribution':row['attribution'],'license':row['license']})
-    stored=sum(path.stat().st_size for path in target.glob('*.pmtiles'))
-    if stored+newbytes>500_000_000:raise ValueError('map assets exceed 500 MB; archive old source packs before promoting')
+    next_catalog=keep+added
+    catalog_bytes=sum(row['bytes'] for row in next_catalog)
+    if catalog_bytes>500_000_000:raise ValueError('referenced map assets exceed 500 MB')
     token=uuid.uuid4().hex
     for row in catalog['maps']:
         path=target/row['file']
@@ -43,7 +43,6 @@ def install(source,repo,config,verify):
             # Link creates the immutable name without replacing a concurrent writer.
             os.link(temp,path)
         finally:temp.unlink(missing_ok=True)
-    next_catalog=keep+added
     text=json.dumps(next_catalog,ensure_ascii=False,indent=2)+'\n'
     public_index=target/'catalog.json'
     if public_index.is_symlink():raise ValueError('invalid public map catalog')
@@ -55,6 +54,13 @@ def install(source,repo,config,verify):
         temp=index.with_name(index.name+'.'+token+'.partial')
         try:temp.write_text(text);temp.replace(index)
         finally:temp.unlink(missing_ok=True)
+    referenced={row['name'] for row in next_catalog}
+    for path in target.glob('*.pmtiles'):
+        if path.name in referenced:continue
+        if (path.is_symlink() or not path.is_file()
+                or not inventory.re.fullmatch(r'[a-z0-9][a-z0-9-]{0,63}-20\d{6}\.pmtiles',path.name)):
+            raise ValueError('unreferenced map asset is not a safe generated pack')
+        path.unlink()
     return {'maps':len(added),'bytes':catalog['bytes'],'build':catalog['build']}
 
 def main():
