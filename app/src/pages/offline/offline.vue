@@ -29,7 +29,11 @@ import { offlineLayers, importOfflineLayer, deleteOfflineLayer, selectOfflineLay
 import world from '@/data/offline-world.json';
 // #ifdef H5
 import OfflineBasemap from '@/components/OfflineBasemap.vue';
-import availableBasemaps from '@/data/basemap-packs.json';
+import bundledBasemaps from '@/data/basemap-packs.json';
+import {createMapCatalog,requestMapCatalog} from '@/services/basemap-catalog';
+const mapCatalog=createMapCatalog(bundledBasemaps,()=>requestMapCatalog(new URL(import.meta.env.BASE_URL,location.href).href));
+const availableBasemaps=ref(mapCatalog.snapshot());
+onShow(async()=>{try{availableBasemaps.value=await mapCatalog.refresh();}catch{message.value='地图目录暂时无法更新，保留已有目录';}});
 import {downloadBasemap,type BasemapDownload} from '@/services/basemap-download';
 async function downloadMapPack(pack:BasemapDownload){if(busy.value)return;mutating.value=true;try{const file=await downloadBasemap(pack,new URL(import.meta.env.BASE_URL,location.href).href,undefined,bytes=>{message.value=`地图下载 ${(bytes/1048576).toFixed(2)} MiB`;});const saved=await saveBasemap(file);await refreshBasemaps();basemapFile.value=saved.blob;message.value='地图已校验并保存';}catch(e){message.value=e instanceof Error?e.message:'地图下载失败';}finally{mutating.value=false;}}
 import {listBasemaps,saveBasemap,deleteBasemap,type SavedBasemap} from '@/services/basemap-store';
@@ -64,7 +68,11 @@ function choose() {
 // #endif
 // #ifdef MP-WEIXIN
 import WechatBasemap from '@/components/WechatBasemap.vue';
-import wechatAvailableMaps from '@/data/basemap-packs.json';
+import bundledWechatMaps from '@/data/basemap-packs.json';
+import {createMapCatalog as createWechatCatalog,requestMapCatalog as requestWechatCatalog} from '@/services/basemap-catalog';
+const wechatCatalog=createWechatCatalog(bundledWechatMaps,()=>requestWechatCatalog('https://hiking-earth.nanyu20050927.chatgpt.site/client-app/'));
+const wechatAvailableMaps=ref(wechatCatalog.snapshot());
+onShow(async()=>{try{wechatAvailableMaps.value=await wechatCatalog.refresh();}catch{message.value='地图目录暂时无法更新，保留已有目录';}});
 import {downloadWechatBasemap,type MapDownloadPack} from '@/services/wechat-basemap-download';
 import {verifyBasemapDigest} from '@/services/basemap-digest';
 async function downloadWechatMap(pack:MapDownloadPack){if(busy.value)return;mutating.value=true;try{const existing=await wechatMapStore.find(pack.name,pack.bytes);if(existing){message.value='正在校验已有地图';await verifyBasemapDigest(fileRangeReader(uni.getFileSystemManager(),existing.path,existing.bytes),existing.bytes,pack.sha256);wechatBasemap.value={path:existing.path,bytes:existing.bytes};message.value='已有地图校验通过，已直接打开，无需重复下载';return;}const file=await downloadWechatBasemap(uni,pack,(n,stage)=>{message.value=`地图${stage==='verify'?'校验':'下载'} ${(n/1048576).toFixed(2)} MiB`;});const saved=await wechatMapStore.save(file.path,file.bytes,pack.name);await refreshWechatMaps();wechatBasemap.value={path:saved.path,bytes:saved.bytes};message.value='地图已校验并保存到本机';}catch(e){message.value=e instanceof Error?e.message:'地图下载失败';}finally{mutating.value=false;}}

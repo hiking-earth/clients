@@ -45,6 +45,12 @@ def install(source,repo,config,verify):
         finally:temp.unlink(missing_ok=True)
     next_catalog=keep+added
     text=json.dumps(next_catalog,ensure_ascii=False,indent=2)+'\n'
+    public_index=target/'catalog.json'
+    if public_index.is_symlink():raise ValueError('invalid public map catalog')
+    if not public_index.exists() or public_index.read_text()!=text:
+        temp=public_index.with_name(public_index.name+'.'+token+'.partial')
+        try:temp.write_text(text);temp.replace(public_index)
+        finally:temp.unlink(missing_ok=True)
     if index.read_text()!=text:
         temp=index.with_name(index.name+'.'+token+'.partial')
         try:temp.write_text(text);temp.replace(index)
