@@ -7,7 +7,7 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import {openLocalBasemap,localBasemapStyle} from '@/services/local-basemap';
 import {registerOfflineArchive,releaseOfflineArchive} from '@/services/offline-map-protocol';
 setWorkerUrl(workerUrl);
-const props=defineProps<{file:File|null}>();
+const props=defineProps<{file:Blob|null}>();
 const containerId=`offline-basemap-${Math.random().toString(36).slice(2)}`;
 const message=ref('选择本机区域地图包');
 let map:LibreMap|undefined,key='',generation=0,disposed=false;

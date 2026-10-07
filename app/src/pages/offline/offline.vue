@@ -3,7 +3,7 @@
   <view v-for="layer in layers" :key="layer.id" class="card"><text class="title">{{ layer.name }}</text><text class="hint">{{ layer.attribution }} · {{ layer.license }} · {{ (layer.bytes/1024).toFixed(0) }} KB</text><button :disabled="busy" @click="activate(layer.id)">{{ active === layer.id ? '正在使用' : '用于轨迹与导航示意' }}</button><button :disabled="busy" @click="remove(layer.id)">删除资料</button></view>
   <TrackCanvas v-if="preview" :points="[]" :layers="preview.paths" :attribution="preview.attribution" />
   <!-- #ifdef H5 -->
-  <text class="title">区域离线底图</text><button :disabled="busy" @click="chooseBasemap">打开本机PMTiles地图包</button><text class="hint">支持最多64 MB的PMTiles v3矢量地图包。本机读取，不上传；当前为道路和地物视图，尚未保存到应用目录。</text><OfflineBasemap v-if="basemapFile" :file="basemapFile" />
+  <text class="title">区域离线底图</text><button :disabled="busy" @click="chooseBasemap">打开本机PMTiles地图包</button><text class="hint">支持最多64 MB的PMTiles v3矢量地图包。本机读取，不上传；当前为道路和地物视图，导入后保存到本机，总量最多192 MiB。浏览器清理站点数据会删除地图，请保留原包。</text><view v-for="pack in savedBasemaps" :key="pack.id" class="card"><text>{{pack.name}} · {{(pack.bytes/1048576).toFixed(2)}} MiB</text><button :disabled="busy" @click="basemapFile=pack.blob">查看地图</button><button :disabled="busy" @click="removeBasemap(pack.id)">删除地图包</button></view><OfflineBasemap v-if="basemapFile" :file="basemapFile" />
   <!-- #endif -->
   <text class="title">全球离线概览</text><button :disabled="busy" @click="saveWorld">保存全球陆地轮廓到本机</button><text class="hint">内置 Natural Earth 公共领域全球陆地轮廓（1:110m），无需联网即可保存和查看。仅供全球概览，不含详细道路、地形高程和导航信息。</text>
   <text class="title">官方参考资料</text><button :disabled="busy" @click="downloadHk">{{downloading ? '下载中…' : '下载香港郊野公园官方步道参考线'}}</button><text class="hint">来源：香港政府渔农自然护理署 / DATA.GOV.HK。参考线不包含底图、高程或当前开放许可；下载后可离线叠加查看。</text>
@@ -26,8 +26,12 @@ import { offlineLayers, importOfflineLayer, deleteOfflineLayer, selectOfflineLay
 import world from '@/data/offline-world.json';
 // #ifdef H5
 import OfflineBasemap from '@/components/OfflineBasemap.vue';
-const basemapFile=ref<File|null>(null);
-function chooseBasemap(){const input=document.createElement('input');input.type='file';input.accept='.pmtiles';input.onchange=()=>{const file=input.files?.[0];if(!file)return;if(file.size>64*1024*1024){message.value='地图包超过64 MB';return;}basemapFile.value=file;};input.click();}
+import {listBasemaps,saveBasemap,deleteBasemap,type SavedBasemap} from '@/services/basemap-store';
+const basemapFile=ref<Blob|null>(null),savedBasemaps=ref<SavedBasemap[]>([]);
+async function refreshBasemaps(){try{savedBasemaps.value=await listBasemaps();}catch(e){message.value=e instanceof Error?e.message:'地图目录读取失败';}}
+onShow(refreshBasemaps);
+function chooseBasemap(){const input=document.createElement('input');input.type='file';input.accept='.pmtiles';input.onchange=async()=>{const file=input.files?.[0];if(!file||busy.value)return;mutating.value=true;try{const saved=await saveBasemap(file);await refreshBasemaps();basemapFile.value=saved.blob;message.value='地图包已保存到本机';}catch(e){message.value=e instanceof Error?e.message:'地图保存失败';}finally{mutating.value=false;}};input.click();}
+function removeBasemap(id:string){uni.showModal({title:'删除地图包',content:'仅删除本机副本，请保留原始地图文件。',success:async result=>{if(!result.confirm||busy.value)return;mutating.value=true;try{await deleteBasemap(id);basemapFile.value=null;await refreshBasemaps();}catch(e){message.value=e instanceof Error?e.message:'删除失败';}finally{mutating.value=false;}}});}
 // #endif
 async function saveWorld(){if(busy.value)return;mutating.value=true;try{const layer=await importOfflineLayer(JSON.stringify(world));await useSavedLayer(layer.id,'全球陆地轮廓已保存，可离线查看');}catch(e){message.value=e instanceof Error?e.message:'全球轮廓保存失败';}finally{mutating.value=false;}}
 function toggleOfficialUpdates(event:any){try{setOfficialOfflineUpdates(event.detail.value===true);}catch{message.value='未能保存自动更新设置';}}
