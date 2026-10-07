@@ -43,3 +43,12 @@ export async function restartDesktop(): Promise<void> {
   if(isDesktop())return (window as DesktopWindow).__TAURI__!.core.invoke('restart_app');
   // #endif
 }
+
+export async function requestDesktopMapCatalog():Promise<string>{
+ if(!isDesktop())throw new Error('当前平台不是桌面客户端');
+ return (window as DesktopWindow).__TAURI__!.core.invoke<string>('map_catalog');
+}
+export async function requestDesktopMapDownload(name:string,bytes:number):Promise<ArrayBuffer>{
+ if(!isDesktop())throw new Error('当前平台不是桌面客户端');
+ return (window as DesktopWindow).__TAURI__!.core.invoke<ArrayBuffer>('map_download',{name,bytes});
+}

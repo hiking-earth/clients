@@ -31,13 +31,13 @@ import world from '@/data/offline-world.json';
 import OfflineBasemap from '@/components/OfflineBasemap.vue';
 import bundledBasemaps from '@/data/basemap-packs.json';
 import {createMapCatalog,requestMapCatalog,mapDistributionBase} from '@/services/basemap-catalog';
-import {isDesktop} from '@/services/desktop';
+import {isDesktop,requestDesktopMapCatalog,requestDesktopMapDownload} from '@/services/desktop';
 const mapBase=mapDistributionBase(isDesktop(),new URL(import.meta.env.BASE_URL,location.href).href);
-const mapCatalog=createMapCatalog(bundledBasemaps,()=>requestMapCatalog(mapBase));
+const mapCatalog=createMapCatalog(bundledBasemaps,()=>isDesktop()?requestDesktopMapCatalog():requestMapCatalog(mapBase));
 const availableBasemaps=ref(mapCatalog.snapshot());
 onShow(async()=>{try{availableBasemaps.value=await mapCatalog.refresh();}catch{message.value='地图目录暂时无法更新，保留已有目录';}});
-import {downloadBasemap,type BasemapDownload} from '@/services/basemap-download';
-async function downloadMapPack(pack:BasemapDownload){if(busy.value)return;mutating.value=true;try{const file=await downloadBasemap(pack,mapBase,undefined,bytes=>{message.value=`地图下载 ${(bytes/1048576).toFixed(2)} MiB`;});const saved=await saveBasemap(file);await refreshBasemaps();basemapFile.value=saved.blob;message.value='地图已校验并保存';}catch(e){message.value=e instanceof Error?e.message:'地图下载失败';}finally{mutating.value=false;}}
+import {downloadBasemap,downloadDesktopBasemap,type BasemapDownload} from '@/services/basemap-download';
+async function downloadMapPack(pack:BasemapDownload){if(busy.value)return;mutating.value=true;try{const file=isDesktop()?await downloadDesktopBasemap(pack,requestDesktopMapDownload):await downloadBasemap(pack,mapBase,undefined,bytes=>{message.value=`地图下载 ${(bytes/1048576).toFixed(2)} MiB`;});const saved=await saveBasemap(file);await refreshBasemaps();basemapFile.value=saved.blob;message.value='地图已校验并保存';}catch(e){message.value=e instanceof Error?e.message:'地图下载失败';}finally{mutating.value=false;}}
 import {listBasemaps,saveBasemap,deleteBasemap,type SavedBasemap} from '@/services/basemap-store';
 const basemapFile=ref<Blob|null>(null),savedBasemaps=ref<SavedBasemap[]>([]);
 async function refreshBasemaps(){try{savedBasemaps.value=await listBasemaps();}catch(e){message.value=e instanceof Error?e.message:'地图目录读取失败';}}

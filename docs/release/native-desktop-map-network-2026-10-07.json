@@ -1,0 +1,29 @@
+{
+  "sourceBase": "fead108",
+  "commands": [
+    "map_catalog",
+    "map_download"
+  ],
+  "limits": {
+    "catalogBytes": 262144,
+    "mapBytes": 67108864,
+    "concurrentRequests": 1,
+    "timeoutSeconds": 120,
+    "connectTimeoutSeconds": 15,
+    "redirects": false,
+    "fixedDistributionHost": "hiking-earth.nanyu20050927.chatgpt.site"
+  },
+  "checks": {
+    "typeCheck": "passed",
+    "javascriptTests": 11,
+    "h5Build": "passed",
+    "wechatBuild": "passed",
+    "cargoCheck": "passed",
+    "cargoTests": "running"
+  },
+  "limitations": [
+    "New native adapter has not been packaged or accepted in Tauri window.",
+    "Actual native public network test is compiling in session32995.",
+    "Binary IPC and persistent map rendering need device acceptance."
+  ]
+}
