@@ -2,6 +2,9 @@
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 const siteMode=process.argv.includes('--site');
+const reportOption=process.argv.find(arg=>arg.startsWith('--report='));
+const reportPath=reportOption?.slice('--report='.length)||`docs/release/deployed-account${siteMode?'-site':''}-acceptance-2026-10-07.json`;
+if(!/^docs\/release\/[a-zA-Z0-9._-]+\.json$/.test(reportPath))throw new Error('Report must be a JSON file inside docs/release');
 const api=siteMode?'https://hiking-earth.nanyu20050927.chatgpt.site/api/client-api':'https://cloud1-d9g4fl3fu2491914f-1499973049.ap-shanghai.app.tcloudbase.com/client-api';
 const records=[],accounts=[];
 async function request(action,data={},token){
@@ -149,6 +152,6 @@ try{
   }catch{records.push({name:'isolated account cleanup',passed:false});}
  }
  const report={schemaVersion:1,scope:(siteMode?'Sites same-origin':'CloudBase direct')+' HTTP account/library/private diary/team/chat/synthetic track workflow; excludes client UI and native/device permissions',checkedAt:new Date().toISOString(),passed:!failure&&records.every(r=>r.passed),failure,checks:records};
- fs.writeFileSync(`docs/release/deployed-account${siteMode?'-site':''}-acceptance-2026-10-07.json`,JSON.stringify(report,null,2)+'\n');
+ fs.writeFileSync(reportPath,JSON.stringify(report,null,2)+'\n');
  console.log(JSON.stringify(report,null,2));if(!report.passed)process.exitCode=1;
 }
