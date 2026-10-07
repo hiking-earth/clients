@@ -5,7 +5,7 @@ class MapFileError extends Error{constructor(message:string,readonly missing:boo
 function fileMissing(error?:{errMsg?:string}){return typeof error?.errMsg==='string'&&/(?:ENOENT|no such file|file (?:not exist|does not exist))/i.test(error.errMsg);}
 export interface SavedMapApi{
  getStorageSync(key:string):unknown;setStorageSync(key:string,value:unknown):void;
- getSavedFileInfo(options:{filePath:string;success:(value:{size:number})=>void;fail:(error?:{errMsg?:string})=>void}):void;
+ getFileSystemManager():{getFileInfo(options:{filePath:string;success:(value:{size:number})=>void;fail:(error?:{errMsg?:string})=>void}):void};
  saveFile(options:{tempFilePath:string;success:(value:{savedFilePath:string})=>void;fail:(error?:{errMsg?:string})=>void}):void;
  removeSavedFile(options:{filePath:string;success:()=>void;fail:(error?:{errMsg?:string})=>void}):void;
 }
@@ -21,7 +21,7 @@ export function createWechatMapStore(api:SavedMapApi,validateFile:(path:string,b
  let tail:Promise<unknown>=Promise.resolve();
  function serial<T>(work:()=>Promise<T>):Promise<T>{const result=tail.then(work);tail=result.catch(()=>{});return result;}
  const inventory=()=>validateWechatMapInventory(api.getStorageSync(KEY));
- const size=(path:string)=>new Promise<number>((resolve,reject)=>api.getSavedFileInfo({filePath:path,success:r=>resolve(r.size),fail:error=>reject(new MapFileError('已保存地图文件不存在或无法读取',fileMissing(error)))}));
+ const size=(path:string)=>new Promise<number>((resolve,reject)=>api.getFileSystemManager().getFileInfo({filePath:path,success:r=>resolve(r.size),fail:error=>reject(new MapFileError('已保存地图文件不存在或无法读取',fileMissing(error)))}));
  const unlink=(path:string)=>new Promise<void>((resolve,reject)=>api.removeSavedFile({filePath:path,success:resolve,fail:error=>reject(new MapFileError('未能删除地图文件',fileMissing(error)))}));
  return {
  find:(name:string,bytes:number)=>serial(async()=>{const row=inventory().find(r=>r.name===name&&r.bytes===bytes);if(!row)return null;if(await size(row.path)!==row.bytes)throw new Error('已存地图大小变化，请保留原包');return {...row};}),

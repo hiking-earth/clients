@@ -1,4 +1,4 @@
-<template><view><canvas :id="id" :canvas-id="id" class="map" /><view class="controls"><button size="mini" @click="pan(-1,0)">西</button><button size="mini" @click="pan(1,0)">东</button><button size="mini" @click="pan(0,-1)">北</button><button size="mini" @click="pan(0,1)">南</button><button size="mini" @click="zoom(1)">＋</button><button size="mini" @click="zoom(-1)">－</button></view><text class="hint">{{status}}</text><text class="hint">© OpenStreetMap contributors · Protomaps · ODbL。道路地物底图，不含地名、高程及步道开放许可。</text></view></template>
+<template><view><canvas :id="id" :canvas-id="id" class="map" /><view class="controls"><button class="control-button" size="mini" @click="pan(-1,0)">西</button><button class="control-button" size="mini" @click="pan(1,0)">东</button><button class="control-button" size="mini" @click="pan(0,-1)">北</button><button class="control-button" size="mini" @click="pan(0,1)">南</button><button class="control-button" size="mini" @click="zoom(1)">＋</button><button class="control-button" size="mini" @click="zoom(-1)">－</button></view><text class="hint">{{status}}</text><text class="hint">© OpenStreetMap contributors · Protomaps · ODbL。道路地物底图，不含地名、高程及步道开放许可。</text></view></template>
 <script setup lang="ts">
 import {getCurrentInstance,onMounted,onUnmounted,ref,watch,nextTick} from 'vue';
 import {openLocalBasemap} from '@/services/local-basemap';
@@ -35,4 +35,4 @@ function zoom(delta:number){if(!archive)return;const next=Math.max(archive.heade
 onMounted(()=>{uni.createSelectorQuery().in(instance?.proxy).select(`#${id}`).boundingClientRect((r:any)=>{if(r?.width)width=r.width;void open();}).exec();});
 watch(()=>[props.filePath,props.bytes],()=>void open());onUnmounted(()=>{disposed=true;generation++;archive=null;});
 </script>
-<style scoped>.map{width:100%;height:320px;background:#142024}.controls{display:flex;flex-wrap:wrap;gap:4px}.controls button{font-size:12px}.hint{display:block;font-size:12px;color:#8a97a5;padding:8px}</style>
+<style scoped>.map{width:100%;height:320px;background:#142024}.controls{display:flex;flex-wrap:wrap;gap:4px}.control-button{font-size:12px}.hint{display:block;font-size:12px;color:#8a97a5;padding:8px}</style>

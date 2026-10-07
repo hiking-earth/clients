@@ -1,7 +1,7 @@
 <template>
   <view class="plot">
     <canvas :canvas-id="canvasId" :id="canvasId" class="canvas" :style="{ height: height + 'px' }" @touchstart="startPan" @touchmove.stop.prevent="movePan" @touchend="endPan" @touchcancel="endPan" />
-    <view class="controls"><button size="mini" @click="changeZoom(1.5)">放大</button><button size="mini" @click="changeZoom(1/1.5)">缩小</button><button size="mini" @click="resetView">全览</button></view>
+    <view class="controls"><button class="control-button" size="mini" @click="changeZoom(1.5)">放大</button><button class="control-button" size="mini" @click="changeZoom(1/1.5)">缩小</button><button class="control-button" size="mini" @click="resetView">全览</button></view>
     <view v-if="attribution" class="legend">离线资料来源：{{ attribution }}</view>
     <view class="legend">轨迹示意 · WGS84 · 绿色起点 / 红色终点 · 不含地形底图</view>
   </view>
@@ -67,5 +67,5 @@ onMounted(() => {
 watch(() => [props.points, props.position, props.height, props.layers], draw, { deep: true });
 </script>
 <style scoped>
-.controls{display:flex;gap:8px;padding:8px}.controls button{font-size:12px;background:#22313f;color:#b8f36b}.plot{width:100%;background:#151d27;border-radius:12px;overflow:hidden}.canvas{width:100%}.legend{padding:8px 12px;font-size:11px;color:#8a97a5}
+.controls{display:flex;gap:8px;padding:8px}.control-button{font-size:12px;background:#22313f;color:#b8f36b}.plot{width:100%;background:#151d27;border-radius:12px;overflow:hidden}.canvas{width:100%}.legend{padding:8px 12px;font-size:11px;color:#8a97a5}
 </style>
