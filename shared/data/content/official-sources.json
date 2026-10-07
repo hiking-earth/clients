@@ -42,8 +42,9 @@
       "format": "rss",
       "reuse": "metadata-links-only",
       "evidenceUrl": "https://www.nps.gov/yell/learn/news/index.htm",
-      "verifiedLinkAt": "2026-10-06",
-      "feedAcceptance": "pending-unified-verification"
+      "verifiedLinkAt": "2026-10-07",
+      "feedAcceptance": "accepted",
+      "feedVerifiedAt": "2026-10-07"
     },
     {
       "id": "hk-government-outdoor-news",
@@ -65,8 +66,9 @@
         "登山"
       ],
       "evidenceUrl": "https://data.gov.hk/en-data/dataset/hk-isd-gnmis-gnmis/resource/68cd851b-703d-41cc-9da2-e63f8afb8fc0",
-      "verifiedLinkAt": "2026-10-06",
-      "feedAcceptance": "pending-unified-verification"
+      "verifiedLinkAt": "2026-10-07",
+      "feedAcceptance": "accepted",
+      "feedVerifiedAt": "2026-10-07"
     }
   ]
 }
