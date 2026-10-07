@@ -49,7 +49,27 @@
     },
     "ios": {
       "status": "pending",
-      "evidence": []
+      "evidence": [],
+      "delivery": "pwa",
+      "device": "physical-iphone",
+      "checks": {
+        "installation": {
+          "status": "pending",
+          "evidence": []
+        },
+        "offlineRestore": {
+          "status": "pending",
+          "evidence": []
+        },
+        "permissionWithdrawal": {
+          "status": "pending",
+          "evidence": []
+        },
+        "update": {
+          "status": "pending",
+          "evidence": []
+        }
+      }
     }
   }
 }

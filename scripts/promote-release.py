@@ -13,6 +13,7 @@ import re
 import subprocess
 import sys
 import tempfile
+from release_acceptance import require_iphone_acceptance
 
 
 REPOSITORY = "hiking-earth/clients"
@@ -53,11 +54,7 @@ def main() -> None:
     if any(not isinstance(platforms.get(name), dict) or platforms[name].get("status") != "passed"
            for name in REQUIRED_PLATFORMS):
         stop("Unified acceptance is incomplete; stable manifest was not changed")
-    ios_status = platforms.get("ios", {}).get("status") if isinstance(platforms.get("ios"), dict) else None
-    if args.ios_url and ios_status != "passed":
-        stop("iOS acceptance required before advertising its store entry")
-    if not args.ios_url and ios_status not in ("passed", "blocked-owner"):
-        stop("iOS must be verified or explicitly waiting for owner signing/credentials")
+    require_iphone_acceptance(platforms, args.ios_url)
     if report.get("version") != version or report.get("versionCode") != args.version_code:
         stop("Acceptance version differs from requested release")
 

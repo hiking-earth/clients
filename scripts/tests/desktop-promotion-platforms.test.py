@@ -1,6 +1,8 @@
 import importlib.util,pathlib,unittest,json,tempfile,sys
 from unittest.mock import patch
 PATH=pathlib.Path(__file__).resolve().parents[1]/'promote-desktop-release.py'
+sys.path.insert(0,str(PATH.parent))
+from release_acceptance import IPHONE_CHECKS
 spec=importlib.util.spec_from_file_location('promotion',PATH)
 module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
 class Platforms(unittest.TestCase):
@@ -24,7 +26,7 @@ class Platforms(unittest.TestCase):
   sha='a'*40
   report={'schemaVersion':1,'complete':True,'sourceCommit':sha,'version':'0.2.1',
           'platforms':{key:{'status':'passed','updaterArtifactSha256':'b'*64} for key in module.REQUIRED_ACCEPTANCE}}
-  report['platforms']['ios']={'status':'blocked-owner'}
+  report['platforms']['ios']={'status':'passed','delivery':'pwa','device':'physical-iphone','checks':{key:{'status':'passed','evidence':['fixture-only']} for key in IPHONE_CHECKS}}
   calls=[]
   def api(*args):
    calls.append(args)
