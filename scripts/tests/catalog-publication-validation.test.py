@@ -13,7 +13,7 @@ class RouteCatalogValidationTests(unittest.TestCase):
     def route(self, source='osm'):
         prefixes = {'osm': 'osm-relation-1', 'usfs': 'usfs-1', 'hk': 'hk-afcd-1'}
         source_urls = {
-            'osm': 'https://www.openstreetmap.org/copyright',
+            'osm': 'https://www.openstreetmap.org/relation/1',
             'usfs': 'https://apps.fs.usda.gov/arcx/service',
             'hk': 'https://portal.csdi.gov.hk/server/rest/service',
         }
@@ -24,7 +24,12 @@ class RouteCatalogValidationTests(unittest.TestCase):
         }
         if source == 'hk':
             row['referencePaths'] = [[[114.0, 22.0], [114.1, 22.1]]]
-        return {'schemaVersion': 1, 'sourceUrl': source_urls[source], 'routes': [row]}
+        metadata = {
+            'osm': {'license':'ODbL-1.0','attribution':'© OpenStreetMap contributors','licenseUrl':'https://www.openstreetmap.org/copyright'},
+            'usfs': {'sourceUrl':source_urls[source],'license':'USDA source terms; retain attribution and source metadata','attribution':'USDA Forest Service','licenseUrl':'https://data.fs.usda.gov/geodata/edw/datasets.php?xmlKeyword=recreation'},
+            'hk': {'sourceUrl':source_urls[source],'license':'DATA.GOV.HK-terms-1.2','attribution':'香港特别行政区政府 · 渔农自然护理署 · DATA.GOV.HK','licenseUrl':'https://data.gov.hk/en/terms-and-conditions'},
+        }[source]
+        return {'schemaVersion': 1, **metadata, 'routes': [row]}
 
     def test_accepts_each_discovery_source_without_granting_access(self):
         for source in ('osm', 'usfs', 'hk'):
@@ -51,6 +56,12 @@ class RouteCatalogValidationTests(unittest.TestCase):
         data = self.route()
         data['routes'][0]['sourceUrl'] = 'https://example.org/trail'
         with self.assertRaisesRegex(ValueError, 'provenance'):
+            validation.validate_route_catalog('osm', data)
+
+    def test_osm_relation_url_must_match_record_id(self):
+        data = self.route('osm')
+        data['routes'][0]['sourceUrl'] = 'https://www.openstreetmap.org/relation/2'
+        with self.assertRaisesRegex(ValueError, 'does not match its source ID'):
             validation.validate_route_catalog('osm', data)
 
     def test_rejects_hong_kong_reference_line_with_bad_points(self):

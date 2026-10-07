@@ -63,7 +63,17 @@ def validate_route_catalog(source, data):
     rows = data.get('routes')
     if not isinstance(rows, list):
         raise ValueError(f'{source}: routes must be a list')
-    expected_host = _https_host(data.get('sourceUrl'), f'{source} catalog source')
+    expected_host = 'www.openstreetmap.org' if source == 'osm' else _https_host(data.get('sourceUrl'), f'{source} catalog source')
+    expected_source_url = data.get('sourceUrl')
+    if source != 'osm' and not isinstance(expected_source_url, str):
+        raise ValueError(f'{source}: catalog source URL is required')
+    expected_provenance = {
+        'osm': ('ODbL-1.0', '© OpenStreetMap contributors', 'https://www.openstreetmap.org/copyright'),
+        'usfs': ('USDA source terms; retain attribution and source metadata', 'USDA Forest Service', 'https://data.fs.usda.gov/geodata/edw/datasets.php?xmlKeyword=recreation'),
+        'hk': ('DATA.GOV.HK-terms-1.2', '香港特别行政区政府 · 渔农自然护理署 · DATA.GOV.HK', 'https://data.gov.hk/en/terms-and-conditions'),
+    }[source]
+    if tuple(data.get(field) for field in ('license', 'attribution', 'licenseUrl')) != expected_provenance:
+        raise ValueError(f'{source}: catalog attribution or license metadata differs from the approved source policy')
     seen = set()
     for index, row in enumerate(rows):
         label = f'{source} route[{index}]'
@@ -79,8 +89,14 @@ def validate_route_catalog(source, data):
             if not isinstance(row.get(field), str) or not row[field].strip():
                 raise ValueError(f'{label}: {field} is required')
         _center(row.get('center'), label)
-        if _https_host(row.get('sourceUrl'), label) != expected_host:
+        row_source = row.get('sourceUrl')
+        if _https_host(row_source, label) != expected_host:
             raise ValueError(f'{label}: record source host differs from catalog provenance')
+        if source == 'osm':
+            if row_source != f'https://www.openstreetmap.org/relation/{identity.removeprefix("osm-relation-")}':
+                raise ValueError(f'{label}: relation URL does not match its source ID')
+        elif row_source != expected_source_url:
+            raise ValueError(f'{label}: record source URL differs from catalog provenance')
         _timestamp(row.get('fetchedAt'), label)
         # These files are discovery feeds. An access/open status must come from
         # the separately reviewed official route-status workflow.
