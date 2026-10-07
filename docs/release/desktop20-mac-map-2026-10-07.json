@@ -1,0 +1,18 @@
+{
+  "source": "94507e915eccc00787bbee99e01bb267de40b085",
+  "run": 37575586930,
+  "tag": "desktop-20",
+  "artifact": "_aarch64.app.tar.gz",
+  "bytes": 22135614,
+  "unpackedBytes": 25622600,
+  "sha256": "3f8fb129ddcacb8f90d675ede67df0f586d23f7cc9284ab63f57b1a561e0fb2e",
+  "signatureVerified": true,
+  "nativeAppStarted": true,
+  "newMapEntryPresent": true,
+  "bundledMapReadSHAAndSave": true,
+  "actualGeometryRender": true,
+  "restartPersistence": false,
+  "upgradeFromOldVersion": false,
+  "notarization": false,
+  "allPlatformAcceptance": false
+}
