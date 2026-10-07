@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "scope": "Sites same-origin HTTP account/library/private diary/team/chat/synthetic track workflow; excludes client UI and native/device permissions",
-  "checkedAt": "2026-10-07T03:36:00.979Z",
+  "checkedAt": "2026-10-07T04:13:07.502Z",
   "passed": true,
   "failure": "",
   "checks": [
