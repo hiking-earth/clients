@@ -1,5 +1,13 @@
 name: Build free regional offline maps
 on:
+  push:
+    branches: [main, codex/mobile-privacy-controls]
+    paths:
+      - '.github/workflows/offline-map-build.yml'
+      - 'scripts/build-offline-region.py'
+      - 'scripts/build-offline-regions.py'
+      - 'scripts/export-offline-map-inventory.py'
+      - 'shared/maps/regions.json'
   workflow_dispatch:
   schedule:
     - cron: '43 3 * * 1'
