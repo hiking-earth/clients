@@ -172,7 +172,7 @@ async function dispatch(action, data, token, remoteAddress) {
           handler: handlers.has(action) ? action : 'unknown',
           sdkCode: /^[A-Z0-9_.-]{1,64}$/i.test(code) ? code : 'UNCLASSIFIED' }));
       }
-      throw error;
+      throw require('./public-failure').classify(error, stage);
     }
   }
   const account = await verifiedSession(token, action === 'auth.delete');
