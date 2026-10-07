@@ -60,6 +60,15 @@ def parse_timestamp(value):
     return parsed if parsed.tzinfo is not None else None
 
 
+def classify_region(region, lon, lat):
+    """Keep PBF imports aligned with the OSM incremental collector labels."""
+    if region == "china" and 113.75 <= lon <= 114.55 and 22.05 <= lat <= 22.65:
+        return "hong-kong"
+    if region == "china" and 113.48 <= lon <= 113.60 and 22.10 <= lat <= 22.26:
+        return "macao"
+    return region
+
+
 def valid_catalog(path):
     value = json.loads(path.read_bytes())
     if not isinstance(value, dict) or value.get("schemaVersion") != 1 or not isinstance(value.get("routes"), list):
@@ -249,7 +258,7 @@ def main():
             source_tags = dict(old.get("sourceTags", {})) if old else {}
             source_tags.update(row["tags"])
             old_region = old.get("region") if old else None
-            region = old_region if old_region in REGIONS else args.region
+            region = old_region if old_region in REGIONS else classify_region(args.region, (west + east) / 2, (south + north) / 2)
             staged[key] = {
                 "id": key,
                 "name": row["name"],
