@@ -104,9 +104,9 @@ export async function accountRequest<T>(action: string, data: Record<string, unk
   // #ifdef MP-WEIXIN
   try {
     wx.cloud.init({env:CLOUD_ENV,traceUser:false});
-    const reply = await wx.cloud.callFunction({name:'client-api',data:{transport:'wechat-cloud',action,data,token:session?.token||''}});
-    const response = typeof reply.result === 'string' ? JSON.parse(reply.result) : reply.result;
-    const result = JSON.parse(response.body) as AccountResponse<T>;
+    if(typeof wx.cloud.callHTTPFunction!=='function')return {ok:false,errMsg:'请升级微信后使用云端账号服务（基础库需3.15.1及以上）'};
+    const response:any = await new Promise((resolve,reject)=>wx.cloud.callHTTPFunction({name:'client-api',config:{env:CLOUD_ENV},path:'/',method:'post',header:{'Content-Type':'application/json',...(session?{Authorization:`Bearer ${session.token}`}:{})},data:{action,data},success:resolve,fail:reject}));
+    const result = (typeof response.data==='string'?JSON.parse(response.data):response.data) as AccountResponse<T>;
     if(response.statusCode===401&&session&&result?.code==='SESSION_EXPIRED'&&stillCurrentSession(session))clearAccount();
     if(response.statusCode>=200&&response.statusCode<300&&result?.ok===true)return result;
     return {ok:false,errMsg:result?.errMsg||'服务未完成本次操作',code:result?.code==='TEAM_REQUEST_EXPIRED'?result.code:undefined};
