@@ -1,7 +1,8 @@
 // Isolated accounts only. Never logs tokens, passwords, recovery codes or coordinates.
 import crypto from 'node:crypto';
 import fs from 'node:fs';
-const api='https://cloud1-d9g4fl3fu2491914f-1499973049.ap-shanghai.app.tcloudbase.com/client-api';
+const siteMode=process.argv.includes('--site');
+const api=siteMode?'https://hiking-earth.nanyu20050927.chatgpt.site/api/client-api':'https://cloud1-d9g4fl3fu2491914f-1499973049.ap-shanghai.app.tcloudbase.com/client-api';
 const records=[],accounts=[];
 async function request(action,data={},token){
  const response=await fetch(api,{method:'POST',headers:{'content-type':'application/json',...(token?{authorization:`Bearer ${token}`}:{})},body:JSON.stringify({action,data}),signal:AbortSignal.timeout(30000)});
@@ -57,6 +58,23 @@ try{
  const signed=await request('auth.sign-in',{username:a.username,password:a.password});
  check('second device session',signed.payload.ok&&signed.payload.data.openid===a.openid);
  a.secondToken=signed.payload.data.token;
+ const diary=await request('social-manage',{action:'diaries.save',id:'private-acceptance',routeId:'acceptance-fixture',body:'私有隔离验收资料',visibility:'private',version:0},a.token);
+ check('private diary creation',diary.payload.ok&&diary.payload.data.status==='private'&&diary.payload.data.version===1);
+ const diaryId=diary.payload.data.id;
+ const ownDiary=await request('social-manage',{action:'diaries.list'},a.secondToken);
+ check('private diary cross-session recovery',ownDiary.payload.ok&&ownDiary.payload.data.items.some(row=>row._id===diaryId&&row.mine===true));
+ const otherDiary=await request('social-manage',{action:'diaries.list'},b.token);
+ check('private diary account isolation',otherDiary.payload.ok&&!otherDiary.payload.data.items.some(row=>row._id===diaryId));
+ const deniedDelete=await request('social-manage',{action:'documents.remove',id:diaryId},b.token);
+ check('other account cannot delete diary',!deniedDelete.payload.ok);
+ const changedDiary=await request('social-manage',{action:'diaries.save',id:'private-acceptance',routeId:'acceptance-fixture',body:'私有隔离验收资料第二版',visibility:'private',version:1},a.secondToken);
+ check('private diary next revision',changedDiary.payload.ok&&changedDiary.payload.data.version===2);
+ const staleDiary=await request('social-manage',{action:'diaries.save',id:'private-acceptance',routeId:'acceptance-fixture',body:'过期快照',visibility:'private',version:1},a.token);
+ check('private diary stale revision denied',!staleDiary.payload.ok);
+ const deniedModeration=await request('social-manage',{action:'moderation.list'},b.token);
+ check('ordinary account cannot moderate',!deniedModeration.payload.ok);
+ const removedDiary=await request('social-manage',{action:'documents.remove',id:diaryId},a.secondToken);
+ check('private test diary cleanup',removedDiary.payload.ok&&removedDiary.payload.data.deleted===true);
  const cross=await request('library-manage',{action:'get'},a.secondToken);
  check('cross session recovery',cross.payload.ok&&cross.payload.data.version===2);
  const out=await request('auth.sign-out',{},a.token);
@@ -76,7 +94,7 @@ try{
    records.push({name:'isolated account cleanup',passed:done});
   }catch{records.push({name:'isolated account cleanup',passed:false});}
  }
- const report={schemaVersion:1,scope:'deployed HTTP account/library workflow; excludes client UI and native/device permissions',checkedAt:new Date().toISOString(),passed:!failure&&records.every(r=>r.passed),failure,checks:records};
- fs.writeFileSync('docs/release/deployed-account-acceptance-2026-10-07.json',JSON.stringify(report,null,2)+'\n');
+ const report={schemaVersion:1,scope:(siteMode?'Sites same-origin':'CloudBase direct')+' HTTP account/library/private diary workflow; excludes client UI and native/device permissions',checkedAt:new Date().toISOString(),passed:!failure&&records.every(r=>r.passed),failure,checks:records};
+ fs.writeFileSync(`docs/release/deployed-account${siteMode?'-site':''}-acceptance-2026-10-07.json`,JSON.stringify(report,null,2)+'\n');
  console.log(JSON.stringify(report,null,2));if(!report.passed)process.exitCode=1;
 }
