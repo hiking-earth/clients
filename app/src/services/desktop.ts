@@ -50,5 +50,9 @@ export async function requestDesktopMapCatalog():Promise<string>{
 }
 export async function requestDesktopMapDownload(name:string,bytes:number):Promise<ArrayBuffer>{
  if(!isDesktop())throw new Error('当前平台不是桌面客户端');
- return (window as DesktopWindow).__TAURI__!.core.invoke<ArrayBuffer>('map_download',{name,bytes});
+ try{return await (window as DesktopWindow).__TAURI__!.core.invoke<ArrayBuffer>('map_download',{name,bytes});}
+ catch(error){
+  const known=['地图网络请求正在进行，请稍后重试','地图网络服务不可用','地图请求失败','地图请求未成功','地图响应大小不一致','地图下载中断','地图响应超过限制','地图下载不完整','地图下载清单无效'];
+  throw new Error(typeof error==='string'&&known.includes(error)?error:'桌面地图调用失败');
+ }
 }
