@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-07T17:59:40Z",
+  "generatedAt": "2026-10-07T18:11:11Z",
   "license": "ODbL-1.0",
   "attribution": "© OpenStreetMap contributors",
   "licenseUrl": "https://www.openstreetmap.org/copyright",
@@ -4405,6 +4405,23 @@
       "status": "待核验"
     },
     {
+      "id": "osm-relation-10298053",
+      "name": "CaminANTES Ruta 1: Zhinglla Cachaulo",
+      "originalName": "CaminANTES Ruta 1: Zhinglla Cachaulo",
+      "region": "south-america",
+      "center": [
+        -78.98959339999999,
+        -2.8127968
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/10298053",
+      "sourceTags": {
+        "network": "lwn",
+        "ref": "C1"
+      },
+      "fetchedAt": "2026-10-07T18:11:11Z",
+      "status": "待核验"
+    },
+    {
       "id": "osm-relation-10298312",
       "name": "Door bos en hei",
       "originalName": "Door bos en hei",
@@ -4436,6 +4453,74 @@
         "network": "lwn"
       },
       "fetchedAt": "2026-10-05T05:49:53.235873+00:00",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-10301541",
+      "name": "CaminANTES Ruta 3: Llacao - Cerro Pachamama - Zhiquir",
+      "originalName": "CaminANTES Ruta 3: Llacao - Cerro Pachamama - Zhiquir",
+      "region": "south-america",
+      "center": [
+        -78.93034005,
+        -2.8392632
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/10301541",
+      "sourceTags": {
+        "network": "lwn",
+        "ref": "C3"
+      },
+      "fetchedAt": "2026-10-07T18:11:11Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-10302244",
+      "name": "CaminANTES Ruta 2: Cerro Cachaulo - Llacao",
+      "originalName": "CaminANTES Ruta 2: Cerro Cachaulo - Llacao",
+      "region": "south-america",
+      "center": [
+        -78.9601453,
+        -2.83234675
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/10302244",
+      "sourceTags": {
+        "network": "lwn",
+        "ref": "C2"
+      },
+      "fetchedAt": "2026-10-07T18:11:11Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-10302491",
+      "name": "CaminANTES Ruta 4: Cerro Plateado - Cerro Guagualzhumi",
+      "originalName": "CaminANTES Ruta 4: Cerro Plateado - Cerro Guagualzhumi",
+      "region": "south-america",
+      "center": [
+        -78.89988589999999,
+        -2.8720638999999997
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/10302491",
+      "sourceTags": {
+        "network": "lwn",
+        "ref": "C4"
+      },
+      "fetchedAt": "2026-10-07T18:11:11Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-10302656",
+      "name": "CaminANTES Ruta 5: Cerro Guagualzhumi - Paccha",
+      "originalName": "CaminANTES Ruta 5: Cerro Guagualzhumi - Paccha",
+      "region": "south-america",
+      "center": [
+        -78.9246403,
+        -2.8942012
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/10302656",
+      "sourceTags": {
+        "network": "lwn",
+        "ref": "C5"
+      },
+      "fetchedAt": "2026-10-07T18:11:11Z",
       "status": "待核验"
     },
     {
@@ -4866,6 +4951,23 @@
       "status": "待核验"
     },
     {
+      "id": "osm-relation-10316631",
+      "name": "CaminANTES Ruta 6: Guagualzhumi – Cerro Jalshi",
+      "originalName": "CaminANTES Ruta 6: Guagualzhumi – Cerro Jalshi",
+      "region": "south-america",
+      "center": [
+        -78.92537730000001,
+        -2.87698185
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/10316631",
+      "sourceTags": {
+        "network": "lwn",
+        "ref": "C6"
+      },
+      "fetchedAt": "2026-10-07T18:11:11Z",
+      "status": "待核验"
+    },
+    {
       "id": "osm-relation-10316647",
       "name": "L'Alta Garrotxa de Vayreda",
       "originalName": "L'Alta Garrotxa de Vayreda",
@@ -4883,6 +4985,23 @@
         "website": "https://www.itinerannia.net/ca/itineraris/l-alta-garrotxa-de-vayreda/"
       },
       "fetchedAt": "2026-10-05T05:32:57.492949+00:00",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-10316880",
+      "name": "CaminANTES Ruta 7: Ucubamba – Cerro Cabullín - Rayoloma",
+      "originalName": "CaminANTES Ruta 7: Ucubamba – Cerro Cabullín - Rayoloma",
+      "region": "south-america",
+      "center": [
+        -78.95690125,
+        -2.89132985
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/10316880",
+      "sourceTags": {
+        "network": "lwn",
+        "ref": "C7"
+      },
+      "fetchedAt": "2026-10-07T18:11:11Z",
       "status": "待核验"
     },
     {
@@ -4919,6 +5038,23 @@
         "ref": "4"
       },
       "fetchedAt": "2026-10-05T05:49:53.235873+00:00",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-10319749",
+      "name": "CaminANTES Ruta 8: Castilla Cruz - Hitocruz -Turi",
+      "originalName": "CaminANTES Ruta 8: Castilla Cruz - Hitocruz -Turi",
+      "region": "south-america",
+      "center": [
+        -78.99485279999999,
+        -2.9272271
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/10319749",
+      "sourceTags": {
+        "network": "lwn",
+        "ref": "C8"
+      },
+      "fetchedAt": "2026-10-07T18:11:11Z",
       "status": "待核验"
     },
     {
@@ -5070,6 +5206,23 @@
         "website": "https://www.gransendademalaga.es/es/etapas/lis_cd-13350/gr-249-5-variante-etapa-1-campillos-teba"
       },
       "fetchedAt": "2026-10-05T05:23:35.519849+00:00",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-10326403",
+      "name": "CaminANTES Ruta 9: Cerro Verde – Cerro Monjas",
+      "originalName": "CaminANTES Ruta 9: Cerro Verde – Cerro Monjas",
+      "region": "south-america",
+      "center": [
+        -79.0114765,
+        -2.9491803
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/10326403",
+      "sourceTags": {
+        "network": "lwn",
+        "ref": "C9"
+      },
+      "fetchedAt": "2026-10-07T18:11:11Z",
       "status": "待核验"
     },
     {
@@ -5601,6 +5754,23 @@
       "status": "待核验"
     },
     {
+      "id": "osm-relation-10336590",
+      "name": "CaminANTES Ruta 10: Cerro Jutcoloma - Cerro El Calvario Papaloma",
+      "originalName": "CaminANTES Ruta 10: Cerro Jutcoloma - Cerro El Calvario Papaloma",
+      "region": "south-america",
+      "center": [
+        -79.0204973,
+        -2.9460424
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/10336590",
+      "sourceTags": {
+        "network": "lwn",
+        "ref": "C10"
+      },
+      "fetchedAt": "2026-10-07T18:11:11Z",
+      "status": "待核验"
+    },
+    {
       "id": "osm-relation-10339117",
       "name": "Carn Brea FP 12",
       "originalName": "Carn Brea FP 12",
@@ -5760,6 +5930,23 @@
       "status": "待核验"
     },
     {
+      "id": "osm-relation-10343329",
+      "name": "CaminANTES Ruta 11: Francés Urco - Tarqui",
+      "originalName": "CaminANTES Ruta 11: Francés Urco - Tarqui",
+      "region": "south-america",
+      "center": [
+        -79.0553185,
+        -3.03065635
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/10343329",
+      "sourceTags": {
+        "network": "lwn",
+        "ref": "C11"
+      },
+      "fetchedAt": "2026-10-07T18:11:11Z",
+      "status": "待核验"
+    },
+    {
       "id": "osm-relation-10343716",
       "name": "Folgueroles-Salt de la Minyona-Tavèrnoles",
       "originalName": "Folgueroles-Salt de la Minyona-Tavèrnoles",
@@ -5891,6 +6078,40 @@
       "status": "待核验"
     },
     {
+      "id": "osm-relation-10347862",
+      "name": "CaminANTES Ruta 12: Shío",
+      "originalName": "CaminANTES Ruta 12: Shío",
+      "region": "south-america",
+      "center": [
+        -79.10521295,
+        -3.1094824
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/10347862",
+      "sourceTags": {
+        "network": "lwn",
+        "ref": "C12"
+      },
+      "fetchedAt": "2026-10-07T18:11:11Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-10347924",
+      "name": "CaminANTES Ruta 13: Narancay - Cerro Uchuloma - Baños",
+      "originalName": "CaminANTES Ruta 13: Narancay - Cerro Uchuloma - Baños",
+      "region": "south-america",
+      "center": [
+        -79.0616719,
+        -2.9322017000000002
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/10347924",
+      "sourceTags": {
+        "network": "lwn",
+        "ref": "C13"
+      },
+      "fetchedAt": "2026-10-07T18:11:11Z",
+      "status": "待核验"
+    },
+    {
       "id": "osm-relation-10348876",
       "name": "Montagut-Ermita de la Devesa-Baumes de la Caxurma",
       "originalName": "Montagut-Ermita de la Devesa-Baumes de la Caxurma",
@@ -5928,6 +6149,23 @@
         "website": "https://www.itinerannia.net/ca/itineraris/ruta-grau-d-escales-ruta-2-montagut-i-oix/"
       },
       "fetchedAt": "2026-10-05T05:32:57.492949+00:00",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-10352357",
+      "name": "CaminANTES Ruta 14: Barabón – Cerro Huizhil – Baños",
+      "originalName": "CaminANTES Ruta 14: Barabón – Cerro Huizhil – Baños",
+      "region": "south-america",
+      "center": [
+        -79.07328115,
+        -2.91611975
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/10352357",
+      "sourceTags": {
+        "network": "lwn",
+        "ref": "C14"
+      },
+      "fetchedAt": "2026-10-07T18:11:11Z",
       "status": "待核验"
     },
     {
@@ -6493,6 +6731,40 @@
         "ref": "SL-A 138"
       },
       "fetchedAt": "2026-10-05T05:23:35.519849+00:00",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-10362825",
+      "name": "CaminANTES Ruta 15: Barabón – Pallkarumi – Sayausí",
+      "originalName": "CaminANTES Ruta 15: Barabón – Pallkarumi – Sayausí",
+      "region": "south-america",
+      "center": [
+        -79.09179155,
+        -2.8900238
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/10362825",
+      "sourceTags": {
+        "network": "lwn",
+        "ref": "C15"
+      },
+      "fetchedAt": "2026-10-07T18:11:11Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-10363396",
+      "name": "CaminANTES Ruta 16: Cabogana",
+      "originalName": "CaminANTES Ruta 16: Cabogana",
+      "region": "south-america",
+      "center": [
+        -79.0747176,
+        -2.83376305
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/10363396",
+      "sourceTags": {
+        "network": "lwn",
+        "ref": "C16"
+      },
+      "fetchedAt": "2026-10-07T18:11:11Z",
       "status": "待核验"
     },
     {
@@ -24786,6 +25058,103 @@
         "operator": "Bretagne porte de Loire Communauté"
       },
       "fetchedAt": "2026-10-05T05:49:53.235873+00:00",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-1112623",
+      "name": "Alpamayo Trek",
+      "originalName": "Alpamayo Trek",
+      "region": "south-america",
+      "center": [
+        -77.65090595,
+        -8.949265350000001
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/1112623",
+      "sourceTags": {
+        "network": "lwn"
+      },
+      "fetchedAt": "2026-10-07T18:04:53Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-1112636",
+      "name": "Lag. Llaca Trek",
+      "originalName": "Lag. Llaca Trek",
+      "region": "south-america",
+      "center": [
+        -77.46528375,
+        -9.466017
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/1112636",
+      "sourceTags": {
+        "network": "lwn"
+      },
+      "fetchedAt": "2026-10-07T18:04:53Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-1112637",
+      "name": "Ishinca Trek",
+      "originalName": "Ishinca Trek",
+      "region": "south-america",
+      "center": [
+        -77.47373375000001,
+        -9.3768615
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/1112637",
+      "sourceTags": {
+        "network": "lwn"
+      },
+      "fetchedAt": "2026-10-07T18:04:53Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-1112638",
+      "name": "Lag. Shallap Trek",
+      "originalName": "Lag. Shallap Trek",
+      "region": "south-america",
+      "center": [
+        -77.4185645,
+        -9.50570005
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/1112638",
+      "sourceTags": {
+        "network": "lwn"
+      },
+      "fetchedAt": "2026-10-07T18:04:53Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-1112639",
+      "name": "Circuito de Huayhuash",
+      "originalName": "Circuito de Huayhuash",
+      "region": "south-america",
+      "center": [
+        -76.94010795,
+        -10.281403099999999
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/1112639",
+      "sourceTags": {
+        "network": "lwn",
+        "website": "https://www.huayhuash.com/huayhuash_circuit.html"
+      },
+      "fetchedAt": "2026-10-07T18:04:53Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-1112642",
+      "name": "Circuito Alpino de Huayhuash",
+      "originalName": "Circuito Alpino de Huayhuash",
+      "region": "south-america",
+      "center": [
+        -76.90442615,
+        -10.29366325
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/1112642",
+      "sourceTags": {
+        "network": "lwn"
+      },
+      "fetchedAt": "2026-10-07T18:04:53Z",
       "status": "待核验"
     },
     {
@@ -74846,6 +75215,22 @@
       "status": "待核验"
     },
     {
+      "id": "osm-relation-12442627",
+      "name": "Quirusmayo to Cuidad de Ittas",
+      "originalName": "Quirusmayo to Cuidad de Ittas",
+      "region": "south-america",
+      "center": [
+        -65.87244945,
+        -18.05076415
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/12442627",
+      "sourceTags": {
+        "website": "https://en.wikivoyage.org/wiki/Torotoro_National_Park"
+      },
+      "fetchedAt": "2026-10-07T18:09:43Z",
+      "status": "待核验"
+    },
+    {
       "id": "osm-relation-12444623",
       "name": "Boucle de l'étang",
       "originalName": "Boucle de l'étang",
@@ -94731,6 +95116,22 @@
         "ref": "750"
       },
       "fetchedAt": "2026-10-05T05:32:57.492949+00:00",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-12997203",
+      "name": "Ruta 2",
+      "originalName": "Ruta 2",
+      "region": "south-america",
+      "center": [
+        -78.7587624,
+        -0.08654875000000001
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/12997203",
+      "sourceTags": {
+        "ref": "2"
+      },
+      "fetchedAt": "2026-10-07T18:11:11Z",
       "status": "待核验"
     },
     {
@@ -143538,6 +143939,20 @@
       "status": "待核验"
     },
     {
+      "id": "osm-relation-14639685",
+      "name": "Sendero de Chillata",
+      "originalName": "Sendero de Chillata",
+      "region": "south-america",
+      "center": [
+        -68.61664765,
+        -15.78824835
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/14639685",
+      "sourceTags": {},
+      "fetchedAt": "2026-10-07T18:09:43Z",
+      "status": "待核验"
+    },
+    {
       "id": "osm-relation-14641685",
       "name": "Белегиш велика стаза",
       "originalName": "Белегиш велика стаза",
@@ -154997,7 +155412,7 @@
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/15098436",
       "sourceTags": {},
-      "fetchedAt": "2026-10-07T17:53:53Z",
+      "fetchedAt": "2026-10-07T18:09:43Z",
       "status": "待核验"
     },
     {
@@ -166341,6 +166756,27 @@
         "website": "https://alto-tajo.com/item/ruta-hundido-de-armallones-a-salinas-y-pico-alar/"
       },
       "fetchedAt": "2026-10-05T05:32:57.492949+00:00",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-15703494",
+      "name": "Camino Inca a Machu Picchu",
+      "originalName": "Camino Inca a Machu Picchu",
+      "region": "south-america",
+      "center": [
+        -72.4630052,
+        -13.2130012
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/15703494",
+      "sourceTags": {
+        "distance": "38",
+        "ascent": "4300",
+        "descent": "4600",
+        "network": "rwn",
+        "operator": "Ministerio de Cultura",
+        "description": "The classic trek to Machu Picchu"
+      },
+      "fetchedAt": "2026-10-07T18:04:53Z",
       "status": "待核验"
     },
     {
@@ -186235,6 +186671,38 @@
       "status": "待核验"
     },
     {
+      "id": "osm-relation-16221008",
+      "name": "Circuito de las 7 lagunas",
+      "originalName": "Circuito de las 7 lagunas",
+      "region": "south-america",
+      "center": [
+        -71.22074914999999,
+        -13.7411359
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/16221008",
+      "sourceTags": {
+        "network": "lwn"
+      },
+      "fetchedAt": "2026-10-07T18:04:53Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-16221089",
+      "name": "Choquequirao To Machu Picchu",
+      "originalName": "Choquequirao To Machu Picchu",
+      "region": "south-america",
+      "center": [
+        -72.70986875,
+        -13.29592035
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/16221089",
+      "sourceTags": {
+        "network": "rwn"
+      },
+      "fetchedAt": "2026-10-07T18:04:53Z",
+      "status": "待核验"
+    },
+    {
       "id": "osm-relation-16221253",
       "name": "三台山国家森林公园最美步行路线",
       "originalName": "三台山国家森林公园最美步行路线",
@@ -200383,6 +200851,54 @@
       "status": "待核验"
     },
     {
+      "id": "osm-relation-16941344",
+      "name": "Sendero Palma Roja",
+      "originalName": "Sendero Palma Roja",
+      "region": "south-america",
+      "center": [
+        -76.16349464999999,
+        -0.0157281
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/16941344",
+      "sourceTags": {
+        "network": "lwn"
+      },
+      "fetchedAt": "2026-10-07T18:11:11Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-16941345",
+      "name": "Sendero El Saladero",
+      "originalName": "Sendero El Saladero",
+      "region": "south-america",
+      "center": [
+        -76.17538554999999,
+        0.0086776
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/16941345",
+      "sourceTags": {
+        "network": "lwn"
+      },
+      "fetchedAt": "2026-10-07T18:11:11Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-16941346",
+      "name": "Sendero La Catolica",
+      "originalName": "Sendero La Catolica",
+      "region": "south-america",
+      "center": [
+        -76.17135909999999,
+        -0.0024488500000000002
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/16941346",
+      "sourceTags": {
+        "network": "lwn"
+      },
+      "fetchedAt": "2026-10-07T18:11:11Z",
+      "status": "待核验"
+    },
+    {
       "id": "osm-relation-16941517",
       "name": "Circuit de la Jammetière",
       "originalName": "Circuit de la Jammetière",
@@ -207210,6 +207726,54 @@
         "website": "https://www.encotentin.fr/itineraire/le-cap-de-la-hague/"
       },
       "fetchedAt": "2026-10-05T05:49:53.235873+00:00",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-1732162",
+      "name": "Quitaraju Trek",
+      "originalName": "Quitaraju Trek",
+      "region": "south-america",
+      "center": [
+        -77.64943455,
+        -8.88925025
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/1732162",
+      "sourceTags": {
+        "network": "lwn"
+      },
+      "fetchedAt": "2026-10-07T18:04:53Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-1732163",
+      "name": "Santa Cruz Trek",
+      "originalName": "Santa Cruz Trek",
+      "region": "south-america",
+      "center": [
+        -77.65090595,
+        -8.960105949999999
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/1732163",
+      "sourceTags": {
+        "network": "lwn"
+      },
+      "fetchedAt": "2026-10-07T18:04:53Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-1732180",
+      "name": "Alpamayo Circuit",
+      "originalName": "Alpamayo Circuit",
+      "region": "south-america",
+      "center": [
+        -77.63044830000001,
+        -8.8513646
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/1732180",
+      "sourceTags": {
+        "network": "lwn"
+      },
+      "fetchedAt": "2026-10-07T18:04:53Z",
       "status": "待核验"
     },
     {
@@ -214331,6 +214895,80 @@
         "website": "https://senders.femecv.com/es/sendero/ver/pr-cv-471"
       },
       "fetchedAt": "2026-10-05T05:23:35.519849+00:00",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-1751706",
+      "name": "Normal Huayna Potosi",
+      "originalName": "Normal Huayna Potosi",
+      "region": "south-america",
+      "center": [
+        -68.1331279,
+        -16.2816047
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/1751706",
+      "sourceTags": {
+        "network": "lwn"
+      },
+      "fetchedAt": "2026-10-07T18:09:43Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-1751716",
+      "name": "Vía normal",
+      "originalName": "Vía normal",
+      "region": "south-america",
+      "center": [
+        -78.70618605,
+        -0.6445501
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/1751716",
+      "sourceTags": {},
+      "fetchedAt": "2026-10-07T18:11:11Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-1751724",
+      "name": "Vía normal (F)",
+      "originalName": "Vía normal (F)",
+      "region": "south-america",
+      "center": [
+        -78.83180855,
+        -1.4705914500000001
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/1751724",
+      "sourceTags": {},
+      "fetchedAt": "2026-10-07T18:11:11Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-1751732",
+      "name": "Vía normal",
+      "originalName": "Vía normal",
+      "region": "south-america",
+      "center": [
+        -78.43973550000001,
+        -0.6683817
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/1751732",
+      "sourceTags": {},
+      "fetchedAt": "2026-10-07T18:11:11Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-1751744",
+      "name": "Vía normal",
+      "originalName": "Vía normal",
+      "region": "south-america",
+      "center": [
+        -77.99931145,
+        0.0172352
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/1751744",
+      "sourceTags": {
+        "network": "lwn"
+      },
+      "fetchedAt": "2026-10-07T18:11:11Z",
       "status": "待核验"
     },
     {
@@ -239454,6 +240092,62 @@
       "status": "待核验"
     },
     {
+      "id": "osm-relation-18133199",
+      "name": "Sendero Cascada La Milagrosa",
+      "originalName": "Sendero Cascada La Milagrosa",
+      "region": "south-america",
+      "center": [
+        -78.15116585,
+        -0.3238488
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/18133199",
+      "sourceTags": {},
+      "fetchedAt": "2026-10-07T18:11:11Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-18133200",
+      "name": "Sendero el Oso",
+      "originalName": "Sendero el Oso",
+      "region": "south-america",
+      "center": [
+        -78.17787695,
+        -0.32897015
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/18133200",
+      "sourceTags": {},
+      "fetchedAt": "2026-10-07T18:11:11Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-18133201",
+      "name": "Sendero Agua y Vida",
+      "originalName": "Sendero Agua y Vida",
+      "region": "south-america",
+      "center": [
+        -78.1812342,
+        -0.31673665
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/18133201",
+      "sourceTags": {},
+      "fetchedAt": "2026-10-07T18:11:11Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-18133202",
+      "name": "Sendero de la Isla",
+      "originalName": "Sendero de la Isla",
+      "region": "south-america",
+      "center": [
+        -78.1507804,
+        -0.35688359999999997
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/18133202",
+      "sourceTags": {},
+      "fetchedAt": "2026-10-07T18:11:11Z",
+      "status": "待核验"
+    },
+    {
       "id": "osm-relation-1813321",
       "name": "Sender Albiol - Cogullons",
       "originalName": "Sender Albiol - Cogullons",
@@ -244298,6 +244992,24 @@
       "sourceUrl": "https://www.openstreetmap.org/relation/18285555",
       "sourceTags": {},
       "fetchedAt": "2026-10-05T05:28:17.550598+00:00",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-18286384",
+      "name": "Ruta Alterna al Santuario de Copacabana",
+      "originalName": "Ruta Alterna al Santuario de Copacabana",
+      "region": "south-america",
+      "center": [
+        -68.59344085000001,
+        -16.329295100000003
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/18286384",
+      "sourceTags": {
+        "network": "La Paz - Tiquina",
+        "operator": "Localidad Cuamana - Quewaya",
+        "ref": "La Paz - Tiquina"
+      },
+      "fetchedAt": "2026-10-07T18:09:43Z",
       "status": "待核验"
     },
     {
@@ -261921,6 +262633,24 @@
         "ref": "5"
       },
       "fetchedAt": "2026-10-05T05:32:57.492949+00:00",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-19085916",
+      "name": "tienda Don villana",
+      "originalName": "tienda Don villana",
+      "region": "south-america",
+      "center": [
+        -77.03541945,
+        0.08328485
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/19085916",
+      "sourceTags": {
+        "network": "lwn",
+        "operator": "tienda",
+        "ref": "E45"
+      },
+      "fetchedAt": "2026-10-07T18:11:11Z",
       "status": "待核验"
     },
     {
@@ -311176,6 +311906,24 @@
       "status": "待核验"
     },
     {
+      "id": "osm-relation-2072730",
+      "name": "Choquequirao Trek",
+      "originalName": "Choquequirao Trek",
+      "region": "south-america",
+      "center": [
+        -72.8320104,
+        -13.450866699999999
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/2072730",
+      "sourceTags": {
+        "distance": "30",
+        "network": "rwn",
+        "description": "de Cachora a Choquequirao"
+      },
+      "fetchedAt": "2026-10-07T18:04:53Z",
+      "status": "待核验"
+    },
+    {
       "id": "osm-relation-20733468",
       "name": "新疆车师古道",
       "originalName": "新疆车师古道",
@@ -313903,6 +314651,20 @@
         "website": "https://hikex.in/"
       },
       "fetchedAt": "2026-10-05T05:04:49.540561+00:00",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-20978783",
+      "name": "Quilotoa Loop",
+      "originalName": "Quilotoa Loop",
+      "region": "south-america",
+      "center": [
+        -78.8981453,
+        -0.7869676999999999
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/20978783",
+      "sourceTags": {},
+      "fetchedAt": "2026-10-07T18:11:11Z",
       "status": "待核验"
     },
     {
@@ -328423,6 +329185,22 @@
       "status": "待核验"
     },
     {
+      "id": "osm-relation-2376237",
+      "name": "Camino del Inca Salkantay",
+      "originalName": "Camino del Inca Salkantay",
+      "region": "south-america",
+      "center": [
+        -72.60132945,
+        -13.3229825
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/2376237",
+      "sourceTags": {
+        "network": "rwn"
+      },
+      "fetchedAt": "2026-10-07T18:04:53Z",
+      "status": "待核验"
+    },
+    {
       "id": "osm-relation-2376313",
       "name": "Ścieżka przyrodniczo - historyczna \"Przysłup Caryński - Krywe n.Sanem\"",
       "originalName": "Ścieżka przyrodniczo - historyczna \"Przysłup Caryński - Krywe n.Sanem\"",
@@ -329147,6 +329925,22 @@
         "ref": "138A"
       },
       "fetchedAt": "2026-10-05T06:11:33.759189+00:00",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-2414835",
+      "name": "Qhapaq Ñan - Antisuyu",
+      "originalName": "Qhapaq Ñan - Antisuyu",
+      "region": "south-america",
+      "center": [
+        -71.97538,
+        -13.5156643
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/2414835",
+      "sourceTags": {
+        "network": "nwn"
+      },
+      "fetchedAt": "2026-10-07T18:04:53Z",
       "status": "待核验"
     },
     {
@@ -330207,6 +331001,22 @@
       "status": "待核验"
     },
     {
+      "id": "osm-relation-2502239",
+      "name": "Ruta Chiguata",
+      "originalName": "Ruta Chiguata",
+      "region": "south-america",
+      "center": [
+        -71.41363525,
+        -16.3212277
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/2502239",
+      "sourceTags": {
+        "network": "lwn"
+      },
+      "fetchedAt": "2026-10-07T18:04:53Z",
+      "status": "待核验"
+    },
+    {
       "id": "osm-relation-2502311",
       "name": "Klein rondje Waarland",
       "originalName": "Klein rondje Waarland",
@@ -330421,6 +331231,23 @@
       },
       "fetchedAt": "2026-10-06T17:34:33.769129+00:00",
       "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-2517569",
+      "name": "Camino de Colca",
+      "originalName": "Camino de Colca",
+      "region": "south-america",
+      "center": [
+        -71.96051750000001,
+        -15.6025453
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/2517569",
+      "sourceTags": {
+        "network": "rwn",
+        "ref": "Camino de Colca"
+      },
+      "fetchedAt": "2026-10-07T18:04:53Z",
       "status": "待核验"
     },
     {
@@ -331630,6 +332457,23 @@
         "website": "https://natural.pt/protected-areas/parque-natural-douro-internacional/pathways/pr1-fec-vale-ribeira-mosteiro?locale=pt"
       },
       "fetchedAt": "2026-10-05T05:32:57.492949+00:00",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-2613593",
+      "name": "Mirador",
+      "originalName": "Mirador",
+      "region": "south-america",
+      "center": [
+        -76.7450488,
+        -1.08704785
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/2613593",
+      "sourceTags": {
+        "network": "lwn",
+        "operator": "Shiripuno lodge"
+      },
+      "fetchedAt": "2026-10-07T18:11:11Z",
       "status": "待核验"
     },
     {
@@ -343756,6 +344600,20 @@
       "status": "待核验"
     },
     {
+      "id": "osm-relation-3127884",
+      "name": "El Choro",
+      "originalName": "El Choro",
+      "region": "south-america",
+      "center": [
+        -67.94923535000001,
+        -16.262931299999998
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/3127884",
+      "sourceTags": {},
+      "fetchedAt": "2026-10-07T18:09:43Z",
+      "status": "待核验"
+    },
+    {
       "id": "osm-relation-3128407",
       "name": "Tratturo Celano-Foggia",
       "originalName": "Tratturo Celano-Foggia",
@@ -347592,6 +348450,20 @@
       "status": "待核验"
     },
     {
+      "id": "osm-relation-3313887",
+      "name": "Takesi Inca Trail",
+      "originalName": "Takesi Inca Trail",
+      "region": "south-america",
+      "center": [
+        -67.84806405,
+        -16.4643482
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/3313887",
+      "sourceTags": {},
+      "fetchedAt": "2026-10-07T18:09:43Z",
+      "status": "待核验"
+    },
+    {
       "id": "osm-relation-331403",
       "name": "Sussex Ouse Valley Way",
       "originalName": "Sussex Ouse Valley Way",
@@ -348044,6 +348916,34 @@
         "ref": "4"
       },
       "fetchedAt": "2026-10-05T06:11:33.759189+00:00",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-3330770",
+      "name": "Eco-Via",
+      "originalName": "Eco-Via",
+      "region": "south-america",
+      "center": [
+        -67.7536826,
+        -16.31015375
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/3330770",
+      "sourceTags": {},
+      "fetchedAt": "2026-10-07T18:09:43Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-3330771",
+      "name": "Sillutinkara",
+      "originalName": "Sillutinkara",
+      "region": "south-america",
+      "center": [
+        -67.891606,
+        -16.28102115
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/3330771",
+      "sourceTags": {},
+      "fetchedAt": "2026-10-07T18:09:43Z",
       "status": "待核验"
     },
     {
@@ -350303,6 +351203,54 @@
         "network": "rwn"
       },
       "fetchedAt": "2026-10-05T05:32:57.492949+00:00",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-3475756",
+      "name": "Huaytapallana Trek",
+      "originalName": "Huaytapallana Trek",
+      "region": "south-america",
+      "center": [
+        -75.037947,
+        -11.94360025
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/3475756",
+      "sourceTags": {
+        "network": "lwn"
+      },
+      "fetchedAt": "2026-10-07T18:04:53Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-3475789",
+      "name": "Nevado Apacheta",
+      "originalName": "Nevado Apacheta",
+      "region": "south-america",
+      "center": [
+        -74.64892845,
+        -13.366480249999999
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/3475789",
+      "sourceTags": {
+        "network": "lwn"
+      },
+      "fetchedAt": "2026-10-07T18:04:53Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-3475867",
+      "name": "Ausangate circuit",
+      "originalName": "Ausangate circuit",
+      "region": "south-america",
+      "center": [
+        -71.23822720000001,
+        -13.7702388
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/3475867",
+      "sourceTags": {
+        "network": "lwn"
+      },
+      "fetchedAt": "2026-10-07T18:04:53Z",
       "status": "待核验"
     },
     {
@@ -359014,6 +359962,22 @@
       "status": "待核验"
     },
     {
+      "id": "osm-relation-399131",
+      "name": "Rutas Patrimoniales de Cuenca: R2",
+      "originalName": "Rutas Patrimoniales de Cuenca: R2",
+      "region": "south-america",
+      "center": [
+        -79.01178265,
+        -2.8959244
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/399131",
+      "sourceTags": {
+        "network": "lwn"
+      },
+      "fetchedAt": "2026-10-07T18:11:11Z",
+      "status": "待核验"
+    },
+    {
       "id": "osm-relation-3995937",
       "name": "Sendero del cura Merino",
       "originalName": "Sendero del cura Merino",
@@ -363522,6 +364486,23 @@
       "status": "待核验"
     },
     {
+      "id": "osm-relation-4249860",
+      "name": "Pairumani - Tunari",
+      "originalName": "Pairumani - Tunari",
+      "region": "south-america",
+      "center": [
+        -66.36288535,
+        -17.31186375
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/4249860",
+      "sourceTags": {
+        "network": "lwn",
+        "ref": "V1"
+      },
+      "fetchedAt": "2026-10-07T18:09:43Z",
+      "status": "待核验"
+    },
+    {
       "id": "osm-relation-4250243",
       "name": "Jacoba van Beierenpad",
       "originalName": "Jacoba van Beierenpad",
@@ -364774,6 +365755,22 @@
       "status": "待核验"
     },
     {
+      "id": "osm-relation-4437865",
+      "name": "001A",
+      "originalName": "001A",
+      "region": "south-america",
+      "center": [
+        -78.4897337,
+        -0.20970650000000002
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/4437865",
+      "sourceTags": {
+        "ref": "por mecanica"
+      },
+      "fetchedAt": "2026-10-07T18:11:11Z",
+      "status": "待核验"
+    },
+    {
       "id": "osm-relation-4446178",
       "name": "南大嶼郊遊徑",
       "originalName": "南大嶼郊遊徑 South Lantau Country Trail",
@@ -365139,6 +366136,22 @@
         "ref": "PR6-PNM"
       },
       "fetchedAt": "2026-10-05T05:32:57.492949+00:00",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-4462374",
+      "name": "lagunas",
+      "originalName": "lagunas",
+      "region": "south-america",
+      "center": [
+        -66.1514162,
+        -17.25778955
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/4462374",
+      "sourceTags": {
+        "network": "rwn"
+      },
+      "fetchedAt": "2026-10-07T18:09:43Z",
       "status": "待核验"
     },
     {
@@ -370771,6 +371784,22 @@
       "status": "待核验"
     },
     {
+      "id": "osm-relation-4753675",
+      "name": "003B",
+      "originalName": "003B",
+      "region": "south-america",
+      "center": [
+        -78.489633,
+        -0.21083715
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/4753675",
+      "sourceTags": {
+        "ref": "por las canchas"
+      },
+      "fetchedAt": "2026-10-07T18:11:11Z",
+      "status": "待核验"
+    },
+    {
       "id": "osm-relation-4754561",
       "name": "Sendero Subida a Brenas",
       "originalName": "Sendero Subida a Brenas",
@@ -373949,6 +374978,102 @@
       "status": "待核验"
     },
     {
+      "id": "osm-relation-4857040",
+      "name": "002B",
+      "originalName": "002B",
+      "region": "south-america",
+      "center": [
+        -78.48939695,
+        -0.21036165
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/4857040",
+      "sourceTags": {
+        "ref": "por la cafe"
+      },
+      "fetchedAt": "2026-10-07T18:11:11Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-4857059",
+      "name": "004B",
+      "originalName": "004B",
+      "region": "south-america",
+      "center": [
+        -78.4889663,
+        -0.21009755
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/4857059",
+      "sourceTags": {
+        "ref": "por la cafe"
+      },
+      "fetchedAt": "2026-10-07T18:11:11Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-4857061",
+      "name": "005B",
+      "originalName": "005B",
+      "region": "south-america",
+      "center": [
+        -78.48859165,
+        -0.20998165000000002
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/4857061",
+      "sourceTags": {
+        "ref": "al CEC"
+      },
+      "fetchedAt": "2026-10-07T18:11:11Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-4857067",
+      "name": "002A",
+      "originalName": "002A",
+      "region": "south-america",
+      "center": [
+        -78.49024205,
+        -0.21043794999999998
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/4857067",
+      "sourceTags": {
+        "ref": "a civil"
+      },
+      "fetchedAt": "2026-10-07T18:11:11Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-4857074",
+      "name": "006B",
+      "originalName": "006B",
+      "region": "south-america",
+      "center": [
+        -78.4896276,
+        -0.2103913
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/4857074",
+      "sourceTags": {
+        "ref": "petroleos"
+      },
+      "fetchedAt": "2026-10-07T18:11:11Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-4857086",
+      "name": "008B",
+      "originalName": "008B",
+      "region": "south-america",
+      "center": [
+        -78.49040880000001,
+        -0.21146700000000002
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/4857086",
+      "sourceTags": {
+        "ref": "administracion"
+      },
+      "fetchedAt": "2026-10-07T18:11:11Z",
+      "status": "待核验"
+    },
+    {
       "id": "osm-relation-4857153",
       "name": "Florești - Cetatea Fetei",
       "originalName": "Florești - Cetatea Fetei",
@@ -373962,6 +375087,38 @@
         "network": "lwn"
       },
       "fetchedAt": "2026-10-05T05:42:05.240567+00:00",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-4859703",
+      "name": "011B",
+      "originalName": "011B",
+      "region": "south-america",
+      "center": [
+        -78.48863625,
+        -0.2100276
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/4859703",
+      "sourceTags": {
+        "ref": "esfot"
+      },
+      "fetchedAt": "2026-10-07T18:11:11Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-4859709",
+      "name": "012B",
+      "originalName": "012B",
+      "region": "south-america",
+      "center": [
+        -78.489021,
+        -0.21041265
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/4859709",
+      "sourceTags": {
+        "ref": "esfot"
+      },
+      "fetchedAt": "2026-10-07T18:11:11Z",
       "status": "待核验"
     },
     {
@@ -374464,6 +375621,262 @@
         "operator": "TMTBSZ"
       },
       "fetchedAt": "2026-10-05T05:42:05.240567+00:00",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-5122637",
+      "name": "021B",
+      "originalName": "021B",
+      "region": "south-america",
+      "center": [
+        -78.4903251,
+        -0.21174094999999998
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/5122637",
+      "sourceTags": {
+        "ref": "teatro"
+      },
+      "fetchedAt": "2026-10-07T18:11:11Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-5122638",
+      "name": "022B",
+      "originalName": "022B",
+      "region": "south-america",
+      "center": [
+        -78.49038285,
+        -0.21181215
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/5122638",
+      "sourceTags": {
+        "ref": "teatro"
+      },
+      "fetchedAt": "2026-10-07T18:11:11Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-5122642",
+      "name": "023B",
+      "originalName": "023B",
+      "region": "south-america",
+      "center": [
+        -78.49078625,
+        -0.21168635000000002
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/5122642",
+      "sourceTags": {
+        "ref": "teatro"
+      },
+      "fetchedAt": "2026-10-07T18:11:11Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-5122643",
+      "name": "020A",
+      "originalName": "020A",
+      "region": "south-america",
+      "center": [
+        -78.49097825,
+        -0.2114789
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/5122643",
+      "sourceTags": {
+        "ref": "civil"
+      },
+      "fetchedAt": "2026-10-07T18:11:11Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-5122645",
+      "name": "021A",
+      "originalName": "021A",
+      "region": "south-america",
+      "center": [
+        -78.49090995,
+        -0.2111476
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/5122645",
+      "sourceTags": {
+        "ref": "civil"
+      },
+      "fetchedAt": "2026-10-07T18:11:11Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-5122646",
+      "name": "022A",
+      "originalName": "022A",
+      "region": "south-america",
+      "center": [
+        -78.4909495,
+        -0.21103705
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/5122646",
+      "sourceTags": {
+        "ref": "civil"
+      },
+      "fetchedAt": "2026-10-07T18:11:11Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-5122648",
+      "name": "024A",
+      "originalName": "024A",
+      "region": "south-america",
+      "center": [
+        -78.49021074999999,
+        -0.2106417
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/5122648",
+      "sourceTags": {
+        "ref": "icb"
+      },
+      "fetchedAt": "2026-10-07T18:11:11Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-5122649",
+      "name": "025A",
+      "originalName": "025A",
+      "region": "south-america",
+      "center": [
+        -78.4901713,
+        -0.210573
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/5122649",
+      "sourceTags": {
+        "ref": "tunel"
+      },
+      "fetchedAt": "2026-10-07T18:11:11Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-5122650",
+      "name": "026A",
+      "originalName": "026A",
+      "region": "south-america",
+      "center": [
+        -78.4903472,
+        -0.2098048
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/5122650",
+      "sourceTags": {
+        "ref": "entrada"
+      },
+      "fetchedAt": "2026-10-07T18:11:11Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-5122651",
+      "name": "027A",
+      "originalName": "027A",
+      "region": "south-america",
+      "center": [
+        -78.4913661,
+        -0.21145815
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/5122651",
+      "sourceTags": {
+        "ref": "civil"
+      },
+      "fetchedAt": "2026-10-07T18:11:11Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-5122652",
+      "name": "028A",
+      "originalName": "028A",
+      "region": "south-america",
+      "center": [
+        -78.49117494999999,
+        -0.2117629
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/5122652",
+      "sourceTags": {
+        "ref": "civil"
+      },
+      "fetchedAt": "2026-10-07T18:11:11Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-5122653",
+      "name": "014B",
+      "originalName": "014B",
+      "region": "south-america",
+      "center": [
+        -78.48866405,
+        -0.21083570000000001
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/5122653",
+      "sourceTags": {
+        "ref": "estadio"
+      },
+      "fetchedAt": "2026-10-07T18:11:11Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-5122671",
+      "name": "004A",
+      "originalName": "004A",
+      "region": "south-america",
+      "center": [
+        -78.49145465,
+        -0.2113883
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/5122671",
+      "sourceTags": {
+        "ref": "civil"
+      },
+      "fetchedAt": "2026-10-07T18:11:11Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-5122672",
+      "name": "003A",
+      "originalName": "003A",
+      "region": "south-america",
+      "center": [
+        -78.4907988,
+        -0.2111637
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/5122672",
+      "sourceTags": {
+        "ref": "redondel"
+      },
+      "fetchedAt": "2026-10-07T18:11:11Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-5122676",
+      "name": "030A",
+      "originalName": "030A",
+      "region": "south-america",
+      "center": [
+        -78.49154135,
+        -0.2120339
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/5122676",
+      "sourceTags": {
+        "ref": "vivienda"
+      },
+      "fetchedAt": "2026-10-07T18:11:11Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-5122677",
+      "name": "031A",
+      "originalName": "031A",
+      "region": "south-america",
+      "center": [
+        -78.49140245,
+        -0.21223815000000001
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/5122677",
+      "sourceTags": {
+        "ref": "admin"
+      },
+      "fetchedAt": "2026-10-07T18:11:11Z",
       "status": "待核验"
     },
     {
@@ -378398,6 +379811,118 @@
         "ref": "PRC-BU 154"
       },
       "fetchedAt": "2026-10-05T05:32:57.492949+00:00",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-5336479",
+      "name": "001C",
+      "originalName": "001C",
+      "region": "south-america",
+      "center": [
+        -78.4876224,
+        -0.2095649
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/5336479",
+      "sourceTags": {
+        "ref": "por el cec"
+      },
+      "fetchedAt": "2026-10-07T18:11:11Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-5336488",
+      "name": "002C",
+      "originalName": "002C",
+      "region": "south-america",
+      "center": [
+        -78.48797875,
+        -0.20956795
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/5336488",
+      "sourceTags": {
+        "ref": "por el cec"
+      },
+      "fetchedAt": "2026-10-07T18:11:11Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-5336491",
+      "name": "003C",
+      "originalName": "003C",
+      "region": "south-america",
+      "center": [
+        -78.48784789999999,
+        -0.209516
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/5336491",
+      "sourceTags": {
+        "ref": "por el cec"
+      },
+      "fetchedAt": "2026-10-07T18:11:11Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-5336493",
+      "name": "004C",
+      "originalName": "004C",
+      "region": "south-america",
+      "center": [
+        -78.4874621,
+        -0.2092191
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/5336493",
+      "sourceTags": {
+        "ref": "por el cec"
+      },
+      "fetchedAt": "2026-10-07T18:11:11Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-5336495",
+      "name": "004C",
+      "originalName": "004C",
+      "region": "south-america",
+      "center": [
+        -78.48770125,
+        -0.20979985
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/5336495",
+      "sourceTags": {
+        "ref": "por el cel"
+      },
+      "fetchedAt": "2026-10-07T18:11:11Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-5336499",
+      "name": "006C",
+      "originalName": "006C",
+      "region": "south-america",
+      "center": [
+        -78.48849254999999,
+        -0.21016610000000002
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/5336499",
+      "sourceTags": {
+        "ref": "por el polibosque"
+      },
+      "fetchedAt": "2026-10-07T18:11:11Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-5336506",
+      "name": "007C",
+      "originalName": "007C",
+      "region": "south-america",
+      "center": [
+        -78.4878016,
+        -0.210393
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/5336506",
+      "sourceTags": {
+        "ref": "esfot"
+      },
+      "fetchedAt": "2026-10-07T18:11:11Z",
       "status": "待核验"
     },
     {
@@ -390018,6 +391543,70 @@
         "ref": "HRP Var."
       },
       "fetchedAt": "2026-10-05T05:37:03.029222+00:00",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-5845216",
+      "name": "Ingañán",
+      "originalName": "Ingañán",
+      "region": "south-america",
+      "center": [
+        -79.2127916,
+        -2.8187594999999996
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/5845216",
+      "sourceTags": {
+        "network": "rwn"
+      },
+      "fetchedAt": "2026-10-07T18:11:11Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-5845217",
+      "name": "Osohuayco",
+      "originalName": "Osohuayco",
+      "region": "south-america",
+      "center": [
+        -79.2648862,
+        -2.8058958499999997
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/5845217",
+      "sourceTags": {
+        "network": "rwn"
+      },
+      "fetchedAt": "2026-10-07T18:11:11Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-5845218",
+      "name": "Patul",
+      "originalName": "Patul",
+      "region": "south-america",
+      "center": [
+        -79.21608900000001,
+        -2.77033705
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/5845218",
+      "sourceTags": {
+        "network": "rwn"
+      },
+      "fetchedAt": "2026-10-07T18:11:11Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-5845220",
+      "name": "Tres Cruces - Luspa",
+      "originalName": "Tres Cruces - Luspa",
+      "region": "south-america",
+      "center": [
+        -79.25012665,
+        -2.7905590499999997
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/5845220",
+      "sourceTags": {
+        "network": "rwn"
+      },
+      "fetchedAt": "2026-10-07T18:11:11Z",
       "status": "待核验"
     },
     {
@@ -405471,6 +407060,23 @@
       "status": "待核验"
     },
     {
+      "id": "osm-relation-6433119",
+      "name": "Marin - Rocio de Guamani",
+      "originalName": "Marin - Rocio de Guamani",
+      "region": "south-america",
+      "center": [
+        -78.53328875,
+        -0.28244294999999997
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/6433119",
+      "sourceTags": {
+        "operator": "7 DE MAYO",
+        "ref": "7 DE MAYO-144"
+      },
+      "fetchedAt": "2026-10-07T18:11:11Z",
+      "status": "待核验"
+    },
+    {
       "id": "osm-relation-6433379",
       "name": "Curral da Pedra",
       "originalName": "Curral da Pedra",
@@ -406039,6 +407645,22 @@
         "website": "https://www.ot-cholet.fr/grand-public/decouvrir-et-visiter/nature/randonnees-pedestres/sentier-du-chene-aux-loups-lys-haut-layon.html"
       },
       "fetchedAt": "2026-10-05T05:49:53.235873+00:00",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-6444218",
+      "name": "Alameda 28 de Julio",
+      "originalName": "Alameda 28 de Julio",
+      "region": "south-america",
+      "center": [
+        -77.0375213,
+        -12.06445455
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/6444218",
+      "sourceTags": {
+        "description": "Alameda construída por la municipalida de Lima. Será inaugurada a finales de 2016."
+      },
+      "fetchedAt": "2026-10-07T18:04:53Z",
       "status": "待核验"
     },
     {
@@ -418676,6 +420298,22 @@
       "status": "待核验"
     },
     {
+      "id": "osm-relation-6943870",
+      "name": "Ruta de Pescado",
+      "originalName": "Ruta de Pescado",
+      "region": "south-america",
+      "center": [
+        -76.35098454999999,
+        -12.1254144
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/6943870",
+      "sourceTags": {
+        "network": "iwn"
+      },
+      "fetchedAt": "2026-10-07T18:04:53Z",
+      "status": "待核验"
+    },
+    {
       "id": "osm-relation-6944364",
       "name": "Μικρό Πάπιγκο - Ορειβατικό καταφύγιο Τύμφης \"Δ. Γεωργούλης\"",
       "originalName": "Μικρό Πάπιγκο - Ορειβατικό καταφύγιο Τύμφης \"Δ. Γεωργούλης\"",
@@ -429076,6 +430714,23 @@
         "ref": "PR-C 159"
       },
       "fetchedAt": "2026-10-05T05:32:57.492949+00:00",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-7366207",
+      "name": "Quebrada del Yuro",
+      "originalName": "Quebrada del Yuro",
+      "region": "south-america",
+      "center": [
+        -64.2067836,
+        -18.76185975
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/7366207",
+      "sourceTags": {
+        "network": "lwn",
+        "description": "ruta que accede desde La Higuera al lugar de captura de Ernesto Guevara"
+      },
+      "fetchedAt": "2026-10-07T18:09:43Z",
       "status": "待核验"
     },
     {
@@ -459364,6 +461019,40 @@
       "status": "待核验"
     },
     {
+      "id": "osm-relation-8768032",
+      "name": "Ruta 1",
+      "originalName": "Ruta 1",
+      "region": "south-america",
+      "center": [
+        -76.32524384999999,
+        -10.959502350000001
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/8768032",
+      "sourceTags": {
+        "network": "lcn",
+        "ref": "Ruta 1"
+      },
+      "fetchedAt": "2026-10-07T18:04:53Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-8768035",
+      "name": "Ruta 2",
+      "originalName": "Ruta 2",
+      "region": "south-america",
+      "center": [
+        -76.3243158,
+        -10.93783355
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/8768035",
+      "sourceTags": {
+        "network": "lcn",
+        "ref": "Ruta 2"
+      },
+      "fetchedAt": "2026-10-07T18:04:53Z",
+      "status": "待核验"
+    },
+    {
       "id": "osm-relation-8769823",
       "name": "Драгалевци - х. Алеко - черни връх",
       "originalName": "Драгалевци - х. Алеко - черни връх",
@@ -467383,6 +469072,22 @@
         "ref": "701"
       },
       "fetchedAt": "2026-10-05T05:32:57.492949+00:00",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-9253544",
+      "name": "Itinerario de Nanis-Mangas al Circuito de Huayhuash",
+      "originalName": "Itinerario de Nanis-Mangas al Circuito de Huayhuash",
+      "region": "south-america",
+      "center": [
+        -77.0551109,
+        -10.31318075
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/9253544",
+      "sourceTags": {
+        "network": "lwn"
+      },
+      "fetchedAt": "2026-10-07T18:04:53Z",
       "status": "待核验"
     },
     {
@@ -490436,6 +492141,22 @@
       "status": "待核验"
     },
     {
+      "id": "osm-relation-9982793",
+      "name": "Sendero Peabirú Chiquitano",
+      "originalName": "Sendero Peabirú Chiquitano",
+      "region": "south-america",
+      "center": [
+        -59.68182935,
+        -18.305528000000002
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/9982793",
+      "sourceTags": {
+        "network": "lwn"
+      },
+      "fetchedAt": "2026-10-07T18:09:43Z",
+      "status": "待核验"
+    },
+    {
       "id": "osm-relation-9984013",
       "name": "Ruta del Puente de Cuartos",
       "originalName": "Ruta del Puente de Cuartos",
@@ -501973,6 +503694,58 @@
       "importedRelations": 89,
       "skippedIncompleteRelations": 30,
       "skippedNestedRelations": 6
+    },
+    {
+      "sourceId": "south-america/peru/261005",
+      "region": "south-america",
+      "sourceUrl": "https://download.geofabrik.de/south-america/peru-261005.osm.pbf",
+      "sourceTimestamp": "2026-10-05T20:21:35Z",
+      "sha256": "aedd5e4358f8b5b44671180f93697465e31dcec368e483760396711a788f6aee",
+      "bytes": 256410442,
+      "importedAt": "2026-10-07T18:04:53Z",
+      "candidateRelations": 26,
+      "importedRelations": 25,
+      "skippedIncompleteRelations": 1,
+      "skippedNestedRelations": 1
+    },
+    {
+      "sourceId": "south-america/ecuador/260930",
+      "region": "south-america",
+      "sourceUrl": "https://download.geofabrik.de/south-america/ecuador-260930.osm.pbf",
+      "sourceTimestamp": "2026-09-30T20:22:42Z",
+      "sha256": "0f19bffe3a221869e3a35a292b950eff55e48b59c16821a557f159d95761557e",
+      "bytes": 125518632,
+      "importedAt": "2026-10-07T18:08:08Z",
+      "candidateRelations": 71,
+      "importedRelations": 70,
+      "skippedIncompleteRelations": 1,
+      "skippedNestedRelations": 1
+    },
+    {
+      "sourceId": "south-america/bolivia/261005",
+      "region": "south-america",
+      "sourceUrl": "https://download.geofabrik.de/south-america/bolivia-261005.osm.pbf",
+      "sourceTimestamp": "2026-10-05T20:21:35Z",
+      "sha256": "13a2577bced548f3296ac3e9154af42aea14f709612bd7a7234ddfbc3586f10a",
+      "bytes": 174027451,
+      "importedAt": "2026-10-07T18:09:43Z",
+      "candidateRelations": 14,
+      "importedRelations": 13,
+      "skippedIncompleteRelations": 1,
+      "skippedNestedRelations": 0
+    },
+    {
+      "sourceId": "south-america/ecuador/261006",
+      "region": "south-america",
+      "sourceUrl": "https://download.geofabrik.de/south-america/ecuador-261006.osm.pbf",
+      "sourceTimestamp": "2026-10-06T20:21:06Z",
+      "sha256": "22a520f87612347787e284edcebf7a1075f4df8147a09ea2fb4519d66ae29e3d",
+      "bytes": 125587257,
+      "importedAt": "2026-10-07T18:11:11Z",
+      "candidateRelations": 71,
+      "importedRelations": 70,
+      "skippedIncompleteRelations": 1,
+      "skippedNestedRelations": 1
     }
   ]
 }
