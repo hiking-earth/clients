@@ -99,6 +99,11 @@ for name in args.functions:
     if name not in allowed or name == 'init-db':
         raise SystemExit('Unknown or provisioning-only function: ' + name)
 
+if 'gear-scan' in args.functions:
+    prepared = subprocess.run([args.node, str(ROOT / 'scripts/prepare-gear-function.cjs')], cwd=ROOT)
+    if prepared.returncode:
+        raise SystemExit('Gear model preparation failed; no functions were updated.')
+
 # Freeze all local deployment sources before touching the remote environment.
 sources = {}
 for name in args.functions:

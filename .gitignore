@@ -28,3 +28,7 @@ desktop/client-dist/
 /web/
 
 /site-release/
+
+# Generated verified CPU recognition deployment assets
+/app/cloudfunctions/gear-scan/model/
+/app/cloudfunctions/gear-scan/cpu-detector.cjs

@@ -1,8 +1,13 @@
 {
   "name": "gear-scan",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "main": "index.js",
   "dependencies": {
-    "wx-server-sdk": "~2.6.3"
+    "@tensorflow/tfjs-core": "4.22.0",
+    "@tensorflow/tfjs-backend-cpu": "4.22.0",
+    "@tensorflow/tfjs-converter": "4.22.0",
+    "@tensorflow-models/coco-ssd": "2.2.3",
+    "jpeg-js": "0.4.4",
+    "pngjs": "7.0.0"
   }
 }
