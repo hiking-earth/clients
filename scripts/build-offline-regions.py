@@ -8,12 +8,18 @@ def validate_regions(value):
     ids=set();result=[]
     for row in value['regions']:
         if not isinstance(row,dict):raise ValueError('invalid region')
-        ident=row.get('id');name=row.get('name');bbox=row.get('bbox');low=row.get('minZoom',8);high=row.get('maxZoom',15)
+        ident=row.get('id');name=row.get('name');bbox=row.get('bbox');low=row.get('minZoom',8);high=row.get('maxZoom',15);scope=row.get('scope')
         if not isinstance(ident,str) or not builder.re.fullmatch(r'[a-z0-9][a-z0-9-]{0,63}',ident) or ident in ids:raise ValueError('invalid duplicate region id')
         if not isinstance(name,str) or not name.strip() or len(name)>80 or not isinstance(bbox,str):raise ValueError('invalid region description')
-        builder.parse_bounds(bbox)
+        global_overview=scope=='global-overview'
+        if scope not in (None,'global-overview'):raise ValueError('unsupported offline map scope')
+        builder.parse_bounds(bbox,global_overview=global_overview)
         if type(low) is not int or type(high) is not int or not 0<=low<=high<=15:raise ValueError('invalid zoom range')
-        ids.add(ident);result.append(dict(id=ident,name=name.strip(),bbox=bbox,minZoom=low,maxZoom=high))
+        if global_overview and (ident!='world-overview' or low!=0 or high>5):raise ValueError('global overview must be world-overview at zoom 0..5')
+        if not global_overview and ident=='world-overview':raise ValueError('world-overview requires global-overview scope')
+        ids.add(ident);normalized=dict(id=ident,name=name.strip(),bbox=bbox,minZoom=low,maxZoom=high)
+        if global_overview:normalized['scope']=scope
+        result.append(normalized)
     return result
 
 def verified_pack(output,row,key):
@@ -22,7 +28,8 @@ def verified_pack(output,row,key):
     try:record=json.loads(manifest.read_text());size=pack.stat().st_size
     except (ValueError,OSError):return False
     if not isinstance(record,dict) or not isinstance(record.get('upstream'),dict):return False
-    if record.get('id')!=row['id'] or record.get('upstream',{}).get('build')!=key or record.get('bounds')!=list(builder.parse_bounds(row['bbox'])) or record.get('minZoom')!=row['minZoom'] or record.get('maxZoom')!=row['maxZoom'] or record.get('bytes')!=size or not 127<=size<=builder.MAX_BYTES:return False
+    global_overview=row.get('scope')=='global-overview'
+    if record.get('id')!=row['id'] or record.get('scope')!=row.get('scope') or record.get('upstream',{}).get('build')!=key or record.get('bounds')!=list(builder.parse_bounds(row['bbox'],global_overview=global_overview)) or record.get('minZoom')!=row['minZoom'] or record.get('maxZoom')!=row['maxZoom'] or record.get('bytes')!=size or not 127<=size<=builder.MAX_BYTES:return False
     return hashlib.sha256(pack.read_bytes()).hexdigest()==record.get('sha256')
 
 def checkpoint(path,value):
@@ -51,6 +58,7 @@ def main():
             if check is not None and check.returncode==0:state['regions'][ident]='complete';checkpoint(state_path,state);continue
         state['regions'][ident]='running';checkpoint(state_path,state)
         command=[sys.executable,str(pathlib.Path(__file__).with_name('build-offline-region.py')),'--pmtiles',str(args.pmtiles),'--id',ident,'--name',row['name'],'--bbox='+row['bbox'],'--minzoom',str(row['minZoom']),'--maxzoom',str(row['maxZoom']),'--build-key',key,'--output',str(args.output)]
+        if row.get('scope')=='global-overview':command.append('--global-overview')
         try:result=subprocess.run(command,timeout=480,capture_output=True,text=True)
         except subprocess.TimeoutExpired:
             state['regions'][ident]='failed';checkpoint(state_path,state);failed.append(ident);print(json.dumps({'id':ident,'status':'failed','reason':'timeout'}),flush=True);continue

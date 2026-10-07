@@ -1,6 +1,7 @@
 {
   "schemaVersion": 1,
   "regions": [
+    {"id":"world-overview","name":"全球离线概览底图（缩放0–5级）","bbox":"-180,-85.05112878,180,85.05112878","minZoom":0,"maxZoom":5,"scope":"global-overview"},
     {"id":"lantau","name":"香港大屿山局部底图","bbox":"113.92,22.20,113.99,22.26","minZoom":8,"maxZoom":15},
     {"id":"fuji","name":"富士山周边局部底图","bbox":"138.66,35.30,138.80,35.42","minZoom":8,"maxZoom":15},
     {"id":"chamonix","name":"霞慕尼周边局部底图","bbox":"6.80,45.86,6.94,45.98","minZoom":8,"maxZoom":15},

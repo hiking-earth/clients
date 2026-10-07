@@ -22,7 +22,8 @@ def export(root,config):
         pack=root/(stem+'.pmtiles')
         if not isinstance(record,dict) or not isinstance(record.get('upstream'),dict) or record.get('id')!=ident or record.get('file')!=pack.name or record['upstream'].get('build')!=build:raise ValueError('map identity mismatch')
         region=expected[ident]
-        if record.get('bounds')!=list(batch.builder.parse_bounds(region['bbox'])) or record.get('minZoom')!=region['minZoom'] or record.get('maxZoom')!=region['maxZoom'] or record.get('name')!=region['name']:raise ValueError('map region mismatch')
+        global_overview=region.get('scope')=='global-overview'
+        if record.get('bounds')!=list(batch.builder.parse_bounds(region['bbox'],global_overview=global_overview)) or record.get('minZoom')!=region['minZoom'] or record.get('maxZoom')!=region['maxZoom'] or record.get('name')!=region['name'] or record.get('scope')!=region.get('scope'):raise ValueError('map region mismatch')
         size=pack.stat().st_size
         if not 127<=size<=64*1024*1024 or record.get('bytes')!=size or hashlib.sha256(pack.read_bytes()).hexdigest()!=record.get('sha256'):raise ValueError('map bytes mismatch')
         if record.get('license')!='ODbL-1.0 Produced Work' or not record.get('attribution') or not record.get('sourcePolicy'):raise ValueError('map attribution missing')

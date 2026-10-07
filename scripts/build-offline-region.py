@@ -3,13 +3,16 @@
 import argparse,datetime,hashlib,json,math,pathlib,re,subprocess,time,urllib.request
 MAX_BYTES=64*1024*1024
 
-def parse_bounds(value):
+def parse_bounds(value, global_overview=False):
     try: bounds=tuple(float(x) for x in value.split(','))
     except ValueError: raise ValueError('bbox must contain four numbers')
     if len(bounds)!=4 or not all(math.isfinite(x) for x in bounds):raise ValueError('invalid bbox')
     west,south,east,north=bounds
     if not (-180<=west<east<=180 and -85.05112878<=south<north<=85.05112878):raise ValueError('bbox outside Web Mercator coverage; split antimeridian regions')
-    if east-west>0.5 or north-south>0.5:raise ValueError('region must be at most 0.5 degrees per axis')
+    if global_overview:
+        if (west,south,east,north)!=(-180.0,-85.05112878,180.0,85.05112878):
+            raise ValueError('global overview must cover the complete Web Mercator world')
+    elif east-west>0.5 or north-south>0.5:raise ValueError('region must be at most 0.5 degrees per axis')
     return bounds
 
 def latest_build(key=None):
@@ -49,10 +52,13 @@ def main():
     parser.add_argument('--maxzoom',type=int,default=15)
     parser.add_argument('--output',required=True,type=pathlib.Path)
     parser.add_argument('--build-key',help='Pin an official metadata-listed build for a reproducible batch')
+    parser.add_argument('--global-overview',action='store_true',help='Build only the fixed whole-world low-zoom overview')
     args=parser.parse_args()
     if not re.fullmatch(r'[a-z0-9][a-z0-9-]{0,63}',args.id):parser.error('invalid region id')
-    bounds=parse_bounds(args.bbox)
+    bounds=parse_bounds(args.bbox,args.global_overview)
     if not 0<=args.minzoom<=args.maxzoom<=15:parser.error('zoom range must be within 0..15')
+    if args.global_overview and (args.id!='world-overview' or args.minzoom!=0 or args.maxzoom>5):parser.error('global overview must use world-overview ID and zoom 0..5')
+    if not args.global_overview and args.id=='world-overview':parser.error('world-overview requires --global-overview')
     if not args.name.strip() or len(args.name)>80:parser.error('invalid region name')
     if args.build_key and not re.fullmatch(r'20\d{6}\.pmtiles',args.build_key):parser.error('invalid official build key')
     build=latest_build(args.build_key);source='https://build.protomaps.com/'+build['key']
@@ -66,7 +72,8 @@ def main():
     bounded_extract([str(args.pmtiles),'extract',source,str(partial),'--bbox='+','.join(map(str,bounds)),'--minzoom='+str(args.minzoom),'--maxzoom='+str(args.maxzoom),'--download-threads=2'],partial,log)
     subprocess.run([str(args.pmtiles),'verify',str(partial)],check=True,timeout=120)
     size=partial.stat().st_size;sha=hashlib.sha256(partial.read_bytes()).hexdigest()
-    record={'schemaVersion':1,'id':args.id,'name':args.name.strip(),'bounds':bounds,'minZoom':args.minzoom,'maxZoom':args.maxzoom,'bytes':size,'sha256':sha,'file':target.name,'format':'pmtiles-v3','builtAt':datetime.datetime.now(datetime.timezone.utc).isoformat(),'upstream':{'url':source,'build':build['key'],'version':build['version'],'planetBlake3':build.get('b3sum'),'planetChecksumVerified':False},'license':'ODbL-1.0 Produced Work','attribution':'© OpenStreetMap contributors · Protomaps','licenseUrl':'https://opendatacommons.org/licenses/odbl/1-0/','sourcePolicy':'https://docs.protomaps.com/basemaps/downloads','note':'Basemap; no terrain elevations or current trail access permission. Publish extracted file on our release channel; do not hotlink the planet.'}
+    record={'schemaVersion':1,'id':args.id,'name':args.name.strip(),'bounds':bounds,'minZoom':args.minzoom,'maxZoom':args.maxzoom,'bytes':size,'sha256':sha,'file':target.name,'format':'pmtiles-v3','builtAt':datetime.datetime.now(datetime.timezone.utc).isoformat(),'upstream':{'url':source,'build':build['key'],'version':build['version'],'planetBlake3':build.get('b3sum'),'planetChecksumVerified':False},'license':'ODbL-1.0 Produced Work','attribution':'© OpenStreetMap contributors · Protomaps','licenseUrl':'https://opendatacommons.org/licenses/odbl/1-0/','sourcePolicy':'https://docs.protomaps.com/basemaps/downloads','note':'Whole-world low-zoom overview only; no terrain elevations or current trail access permission. Publish extracted file on our release channel; do not hotlink the planet.' if args.global_overview else 'Basemap; no terrain elevations or current trail access permission. Publish extracted file on our release channel; do not hotlink the planet.'}
+    if args.global_overview:record['scope']='global-overview'
     partial.rename(target)
     temporary=manifest.with_suffix('.json.partial');temporary.write_text(json.dumps(record,ensure_ascii=False,indent=2)+'\n');temporary.rename(manifest)
     print(json.dumps(record,ensure_ascii=False))
