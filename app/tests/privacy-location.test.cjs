@@ -123,3 +123,24 @@ test('throwing platform cleanup still settles pending start and revokes delivery
   assert.doesNotThrow(()=>h.location.stopLocationUpdates()); assert.equal(await pending,false);
   h.requests[0].success(); assert.equal(received,0);
 });
+
+test('synchronous start failure resolves false and permits retry', async () => {
+ const h=setup(); h.privacy.setPrivacyConsent('location',true);
+ const original=h.uni.startLocationUpdate;
+ h.uni.startLocationUpdate=()=>{throw new Error('API unavailable');};
+ assert.equal(await h.location.startLocationUpdates(()=>{}),false);
+ h.uni.startLocationUpdate=original;
+ const retried=h.location.startLocationUpdates(()=>{}); h.requests[0].success(); assert.equal(await retried,true);
+});
+test('listener registration failure cannot report successful start', async () => {
+ const h=setup(); h.privacy.setPrivacyConsent('location',true);
+ h.uni.onLocationChange=()=>{throw new Error('API unavailable');};
+ const p=h.location.startLocationUpdates(()=>{}); assert.doesNotThrow(()=>h.requests[0].success());
+ assert.equal(await p,false); assert.ok(h.stops>0);
+});
+test('polling platform throw revokes stream without escaping timer', async () => {
+ const h=setup(); h.privacy.setPrivacyConsent('location',true);
+ const p=h.location.startLocationUpdates(()=>{}); h.requests[0].fail({errMsg:'not support'}); assert.equal(await p,true);
+ h.uni.getLocation=()=>{throw new Error('API unavailable');};
+ assert.doesNotThrow(()=>[...h.intervals.values()][0]()); assert.equal(h.intervals.size,0);
+});

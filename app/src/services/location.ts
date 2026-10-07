@@ -72,14 +72,14 @@ export async function startLocationUpdates(cb: LocationCallback, purpose: Purpos
       };
       const poll = () => {
         if (!valid()) return;
-        uni.getLocation({
+        try { uni.getLocation({
           type: "wgs84",
           success: (res: any) => { if (valid()) deliver(res); },
           fail: () => { if (valid()) { locations.clear(); shutdown(); } },
-        });
+        }); } catch { if (valid()) { locations.clear(); shutdown(); } }
       };
       const fallback = () => {
-        uni.getLocation({
+        try { uni.getLocation({
           type: "wgs84",
           success: (res: any) => {
             if (!valid()) { resolve(false); return; }
@@ -88,8 +88,9 @@ export async function startLocationUpdates(cb: LocationCallback, purpose: Purpos
             if (valid()) pollTimer = setInterval(poll, 3000);
           },
           fail: () => finish(false),
-        });
+        }); } catch { finish(false); }
       };
+      try {
       // #ifdef APP-PLUS
       nativeWatch = plus.geolocation.watchPosition((res: any) => {
         if (!valid()) return;
@@ -111,8 +112,9 @@ export async function startLocationUpdates(cb: LocationCallback, purpose: Purpos
             resolve(false);
             return;
           }
+          try { uni.onLocationChange(locationListener); }
+          catch { finish(false); shutdown(); return; }
           finish(true);
-          uni.onLocationChange(locationListener);
         },
         fail: (err: any) => {
           if (!valid()) { resolve(false); return; }
@@ -121,6 +123,7 @@ export async function startLocationUpdates(cb: LocationCallback, purpose: Purpos
           else finish(false);
         },
       });
+      } catch { finish(false); }
     });
     pending = operation;
     void operation.then(() => {
