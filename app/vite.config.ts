@@ -21,13 +21,16 @@ export default defineConfig({
     name: 'hiking-h5-map-assets',
     apply: 'build',
     closeBundle() {
-      if (process.env.UNI_PLATFORM !== 'h5') return;
+      const platform = process.env.UNI_PLATFORM;
+      if (platform !== 'h5' && platform !== 'app' && platform !== 'app-plus') return;
       const output = path.resolve(process.env.UNI_OUTPUT_DIR || 'dist/build/h5');
       const relative = path.relative(path.resolve(__dirname, 'dist'), output);
       if (relative.startsWith('..') || path.isAbsolute(relative)) throw new Error('Unexpected client build output');
-      const target = path.join(output, 'static', 'offline-maps');
+      const isNative = platform === 'app' || platform === 'app-plus';
+      const directory = isNative ? 'native-map' : 'offline-maps';
+      const target = path.join(output, 'static', directory);
       mkdirSync(target, {recursive: true});
-      cpSync(path.resolve(__dirname, 'map-assets/static/offline-maps'), target, {recursive: true});
+      cpSync(path.resolve(__dirname, isNative ? 'native-assets/static/native-map' : 'map-assets/static/offline-maps'), target, {recursive: true});
     },
   }],
   base: process.env.VITE_DESKTOP === "true" ? "./" : (process.env.VITE_PUBLIC_BASE || "/"),
