@@ -1,6 +1,6 @@
 import { CLIENT_API_URL } from '@shared/constants';
 import { stopBackgroundRecording } from '@/services/background';
-import { listTracks, saveTrack, setTrackAutoSyncExcluded } from '@/services/tracks';
+import { listTracks, saveTrack, setTrackAutoSyncExcluded, trackStorageValid } from '@/services/tracks';
 import { stopCompass, stopLocationUpdates } from '@/services/location';
 
 export type AccountProfile = { openid: string; nickname: string; username: string };
@@ -9,6 +9,9 @@ export type AccountResponse<T> = { ok: boolean; data?: T; errMsg?: string; code?
 const SESSION_KEY = 'he_account_session_v1';
 const API_URL = String(import.meta.env.VITE_CLIENT_API_URL || CLIENT_API_URL).replace(/\/$/, '');
 const subscribers = new Set<() => void>();
+const locallyClearedTokens = new Set<string>();
+
+function notifyAccountChange():boolean { let complete=true;for(const callback of [...subscribers])try{callback();}catch{complete=false;}return complete; }
 
 export function accountApiConfigured(): boolean { return /^https:\/\//.test(API_URL); }
 export function onAccountChange(callback: () => void): () => void {
@@ -19,20 +22,23 @@ export function accountSession(): AccountSession | null {
     const raw = uni.getStorageSync(SESSION_KEY);
     if (!raw) return null;
     const session = typeof raw === 'string' ? JSON.parse(raw) : raw;
-    if (!/^[a-f0-9]{64}$/.test(session.token) || typeof session.openid !== 'string'
-      || !Number.isFinite(session.expiresAt) || session.expiresAt <= Date.now()) {
+    if (typeof session?.token==='string'&&locallyClearedTokens.has(session.token)) return null;
+    if (!session||typeof session!=='object'||Array.isArray(session)||typeof session.token!=='string'||!/^[a-f0-9]{64}$/.test(session.token)
+      ||typeof session.openid!=='string'||!session.openid||session.openid.length>128
+      ||typeof session.nickname!=='string'||session.nickname.length>24||typeof session.username!=='string'||session.username.length>32
+      ||!Number.isFinite(session.expiresAt)||session.expiresAt<=Date.now()) {
       clearAccount(); return null;
     }
     return session;
   } catch { clearAccount(); return null; }
 }
-export function clearAccount(): void {
-  uni.removeStorageSync(SESSION_KEY);
-  uni.removeStorageSync('he_openid');
-  uni.removeStorageSync('he_nickname');
-  uni.removeStorageSync('he_team');
-  stopLocationUpdates(); stopCompass(); stopBackgroundRecording();
-  subscribers.forEach(callback => callback());
+export function clearAccount(): boolean {
+  let complete=true;const attempt=(operation:()=>void)=>{try{operation();}catch{complete=false;}};
+  try{const raw=uni.getStorageSync(SESSION_KEY);const current=typeof raw==='string'?JSON.parse(raw):raw;if(typeof current?.token==='string'){locallyClearedTokens.add(current.token);if(locallyClearedTokens.size>32)locallyClearedTokens.delete(locallyClearedTokens.values().next().value!);}}catch{complete=false;}
+  // Stop live location work even if any platform storage operation fails.
+  attempt(()=>stopLocationUpdates());attempt(()=>stopCompass());attempt(()=>stopBackgroundRecording());
+  for(const key of [SESSION_KEY,'he_openid','he_nickname','he_team'])try{uni.removeStorageSync(key);}catch{try{uni.setStorageSync(key,'');}catch{complete=false;}}
+  return notifyAccountChange()&&complete;
 }
 /** Clear pending creation metadata only after the server confirms account deletion. */
 export function clearDeletedAccountRequests(owner:string):boolean {
@@ -51,7 +57,8 @@ export function saveAccount(session: AccountSession): void {
   uni.setStorageSync(SESSION_KEY, JSON.stringify(session));
   uni.setStorageSync('he_openid', session.openid);
   uni.setStorageSync('he_nickname', session.nickname);
-  if (changed) subscribers.forEach(callback => callback());
+  locallyClearedTokens.delete(session.token);
+  if (changed) notifyAccountChange();
 }
 
 /** Apply the same local privacy boundary when Mini Program users use native WeChat identity. */
@@ -61,18 +68,19 @@ export function saveWeChatIdentity(openid:string,nickname:string):void {
   const changed=prepareLocalIdentity(openid);
   uni.setStorageSync('he_openid',openid);
   uni.setStorageSync('he_nickname',typeof nickname==='string'?nickname.slice(0,24):'山友');
-  if(changed)subscribers.forEach(callback=>callback());
+  if(changed)notifyAccountChange();
 }
 
 function prepareLocalIdentity(nextOwner:string):boolean {
   const previous=String(uni.getStorageSync('he_openid')||'');
   if(previous===nextOwner)return false;
-  stopLocationUpdates();stopCompass();stopBackgroundRecording();
-  uni.removeStorageSync('he_team');
+  try{stopLocationUpdates();}catch{}try{stopCompass();}catch{}try{stopBackgroundRecording();}catch{}
+  try{uni.removeStorageSync('he_team');}catch{try{uni.setStorageSync('he_team','');}catch{}}
   // A successful sync to another account is not a sync to this account.
+  const canRewriteTrackStore=trackStorageValid();
   listTracks().filter(track=>track.cloudOwner&&track.cloudOwner!==nextOwner).forEach(track=>{
-    if(track.synced)saveTrack({...track,synced:false});
-    setTrackAutoSyncExcluded(track.id,true,nextOwner);
+    if(track.synced&&canRewriteTrackStore){try{saveTrack({...track,synced:false});}catch{/* Keep the track and continue the identity change safely. */}}
+    try{setTrackAutoSyncExcluded(track.id,true,nextOwner);}catch{/* Per-account exclusion is best-effort; never block login. */}
   });
   return true;
 }
@@ -97,7 +105,7 @@ export async function accountRequest<T>(action: string, data: Record<string, unk
         const result = response.data as AccountResponse<T>;
         if (response.statusCode === 401 && session && result?.code === 'SESSION_EXPIRED' && stillCurrentSession(session)) clearAccount();
         if (response.statusCode >= 200 && response.statusCode < 300 && result?.ok === true) resolve(result);
-        else resolve({ ok: false, errMsg: result?.errMsg || '服务未完成本次操作' });
+        else resolve({ ok: false, errMsg: result?.errMsg || '服务未完成本次操作', code: result?.code === 'TEAM_REQUEST_EXPIRED' ? result.code : undefined });
       }, fail: () => resolve({ ok: false, errMsg: '网络连接失败，请稍后重试' }),
     });
   });
@@ -106,6 +114,6 @@ export async function signOutAccount(): Promise<AccountResponse<unknown>> {
   const session=accountSession();
   const result = await accountRequest('auth.sign-out');
   // Keep the credential until remote revocation succeeds.
-  if (result.ok && stillCurrentSession(session)) clearAccount();
+  if (result.ok && stillCurrentSession(session)&&!clearAccount())return {ok:false,errMsg:'云端已退出，但本机登录状态或定位数据清理未完全确认；请重试清理并暂勿共用此设备'};
   return result;
 }

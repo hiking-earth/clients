@@ -4,10 +4,12 @@ Requires an imported project and a logged-in HBuilderX, not a password in argume
 """
 import argparse,json,pathlib,os,subprocess
 ROOT=pathlib.Path(__file__).resolve().parents[1];p=argparse.ArgumentParser();p.add_argument('--hbuilder',default='/Applications/HBuilderX.app/Contents/MacOS/cli');p.add_argument('--signing-config',required=True);p.add_argument('--private-output',required=True);p.add_argument('--project',default=str(ROOT/'app'));a=p.parse_args();source=pathlib.Path(a.signing_config).resolve();output=pathlib.Path(a.private_output).resolve()
-if output==source or ROOT in output.parents:raise SystemExit('Use a new private config outside the repository')
+if output==source or source==ROOT or ROOT in source.parents or output==ROOT or ROOT in output.parents:raise SystemExit('Keep signing config and generated private config outside the repository')
 config=json.loads(source.read_text());config['project']=str(pathlib.Path(a.project).resolve());config['platform']='android';config['safemode']=True
 if config.get('android',{}).get('packagename')!='earth.hiking.app':raise SystemExit('Unexpected upgrade package identity')
-if not pathlib.Path(config['android'].get('certfile','')).is_file():raise SystemExit('Signing certificate missing')
+certificate=pathlib.Path(config['android'].get('certfile','')).resolve()
+if not certificate.is_file():raise SystemExit('Signing certificate missing')
+if certificate==ROOT or ROOT in certificate.parents:raise SystemExit('Keep Android signing certificate outside the repository')
 subprocess.run(['node',str(ROOT/'app/scripts/build-map-viewer.cjs')],cwd=ROOT/'app',check=True)
 output.parent.mkdir(parents=True,exist_ok=True);os.chmod(output.parent,0o700)
 fd=os.open(output,os.O_WRONLY|os.O_CREAT|os.O_EXCL,0o600)

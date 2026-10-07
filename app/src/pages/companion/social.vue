@@ -24,7 +24,7 @@
    <text v-if="item.status">{{ statuses[item.status] || item.status }} · 版本 {{ item.version }}</text>
    <text>{{ new Date(item.updatedAt || item.createdAt).toLocaleString() }}</text>
    <view v-if="tab==='diaries'&&item.mine" class="row"><button v-if="!publicFeed" :disabled="busy" @click="edit(item)">编辑</button><button :disabled="busy" @click="remove(item)">删除</button></view>
-   <button v-if="tab==='notifications'&&!item.read" :disabled="busy" @click="read(item)">标为已读</button>
+   <view v-if="tab==='notifications'" class="row"><button v-if="['companion-registration','companion-cancellation','companion-closed'].includes(item.type)&&item.postId" :disabled="busy" @click="openCompanion">查看约伴活动</button><button v-if="!item.read" :disabled="busy" @click="read(item)">标为已读</button></view>
    <view v-if="tab==='moderation'" class="row"><button :disabled="busy" @click="decide(item,'approve')">通过</button><button :disabled="busy" @click="decide(item,'reject')">拒绝</button></view>
   </view>
   <text v-if="!items.length&&!loading">当前没有云端记录</text><button v-if="hasMore" :disabled="loading" @click="more">加载下一页</button>
@@ -44,12 +44,13 @@ const items=ref<any[]>([]),error=ref(''),busy=ref(false),loading=ref(false),hasM
 const matching=computed(()=>ROUTES.filter(r=>`${r.name} ${r.region}`.toLowerCase().includes(keyword.value.toLowerCase())).slice(0,10));
 const footprintCount=computed(()=>new Set(items.value.filter(item=>item.mine&&item.checkedIn).map(item=>item.routeId)).size);
 function openAccount(){uni.navigateTo({url:'/pages/account/account'});}
+function openCompanion(){uni.navigateTo({url:'/pages/companion/companion'});}
 const routeName=computed(()=>ROUTES.find(r=>r.id===routeId.value)?.name);
 function teamId(){try{const raw=uni.getStorageSync('he_team');const team=typeof raw==='string'?JSON.parse(raw):raw;return team?.teamId||team?.id||'';}catch{return '';}}
 const identity=()=>accountSession()?.openid || String(uni.getStorageSync('he_openid')||'');
 function chooseRoute(id:string){if(busy.value)return;context++;routeId.value=id;keyword.value='';if(tab.value==='comments')void refresh();}
 function cancelEdit(force=false){if(busy.value&&!force)return;editing.value=null;title.value='';body.value='';isPublic.value=false;checkedIn.value=false;newId=`note-${Date.now()}-${Math.random().toString(36).slice(2)}`;}
-function selectTab(value:string){if(busy.value)return;context++;sequence++;items.value=[];hasMore.value=false;tab.value=value;cancelEdit();void refresh();startPolling();}
+function selectTab(value:string){if(busy.value)return;context++;sequence++;page=0;items.value=[];hasMore.value=false;tab.value=value;cancelEdit();void refresh();startPolling();}
 function setDiaryFeed(value:boolean){if(publicFeed.value===value)return;publicFeed.value=value;context++;sequence++;page=0;items.value=[];hasMore.value=false;cancelEdit();void refresh();}
 function startPolling(){visible=true;if(timer)clearInterval(timer);const interval=['messages','notifications'].includes(tab.value)?10000:30000;timer=setInterval(()=>{if(visible&&!loading.value&&!busy.value&&page===0)void load();},interval);}
 async function load(append=false){
@@ -58,7 +59,13 @@ async function load(append=false){
  const action=mode==='moderation'?'moderation.list':`${mode}.list`;loading.value=true;error.value='';
  try{const result=await callCloud<{items:any[];hasMore:boolean}>('social-manage',{action,page,routeId:routeId.value,teamId:teamId(),public:mode==='diaries'&&publicFeed.value});
   if(token!==sequence||owner!==identity()||sessionToken!==accountSession()?.token)return;
-  if(!result.ok||!result.data)throw new Error(result.errMsg||'加载失败');const rows=result.data.items;if(!Array.isArray(rows)||rows.length>(mode==='messages'?30:20)||typeof result.data.hasMore!=='boolean'||!rows.every(item=>item&&typeof item._id==='string'&&item._id.length>0)||new Set(rows.map(item=>item._id)).size!==rows.length)throw new Error('云端内容格式无效');items.value=append?[...items.value,...rows.filter(item=>!items.value.some(old=>old._id===item._id))]:rows;hasMore.value=result.data.hasMore;
+  if(!result.ok||!result.data)throw new Error(result.errMsg||'加载失败');const rows=result.data.items;if(!Array.isArray(rows)||rows.length>(mode==='messages'?30:20)||typeof result.data.hasMore!=='boolean'||!rows.every(item=>item&&typeof item._id==='string'&&item._id.length>0)||new Set(rows.map(item=>item._id)).size!==rows.length)throw new Error('云端内容格式无效');
+  if(mode==='messages'){
+   const ordered=[...rows].reverse();
+   if(append){const existing=new Set(items.value.map(item=>item._id));items.value=[...ordered.filter(item=>!existing.has(item._id)),...items.value];}
+   else items.value=ordered;
+  }else items.value=append?[...items.value,...rows.filter(item=>!items.value.some(old=>old._id===item._id))]:rows;
+  hasMore.value=result.data.hasMore;
  }catch(e:any){if(token===sequence){error.value=e.message;if(append)page=Math.max(0,page-1);}}finally{if(token===sequence)loading.value=false;}
 }
 function refresh(){page=0;return load();}function more(){if(loading.value)return;page++;void load(true);}

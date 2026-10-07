@@ -10,20 +10,22 @@
       </view>
 
       <view class="controls">
-        <button v-if="state === 'idle'" class="btn start" @click="start">开始记录</button>
+        <button v-if="state === 'idle'" class="btn start" :disabled="!tracksValid" @click="start">开始记录</button>
         <template v-else-if="state === 'recording'">
           <button class="btn pause" @click="pause()">暂停</button>
-          <button class="btn stop" @click="finish">结束</button>
+          <button class="btn stop" :disabled="!tracksValid" @click="finish">结束</button>
         </template>
         <template v-else-if="state === 'paused'">
-          <button class="btn start" @click="resume">继续</button>
-          <button class="btn stop" @click="finish">结束</button>
+          <button class="btn start" :disabled="!tracksValid" @click="resume">继续</button>
+          <button class="btn stop" :disabled="!tracksValid" @click="finish">结束</button>
         </template>
       </view>
       <text v-if="state !== 'idle'" class="hint">{{ state === 'recording' ? backgroundOn ? '后台记录已开启' : '记录中…请保持应用在前台' : '已暂停' }} · {{ points.length }} 个轨迹点</text>
     </view>
 
-    <button @click="openImport">导入 GPX</button>
+    <text v-if="!tracksValid" class="privacy-note">本机轨迹列表格式异常，已停用新记录、导入和保存，防止覆盖原始定位资料。现有有效记录仅供查看；请勿清理应用数据。</text>
+    <text v-if="backgroundCacheWarning" class="privacy-note">{{ backgroundCacheWarning }}</text>
+    <button :disabled="!tracksValid" @click="openImport">导入 GPX</button>
     <view v-if="state==='idle'&&unassignedDraft" class="privacy-note"><text>发现一条匿名或未记录账号归属的旧轨迹草稿，默认隐藏。</text><button @click="claimLegacyDraft">确认归属后恢复草稿</button></view>
     <text v-if="hiddenTrackCount" class="privacy-note">另有 {{ hiddenTrackCount }} 条其他账号或未归属轨迹在本机隐藏。需要转存时请到“我的 → 云同步全部轨迹”逐步确认。</text>
     <!-- 历史轨迹 -->
@@ -36,7 +38,8 @@
         </view>
         <text v-if="t.synced" class="synced">已同步</text>
       </view>
-      <view v-if="tracks.length === 0" class="empty">还没有轨迹，点上方「开始记录」</view>
+      <view v-if="tracks.length === 0 && tracksValid" class="empty">还没有轨迹，点上方「开始记录」</view>
+      <view v-else-if="tracks.length === 0" class="empty">轨迹列表异常，原始资料已保留；请勿清理应用数据</view>
     </scroll-view>
   </view>
 </template>
@@ -52,7 +55,7 @@ import { haversineM } from "@shared/api/navigation-core";
 import type { TrackPoint, TrackRecord } from "@shared/types/track";
 import { startLocationUpdates, stopLocationUpdates } from "@/services/location";
 import { onPrivacyChange } from "@/services/privacy";
-import { listTracks, listCurrentOwnerTracks, saveTrack, loadDraft, saveDraft, clearDraft, currentTrackOwner, currentLocalTrackOwner, hasUnassignedDraft, claimUnassignedDraft } from "@/services/tracks";
+import { listTracks, listCurrentOwnerTracks, saveTrack, loadDraft, saveDraft, clearDraft, currentTrackOwner, currentLocalTrackOwner, hasUnassignedDraft, claimUnassignedDraft, trackStorageValid } from "@/services/tracks";
 
 const state = ref<"idle" | "recording" | "paused">("idle");
 const points = ref<TrackPoint[]>([]);
@@ -63,7 +66,7 @@ const elapsedText = ref("0:00");
 const speedText = ref("0.0");
 const tracks = ref<TrackRecord[]>([]);
 const backgroundOn = ref(false);
-const hiddenTrackCount=ref(0),unassignedDraft=ref(false);
+const hiddenTrackCount=ref(0),unassignedDraft=ref(false),tracksValid=ref(trackStorageValid()),backgroundCacheWarning=ref('');
 let flushingBackground = false;
 
 let startedAt = 0;
@@ -77,7 +80,7 @@ let generation = 0;
 let timer: ReturnType<typeof setInterval> | null = null;
 let lastAlt: number | null = null;
 
-function refreshTrackList(){const all=listTracks();tracks.value=listCurrentOwnerTracks();hiddenTrackCount.value=all.length-tracks.value.length;unassignedDraft.value=hasUnassignedDraft();}
+function refreshTrackList(){tracksValid.value=trackStorageValid();const all=listTracks();tracks.value=listCurrentOwnerTracks();hiddenTrackCount.value=all.length-tracks.value.length;unassignedDraft.value=hasUnassignedDraft();}
 function applyDraft(draft:TrackRecord){
   points.value = draft.points;
   distanceM.value = draft.distanceM;
@@ -88,7 +91,8 @@ function applyDraft(draft:TrackRecord){
   activeMs = draft.activeDurationMs ?? 0;
   state.value = "paused";
   stopBackgroundRecording();
-  const buffered = pendingBackground();
+  const buffered = pendingBackground(recordOwner, `t-${startedAt}`);
+  if(buffered.invalid)backgroundCacheWarning.value='发现格式异常的后台定位缓存；为保留原始记录，未导入或清理该缓存。请勿清理应用数据。';
   if (buffered.session === `t-${startedAt}` && buffered.points.length) {
     // Restore saved native points only; recording stays paused after a restart.
     const last = points.value[points.value.length - 1]?.timestamp || startedAt;
@@ -127,7 +131,7 @@ function record(status: TrackRecord["state"]): TrackRecord {
 function persist() {
   if (state.value === "idle") return false;
   try { saveDraft(record("paused")); return true; }
-  catch { pause(false); uni.showToast({ title: "存储空间不足，记录已暂停", icon: "none" }); return false; }
+  catch (e: any) { tracksValid.value=trackStorageValid();pause(false); uni.showToast({ title: e?.message || "轨迹草稿保存失败，记录已暂停", icon: "none" }); return false; }
 }
 onHide(() => {
   if (state.value === "recording" && !backgroundRecording()) pause();
@@ -164,7 +168,8 @@ function onPoint(p: TrackPoint) {
 
 function flushBackground() {
   if (flushingBackground || state.value !== 'recording') return;
-  const buffered = pendingBackground();
+  const buffered = pendingBackground(recordOwner, `t-${startedAt}`);
+  if(buffered.invalid)backgroundCacheWarning.value='后台定位缓存格式异常；为保留原始记录，已停止导入和清理。请先保存当前草稿并保留应用数据。';
   if (buffered.session !== `t-${startedAt}` || !buffered.points.length) return;
   flushingBackground = true;
   try {
@@ -176,7 +181,7 @@ function flushBackground() {
       if (state.value !== 'recording') break;
       processed = point.timestamp;
     }
-    if (persist() && processed && !acknowledgeBackgroundPoints(processed)) {
+    if (persist() && processed && !acknowledgeBackgroundPoints(recordOwner, processed)) {
       pause();uni.showToast({title:"轨迹已保存，后台缓存清理失败，记录已暂停",icon:"none"});
     }
   } finally { flushingBackground = false; }
@@ -203,7 +208,7 @@ async function begin() {
   if (backgroundSupported() && hasPrivacyConsent('backgroundLocation')) {
     let startingNative = true;
     let failureMessage = '';
-    const native = beginBackground(`t-${startedAt}`, flushBackground, message => {
+    const native = beginBackground(recordOwner, `t-${startedAt}`, flushBackground, message => {
       failureMessage = message;
       if (!startingNative) { backgroundOn.value = false; pause(); uni.showToast({ title: message, icon: 'none' }); }
     });
@@ -244,6 +249,7 @@ function finish() {
   try {
     saveTrack({ ...record("finished"), endedAt: Date.now() });
   } catch {
+    tracksValid.value=trackStorageValid();
     uni.showToast({ title: "轨迹保存失败，当前记录仍保留", icon: "none" });
     return;
   }

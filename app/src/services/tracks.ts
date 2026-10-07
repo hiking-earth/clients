@@ -1,5 +1,6 @@
 /**
- * 本地轨迹存储（个保法：轨迹本地优先，云同步需用户手动触发）
+ * Local-first track storage. Cloud uploads require the per-account track
+ * backup consent and are started manually or by that account's auto-sync.
  */
 import type { TrackRecord } from "@shared/types/track";
 import { validTrackPoint } from "@shared/types/track";
@@ -20,10 +21,71 @@ export function currentTrackOwner(): string {
 /** Anonymous work stays in its own local partition; authenticated accounts never see it by default. */
 export function currentLocalTrackOwner(): string { return currentTrackOwner() || 'anonymous'; }
 
+function parseTrackStore(raw: unknown): TrackRecord[] | null {
+  try {
+    const value = typeof raw === 'string' ? JSON.parse(raw) : raw;
+    if (!Array.isArray(value)) return null;
+    const ids = new Set<string>();
+    for (let index = 0; index < value.length; index++) {
+      if (!Object.prototype.hasOwnProperty.call(value, index)) return null;
+      const track = value[index];
+      if (!validRecord(track) || ids.has(track.id)) return null;
+      ids.add(track.id);
+      for (let point = 0; point < track.points.length; point++)
+        if (!Object.prototype.hasOwnProperty.call(track.points, point) || !validTrackPoint(track.points[point])) return null;
+    }
+    return value;
+  } catch { return null; }
+}
+
+/** True only when the complete local track store can be read without dropping any record. */
+export function trackStorageValid(): boolean {
+  try {
+    const raw = uni.getStorageSync(KEY);
+    return raw === undefined || raw === null || raw === '' || parseTrackStore(raw) !== null;
+  } catch { return false; }
+}
+
+/** Read-only emergency copy of the original track-store payload; never parses or rewrites it. */
+export function rawTrackStoreSnapshot(): { text: string; extension: 'json' | 'txt' } | null {
+  try {
+    const raw = uni.getStorageSync(KEY);
+    if (raw === undefined || raw === null || raw === '') return null;
+    if (typeof raw === 'string') {
+      try { JSON.parse(raw); return { text: raw, extension: 'json' }; }
+      catch { return { text: raw, extension: 'txt' }; }
+    }
+    const text = JSON.stringify(raw);
+    return typeof text === 'string' ? { text, extension: 'json' } : null;
+  } catch { return null; }
+}
+
+function writeTrackStore(next: TrackRecord[]): void {
+  if (!parseTrackStore(next)) throw new Error('本机轨迹列表格式无效，未保存');
+  const previousRaw = uni.getStorageSync(KEY);
+  const previous = previousRaw === undefined || previousRaw === null || previousRaw === '' ? [] : parseTrackStore(previousRaw);
+  if (!previous) throw new Error('本机轨迹资料格式异常，已阻止覆盖；请保留应用数据，待统一修复后处理');
+  const serialized = JSON.stringify(next);
+  try {
+    uni.setStorageSync(KEY, serialized);
+    const saved = parseTrackStore(uni.getStorageSync(KEY));
+    if (!saved || JSON.stringify(saved) !== serialized) throw new Error('本机轨迹保存回读不一致');
+  } catch (error) {
+    // A failed storage write must not leave a partially replaced GPS history.
+    try {
+      if (previousRaw === undefined || previousRaw === null || previousRaw === '') uni.removeStorageSync(KEY);
+      else uni.setStorageSync(KEY, previousRaw);
+    } catch { /* Keep the original error; the caller will ask the user not to clear app data. */ }
+    throw error;
+  }
+}
+
 export function listTracks(): TrackRecord[] {
   try {
     const raw = uni.getStorageSync(KEY);
-    const all = raw ? JSON.parse(raw) : [];
+    // uni storage may return already-decoded arrays on some adapters; parsing
+    // those again throws and makes a valid store look empty to later writers.
+    const all = typeof raw === 'string' ? (raw ? JSON.parse(raw) : []) : (raw ?? []);
     return Array.isArray(all) ? all.filter(validRecord) : [];
   } catch {
     return [];
@@ -51,21 +113,26 @@ export function trackNeedsManualBackup(track: TrackRecord, owner = currentTrackO
 
 export function saveTrack(track: TrackRecord): void {
   if (!validRecord(track)) throw new Error("轨迹格式无效，未保存");
+  if (!trackStorageValid()) throw new Error('本机轨迹资料格式异常，已阻止覆盖；请保留应用数据，待统一修复后处理');
   const all = listTracks();
   const idx = all.findIndex((t) => t.id === track.id);
   if (idx >= 0) all[idx] = track;
   else all.unshift(track);
-  uni.setStorageSync(KEY, JSON.stringify(all));
+  writeTrackStore(all);
 }
 
 export function deleteTrack(id: string): void {
+  if (!trackStorageValid()) throw new Error('本机轨迹资料格式异常，已阻止删除或覆盖；请保留应用数据，待统一修复后处理');
+  const wasExcluded = trackAutoSyncExcluded(id);
   setTrackAutoSyncExcluded(id, true);
-  uni.setStorageSync(KEY, JSON.stringify(listTracks().filter((t) => t.id !== id)));
+  try { writeTrackStore(listTracks().filter((t) => t.id !== id)); }
+  catch (error) { setTrackAutoSyncExcluded(id, wasExcluded); throw error; }
 }
 
 const trackUploads = new Set<string>();
 export type TrackUploadResult = { ok: true } | { ok: false; errMsg: string };
 export async function uploadTrackToCloud(track:TrackRecord,options:{restoreDeleted?:boolean;transferAccount?:boolean}={}):Promise<TrackUploadResult>{
+  if(!trackStorageValid())return {ok:false,errMsg:'本机轨迹资料格式异常，云同步已停止以保留原始资料；请勿清理应用数据'};
   if(!hasPrivacyConsent('trackCloudSync'))return {ok:false,errMsg:'未启用轨迹云备份授权'};
   if(track.state!=='finished'||!validRecord(track))return {ok:false,errMsg:'仅可同步格式有效的已完成轨迹'};
   if(trackUploads.has(track.id))return {ok:false,errMsg:'该轨迹正在同步'};
@@ -81,6 +148,7 @@ export async function uploadTrackToCloud(track:TrackRecord,options:{restoreDelet
   trackUploads.add(track.id);
   try{
     const response=await callCloud<{synced:boolean;version:number}>('track-sync',{track,expectedVersion,restoreDeleted:options.restoreDeleted===true});
+    if(!trackStorageValid())return {ok:false,errMsg:'本机轨迹资料在同步期间发生异常，已保留本机原始资料；云端回执未应用到本机'};
     const latestSession=accountSession();
     const latestIdentity=currentTrackOwner();
     if(latestIdentity!==identity||(token&&latestSession?.token!==token)||!hasPrivacyConsent('trackCloudSync'))return {ok:false,errMsg:'账号或轨迹备份授权已变化，轨迹仍保留在本机'};
@@ -110,7 +178,22 @@ function readOwnedDraft(owner=currentLocalTrackOwner(),migrateLegacy=true):any|n
 export function saveDraft(track: TrackRecord): void {
   if (!validRecord(track)) throw new Error("轨迹草稿格式无效，未保存");
   const owner=track.localOwner||'anonymous';
-  uni.setStorageSync(draftKey(owner), JSON.stringify(track));
+  const key=draftKey(owner),previousRaw=uni.getStorageSync(key);
+  if(previousRaw!==undefined&&previousRaw!==null&&previousRaw!==''){
+    let previous:any;
+    try{previous=typeof previousRaw==='string'?JSON.parse(previousRaw):previousRaw;}catch{throw new Error('本机轨迹草稿格式异常，已保留原草稿；请勿清理应用数据');}
+    if(!validRecord(previous)||previous.localOwner!==owner||previous.id!==track.id)
+      throw new Error('本机已有其他或异常轨迹草稿，已保留原草稿；请先恢复或整理后再记录');
+  }
+  const serialized=JSON.stringify(track);
+  try{
+    uni.setStorageSync(key,serialized);
+    const saved=uni.getStorageSync(key),parsed=typeof saved==='string'?JSON.parse(saved):saved;
+    if(!validRecord(parsed)||JSON.stringify(parsed)!==serialized)throw new Error('本机轨迹草稿保存回读不一致');
+  }catch(error){
+    try{if(previousRaw===undefined||previousRaw===null||previousRaw==='')uni.removeStorageSync(key);else uni.setStorageSync(key,previousRaw);}catch{}
+    throw error;
+  }
 }
 export function loadDraft(): TrackRecord | null {
   try {

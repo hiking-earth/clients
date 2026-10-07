@@ -4,6 +4,7 @@
       <text class="name">{{ track.name }}</text>
       <text class="date">{{ formatFull(track.startedAt) }}</text>
     </view>
+    <text v-if="!storeValid" class="warning">本机轨迹列表格式异常。查看、导航和导出仍可用；本机删除与云端写入已停用，请勿清理应用数据。</text>
 
     <view class="grid">
       <view class="cell"><text class="v">{{ (track.distanceM / 1000).toFixed(2) }} km</text><text class="k">里程</text></view>
@@ -17,8 +18,8 @@
     <view class="actions">
       <button class="btn primary" @click="navAlong">沿此轨迹导航</button>
       <button class="btn" @click="exportGpx">导出 GPX</button>
-      <button v-if="showSyncAction" class="btn" :disabled="syncing" @click="sync">{{syncing?'同步中…':'云同步'}}</button>
-      <button class="btn danger" @click="remove">删除</button>
+      <button v-if="showSyncAction" class="btn" :disabled="syncing || !storeValid" @click="sync">{{syncing?'同步中…':'云同步'}}</button>
+      <button class="btn danger" :disabled="!storeValid" @click="remove">删除</button>
     </view>
   </view>
 </template>
@@ -34,17 +35,20 @@ import { computed, ref } from "vue";
 import { onLoad,onShow,onUnload } from "@dcloudio/uni-app";
 const offlineLayer = computed(()=>activeOfflineLayer());
 import { trackToGpx, type TrackRecord } from "@shared/types/track";
-import { deleteTrack, getCurrentOwnerTrack, uploadTrackToCloud, currentTrackOwner, trackNeedsManualBackup } from "@/services/tracks";
+import { deleteTrack, getCurrentOwnerTrack, uploadTrackToCloud, currentTrackOwner, trackNeedsManualBackup, trackStorageValid } from "@/services/tracks";
 import { hasPrivacyConsent } from "@/services/privacy";
 import { onAccountChange } from '@/services/account';
 
 declare const plus: any;
 declare const wx: any;
 const track = ref<TrackRecord | null>(null);
+const storeValid=ref(trackStorageValid());
 const showSyncAction = computed(() => !!track.value && trackNeedsManualBackup(track.value));
 const trackId = ref('');
+const syncing=ref(false);
 function reloadOwnedTrack(){
   if(!trackId.value)return;
+  storeValid.value=trackStorageValid();
   track.value=getCurrentOwnerTrack(trackId.value);
   if(!track.value){uni.showToast({title:'轨迹不存在或属于其他本机账号',icon:'none'});setTimeout(()=>uni.navigateBack(),600);}
 }
@@ -155,8 +159,8 @@ function remove() {
     content: "删除本机轨迹后不可恢复；已上传的云端副本不会随之删除。",
     success: (r) => {
       if (r.confirm&&owner===currentTrackOwner()&&JSON.stringify(getCurrentOwnerTrack(snapshot.id))===JSON.stringify(snapshot)) {
-        deleteTrack(snapshot.id);
-        uni.navigateBack();
+        try { deleteTrack(snapshot.id); uni.navigateBack(); }
+        catch (e: any) { storeValid.value=trackStorageValid(); uni.showToast({title:e?.message||'删除失败，轨迹资料仍保留',icon:'none'}); }
       } else if(r.confirm) {
         uni.showToast({title:'账号或轨迹已变化，未删除；请刷新后重试',icon:'none'});
       }
@@ -187,5 +191,5 @@ onUnload(unsubscribeAccount);
 .btn { border-radius: 999rpx; font-size: 28rpx; background: #1a2430; color: #eef4ea; }
 .btn.primary { background: #b8f36b; color: #0f141b; font-weight: 600; }
 .btn.danger { color: #ff7b72; }
+.warning { display:block; margin:16rpx 32rpx; padding:20rpx; color:#ffd166; background:#3a2e17; border-radius:12rpx; line-height:1.6; }
 </style>
-const syncing=ref(false);

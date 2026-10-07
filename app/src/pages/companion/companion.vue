@@ -36,9 +36,7 @@
         <input :disabled="submitting" v-model="form.departDate" class="input" placeholder="出发日期 YYYY-MM-DD" placeholder-class="ph" />
         <view v-if="!editingId"><input :disabled="submitting" v-model="birth" class="input" placeholder="出生日期 YYYY-MM-DD（用于成年人判断，不保存完整生日）" /><input :disabled="submitting" v-model="emergency" maxlength="200" class="input" placeholder="紧急联系人姓名与电话" /><switch :disabled="submitting" :checked="contactConsent" @change="contactConsent=eventValue($event)" /><text>同意保存本人紧急联系信息，仅本人及发起人可访问</text></view>
         <input :disabled="submitting" v-model.number="form.maxMembers" type="number" class="input" placeholder="人数上限" placeholder-class="ph" />
-        <picker :disabled="submitting" mode="selector" :range="routeNames" @change="onPickRoute">
-          <view class="input picker">{{ form.routeId ? routeName(form.routeId) : '关联路线（可选）' }}</view>
-        </picker>
+        <RouteSearchPicker v-model="form.routeId" :disabled="submitting" placeholder="搜索或选择关联路线（可选）" />
         <view class="form-actions">
           <button class="btn ghost" @click="cancelForm()">取消</button>
           <button class="btn primary" :disabled="submitting" @click="submit">{{ editingId ? '保存' : '发布' }}</button>
@@ -53,6 +51,7 @@ function eventValue(event: Event): any { return (event as Event & {detail:{value
 import { ref } from "vue";
 import { onShow, onHide, onUnload } from "@dcloudio/uni-app";
 import { ROUTES } from "@/services/route-catalog";
+import RouteSearchPicker from '@/components/RouteSearchPicker.vue';
 import type { CompanionPost } from "@shared/types/social";
 import { callCloud } from "@/services/cloud";
 import { accountSession, onAccountChange } from "@/services/account";
@@ -72,8 +71,6 @@ const submitting = ref(false);
 const myOpenid = ref("");
 const loadError = ref("");
 const form = ref({ title: "", content: "", departDate: "", maxMembers: 4, routeId: "" });
-
-const routeNames = ROUTES.map((r) => r.name);
 
 function cancelForm(force=false){if(submitting.value&&!force)return;showForm.value=false;clearSensitive();}
 function invalidate(){context++;loadSequence++;cancelRegistration(true);cancelForm(true);}
@@ -116,10 +113,6 @@ function routeName(id?: string): string {
 
 function joined(p: CompanionPost): boolean {
   return p.members.includes(myOpenid.value);
-}
-
-function onPickRoute(e: any) {
-  form.value.routeId = ROUTES[e.detail.value]?.id ?? "";
 }
 
 function join(p:CompanionPost){if(submitting.value)return;if(!['open','full'].includes(p.status)||joined(p)||(p.memberCount??p.members.length)>=p.maxMembers)return;clearSensitive();joiningPost.value=p;}

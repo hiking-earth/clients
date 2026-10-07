@@ -1,14 +1,14 @@
 /**
- * 路线数据模型 —— 与上游网页端 hiking-earth/hiking-earth 对齐
- * 来源：data/routes.ts @ commit 3304520（2026-09-21）
- * 规则：本文件只随上游同步修改，禁止凭产品描述自编字段。
+ * 徒步路线共享数据模型。
+ * app 使用本文件；web/data/routes.ts 与 site-release/data/routes.ts 的本地模型须保持兼容。
+ * 未有可追溯来源的路线状态、轨迹、装备、住宿与路况必须明确标为待核验。
  */
 
 export type RouteStatus = "开放中" | "即将开放" | "临时关闭" | "永久关闭" | "待核验";
 export type Season = "春" | "夏" | "秋" | "冬";
-export type PackStyle = "轻装" | "重装";
-export type OvernightStyle = "营地" | "住宿" | "无过夜";
-export type SurfaceStyle = "景区成熟" | "未铺装";
+export type PackStyle = "轻装" | "重装" | "待核验";
+export type OvernightStyle = "营地" | "住宿" | "无过夜" | "待核验";
+export type SurfaceStyle = "景区成熟" | "未铺装" | "待核验";
 export type TrackMode = "已核验轨迹" | "认知示意" | "不展示轨迹";
 
 export type HikingRoute = {

@@ -2,6 +2,7 @@
   <view class="page">
     <text class="title">导入 GPX 轨迹</text>
     <text class="hint">轨迹保存在本机。最多 5 MB、20000 个点；保留分段，不会自动上传。</text>
+    <text v-if="!storeValid" class="error">本机轨迹列表格式异常，已停用导入保存以保留原始资料。请勿清理应用数据。</text>
     <!-- #ifdef APP-PLUS --><button @click="chooseNative">从系统文件选择</button><!-- #endif -->
     <!-- #ifdef H5 -->
     <button @click="chooseFile">选择 GPX 文件</button>
@@ -11,17 +12,20 @@
     <!-- #endif -->
     <textarea v-model="source" :maxlength="5242880" class="source" placeholder="也可以粘贴 GPX 文件内容（以 <gpx 开始的 XML）" />
     <text v-if="error" class="error">{{ error }}</text>
-    <button @click="save">导入并保存</button>
+    <button :disabled="!storeValid" @click="save">导入并保存</button>
   </view>
 </template>
 <script setup lang="ts">
 import { chooseNativeText } from '@/services/files';
 import { ref } from 'vue';
+import { onShow } from '@dcloudio/uni-app';
 import { isDesktop, chooseDesktopGpx } from '@/services/desktop';
 import { importGpx } from '@/services/gpx';
-import { saveTrack, currentTrackOwner } from '@/services/tracks';
+import { saveTrack, currentTrackOwner, trackStorageValid } from '@/services/tracks';
 const source = ref('');
 const error = ref('');
+const storeValid = ref(trackStorageValid());
+onShow(()=>{storeValid.value=trackStorageValid();});
 function save() {
   try { const track = importGpx(source.value); track.localOwner = currentTrackOwner() || 'anonymous'; saveTrack(track); uni.redirectTo({ url: `/pages/track/detail?id=${track.id}` }); }
   catch (e) { error.value = e instanceof Error ? e.message : '导入失败，文件未保存'; }

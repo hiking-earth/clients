@@ -10,8 +10,9 @@ if ROOT in source.parents or ROOT in output.parents or output==source:raise Syst
 config=json.loads(source.read_text());ios=config.get('ios',{})
 if ios.get('bundle')!='earth.hiking.app':raise SystemExit('Apple Bundle ID must match earth.hiking.app')
 for key,suffix in [('certfile','.p12'),('profile','.mobileprovision')]:
- f=pathlib.Path(ios.get(key,''))
+ f=pathlib.Path(ios.get(key,'')).resolve()
  if not f.is_file() or f.suffix.lower()!=suffix:raise SystemExit('Owner signing file missing: '+key)
+ if f==ROOT or ROOT in f.parents:raise SystemExit('Keep Apple signing files outside the repository')
 if not isinstance(ios.get('certpassword'),str):raise SystemExit('Private config needs the p12 password')
 config.update({'project':str(ROOT/'app'),'platform':'ios','safemode':True});ios.update({'channels':'phone','supporteddevice':'iPhone,iPad'})
 subprocess.run([a.node,str(ROOT/'app/scripts/build-map-viewer.cjs')],cwd=ROOT/'app',check=True)

@@ -4,7 +4,33 @@ export type OfflineLayer = { id: string; name: string; attribution: string; lice
 const state=reactive<{layers:OfflineLayer[];active:string}>({layers:[],active:String(uni.getStorageSync('he_offline_active')||'')});
 let restoring:Promise<void>|undefined;let mutation:Promise<void>=Promise.resolve();
 function validLayers(value:any):value is OfflineLayer[]{
- return Array.isArray(value)&&value.length<=100&&value.every((layer:any)=>layer&&typeof layer.id==='string'&&typeof layer.name==='string'&&typeof layer.attribution==='string'&&typeof layer.license==='string'&&Number.isFinite(layer.savedAt)&&Number.isFinite(layer.bytes)&&Array.isArray(layer.paths)&&layer.paths.length<=50000&&layer.paths.every((line:any)=>Array.isArray(line)&&line.length>=2&&line.length<=50000&&line.every((point:any)=>Array.isArray(point)&&point.length===2&&point.every(Number.isFinite)&&Math.abs(point[0])<=180&&Math.abs(point[1])<=90)));
+ if(!Array.isArray(value)||value.length>100)return false;
+ const ids=new Set<string>(),sourceKeys=new Set<string>();
+ for(const layer of value){
+  if(!layer||typeof layer!=='object'||Array.isArray(layer)
+    ||Object.keys(layer).some(key=>!['id','name','attribution','license','savedAt','paths','bytes','sourceKey'].includes(key))
+    ||typeof layer.id!=='string'||!layer.id||layer.id.length>128||ids.has(layer.id)
+    ||typeof layer.name!=='string'||!layer.name.trim()||layer.name.length>80
+    ||typeof layer.attribution!=='string'||!layer.attribution.trim()||layer.attribution.length>300
+    ||typeof layer.license!=='string'||!layer.license.trim()||layer.license.length>300
+    ||!Number.isSafeInteger(layer.savedAt)||layer.savedAt<=0
+    ||!Number.isSafeInteger(layer.bytes)||layer.bytes<0||layer.bytes>8*1024*1024
+    ||!Array.isArray(layer.paths)||layer.paths.length===0||layer.paths.length>50000)return false;
+  if(layer.sourceKey!==undefined){
+   if(layer.sourceKey!=='hk-afcd'||sourceKeys.has(layer.sourceKey))return false;
+   sourceKeys.add(layer.sourceKey);
+  }
+  ids.add(layer.id);
+  let pointCount=0;
+  for(const line of layer.paths){
+   if(!Array.isArray(line)||line.length<2||line.length>50000)return false;
+   for(const point of line){
+    if(!Array.isArray(point)||point.length!==2||!point.every(Number.isFinite)||Math.abs(point[0])>180||Math.abs(point[1])>90)return false;
+    if(++pointCount>50000)return false;
+   }
+  }
+ }
+ return true;
 }
 export function restoreOfflineLayers():Promise<void>{
  return restoring??=readCatalogCache('offline',validLayers).then(value=>{if(value&&bytesOf(JSON.stringify(value))<=8*1024*1024)state.layers=value;}).catch(()=>{});

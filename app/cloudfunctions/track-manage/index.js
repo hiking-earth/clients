@@ -6,6 +6,16 @@ exports.main = async event => {
   const { OPENID } = cloud.getWXContext();
   if (!OPENID) return { errMsg: '请先登录' };
   if (event.action === 'list') {
+    if (Object.prototype.hasOwnProperty.call(event, 'afterCursor')) {
+      const afterCursor=event.afterCursor;
+      if(typeof afterCursor!=='string'||afterCursor.length>128)return {errMsg:'轨迹目录游标无效'};
+      const criteria={owner:OPENID};
+      if(afterCursor)criteria._id=db.command.gt(afterCursor);
+      const result=await db.collection('tracks').where(criteria).orderBy('_id','asc').limit(20)
+        .field({_id:true,trackId:true,name:true,distanceM:true,version:true,deleted:true}).get();
+      const tracks=result.data.filter(t=>t.deleted!==true).map(t=>({trackId:t.trackId,name:t.name,distanceM:t.distanceM,version:t.version??0}));
+      return {tracks,hasMore:result.data.length===20,nextCursor:result.data.length?result.data[result.data.length-1]._id:null};
+    }
     const page = Number.isInteger(event.page) && event.page >= 0 ? event.page : 0;
     const result = await db.collection('tracks').where({ owner: OPENID, deleted: db.command.neq(true) }).orderBy('syncedAt', 'desc').skip(page * 20).limit(20).field({ trackId: true, name: true, distanceM: true, version: true, syncedAt: true }).get();
     return { tracks: result.data.map(t=>({trackId:t.trackId,name:t.name,distanceM:t.distanceM,version:t.version??0})), hasMore: result.data.length === 20 };

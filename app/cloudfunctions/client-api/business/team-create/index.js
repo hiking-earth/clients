@@ -3,7 +3,7 @@ const { randomInt, createHash } = require('crypto');
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database({ throwOnNotFound: false });
 exports.main = async event => {
-  const { OPENID } = cloud.getWXContext();
+  const OPENID = require('../../identity').currentIdentity();
   if (!OPENID) return { errMsg: '请先登录' };
   if(event.requestId!==undefined&&(typeof event.requestId!=='string'||!/^team-[a-zA-Z0-9-]{1,100}$/.test(event.requestId)))return {errMsg:'创建请求标识无效'};
   const requestKey=event.requestId?createHash('sha256').update(JSON.stringify(['team_creation',OPENID,event.requestId])).digest('hex'):null;

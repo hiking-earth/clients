@@ -1,18 +1,23 @@
 <template>
   <scroll-view scroll-y class="page">
-    <view class="card"><text class="title">自动同步</text><text>收藏、行程和已完成轨迹在同一账号的各端同步。默认关闭；轨迹还需开启云端轨迹备份授权。</text>
-      <view class="row"><text>当前账号自动同步</text><switch :checked="enabled" @change="toggle" /></view>
+    <view class="card"><text class="title">自动同步</text><text>开启后，收藏和行程会在同一账号的各端自动同步；已完成轨迹还需在隐私设置中单独开启云端轨迹备份。自动同步默认关闭。</text>
+      <view class="row"><text>当前账号自动同步</text><switch :checked="enabled" :disabled="!signedIn" @change="toggle" /></view>
+      <text v-if="!signedIn">登录统一账号后，才能在本机与其他设备之间同步资料。</text>
+      <button v-if="!signedIn" @click="openAccount">登录统一账号</button>
       <text>后台同步暂停，回到前台后继续。不会自动申请定位或共享位置。</text>
       <text v-if="syncState.lastSuccess">上次同步：{{ new Date(syncState.lastSuccess).toLocaleString() }}</text>
+      <text v-if="syncState.continuing">云端轨迹较多，正在分批同步；后台暂停后会在回到前台时继续。</text>
       <text v-if="syncState.error" class="error">{{ syncState.error }}</text>
       <button :disabled="!enabled || syncState.running" @click="syncNow(true)">{{ syncState.running?'同步中…':'立即同步' }}</button>
       <button v-if="syncState.conflict" @click="goConflict">处理收藏与行程冲突</button>
     </view>
-    <view class="card"><text class="title">版本更新</text><text>当前客户端 {{ APP_VERSION }}。启动和回到前台时自动检查，每六小时最多一次。</text>
+    <view class="card"><text class="title">版本更新</text><text>当前客户端 {{ APP_VERSION }}。App启动或回到前台时自动检查，每六小时最多一次；网页随网站发布更新；微信小程序由微信在启动时检查。</text>
       <text v-if="updateState.available">新版本 {{ updateState.version }} · {{ updateState.notes }}</text>
       <text v-if="updateState.message" class="error">{{ updateState.message }}</text>
       <text v-if="updateState.installing">正在准备更新 {{ updateState.progress }}%</text>
+      <!-- #ifndef MP-WEIXIN -->
       <button :disabled="updateState.checking || updateState.installing" @click="checkForUpdate(true)">{{ updateState.checking?'检查中…':'检查版本' }}</button>
+      <!-- #endif -->
       <button v-if="updateState.available" :disabled="updateState.installing" @click="install">更新并重新打开</button>
       <text>更新前保存当前工作。Android需通过系统安装确认；iOS通过已发布的App Store或TestFlight版本更新。</text>
     </view>
@@ -20,15 +25,23 @@
 </template>
 <script setup lang="ts">
 import {ref} from 'vue';
-import {onShow} from '@dcloudio/uni-app';
+import {onShow,onUnload} from '@dcloudio/uni-app';
 import {autoSyncEnabled,setAutoSync,syncNow,syncState} from '@/services/sync';
+import {accountSession,onAccountChange} from '@/services/account';
 import {APP_VERSION,checkForUpdate,applyUpdate,updateState} from '@/services/updates';
-const enabled=ref(false);
-onShow(()=>{enabled.value=autoSyncEnabled();});
+const enabled=ref(false),signedIn=ref(!!accountSession());
+onShow(()=>{signedIn.value=!!accountSession();enabled.value=autoSyncEnabled();});
+const unsubscribeAccount=onAccountChange(()=>{signedIn.value=!!accountSession();enabled.value=autoSyncEnabled();});
+onUnload(unsubscribeAccount);
+function openAccount(){uni.navigateTo({url:'/pages/account/account'});}
 async function toggle(event:Event){
-  if(!(event as Event & {detail:{value:boolean}}).detail.value){setAutoSync(false);enabled.value=false;return;}
+  if(!(event as Event & {detail:{value:boolean}}).detail.value){try{setAutoSync(false);enabled.value=false;}catch(e:any){signedIn.value=!!accountSession();enabled.value=autoSyncEnabled();uni.showToast({title:e.message,icon:'none'});}return;}
+  const original=accountSession();
+  if(!original){signedIn.value=false;enabled.value=false;uni.showToast({title:'请先登录统一账号',icon:'none'});return;}
   const result=await uni.showModal({title:'开启自动同步',content:'将本机收藏、行程以及已授权备份的完成轨迹同步到当前账号；其他设备可恢复。账号切换后需单独开启。'});
-  if(!result.confirm){enabled.value=false;return;}
+  const current=accountSession();
+  if(!current||current.openid!==original.openid||current.token!==original.token){signedIn.value=!!current;enabled.value=autoSyncEnabled();uni.showToast({title:'账号已变化，请重新确认同步',icon:'none'});return;}
+  if(!result.confirm){enabled.value=autoSyncEnabled();return;}
   try{setAutoSync(true);enabled.value=true;}catch(e:any){enabled.value=false;uni.showToast({title:e.message,icon:'none'});}
 }
 function goConflict(){uni.navigateTo({url:'/pages/library/library'});}

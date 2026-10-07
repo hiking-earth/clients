@@ -1,6 +1,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 use std::{fs, io::Read};
 const MAX_GPX: u64 = 5 * 1024 * 1024;
+const MAX_LOCAL_BACKUP: u64 = 25 * 1024 * 1024;
 
 // Paths are selected in native dialogs, never provided by web content.
 #[tauri::command]
@@ -24,6 +25,23 @@ async fn save_gpx(name: String, content: String) -> Result<bool, String> {
     let selected = rfd::AsyncFileDialog::new().add_filter("GPX", &["gpx"]).set_file_name(&filename).save_file().await;
     let Some(file) = selected else { return Ok(false); };
     // Do not truncate an existing file until a complete new copy exists.
+    let parent = file.path().parent().ok_or("保存位置无效")?;
+    let mut temporary = tempfile::NamedTempFile::new_in(parent).map_err(|_| "无法创建保存文件".to_string())?;
+    use std::io::Write;
+    temporary.write_all(content.as_bytes()).map_err(|_| "文件写入失败".to_string())?;
+    temporary.as_file().sync_all().map_err(|_| "文件写入失败".to_string())?;
+    temporary.persist(file.path()).map_err(|_| "无法完成保存，请检查文件权限".to_string())?;
+    Ok(true)
+}
+
+#[tauri::command]
+async fn save_local_text(name: String, content: String) -> Result<bool, String> {
+    if content.len() as u64 > MAX_LOCAL_BACKUP { return Err("文件超过25 MB".into()); }
+    let safe: String = name.chars().filter(|c| !c.is_control() && !"/\\:*?\"<>|".contains(*c)).take(120).collect();
+    let filename = if safe.is_empty() { "徒步地球本机备份.json".to_string() } else { safe };
+    let extension = if filename.ends_with(".json") { "json" } else if filename.ends_with(".txt") { "txt" } else { return Err("只允许导出JSON或TXT本地备份".into()); };
+    let selected = rfd::AsyncFileDialog::new().add_filter(if extension == "json" { "JSON" } else { "文本" }, &[extension]).set_file_name(&filename).save_file().await;
+    let Some(file) = selected else { return Ok(false); };
     let parent = file.path().parent().ok_or("保存位置无效")?;
     let mut temporary = tempfile::NamedTempFile::new_in(parent).map_err(|_| "无法创建保存文件".to_string())?;
     use std::io::Write;
@@ -64,7 +82,7 @@ fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_updater::Builder::new().build())
         .manage(PendingUpdate::default())
-        .invoke_handler(tauri::generate_handler![choose_gpx, save_gpx, check_app_update, install_app_update, restart_app])
+        .invoke_handler(tauri::generate_handler![choose_gpx, save_gpx, save_local_text, check_app_update, install_app_update, restart_app])
         .run(tauri::generate_context!())
         .expect("运行徒步地球桌面端失败");
 }

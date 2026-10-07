@@ -20,7 +20,7 @@ object HikingFiles {
 
     fun write(context: Context, uri: Uri, text: String) {
         val bytes = text.toByteArray(Charsets.UTF_8)
-        if (bytes.size > 5 * 1024 * 1024) throw IllegalArgumentException("文件超过5 MB")
+        if (bytes.size > 25 * 1024 * 1024) throw IllegalArgumentException("文件超过25 MB")
         context.contentResolver.openOutputStream(uri, "wt")?.use { it.write(bytes); it.flush() } ?: throw IllegalArgumentException("文件不能写入")
     }
     fun read(context: Context, uri: Uri): String {

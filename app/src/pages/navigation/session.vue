@@ -285,7 +285,7 @@ async function triggerSos() {
   }
   const owner=currentTrackOwner(),token=accountSession()?.token;
   let savedTeamId = teamId.value;
-  if (!savedTeamId) { try { savedTeamId = JSON.parse(uni.getStorageSync("he_team") || "null")?.id ?? ""; } catch {} }
+  if (!savedTeamId) { try { const raw=uni.getStorageSync("he_team");const cached=typeof raw==='string'?JSON.parse(raw||'null'):raw;const id=cached?.teamId??cached?.id;savedTeamId=typeof id==='string'?id:''; } catch {} }
   const confirmed = await new Promise<boolean>((resolve) => uni.showModal({
     title: "上传求助位置？",
     content: savedTeamId ? "将当前位置保存到云端，并在队友打开组队页面时显示求助信号。没有短信或系统推送，不会联系救援机构；紧急情况请直接拨打当地求救电话。" : "将当前位置保存到云端求助记录。当前没有队伍，不会通知联系人或救援机构；紧急情况请直接拨打当地求救电话。",

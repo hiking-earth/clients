@@ -38,6 +38,7 @@ jobs:
         continue-on-error: true
         run: python scripts/update-official-content.py
       - name: Record collection outcomes
+        id: outcomes
         if: always()
         env:
           USDA_OUTCOME: ${{ steps.usda.outcome }}
@@ -47,7 +48,7 @@ jobs:
           CONTENT_OUTCOME: ${{ steps.content.outcome }}
         run: |
           echo "### Hiking catalog collection" >> "$GITHUB_STEP_SUMMARY"
-          echo "USDA: $USDA_OUTCOME; OSM recent changes: $OSM_INCREMENTAL_OUTCOME; OSM worldwide full-membership sweep: $OSM_RECONCILIATION_OUTCOME; Hong Kong AFCD: $HK_OUTCOME; official notices: $CONTENT_OUTCOME" >> "$GITHUB_STEP_SUMMARY"
+          echo "USDA step: $USDA_OUTCOME; OSM recent-change script step: $OSM_INCREMENTAL_OUTCOME; OSM worldwide full-membership sweep: $OSM_RECONCILIATION_OUTCOME; Hong Kong AFCD: $HK_OUTCOME; official notices: $CONTENT_OUTCOME" >> "$GITHUB_STEP_SUMMARY"
           python - <<'PY'
           import datetime, hashlib, json, os
           from collections import Counter
@@ -71,6 +72,30 @@ jobs:
           osm = json.loads((root/'catalog/osm.json').read_text())
           backfill = osm.get('backfill', {})
           membership = osm.get('backfillState', {})
+          region_names = ('china','japan','south-asia','europe','north-america','oceania','south-america','africa')
+          coverage = osm.get('coverage', {}) if isinstance(osm.get('coverage'), dict) else {}
+          source_cursors = osm.get('sourceCursors', {}) if isinstance(osm.get('sourceCursors'), dict) else {}
+          failures = osm.get('failures', []) if isinstance(osm.get('failures'), list) else []
+          failed_regions = {item.get('region'): str(item.get('error', 'source request failed'))[:500] for item in failures if isinstance(item, dict) and isinstance(item.get('region'), str)}
+          if outcomes['osm_incremental'] == 'success':
+              region_attempts = {}
+              for region in region_names:
+                  if region in failed_regions:
+                      region_attempts[region] = {'status': 'failed', 'error': failed_regions[region]}
+                  elif region in coverage:
+                      region_attempts[region] = {'status': 'success', 'records': coverage[region], 'cursor': source_cursors.get(region)}
+                  else:
+                      region_attempts[region] = {'status': 'not-reported'}
+              refreshed = sum(1 for item in region_attempts.values() if item['status'] == 'success')
+              failed = sum(1 for item in region_attempts.values() if item['status'] == 'failed')
+              not_reported = sum(1 for item in region_attempts.values() if item['status'] == 'not-reported')
+              osm_incremental_status = 'success' if refreshed == len(region_names) and failed == 0 else 'partial' if refreshed else 'failure'
+          else:
+              region_attempts = {region: {'status': 'step-' + outcomes['osm_incremental']} for region in region_names}
+              refreshed = failed = 0; not_reported = len(region_names)
+              osm_incremental_status = 'failure' if outcomes['osm_incremental'] == 'failure' else 'unknown'
+          outcomes['osm_incremental_step'] = outcomes['osm_incremental']
+          outcomes['osm_incremental'] = osm_incremental_status
           usfs = json.loads((root/'catalog/usfs.json').read_text())
           usfs_progress = usfs.get('backfill', {})
           reconciliation = {
@@ -84,7 +109,9 @@ jobs:
               'scheduled': False,
               'pauseReason': 'Public Overpass documentation discourages stitching bounding boxes to scrape worldwide data; use regional extracts or an owner-approved sustainable service.',
               'lastAttemptSucceeded': None,
-              'incrementalAttemptSucceeded': outcomes['osm_incremental'] == 'success',
+              'incrementalAttemptSucceeded': osm_incremental_status == 'success',
+              'incrementalOutcome': osm_incremental_status,
+              'incrementalRegions': region_attempts,
               },
               'usfs': {
                   'supported': usfs_progress.get('reconciliationVersion') == 2,
@@ -105,7 +132,8 @@ jobs:
           regions = Counter(route.get('region', 'unknown') for route in osm.get('routes', []))
           rows.append('| OSM records by region | ' + '; '.join(f'{name}: {count}' for name, count in sorted(regions.items())) + ' | source tags only |')
           rows.append(f"| OSM grid backfill | {backfill.get('completedTiles', 0)} complete / {backfill.get('pendingTiles', 0)} pending | cycle {backfill.get('cycle', 0)} |")
-          rows.append(f"| OSM recent changes | {len(osm.get('coverage', {}))} regions refreshed | incremental {outcomes['osm_incremental']} |")
+          rows.append(f"| OSM recent changes | {refreshed} / {len(region_names)} regions refreshed; {failed} reported failures; {not_reported} not reported | {osm_incremental_status} (step {outcomes['osm_incremental_step']}) |")
+          rows.extend(f"| OSM recent changes: {region} | {item['status']} | {item.get('records', item.get('error', ''))} |" for region, item in region_attempts.items())
           budget = osm.get('sourceBudget', {})
           rows.append(f"| OSM public API budget | {budget.get('downloadedBytes', 0)} / {budget.get('dailyByteLimit', 8388608)} bytes; {budget.get('queryCount', 0)} / {budget.get('dailyQueryLimit', 64)} queries | UTC day {budget.get('dateUTC', 'not recorded')} |")
           news = json.loads((root/'content/official-news.json').read_text())
@@ -127,17 +155,51 @@ jobs:
           PY
           echo "Failed sources retain their previous catalog. Automatic collection does not verify trail access or produce navigable geometry." >> "$GITHUB_STEP_SUMMARY"
       - name: Prepare immutable compressed catalog pages
-        if: ${{ !cancelled() }}
+        id: prepare_catalog
+        if: ${{ !cancelled() && steps.outcomes.outcome == 'success' }}
         run: python scripts/prepare-catalog-pages.py
       - name: Publish changed snapshot
-        if: ${{ !cancelled() }}
+        id: publish
+        if: ${{ !cancelled() && steps.outcomes.outcome == 'success' && steps.prepare_catalog.outcome == 'success' }}
         run: |
           git add shared/data/catalog/ shared/data/content/ shared/data/offline/ shared/public-catalog/ app/cloudfunctions/catalog-feed/snapshots/ app/cloudfunctions/client-api/business/catalog-feed/snapshots/
+          if git diff --cached --quiet -- shared/data/catalog/ shared/data/content/ shared/data/offline/ shared/public-catalog/ app/cloudfunctions/catalog-feed/snapshots/ app/cloudfunctions/client-api/business/catalog-feed/snapshots/; then
+            echo "catalog_changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "catalog_changed=true" >> "$GITHUB_OUTPUT"
+          fi
           if git diff --cached --quiet; then exit 0; fi
           git config user.name 'hiking-earth-catalog[bot]'
           git config user.email 'catalog@users.noreply.github.com'
           git commit -m 'data: refresh sourced hiking discovery catalogs'
           git push
+      - name: Set up Node.js for CloudBase CLI
+        if: ${{ !cancelled() && steps.publish.outcome == 'success' && steps.publish.outputs.catalog_changed == 'true' && vars.HIKING_CATALOG_AUTODEPLOY == 'true' }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+      - name: Deploy changed catalog snapshots to CloudBase
+        if: ${{ !cancelled() && steps.publish.outcome == 'success' && steps.publish.outputs.catalog_changed == 'true' && vars.HIKING_CATALOG_AUTODEPLOY == 'true' }}
+        env:
+          TENCENT_SECRET_ID: ${{ secrets.TENCENT_SECRET_ID }}
+          TENCENT_SECRET_KEY: ${{ secrets.TENCENT_SECRET_KEY }}
+          CLOUDBASE_ENV_ID: ${{ vars.CLOUDBASE_ENV_ID }}
+        run: |
+          set -euo pipefail
+          test -n "$TENCENT_SECRET_ID"
+          test -n "$TENCENT_SECRET_KEY"
+          test -n "$CLOUDBASE_ENV_ID"
+          node --version
+          npm install --global @cloudbase/cli@2.6.16
+          CLI_PATH="$(command -v tcb)"
+          node "$CLI_PATH" login --apiKeyId "$TENCENT_SECRET_ID" --apiKey "$TENCENT_SECRET_KEY"
+          BACKUP_DIR="$RUNNER_TEMP/hiking-catalog-cloudbase-$GITHUB_RUN_ID"
+          python3 scripts/deploy-client-functions.py \
+            --cloudbase-cli "$CLI_PATH" \
+            --node "$(command -v node)" \
+            --env "$CLOUDBASE_ENV_ID" \
+            --backup-dir "$BACKUP_DIR" \
+            --functions catalog-feed client-api
       - name: Report complete collection failure
         if: ${{ !cancelled() && steps.usda.outcome == 'failure' && steps.osm_incremental.outcome == 'failure' && steps.hk.outcome == 'failure' && steps.content.outcome == 'failure' }}
         run: |

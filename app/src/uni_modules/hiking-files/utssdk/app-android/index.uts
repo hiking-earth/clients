@@ -29,7 +29,7 @@ export function chooseTextFile(success: (text: string) => void, cancel: () => vo
     resultCallback = null; fail('系统文件选择器无法打开'); }
 }
 
-export function saveTextFile(name: string, text: string, success: () => void, cancel: () => void, fail: (message: string) => void): void {
+export function saveTextFile(name: string, text: string, mimeType: string, success: () => void, cancel: () => void, fail: (message: string) => void): void {
   if (choosing) { fail('请先完成当前文件选择'); return; }
   const activity = UTSAndroid.getUniActivity();
   if (activity == null) { fail('当前页面不能保存文件'); return; }
@@ -44,7 +44,7 @@ export function saveTextFile(name: string, text: string, success: () => void, ca
   choosing = true; resultCallback = callback; UTSAndroid.onAppActivityResult(callback);
   try {
     const intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
-    intent.addCategory(Intent.CATEGORY_OPENABLE); intent.setType('application/gpx+xml');
+    intent.addCategory(Intent.CATEGORY_OPENABLE); intent.setType(mimeType);
     intent.putExtra(Intent.EXTRA_TITLE, name); activity.startActivityForResult(intent, 7354);
   } catch (e) { choosing = false; if (resultCallback != null) UTSAndroid.offAppActivityResult(resultCallback!);
     resultCallback = null; fail('系统文件保存界面无法打开'); }

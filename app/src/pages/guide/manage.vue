@@ -7,8 +7,8 @@
 <picker :range="categories" :disabled="busy" @change="form.category=categories[Number($event.detail.value)]"><text>分类：{{form.category}}</text></picker>
 <textarea v-model="form.summary" :disabled="busy" maxlength="2000" placeholder="商品说明"/><input v-model="form.link" :disabled="busy" maxlength="2048" placeholder="HTTPS 商品链接"/><input v-model="form.priceHint" :disabled="busy" maxlength="100" placeholder="价格说明（可留空，需有依据）"/>
 <input v-model="form.sourceUrl" :disabled="busy" maxlength="2048" placeholder="HTTPS 归属来源"/><textarea v-model="form.rightsNote" :disabled="busy" maxlength="1000" placeholder="链接使用权及来源说明"/>
-<text>已确认真实使用授权 <switch :checked="form.rightsConfirmed" :disabled="busy" @change="form.rightsConfirmed=$event.detail.value"/></text>
-<text>公开发布 <switch :checked="form.published" :disabled="busy" @change="form.published=$event.detail.value"/></text>
+<text>已确认真实使用授权 <switch :checked="form.rightsConfirmed" :disabled="busy" @change="setSwitch('rightsConfirmed', $event)"/></text>
+<text>公开发布 <switch :checked="form.published" :disabled="busy" @change="setSwitch('published', $event)"/></text>
 <button :disabled="busy" @click="save">保存{{form.published?'并发布':'为未发布'}}</button><button :disabled="busy" @click="form=null">取消编辑</button></view>
 </scroll-view></template>
 <script setup lang="ts">
@@ -37,6 +37,7 @@ async function load(more:boolean){
   rows.value=more?[...rows.value,...data.items]:data.items;hasMore.value=data.hasMore;page=target;
  }catch(e){if(current(ctx))error.value=e instanceof Error?e.message:'加载失败';}finally{if(current(ctx))busy.value=false;}
 }
+function setSwitch(key:'rightsConfirmed'|'published',event:Event|{detail:{value:boolean}}){const value=(event as {detail?:{value?:boolean}}).detail?.value;if(form.value&&typeof value==='boolean')form.value[key]=value;}
 function create(){if(busy.value)return;existing.value=false;form.value={id:'',title:'',summary:'',category:'其他',link:'',priceHint:'',sourceUrl:'',rightsNote:'',rightsConfirmed:false,published:false,version:0};}
 function edit(row:Row){if(busy.value)return;existing.value=true;form.value={id:row._id,title:row.title,summary:row.summary,category:row.legacyCategory?'其他':row.category,link:row.link,priceHint:row.priceHint,sourceUrl:row.sourceUrl,rightsNote:row.rightsNote,rightsConfirmed:row.rightsConfirmed,published:row.published,version:row.version};}
 async function unpublish(row:Row){
@@ -50,7 +51,13 @@ async function unpublish(row:Row){
  }catch(e){if(current(ctx))error.value=e instanceof Error?e.message:'撤下失败';}finally{if(current(ctx))busy.value=false;}
 }
 async function save(){
- if(busy.value||!form.value)return;const ctx=context();if(!ctx){error.value='请先登录';return;}const snapshot={...form.value};
+ if(busy.value||!form.value)return;const ctx=context();if(!ctx){error.value='请先登录';return;}
+ const draft=form.value;
+ if(!/^[a-zA-Z0-9_-]{1,128}$/.test(draft.id)||!draft.title.trim()||draft.title.trim().length>200||draft.summary.length>2000||!categories.includes(draft.category)||draft.priceHint.length>100||!Number.isInteger(draft.version)||draft.version<0){error.value='请检查条目ID、标题、分类、说明和版本';return;}
+ if(!draft.rightsConfirmed||!draft.rightsNote.trim()){error.value='发布或保存前必须确认实际使用授权，并填写授权依据';return;}
+ const validHttps=(value:string)=>{try{const url=new URL(value);return url.protocol==='https:'&&!url.username&&!url.password&&(!url.port||url.port==='443');}catch{return false;}};
+ if(draft.link.length>2048||draft.sourceUrl.length>2048||!validHttps(draft.link)||!validHttps(draft.sourceUrl)){error.value='商品链接和归属来源必须是有效的 HTTPS 地址，且不能含账号密码或非标准端口';return;}
+ const snapshot={...draft,id:draft.id.trim(),title:draft.title.trim(),summary:draft.summary.trim(),priceHint:draft.priceHint.trim(),rightsNote:draft.rightsNote.trim()};
  busy.value=true;error.value='';
  try{const res=await callCloud<{saved:boolean;id:string;version:number}>('social-manage',{action:'guides.save',...snapshot});if(!current(ctx))return;
   if(!res.ok||res.data?.saved!==true||res.data.id!==snapshot.id||res.data.version!==snapshot.version+1)throw new Error(res.errMsg||'保存未确认，请刷新核对');

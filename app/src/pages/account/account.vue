@@ -105,7 +105,7 @@ function logout(all: boolean) {
     try {
       const result = await accountRequest(all?'auth.sign-out-all':'auth.sign-out');
       if(!sameSession(original))return;
-      if (result.ok) { clearAccount(); session.value = null; message.value = '已退出'; }
+      if (result.ok) { const cleared=clearAccount(); session.value = null; message.value = cleared?'已退出':'云端已退出，但本机登录状态或定位清理未完全确认；请重试清理并暂勿共用此设备'; }
       else message.value = result.errMsg || '退出未完成，请联网重试';
     } finally { busy.value = false; }
   } });
@@ -122,8 +122,10 @@ function deleteAccount() {
       if (!result.ok) { message.value = result.errMsg || '注销未完成，请保留登录状态重试'; return; }
       if (result.data?.complete===true) {
         const archived=archiveDeletedAccountLibrary(original.openid);
-        const cleaned=clearDeletedAccountRequests(original.openid);clearAccount(); session.value = null; password.value = '';
-        message.value=archived.status==='failed'
+        const cleaned=clearDeletedAccountRequests(original.openid);const localCleared=clearAccount(); session.value = null; password.value = '';
+        message.value=!localCleared
+          ?'云端账号已注销，但本机登录状态或定位清理未完全确认；请重试清理并暂勿共用此设备'
+          :archived.status==='failed'
           ?'云端账号已注销；本机收藏与行程仍保留在旧分区，待确认备份状态未完全确认（可能已有副本），请勿清理应用数据'
           :!cleaned?'账号和云数据已注销，本机待创建请求清理失败'
           :!archived.metadataCleaned?`本机收藏与行程已移入待确认备份，但旧同步元数据未能完整清理`

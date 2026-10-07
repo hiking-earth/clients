@@ -9,8 +9,14 @@ const release=JSON.parse(readFileSync(metadataFile,'utf8'));
 const config=JSON.parse(readFileSync(new URL('../desktop/src-tauri/tauri.conf.json',import.meta.url),'utf8'));
 if(release.draft!==true||release.target_commitish!==sourceCommit||!Array.isArray(release.assets))throw new Error('Expected draft release pinned to source commit');
 const platforms={};
-for(const [platform,suffix] of [['windows-x86_64','.msi'],['darwin-aarch64','.app.tar.gz'],['linux-x86_64','.AppImage']]){
- const candidates=release.assets.filter(a=>typeof a.name==='string'&&a.name.endsWith(suffix));
+const specs=[
+ ['windows-x86_64','.msi',()=>true],
+ ['darwin-aarch64','.app.tar.gz',name=>/_aarch64\.app\.tar\.gz$/.test(name)],
+ ['darwin-x86_64','.app.tar.gz',name=>/_x64\.app\.tar\.gz$/.test(name)],
+ ['linux-x86_64','.AppImage',()=>true],
+];
+for(const [platform,suffix,matchesArchitecture] of specs){
+ const candidates=release.assets.filter(a=>typeof a.name==='string'&&a.name.endsWith(suffix)&&matchesArchitecture(a.name));
  if(candidates.length!==1)throw new Error(`Expected one ${platform} update artifact`);
  const artifact=candidates[0],signature=release.assets.find(a=>a.name===artifact.name+'.sig');
  if(!signature)throw new Error(`Missing ${platform} signature`);

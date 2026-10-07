@@ -29,10 +29,13 @@ exports.main = async event => {
     const version = (post.joinVersion || 0) + 1;
     if (event.action === 'leave') {
       if (owner) return { errMsg: '发起人请关闭或删除活动' };
+      const id=require('crypto').createHash('sha256').update(`${OPENID}:registration:${event.postId}`).digest('hex');
+      if(!members.includes(OPENID)){if((await tx.collection('user_documents').doc(id).get()).data)await tx.collection('user_documents').doc(id).remove();return {left:true};}
       const remaining = members.filter(id => id !== OPENID);
       await ref.update({ data: { members: remaining, _members_count: remaining.length, joinVersion: version,
         status: ['closed','pending'].includes(post.status) ? post.status : remaining.length >= post.maxMembers ? 'full' : 'open' } });
-      const id=require('crypto').createHash('sha256').update(`${OPENID}:registration:${event.postId}`).digest('hex');if((await tx.collection('user_documents').doc(id).get()).data)await tx.collection('user_documents').doc(id).remove();
+      if((await tx.collection('user_documents').doc(id).get()).data)await tx.collection('user_documents').doc(id).remove();
+      if(typeof post.openid==='string'&&post.openid&&post.openid!==OPENID){const notificationId=require('crypto').createHash('sha256').update(`companion-cancellation:${event.postId}:${OPENID}:${version}`).digest('hex');await tx.collection('user_notifications').doc(notificationId).set({data:{owner:post.openid,type:'companion-cancellation',title:'有报名人取消了活动报名',postId:event.postId,read:false,createdAt:Date.now()}});}
       return { left: true };
     }
     if (!owner) return { errMsg: '仅发起人可以管理该活动' };
@@ -52,6 +55,7 @@ exports.main = async event => {
       : members.length >= (edits?.maxMembers || post.maxMembers) ? 'full' : 'open';
     await ref.update({ data: { ...edits, status, ...(status === 'pending' ? { pendingDesiredStatus: post.status === 'closed' ? 'closed' : post.pendingDesiredStatus || 'open' } : {}), joinVersion: version, updatedAt: Date.now(),
       ...(event.action === 'delete' ? { title: '', content: '', members: [], nickname: '', routeId: '', deletedAt: Date.now() } : {}) } });
+    if(event.action==='close'&&post.status!=='closed'){for(const recipient of new Set(members)){if(typeof recipient!=='string'||!recipient||recipient===OPENID)continue;const notificationId=require('crypto').createHash('sha256').update(`companion-closed:${event.postId}:${recipient}:${version}`).digest('hex');await tx.collection('user_notifications').doc(notificationId).set({data:{owner:recipient,type:'companion-closed',title:'发起人已关闭你报名的活动',postId:event.postId,read:false,createdAt:Date.now()}});}}
     if(event.action==='delete'){const rows=(await tx.collection('user_documents').where({kind:'registration',postId:event.postId}).limit(50).get()).data;for(const row of rows)await tx.collection('user_documents').doc(row._id).remove();}
     return { updated: true, status };
   });

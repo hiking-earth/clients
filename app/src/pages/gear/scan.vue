@@ -6,9 +6,7 @@
     </view>
 
     <!-- 选路线（可选，影响规划建议） -->
-    <picker mode="selector" :range="routeNames" @change="onPickRoute">
-      <view class="picker">{{ routeId ? routeName : '关联路线（可选，让规划更准）' }}</view>
-    </picker>
+    <RouteSearchPicker v-model="routeId" placeholder="搜索或选择关联路线（可选，让规划更准）" @selected="onRouteSelected" />
 
     <!-- 拍照区 -->
     <view class="shot" @click="chooseImage">
@@ -64,7 +62,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 declare const plus: any;
-import { ROUTES } from "@/services/route-catalog";
+import RouteSearchPicker from '@/components/RouteSearchPicker.vue';
 import { callCloud } from "@/services/cloud";
 import {onShow,onHide,onUnload} from "@dcloudio/uni-app";
 import {accountSession,onAccountChange} from "@/services/account";
@@ -78,7 +76,6 @@ type GearResult = {
   plan: { name: string; checked: boolean }[];
 };
 
-const routeNames = ROUTES.map((r) => r.name);
 const routeId = ref("");
 const routeName = ref("");
 const imagePath = ref("");
@@ -94,11 +91,10 @@ function validResult(value:any):value is GearResult{
  const text=(v:any,max:number)=>typeof v==="string"&&v.trim().length>0&&v.length<=max;
  return !!value&&Array.isArray(value.items)&&value.items.length<=100&&value.items.every((i:any)=>i&&text(i.name,200)&&text(i.category,100))&&Array.isArray(value.missing)&&value.missing.length<=100&&value.missing.every((i:any)=>i&&text(i.name,200)&&text(i.reason,1000))&&Array.isArray(value.usage)&&value.usage.length<=30&&value.usage.every((i:any)=>text(i,1000))&&Array.isArray(value.plan)&&value.plan.length<=100&&value.plan.every((i:any)=>i&&text(i.name,200));
 }
-function onPickRoute(e: any) {
+function onRouteSelected(route: { id: string; name: string } | null) {
   invalidate();
-  const r = ROUTES[e.detail.value];
-  routeId.value = r?.id ?? "";
-  routeName.value = r?.name ?? "";
+  routeId.value = route?.id ?? "";
+  routeName.value = route?.name ?? "";
 }
 
 function chooseImage() {

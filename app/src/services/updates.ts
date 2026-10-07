@@ -2,7 +2,7 @@ import { reactive } from 'vue';
 import {publicSnapshot} from './public-data';
 import { isDesktop, checkDesktopUpdate, installDesktopUpdate, restartDesktop } from './desktop';
 import { hasRecordingDraft } from './tracks';
-import { APP_VERSION } from './version';
+import { APP_VERSION, APP_VERSION_CODE } from './version';
 export { APP_VERSION };
 export const updateState=reactive({checking:false,installing:false,available:false,version:'',notes:'',message:'',progress:0});
 const MANIFEST=import.meta.env.VITE_RELEASE_MANIFEST_URL;
@@ -29,6 +29,13 @@ function nativeVersion():string {
   // #endif
   return APP_VERSION;
 }
+function nativeVersionCode():number {
+  // #ifdef APP-PLUS
+  const runtimeCode=Number(plus.runtime.versionCode);
+  return Number.isSafeInteger(runtimeCode)&&runtimeCode>0?runtimeCode:APP_VERSION_CODE;
+  // #endif
+  return APP_VERSION_CODE;
+}
 export async function checkForUpdate(force=false):Promise<void> {
   if(updateState.checking || updateState.installing || (!force && Date.now()<nextCheckAt))return;
   updateState.checking=true;updateState.message='';
@@ -43,13 +50,24 @@ export async function checkForUpdate(force=false):Promise<void> {
     miniManagerBound=true;
     return;
     // #endif
+    // #ifdef H5
+    // Web releases are installed by the site Service Worker, not the native
+    // Android/iOS artifact manifest. Avoid reporting a false failure when that
+    // native-only manifest is unavailable or still marked not ready.
+    updateState.available=false;updateState.version='';updateState.notes='';
+    updateState.message='网页会自动获取新版；新版准备好后会提示刷新，请先保存当前操作';
+    checkedSuccessfully();
+    return;
+    // #endif
     const data=MANIFEST?await new Promise<unknown>((resolve,reject)=>uni.request({url:MANIFEST,timeout:15000,success:r=>r.statusCode===200?resolve(r.data):reject(new Error('发布清单暂不可用')),fail:()=>reject(new Error('无法连接更新服务'))})):await publicSnapshot('release');
     const r=data as Release;
     if(r?.schemaVersion!==1 || typeof r.ready!=='boolean' || !/^\d+\.\d+\.\d+$/.test(r.version) || !Number.isSafeInteger(r.versionCode) || r.versionCode<=0 || typeof r.notes!=='string' || r.notes.length>12000)throw new Error('发布清单无效');
     const android=r.android;const ios=r.ios;
     if(android && (!artifactUrl(android!.url) || !/^[a-f0-9]{64}$/.test(android!.sha256) || !Number.isSafeInteger(android!.size) || android!.size<=0 || android!.size>200*1024*1024))throw new Error('安装包信息无效');
     if(ios && !/^https:\/\/(apps\.apple\.com|testflight\.apple\.com)\//.test(ios!.url))throw new Error('iOS更新入口无效');
-    release=r;const hasNewVersion=r.ready && newer(r.version,nativeVersion());const hasArtifact=platformArtifactAvailable(r);updateState.available=hasNewVersion && hasArtifact;updateState.version=r.version;updateState.notes=r.notes;
+    const currentVersion=nativeVersion(),currentVersionCode=nativeVersionCode();
+    if(r.ready&&newer(r.version,currentVersion)&&r.versionCode<=currentVersionCode)throw new Error('新版本版本号未递增，已停止更新以避免安装失败');
+    release=r;const versionCanAdvance=r.version===currentVersion||newer(r.version,currentVersion);const hasNewVersion=r.ready&&versionCanAdvance&&r.versionCode>currentVersionCode;const hasArtifact=platformArtifactAvailable(r);updateState.available=hasNewVersion && hasArtifact;updateState.version=r.version;updateState.notes=r.notes;
     checkedSuccessfully();
     if(!updateState.available)updateState.message=!r.ready?'新版本仍在准备，尚未正式发布':hasNewVersion&&!hasArtifact?'当前平台的新版本安装入口尚未发布':'当前为最新版本';
     // #ifdef H5

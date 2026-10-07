@@ -38,15 +38,51 @@ def sha256_file(path):
     return digest.hexdigest()
 
 
+def valid_source_url(value):
+    if value is None:
+        return True
+    try:
+        parsed = urlsplit(value)
+        return (parsed.scheme == "https" and bool(parsed.hostname) and not parsed.username
+                and not parsed.password and parsed.port is None and not parsed.query
+                and not parsed.fragment)
+    except (TypeError, ValueError):
+        return False
+
+
+def parse_timestamp(value):
+    if not isinstance(value, str):
+        return None
+    try:
+        parsed = dt.datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except (ValueError, TypeError):
+        return None
+    return parsed if parsed.tzinfo is not None else None
+
+
 def valid_catalog(path):
     value = json.loads(path.read_bytes())
-    if value.get("schemaVersion") != 1 or not isinstance(value.get("routes"), list):
+    if not isinstance(value, dict) or value.get("schemaVersion") != 1 or not isinstance(value.get("routes"), list):
         raise ValueError("Existing OSM catalog has an unsupported schema; left unchanged")
-    identities = [row.get("id") for row in value["routes"] if isinstance(row, dict)]
-    if (len(identities) != len(value["routes"])
-            or any(not isinstance(identity, str) or not identity for identity in identities)
-            or len(set(identities)) != len(identities)):
-        raise ValueError("Existing OSM catalog has invalid or duplicate route IDs; left unchanged")
+    identities = set()
+    for row in value["routes"]:
+        identity = row.get("id") if isinstance(row, dict) else None
+        match = re.fullmatch(r"osm-relation-([1-9][0-9]*)", identity) if isinstance(identity, str) else None
+        center = row.get("center") if isinstance(row, dict) else None
+        tags = row.get("sourceTags") if isinstance(row, dict) else None
+        if (not match or identity in identities
+                or not isinstance(row.get("name"), str) or not row["name"].strip()
+                or not isinstance(row.get("originalName"), str) or not row["originalName"].strip()
+                or row.get("region") not in REGIONS
+                or not isinstance(center, list) or len(center) != 2
+                or any(not isinstance(point, (int, float)) or isinstance(point, bool) or not math.isfinite(point) for point in center)
+                or abs(center[0]) > 180 or abs(center[1]) > 90
+                or row.get("sourceUrl") != f"https://www.openstreetmap.org/relation/{match.group(1)}"
+                or not isinstance(tags, dict) or any(not isinstance(key, str) or not isinstance(tag, str) for key, tag in tags.items())
+                or not isinstance(row.get("status"), str) or parse_timestamp(row.get("fetchedAt")) is None
+                or ("lastSeenCycle" in row and not isinstance(row["lastSeenCycle"], str))):
+            raise ValueError("Existing OSM catalog has an invalid route row; left unchanged")
+        identities.add(identity)
     return value
 
 
@@ -74,10 +110,8 @@ def main():
     if not re.fullmatch(r"[a-z0-9][a-z0-9/_-]{0,99}", args.source_id):
         raise SystemExit("--source-id must be a stable lowercase slug using letters, digits, slash, _ or -")
     if args.source_url:
-        parsed_url = urlsplit(args.source_url)
-        if (parsed_url.scheme != "https" or not parsed_url.hostname or parsed_url.username
-                or parsed_url.password or parsed_url.query or parsed_url.fragment):
-            raise SystemExit("--source-url must be HTTPS and cannot contain credentials, query parameters, or fragments")
+        if not valid_source_url(args.source_url):
+            raise SystemExit("--source-url must be HTTPS and cannot contain credentials, a custom port, query parameters, or fragments")
 
     try:
         import osmium
@@ -92,6 +126,22 @@ def main():
     imports = snapshot.get("pbfImports", [])
     if not isinstance(imports, list):
         raise SystemExit("Existing PBF import provenance is invalid; catalog left unchanged")
+    source_ids = set()
+    for item in imports:
+        numeric_fields = ("bytes", "candidateRelations", "importedRelations", "skippedIncompleteRelations", "skippedNestedRelations")
+        if (not isinstance(item, dict)
+                or not isinstance(item.get("sourceId"), str) or not re.fullmatch(r"[a-z0-9][a-z0-9/_-]{0,99}", item["sourceId"])
+                or item["sourceId"] in source_ids
+                or item.get("region") not in REGIONS or not valid_source_url(item.get("sourceUrl"))
+                or (item.get("sourceTimestamp") is not None and parse_timestamp(item.get("sourceTimestamp")) is None)
+                or not isinstance(item.get("sha256"), str) or not re.fullmatch(r"[a-f0-9]{64}", item["sha256"])
+                or parse_timestamp(item.get("importedAt")) is None
+                or any(not isinstance(item.get(field), int) or isinstance(item.get(field), bool) or item[field] < 0 for field in numeric_fields)
+                or item["bytes"] <= 0 or item["bytes"] > MAX_IMPORT_BYTES
+                or item["importedRelations"] > item["candidateRelations"]
+                or item["skippedIncompleteRelations"] > item["candidateRelations"]):
+            raise SystemExit("Existing PBF import provenance is invalid; catalog left unchanged")
+        source_ids.add(item["sourceId"])
     existing_by_id = {row["id"]: row for row in snapshot["routes"]}
     digest = sha256_file(pbf)
     if any(row.get("sourceId") == args.source_id and row.get("sha256") == digest
@@ -100,7 +150,10 @@ def main():
         return
     try:
         replication = osmium.replication.get_replication_header(str(pbf))
-        source_timestamp = replication.timestamp.isoformat().replace("+00:00", "Z") if replication.timestamp else None
+        source_time = replication.timestamp
+        if source_time and source_time.tzinfo is None:
+            source_time = source_time.replace(tzinfo=dt.timezone.utc)
+        source_timestamp = source_time.astimezone(dt.timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z") if source_time else None
     except (RuntimeError, ValueError):
         source_timestamp = None
 

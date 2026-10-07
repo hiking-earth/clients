@@ -101,7 +101,7 @@ onLoad(async () => {
   // 本机缓存先用于断网显示；随后按登录身份读取云端成员关系并纠正它。
   const saved = uni.getStorageSync("he_team");
   if (saved) {
-    try { const restored=JSON.parse(saved);if(!validTeam(restored))throw new Error("invalid team");team.value=restored;startPoll(); } catch { uni.removeStorageSync("he_team"); }
+    try { const restored=typeof saved==='string'?JSON.parse(saved):saved;if(!validTeam(restored))throw new Error("invalid team");team.value=restored;startPoll(); } catch { uni.removeStorageSync("he_team"); }
   }
   await discoverJoinedTeams();
 });

@@ -1,13 +1,12 @@
-// team-current：恢复当前统一账号加入的活动队伍
+// team-current：恢复当前身份加入的活动队伍（只返回调用者自己的成员关系）
 const cloud = require('wx-server-sdk');
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database({ throwOnNotFound: false });
-const identity = require('../../identity');
 
 exports.main = async () => {
-  const owner = identity.currentIdentity();
-  if (!owner) return { errMsg: '请先登录' };
-  const memberships = (await db.collection('team_members').where({ openid: owner }).limit(100).get()).data;
+  const OPENID = require('../../identity').currentIdentity();
+  if (!OPENID) return { errMsg: '请先登录' };
+  const memberships = (await db.collection('team_members').where({ openid: OPENID }).limit(100).get()).data;
   const byTeam = new Map();
   for (const member of memberships) {
     if (typeof member.teamId !== 'string' || !member.teamId) continue;

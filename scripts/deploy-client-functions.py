@@ -17,9 +17,8 @@ parser.add_argument('--cloudbase-cli', required=True)
 parser.add_argument('--node', default='node')
 parser.add_argument('--env', default='cloud1-d9g4fl3fu2491914f')
 parser.add_argument('--backup-dir', required=True)
-parser.add_argument('--functions', nargs='+', default=[
-    'client-api', 'social-manage', 'route-manage', 'catalog-feed', 'data-maintenance'
-])
+parser.add_argument('--functions', nargs='+', default=None,
+                    help='Functions to deploy; defaults to every cloudbaserc.json function except init-db')
 args = parser.parse_args()
 base = [args.node, args.cloudbase_cli]
 
@@ -33,11 +32,67 @@ def source_files(folder):
             if path.is_file() and not {'node_modules', '.git'}.intersection(path.relative_to(folder).parts)]
 
 
+def save_diagnostic(path, result):
+    path.write_text(result.stdout + '\n' + result.stderr)
+    os.chmod(path, 0o600)
+
+
+def download_readback(name, label):
+    for attempt in range(3):
+        target = backup / f'{name}-{label}-readback-{attempt + 1}'
+        result = run(base + ['fn', 'code', 'download', name, str(target), '-e', args.env, '--json'])
+        save_diagnostic(backup / f'{name}-{label}-readback-{attempt + 1}.log', result)
+        if not result.returncode:
+            return target
+        if attempt < 2:
+            time.sleep(5 * (attempt + 1))
+    return None
+
+
+def first_source_mismatch(source, readback):
+    expected = {file.relative_to(source).parts: hashlib.sha256(file.read_bytes()).digest()
+                for file in source_files(source)}
+    candidates = source_files(readback)
+    prefix = None
+    for relative, digest in expected.items():
+        matches = [candidate for candidate in candidates
+                   if candidate.relative_to(readback).parts[-len(relative):] == relative
+                   and hashlib.sha256(candidate.read_bytes()).digest() == digest]
+        if not matches:
+            return pathlib.PurePath(*relative).as_posix()
+        candidate_prefix = matches[0].relative_to(readback).parts[:-len(relative)]
+        if prefix is None:
+            prefix = candidate_prefix
+        elif candidate_prefix != prefix:
+            return 'downloaded files have inconsistent roots'
+    normalized = {file.relative_to(readback).parts[len(prefix or ()):]
+                  for file in candidates
+                  if file.relative_to(readback).parts[:len(prefix or ())] == (prefix or ())}
+    if normalized != set(expected):
+        extra = sorted(normalized - set(expected))
+        missing = sorted(set(expected) - normalized)
+        if extra:
+            return 'unexpected remote file ' + pathlib.PurePath(*extra[0]).as_posix()
+        if missing:
+            return 'missing remote file ' + pathlib.PurePath(*missing[0]).as_posix()
+    return None
+
+
 subprocess.run(['python3', str(ROOT / 'app/scripts/compose-client-api.py')], check=True)
 backup = pathlib.Path(args.backup_dir).expanduser().resolve()
 backup.mkdir(parents=True, exist_ok=False)
 os.chmod(backup, 0o700)
 allowed = {folder.name for folder in (ROOT / 'app/cloudfunctions').iterdir() if folder.is_dir()}
+config = json.loads((ROOT / 'app/cloudbaserc.json').read_text())
+configured_rows = config.get('functions', [])
+if not isinstance(configured_rows, list) or any(not isinstance(item, dict) or not isinstance(item.get('name'), str) for item in configured_rows):
+    raise SystemExit('Invalid CloudBase function configuration; no functions were updated.')
+configured_names = [item['name'] for item in configured_rows]
+if len(configured_names) != len(set(configured_names)):
+    raise SystemExit('Duplicate CloudBase function configuration; no functions were updated.')
+configured = set(configured_names)
+if args.functions is None:
+    args.functions = [name for name in configured_names if name != 'init-db']
 if len(args.functions) != len(set(args.functions)):
     raise SystemExit('Duplicate function names are not allowed')
 for name in args.functions:
@@ -65,19 +120,26 @@ while True:
     if result.returncode:
         raise SystemExit('Could not list remote functions; no functions were updated. Private diagnostic retained.')
     try:
-        page = json.loads(result.stdout)['data']
+        payload = json.loads(result.stdout)
+        page = payload['data']
+        # CLI 2 returns an array; CLI 3 wraps the same rows in Functions.
+        if isinstance(page, dict):
+            page = page['Functions']
         if not isinstance(page, list) or any(not isinstance(row, dict) for row in page):
             raise ValueError('unexpected function listing')
+        names = [row.get('FunctionName') or row.get('name') for row in page]
+        if any(not isinstance(name, str) or not name for name in names) or len(names) != len(set(names)):
+            raise ValueError('invalid function names')
+        if remote_names.intersection(names):
+            raise ValueError('function pagination did not advance')
     except (ValueError, KeyError, TypeError, json.JSONDecodeError):
         raise SystemExit('Could not parse remote function listing; no functions were updated. Private diagnostic retained.')
-    remote_names.update(row.get('FunctionName') or row.get('name') for row in page)
+    remote_names.update(names)
     if len(page) < page_size:
         break
     offset += page_size
 
 missing = sorted(set(args.functions) - remote_names)
-config = json.loads((ROOT / 'app/cloudbaserc.json').read_text())
-configured = {item['name'] for item in config.get('functions', []) if isinstance(item, dict) and 'name' in item}
 if not set(missing).issubset(configured):
     raise SystemExit('A new function has no CloudBase configuration; no functions were updated.')
 (backup / 'new-functions.json').write_text(json.dumps(missing, ensure_ascii=False, indent=2) + '\n')
@@ -94,46 +156,65 @@ for name in args.functions:
     if result.returncode:
         raise SystemExit('Backup failed for ' + name + '; no functions were updated. Private diagnostic retained.')
 
-for name in args.functions:
-    source = sources[name]
-    if name in remote_names:
-        command = base + ['fn', 'code', 'update', name, '--dir', str(source), '-e', args.env, '--json']
-    else:
-        command = base + ['fn', 'deploy', name, '--dir', str(source), '-e', args.env,
-                          '--install-dependency', 'true', '--yes', '--json']
-    result = run(command)
-    diagnostic = backup / (name + '-deploy.log')
-    diagnostic.write_text(result.stdout + '\n' + result.stderr)
-    os.chmod(diagnostic, 0o600)
-    if result.returncode:
-        message = 'Source deployment failed for ' + name
-        if name not in remote_names:
-            message += '; it was not present before this run and may require inspection in CloudBase.'
+attempted = []
+try:
+    for name in args.functions:
+        source = sources[name]
+        attempted.append(name)
+        if name in remote_names:
+            command = base + ['fn', 'code', 'update', name, '--dir', str(source), '-e', args.env, '--json']
         else:
-            message += '; prior code backups are in the private backup directory.'
-        raise SystemExit(message)
+            command = base + ['fn', 'deploy', name, '--dir', str(source), '-e', args.env,
+                              '--install-dependency', 'true', '--yes', '--json']
+        try:
+            result = run(command)
+        except OSError:
+            # No process was launched; this function has not been mutated.
+            attempted.pop()
+            raise
+        save_diagnostic(backup / (name + '-deploy.log'), result)
+        if result.returncode:
+            raise RuntimeError('Source deployment failed for ' + name)
 
-    for attempt in range(3):
-        readback = backup / (name + '-readback-' + str(attempt + 1))
-        result = run(base + ['fn', 'code', 'download', name, str(readback), '-e', args.env, '--json'])
-        diagnostic = backup / (name + '-readback-' + str(attempt + 1) + '.log')
-        diagnostic.write_text(result.stdout + '\n' + result.stderr)
-        os.chmod(diagnostic, 0o600)
-        if not result.returncode:
-            break
-        if attempt < 2:
-            time.sleep(5 * (attempt + 1))
-    if result.returncode:
-        raise SystemExit('Remote source readback failed for ' + name + '; private diagnostic retained.')
+        readback = download_readback(name, 'candidate')
+        if readback is None:
+            raise RuntimeError('Remote source readback failed for ' + name)
+        mismatch = first_source_mismatch(source, readback)
+        if mismatch:
+            raise RuntimeError('Remote content mismatch for ' + name + '/' + mismatch)
+        prior = backup / name if name in remote_names else 'new function'
+        print('Deployed and remote files verified:', name, 'Prior version:', prior, flush=True)
+except BaseException as failure:
+    rollback_failures = []
+    for name in reversed(attempted):
+        if name not in remote_names:
+            continue
+        try:
+            prior = backup / name
+            rollback = run(base + ['fn', 'code', 'update', name, '--dir', str(prior), '-e', args.env, '--json'])
+            save_diagnostic(backup / (name + '-rollback.log'), rollback)
+            if rollback.returncode:
+                rollback_failures.append(name + ' (restore command failed)')
+                continue
+            restored = download_readback(name, 'rollback')
+            if restored is None:
+                rollback_failures.append(name + ' (restore readback failed)')
+                continue
+            mismatch = first_source_mismatch(prior, restored)
+            if mismatch:
+                rollback_failures.append(name + ' (restore mismatch: ' + mismatch + ')')
+        except BaseException:
+            rollback_failures.append(name + ' (restore raised an error)')
 
-    for file in source_files(source):
-        relative = file.relative_to(source)
-        expected = hashlib.sha256(file.read_bytes()).digest()
-        matches = [candidate for candidate in readback.rglob(relative.name)
-                   if candidate.is_file() and candidate.relative_to(readback).as_posix().endswith(relative.as_posix())]
-        if not any(hashlib.sha256(candidate.read_bytes()).digest() == expected for candidate in matches):
-            raise SystemExit('Remote content mismatch for ' + name + '/' + relative.as_posix())
-    prior = backup / name if name in remote_names else 'new function'
-    print('Deployed and remote files verified:', name, 'Prior version:', prior, flush=True)
+    new_functions = [name for name in attempted if name not in remote_names]
+    detail = f'Deployment batch failed: {failure}. '
+    if rollback_failures:
+        detail += 'Rollback could not be verified for: ' + ', '.join(rollback_failures) + '. '
+    elif any(name in remote_names for name in attempted):
+        detail += 'Every attempted existing function was restored and readback-verified. '
+    if new_functions:
+        detail += 'New functions were not automatically deleted and need inspection: ' + ', '.join(new_functions) + '. '
+    detail += 'Private backups and diagnostics are retained at the requested backup directory.'
+    raise SystemExit(detail) from failure
 
 print('Deployment commands succeeded; verify remote file hashes and perform unified acceptance separately.')

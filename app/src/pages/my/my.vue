@@ -35,6 +35,8 @@
         <text class="row-icon">☁️</text><text class="row-name">云同步全部轨迹</text>
         <text class="row-sub">{{ unsynced }} 条待同步</text><text class="row-go">›</text>
       </view>
+      <text v-if="!tracksValid" class="privacy-note">本机轨迹列表格式异常，轨迹上传已停用以保留原始定位资料。请勿清理应用数据。</text>
+      <button v-if="!tracksValid" class="local-backup" @click="exportRawTrackStore">导出本机原始轨迹资料</button>
       <view class="row" @click="go('/pages/track/cloud')"><text class="row-icon">☁️</text><text class="row-name">恢复与管理云端轨迹</text><text class="row-go">›</text></view>
       <view class="row" @click="go('/pages/offline/offline')">
         <text class="row-icon">🗺️</text><text class="row-name">离线资料管理</text><text class="row-sub">本机轨迹</text><text class="row-go">›</text>
@@ -59,7 +61,8 @@
 import { ref } from "vue";
 import { onShow } from "@dcloudio/uni-app";
 import { callCloud } from "@/services/cloud";
-import { listTracks, uploadTrackToCloud, currentTrackOwner, trackNeedsManualBackup } from "@/services/tracks";
+import { listTracks, uploadTrackToCloud, currentTrackOwner, trackNeedsManualBackup, trackStorageValid, rawTrackStoreSnapshot } from "@/services/tracks";
+import { saveLocalTextFile } from '@/services/files';
 import { hasPrivacyConsent } from "@/services/privacy";
 import { accountSession, saveWeChatIdentity } from '@/services/account';
 import { APP_VERSION } from '@/services/version';
@@ -67,9 +70,11 @@ import { APP_VERSION } from '@/services/version';
 const openid = ref("");
 const nickname = ref("未登录");
 const unsynced = ref(0);
+const tracksValid=ref(trackStorageValid());
 let syncingTracks=false;
 
 onShow(() => {
+  tracksValid.value=trackStorageValid();
   unsynced.value = listTracks().filter((t) => trackNeedsManualBackup(t)).length;
   const session = accountSession();
   const saved = uni.getStorageSync("he_openid");
@@ -84,9 +89,7 @@ onShow(() => {
 });
 
 async function login() {
-  // #ifndef MP-WEIXIN
-  go('/pages/account/account'); return;
-  // #endif
+  // #ifdef MP-WEIXIN
   const res = await callCloud<{ openid: string; nickname: string }>("login");
   const loginData = res.data;
   if (res.ok && loginData) {
@@ -99,10 +102,16 @@ async function login() {
   } else {
     uni.showToast({ title: res.errMsg ?? "登录失败", icon: "none" });
   }
+  // #endif
+  // #ifndef MP-WEIXIN
+  go('/pages/account/account');
+  // #endif
 }
 
 async function syncAll() {
   if(syncingTracks)return;
+  tracksValid.value=trackStorageValid();
+  if(!tracksValid.value){uni.showModal({title:'轨迹资料格式异常',content:'为避免覆盖定位记录，已停止云同步。请保留应用数据并等待修复。',showCancel:false});return;}
   if (!hasPrivacyConsent("trackCloudSync")) {
     uni.showModal({
       title: "需要轨迹备份授权",
@@ -135,6 +144,25 @@ async function syncAll() {
   unsynced.value = listTracks().filter((t) => trackNeedsManualBackup(t,owner)).length;
   const conflict=cloudConflict;
   uni.showToast({ title: interrupted?`已确认 ${okCount} 条；因账号或授权变化停止，${unsynced.value} 条仍待同步`:conflict?`已确认 ${okCount}/${attempted} 条；存在云端新版本，请到云端轨迹恢复最新副本，${unsynced.value} 条仍待同步`:`已确认 ${okCount}/${attempted} 条；${unsynced.value} 条仍待同步`, icon: "none" });
+}
+
+async function exportRawTrackStore() {
+  const snapshot=rawTrackStoreSnapshot();
+  if(!snapshot){uni.showToast({title:'未读取到可导出的本机轨迹资料',icon:'none'});return;}
+  const accepted=await new Promise<boolean>(resolve=>uni.showModal({
+    title:'导出原始定位资料？',
+    content:'备份文件包含精确 GPS 轨迹点，也可能包含格式异常或其他账号的本机记录。文件只保存到你选择的位置或本机剪贴板，不会上传。请仅保存到你信任的位置。',
+    confirmText:'继续导出',cancelText:'取消',success:r=>resolve(r.confirm===true),fail:()=>resolve(false)
+  }));
+  if(!accepted)return;
+  const latest=rawTrackStoreSnapshot();
+  if(!latest){uni.showToast({title:'原始资料已不可读取，未导出',icon:'none'});return;}
+  const stamp=new Date().toISOString().replace(/[:.]/g,'-');
+  const name=`徒步地球-本机原始轨迹-${stamp}.${latest.extension}`;
+  try{
+    const saved=await saveLocalTextFile(name,latest.text,latest.extension==='json'?'application/json':'text/plain');
+    if(saved)uni.showToast({title:'已生成本机备份',icon:'success'});
+  }catch(error){uni.showModal({title:'备份导出失败',content:error instanceof Error?error.message:'未能保存原始轨迹资料',showCancel:false});}
 }
 
 function go(url: string) {
