@@ -157,9 +157,23 @@ async function dispatch(action, data, token, remoteAddress) {
   if (action === 'auth.sign-in') return newSession(await credentials(data));
   if (action === 'auth.recover') return recover(data);
   if (publicHandlers.has(action)||(action==='route-manage'&&data.action==='list')) {
-    if(action==='catalog-feed')await limit(`catalog:${hash(remoteAddress)}`,500);
-    const identity = token ? (await verifiedSession(token)).identity : '';
-    return withIdentity(identity, () => require(`./business/${action}`).main(data));
+    let stage = 'public-rate-limit';
+    try {
+      if(action==='catalog-feed')await limit(`catalog:${hash(remoteAddress)}`,500);
+      stage = 'public-session';
+      const identity = token ? (await verifiedSession(token)).identity : '';
+      stage = 'public-business';
+      return await withIdentity(identity, () => require(`./business/${action}`).main(data));
+    } catch (error) {
+      if (!error?.status) {
+        // No payload, header, identity, exception message or stack is logged.
+        const code = String(error?.code || error?.errCode || 'UNKNOWN');
+        console.warn(JSON.stringify({ event:'public-handler-failed', stage,
+          handler: handlers.has(action) ? action : 'unknown',
+          sdkCode: /^[A-Z0-9_.-]{1,64}$/i.test(code) ? code : 'UNCLASSIFIED' }));
+      }
+      throw error;
+    }
   }
   const account = await verifiedSession(token, action === 'auth.delete');
   if (action === 'auth.qr.inspect' || action === 'auth.qr.confirm') {
