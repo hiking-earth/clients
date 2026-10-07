@@ -4,6 +4,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
+const {inspectBudget} = require('./miniprogram-budget.cjs');
 
 const appRoot = path.resolve(__dirname, '..');
 const repositoryRoot = path.resolve(appRoot, '..');
@@ -34,6 +35,8 @@ if (!/^\d+\.\d+\.\d+$/.test(version || '')) {
   const config = JSON.parse(fs.readFileSync(path.join(buildRoot, 'project.config.json'), 'utf8'));
   if (config.appid !== appid) {
     fail(`Build AppID mismatch; expected ${appid}.`);
+  } else if (!inspectBudget(buildRoot).passed) {
+    fail('Mini-program package exceeds the conservative 2MB limit; optimize or split it before upload.');
   } else {
     // Pinned official CLI is downloaded by npx when this owner-only step runs.
     // This avoids shipping another large dependency in the application bundle.
