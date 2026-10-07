@@ -27,6 +27,13 @@ class MetadataPolicy(unittest.TestCase):
             rows, rejected=apply_metadata_policy([original],self.sources,self.now)
             self.assertFalse(rows); self.assertEqual(rejected[0]['reason'],reason)
             self.assertEqual(rejected[0]['record'],original)
+    def test_withhold_items_from_feed_pending_unified_verification(self):
+        sources = [{**self.sources[0], 'feedAcceptance':'pending-unified-verification'}]
+        original = self.row()
+        rows, rejected = apply_metadata_policy([original], sources, self.now)
+        self.assertFalse(rows)
+        self.assertEqual(rejected[0]['reason'], 'source-feed-not-accepted')
+        self.assertEqual(rejected[0]['record'], original)
     def test_invalid_source_and_date(self):
         for row in [None, self.row(sourceId=[]), self.row(fetchedAt='bad'), self.row(fetchedAt='2026-10-07T00:00:00')]:
             rows,rejected=apply_metadata_policy([row],self.sources,self.now)

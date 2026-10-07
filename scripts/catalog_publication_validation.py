@@ -131,6 +131,9 @@ def validate_news_catalog(data):
         if source_pair is None:
             raise ValueError(f'{label}: unknown source ID')
         source, allowed_hosts = source_pair
+        acceptance = source.get('feedAcceptance')
+        if acceptance is not None and acceptance != 'accepted':
+            raise ValueError(f'{label}: source {row["sourceId"]} feed has not been accepted')
         article_host = _https_host(row.get('url'), label)
         if article_host not in allowed_hosts:
             raise ValueError(f'{label}: article host is not allowed for source {row["sourceId"]}')

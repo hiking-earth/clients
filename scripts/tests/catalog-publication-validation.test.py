@@ -96,6 +96,12 @@ class NewsCatalogValidationTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'unknown source'):
             validation.validate_news_catalog(data)
 
+    def test_rejects_source_pending_feed_acceptance(self):
+        data = self.catalog()
+        data['sources'][0]['feedAcceptance'] = 'pending-unified-verification'
+        with self.assertRaisesRegex(ValueError, 'has not been accepted'):
+            validation.validate_news_catalog(data)
+
 
 if __name__ == '__main__':
     unittest.main()

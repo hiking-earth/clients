@@ -10,6 +10,8 @@ def review_metadata(row, sources, now):
     if not isinstance(row.get('sourceId'), str): return 'invalid-source-id'
     source = sources.get(row.get('sourceId'))
     if not source or source.get('reuse') != 'metadata-links-only': return 'source-not-approved'
+    acceptance = source.get('feedAcceptance')
+    if acceptance is not None and acceptance != 'accepted': return 'source-feed-not-accepted'
     if row.get('verified') is not True or row.get('sourceUrl') != source.get('url'):
         return 'provenance-mismatch'
     if not isinstance(row.get('title'), str) or not row['title'].strip(): return 'missing-title'
