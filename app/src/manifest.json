@@ -2,8 +2,8 @@
     "name" : "徒步地球",
     "appid" : "__UNI__93C5C2F",
     "description" : "基于 3D 地球的全球徒步路线发现与行前决策（客户端）",
-    "versionName" : "0.2.2",
-    "versionCode" : "22",
+    "versionName" : "0.2.3",
+    "versionCode" : "23",
     "transformPx" : false,
     "app-plus" : {
         "usingComponents" : true,
