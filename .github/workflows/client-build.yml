@@ -26,6 +26,10 @@ jobs:
           cache-dependency-path: app/package-lock.json
       - run: npm ci
         working-directory: app
+      - name: Check client types and photo lifecycle regressions
+        run: |
+          npm --prefix app run type-check
+          node --test scripts/tests/photo-selection.test.cjs scripts/tests/gear-backend.test.cjs
       - name: Build candidate
         working-directory: app
         env:
