@@ -12,10 +12,10 @@
         <text class="acc-sub">{{ openid ? '已登录，可使用云端功能' : '登录后可用云同步、组队与社区' }}</text>
       </view>
       <button v-if="!openid" class="login" @click="login">登录</button>
-      <!-- #ifdef MP-WEIXIN -->
-      <button @click="go('/pages/account/qr-confirm')">扫码登录网页或桌面</button>
-      <!-- #endif -->
     </view>
+    <!-- #ifdef MP-WEIXIN -->
+    <view class="group"><view class="row" @click="go('/pages/account/qr-confirm')"><text class="row-icon">▣</text><text class="row-name">扫码登录网页或桌面</text><text class="row-go">›</text></view></view>
+    <!-- #endif -->
 
     <!-- 功能入口 -->
     <view class="group"><view class="row" @click="go('/pages/companion/social')"><text class="row-icon">✎</text><text class="row-name">云端日记、队聊与通知</text><text class="row-go">›</text></view></view>
@@ -191,7 +191,8 @@ function about() {
 .page { min-height: 100vh; background: #0f141b; padding: 40rpx 32rpx; box-sizing: border-box; }
 .account { display: flex; align-items: center; background: #151d27; border-radius: 20rpx; padding: 32rpx 24rpx; }
 .avatar { width: 96rpx; height: 96rpx; border-radius: 50%; background: #1a2430; color: #b8f36b; display: flex; align-items: center; justify-content: center; font-size: 40rpx; font-weight: 700; }
-.acc-info { flex: 1; margin-left: 24rpx; display: flex; flex-direction: column; gap: 8rpx; }
+.acc-info { flex: 1; min-width: 0; margin-left: 24rpx; display: flex; flex-direction: column; gap: 8rpx; }
+.avatar, .login { flex-shrink: 0; }
 .nick { font-size: 32rpx; font-weight: 600; color: #eef4ea; }
 .acc-sub { font-size: 22rpx; color: #5c6a78; }
 .login { padding: 0 40rpx; height: 64rpx; line-height: 64rpx; background: #b8f36b; color: #0f141b; font-size: 26rpx; font-weight: 600; border-radius: 999rpx; }
