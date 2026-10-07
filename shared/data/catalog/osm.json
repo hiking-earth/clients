@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-07T17:53:53Z",
+  "generatedAt": "2026-10-07T17:59:40Z",
   "license": "ODbL-1.0",
   "attribution": "© OpenStreetMap contributors",
   "licenseUrl": "https://www.openstreetmap.org/copyright",
@@ -7397,6 +7397,38 @@
         "ref": "PR-CC 13"
       },
       "fetchedAt": "2026-10-05T05:32:57.492949+00:00",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-10382555",
+      "name": "Circuito Sierra Chica de Zonda",
+      "originalName": "Circuito Sierra Chica de Zonda",
+      "region": "south-america",
+      "center": [
+        -68.67932905,
+        -31.5189637
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/10382555",
+      "sourceTags": {
+        "network": "lwn"
+      },
+      "fetchedAt": "2026-10-07T17:59:40Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-10382556",
+      "name": "Tres Marias",
+      "originalName": "Tres Marias",
+      "region": "south-america",
+      "center": [
+        -68.65561975,
+        -31.4793394
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/10382556",
+      "sourceTags": {
+        "network": "lwn"
+      },
+      "fetchedAt": "2026-10-07T17:59:40Z",
       "status": "待核验"
     },
     {
@@ -91276,7 +91308,7 @@
         "distance": "2.085",
         "network": "lwn"
       },
-      "fetchedAt": "2026-10-07T17:53:53Z",
+      "fetchedAt": "2026-10-07T17:59:40Z",
       "status": "待核验"
     },
     {
@@ -127112,6 +127144,20 @@
       "status": "待核验"
     },
     {
+      "id": "osm-relation-14116738",
+      "name": "El Pulqui",
+      "originalName": "El Pulqui",
+      "region": "south-america",
+      "center": [
+        -65.2727372,
+        -24.23692035
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/14116738",
+      "sourceTags": {},
+      "fetchedAt": "2026-10-07T17:59:40Z",
+      "status": "待核验"
+    },
+    {
       "id": "osm-relation-14117087",
       "name": "Slieve Carran/Keelhilla loop brown",
       "originalName": "Slieve Carran/Keelhilla loop brown",
@@ -154899,6 +154945,48 @@
       "status": "待核验"
     },
     {
+      "id": "osm-relation-15098395",
+      "name": "sandero laguna del caminante",
+      "originalName": "sandero laguna del caminante",
+      "region": "south-america",
+      "center": [
+        -68.38244510000001,
+        -54.7873524
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/15098395",
+      "sourceTags": {},
+      "fetchedAt": "2026-10-07T17:59:40Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-15098402",
+      "name": "laguna de los 5 hermanos sandero",
+      "originalName": "laguna de los 5 hermanos sandero",
+      "region": "south-america",
+      "center": [
+        -68.17317795,
+        -54.764729
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/15098402",
+      "sourceTags": {},
+      "fetchedAt": "2026-10-07T17:59:40Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-15098414",
+      "name": "Laguna Submarino sandero",
+      "originalName": "Laguna Submarino sandero",
+      "region": "south-america",
+      "center": [
+        -68.08925655,
+        -54.735266949999996
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/15098414",
+      "sourceTags": {},
+      "fetchedAt": "2026-10-07T17:59:40Z",
+      "status": "待核验"
+    },
+    {
       "id": "osm-relation-15098436",
       "name": "Licancabur hike",
       "originalName": "Licancabur hike",
@@ -164918,7 +165006,7 @@
       "sourceTags": {
         "network": "lwn"
       },
-      "fetchedAt": "2026-10-07T17:53:53Z",
+      "fetchedAt": "2026-10-07T17:59:40Z",
       "status": "待核验"
     },
     {
@@ -181088,6 +181176,24 @@
       "status": "待核验"
     },
     {
+      "id": "osm-relation-16067303",
+      "name": "Circuito Aeróbico Fuerza Aérea",
+      "originalName": "Circuito Aeróbico Fuerza Aérea",
+      "region": "south-america",
+      "center": [
+        -60.8417339,
+        -32.930028449999995
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/16067303",
+      "sourceTags": {
+        "network": "lwn",
+        "operator": "Municipalidad de Funes",
+        "description": "Circuito a pie y en bicicleta"
+      },
+      "fetchedAt": "2026-10-07T17:59:40Z",
+      "status": "待核验"
+    },
+    {
       "id": "osm-relation-16067791",
       "name": "Wandelpad Eik",
       "originalName": "Wandelpad Eik",
@@ -182081,6 +182187,20 @@
         "ref": "GR11;E9"
       },
       "fetchedAt": "2026-10-04T16:31:44.762078+00:00",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-16095950",
+      "name": "Sendero Bisontin",
+      "originalName": "Sendero Bisontin",
+      "region": "south-america",
+      "center": [
+        -69.0652733,
+        -30.2075081
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/16095950",
+      "sourceTags": {},
+      "fetchedAt": "2026-10-07T17:59:40Z",
       "status": "待核验"
     },
     {
@@ -195454,7 +195574,7 @@
         "network": "lwn",
         "operator": "CONAF"
       },
-      "fetchedAt": "2026-10-07T17:53:53Z",
+      "fetchedAt": "2026-10-07T17:59:40Z",
       "status": "待核验"
     },
     {
@@ -211476,7 +211596,7 @@
         "network": "lwn",
         "operator": "CONAF"
       },
-      "fetchedAt": "2026-10-07T17:53:53Z",
+      "fetchedAt": "2026-10-07T17:59:40Z",
       "status": "待核验"
     },
     {
@@ -223899,7 +224019,7 @@
       "sourceTags": {
         "network": "lwn"
       },
-      "fetchedAt": "2026-10-07T17:53:53Z",
+      "fetchedAt": "2026-10-07T17:59:40Z",
       "status": "待核验"
     },
     {
@@ -225722,6 +225842,38 @@
       "status": "待核验"
     },
     {
+      "id": "osm-relation-17900001",
+      "name": "Etapa 19: Ruca Ñire – Hua Hum",
+      "originalName": "Etapa 19: Ruca Ñire – Hua Hum",
+      "region": "south-america",
+      "center": [
+        -71.6186409,
+        -40.148711
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/17900001",
+      "sourceTags": {
+        "network": "nwn"
+      },
+      "fetchedAt": "2026-10-07T17:59:40Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-17900002",
+      "name": "Huella Andina – Neuquén Nord",
+      "originalName": "Huella Andina – Neuquén Nord",
+      "region": "south-america",
+      "center": [
+        -71.2602264,
+        -39.11800495
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/17900002",
+      "sourceTags": {
+        "network": "rwn"
+      },
+      "fetchedAt": "2026-10-07T17:59:40Z",
+      "status": "待核验"
+    },
+    {
       "id": "osm-relation-1790016",
       "name": "Tour de la Suisse Normande",
       "originalName": "Tour de la Suisse Normande",
@@ -225756,6 +225908,54 @@
         "ref": "GRPPF"
       },
       "fetchedAt": "2026-10-05T05:49:53.235873+00:00",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-17900329",
+      "name": "Huella Andina – Rio Negro Sur",
+      "originalName": "Huella Andina – Rio Negro Sur",
+      "region": "south-america",
+      "center": [
+        -71.52319265,
+        -41.5949554
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/17900329",
+      "sourceTags": {
+        "network": "rwn"
+      },
+      "fetchedAt": "2026-10-07T17:59:40Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-17900330",
+      "name": "Huella Andina – Rio Negro Norte",
+      "originalName": "Huella Andina – Rio Negro Norte",
+      "region": "south-america",
+      "center": [
+        -71.5583398,
+        -41.19505135
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/17900330",
+      "sourceTags": {
+        "network": "rwn"
+      },
+      "fetchedAt": "2026-10-07T17:59:40Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-17900331",
+      "name": "Huella Andina – Neuquén Sur",
+      "originalName": "Huella Andina – Neuquén Sur",
+      "region": "south-america",
+      "center": [
+        -71.57820285,
+        -40.74234505
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/17900331",
+      "sourceTags": {
+        "network": "rwn"
+      },
+      "fetchedAt": "2026-10-07T17:59:40Z",
       "status": "待核验"
     },
     {
@@ -228706,7 +228906,7 @@
       "sourceTags": {
         "network": "lwn"
       },
-      "fetchedAt": "2026-10-07T17:53:53Z",
+      "fetchedAt": "2026-10-07T17:59:40Z",
       "status": "待核验"
     },
     {
@@ -231166,7 +231366,7 @@
       "sourceTags": {
         "network": "lwn"
       },
-      "fetchedAt": "2026-10-07T17:53:53Z",
+      "fetchedAt": "2026-10-07T17:59:40Z",
       "status": "待核验"
     },
     {
@@ -238484,6 +238684,86 @@
       "status": "待核验"
     },
     {
+      "id": "osm-relation-18114645",
+      "name": "Etapa 15: Puerto Arturo – Laguna Rosales",
+      "originalName": "Etapa 15: Puerto Arturo – Laguna Rosales",
+      "region": "south-america",
+      "center": [
+        -71.33402755,
+        -40.06518545
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/18114645",
+      "sourceTags": {
+        "network": "nwn"
+      },
+      "fetchedAt": "2026-10-07T17:59:40Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-18114646",
+      "name": "Etapa 14: Auquinco – Puerto Arturo",
+      "originalName": "Etapa 14: Auquinco – Puerto Arturo",
+      "region": "south-america",
+      "center": [
+        -71.42596785,
+        -40.01822575
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/18114646",
+      "sourceTags": {
+        "network": "nwn"
+      },
+      "fetchedAt": "2026-10-07T17:59:40Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-18114647",
+      "name": "Etapa 12: Laguna Verde - Rincón de Los Pinos",
+      "originalName": "Etapa 12: Laguna Verde - Rincón de Los Pinos",
+      "region": "south-america",
+      "center": [
+        -71.53503735000001,
+        -39.8889248
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/18114647",
+      "sourceTags": {
+        "network": "nwn"
+      },
+      "fetchedAt": "2026-10-07T17:59:40Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-18114648",
+      "name": "Etapa 13: Rincón de Los Pinos – Auquinco",
+      "originalName": "Etapa 13: Rincón de Los Pinos – Auquinco",
+      "region": "south-america",
+      "center": [
+        -71.49235905,
+        -39.98322405
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/18114648",
+      "sourceTags": {
+        "network": "nwn"
+      },
+      "fetchedAt": "2026-10-07T17:59:40Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-18114649",
+      "name": "Etapa 11: Termas de Epulaufquen – Laguna Verde",
+      "originalName": "Etapa 11: Termas de Epulaufquen – Laguna Verde",
+      "region": "south-america",
+      "center": [
+        -71.57733595,
+        -39.82391885
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/18114649",
+      "sourceTags": {
+        "network": "nwn"
+      },
+      "fetchedAt": "2026-10-07T17:59:40Z",
+      "status": "待核验"
+    },
+    {
       "id": "osm-relation-18114650",
       "name": "Etapa 10: Aila – Termas de Epulafquen",
       "originalName": "Etapa 10: Aila – Termas de Epulafquen",
@@ -238496,7 +238776,39 @@
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-07T17:53:53Z",
+      "fetchedAt": "2026-10-07T17:59:40Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-18114651",
+      "name": "Etapa 9: Puerto Canoa – Aila",
+      "originalName": "Etapa 9: Puerto Canoa – Aila",
+      "region": "south-america",
+      "center": [
+        -71.56210065,
+        -39.7421417
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/18114651",
+      "sourceTags": {
+        "network": "nwn"
+      },
+      "fetchedAt": "2026-10-07T17:59:40Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-18114652",
+      "name": "Etapa 8: Puerto Canoa – Cara sur volcán Lanín",
+      "originalName": "Etapa 8: Puerto Canoa – Cara sur volcán Lanín",
+      "region": "south-america",
+      "center": [
+        -71.50744975,
+        -39.713218999999995
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/18114652",
+      "sourceTags": {
+        "network": "nwn"
+      },
+      "fetchedAt": "2026-10-07T17:59:40Z",
       "status": "待核验"
     },
     {
@@ -241466,6 +241778,22 @@
         "website": "https://www.norfolk.gov.uk/norfolkcoast"
       },
       "fetchedAt": "2026-10-05T06:11:33.759189+00:00",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-1818482",
+      "name": "Cerro 2011",
+      "originalName": "Cerro 2011",
+      "region": "south-america",
+      "center": [
+        -64.44515344999999,
+        -32.18714995
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/1818482",
+      "sourceTags": {
+        "network": "lwn"
+      },
+      "fetchedAt": "2026-10-07T17:59:40Z",
       "status": "待核验"
     },
     {
@@ -246422,6 +246750,20 @@
       "status": "待核验"
     },
     {
+      "id": "osm-relation-18397028",
+      "name": "sendero a Refugio Motoco",
+      "originalName": "sendero a Refugio Motoco",
+      "region": "south-america",
+      "center": [
+        -71.64938305000001,
+        -42.01643235
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/18397028",
+      "sourceTags": {},
+      "fetchedAt": "2026-10-07T17:59:40Z",
+      "status": "待核验"
+    },
+    {
       "id": "osm-relation-18397226",
       "name": "Dzika Róża",
       "originalName": "Dzika Róża",
@@ -246661,6 +247003,24 @@
         "website": "https://grensparkkalmthoutseheide.com/wandelpad-ree/"
       },
       "fetchedAt": "2026-10-05T06:11:33.759189+00:00",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-18435356",
+      "name": "Trail de la Selva. Almafuerte. 7 Km.",
+      "originalName": "Trail de la Selva. Almafuerte. 7 Km.",
+      "region": "south-america",
+      "center": [
+        -55.406751299999996,
+        -27.51771515
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/18435356",
+      "sourceTags": {
+        "network": "nwn",
+        "operator": "Trail de la Selva",
+        "ref": "Alma7Km"
+      },
+      "fetchedAt": "2026-10-07T17:59:40Z",
       "status": "待核验"
     },
     {
@@ -269265,6 +269625,23 @@
       "status": "待核验"
     },
     {
+      "id": "osm-relation-19339661",
+      "name": "Circuito del Puerto",
+      "originalName": "Circuito del Puerto",
+      "region": "south-america",
+      "center": [
+        -60.6306858,
+        -32.94603655
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/19339661",
+      "sourceTags": {
+        "network": "lwn",
+        "operator": "Municipalidad de Rosario"
+      },
+      "fetchedAt": "2026-10-07T17:59:40Z",
+      "status": "待核验"
+    },
+    {
       "id": "osm-relation-19340598",
       "name": "Mt. Shibutsu Loop",
       "originalName": "Mt. Shibutsu Loop",
@@ -271480,7 +271857,7 @@
         "network": "lwn",
         "operator": "APN"
       },
-      "fetchedAt": "2026-10-07T17:53:53Z",
+      "fetchedAt": "2026-10-07T17:59:40Z",
       "status": "待核验"
     },
     {
@@ -313427,6 +313804,22 @@
       "status": "待核验"
     },
     {
+      "id": "osm-relation-20977708",
+      "name": "Gran Recorrido de lo Andes",
+      "originalName": "Gran Recorrido de lo Andes",
+      "region": "south-america",
+      "center": [
+        -70.0957413,
+        -34.90278055
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/20977708",
+      "sourceTags": {
+        "network": "nwn"
+      },
+      "fetchedAt": "2026-10-07T17:59:40Z",
+      "status": "待核验"
+    },
+    {
       "id": "osm-relation-20977927",
       "name": "K■ (Nyírbogát)",
       "originalName": "K■ (Nyírbogát)",
@@ -315920,7 +316313,7 @@
       "sourceTags": {
         "network": "lwn"
       },
-      "fetchedAt": "2026-10-07T17:53:53Z",
+      "fetchedAt": "2026-10-07T17:59:40Z",
       "status": "待核验"
     },
     {
@@ -315936,7 +316329,7 @@
       "sourceTags": {
         "network": "lwn"
       },
-      "fetchedAt": "2026-10-07T17:53:53Z",
+      "fetchedAt": "2026-10-07T17:59:40Z",
       "status": "待核验"
     },
     {
@@ -318296,7 +318689,7 @@
       "sourceTags": {
         "network": "lwn"
       },
-      "fetchedAt": "2026-10-07T17:53:53Z",
+      "fetchedAt": "2026-10-07T17:59:40Z",
       "status": "待核验"
     },
     {
@@ -325408,6 +325801,22 @@
       "status": "待核验"
     },
     {
+      "id": "osm-relation-2203242",
+      "name": "Travesía Nahuel Huapi",
+      "originalName": "Travesía Nahuel Huapi",
+      "region": "south-america",
+      "center": [
+        -71.51376625,
+        -41.150628850000004
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/2203242",
+      "sourceTags": {
+        "network": "rwn"
+      },
+      "fetchedAt": "2026-10-07T17:59:40Z",
+      "status": "待核验"
+    },
+    {
       "id": "osm-relation-2203617",
       "name": "La Ruta del W",
       "originalName": "La Ruta del W",
@@ -326729,6 +327138,22 @@
         "network": "lwn"
       },
       "fetchedAt": "2026-10-05T05:37:03.029222+00:00",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-2294544",
+      "name": "Vuelta al Hielo",
+      "originalName": "Vuelta al Hielo",
+      "region": "south-america",
+      "center": [
+        -73.0249237,
+        -49.2878243
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/2294544",
+      "sourceTags": {
+        "network": "lwn"
+      },
+      "fetchedAt": "2026-10-07T17:59:40Z",
       "status": "待核验"
     },
     {
@@ -330489,6 +330914,22 @@
         "network": "lwn"
       },
       "fetchedAt": "2026-10-05T05:42:05.240567+00:00",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-2570973",
+      "name": "Sendero Chachí",
+      "originalName": "Sendero Chachí",
+      "region": "south-america",
+      "center": [
+        -53.89889625,
+        -27.14983695
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/2570973",
+      "sourceTags": {
+        "network": "lwn"
+      },
+      "fetchedAt": "2026-10-07T17:59:40Z",
       "status": "待核验"
     },
     {
@@ -342038,6 +342479,22 @@
         "ref": "GR 34B"
       },
       "fetchedAt": "2026-10-05T05:49:53.235873+00:00",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-302249",
+      "name": "Travesía Paso de las Nubes",
+      "originalName": "Travesía Paso de las Nubes",
+      "region": "south-america",
+      "center": [
+        -71.7997831,
+        -41.14981
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/302249",
+      "sourceTags": {
+        "network": "rwn"
+      },
+      "fetchedAt": "2026-10-07T17:59:40Z",
       "status": "待核验"
     },
     {
@@ -364930,6 +365387,22 @@
       "status": "待核验"
     },
     {
+      "id": "osm-relation-4485261",
+      "name": "Sendero Laguna de los Tres",
+      "originalName": "Sendero Laguna de los Tres",
+      "region": "south-america",
+      "center": [
+        -72.9407266,
+        -49.2993271
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/4485261",
+      "sourceTags": {
+        "network": "lwn"
+      },
+      "fetchedAt": "2026-10-07T17:59:40Z",
+      "status": "待核验"
+    },
+    {
       "id": "osm-relation-4486045",
       "name": "上窰郊遊徑",
       "originalName": "上窰郊遊徑 Sheung Yiu Country Trail",
@@ -382224,6 +382697,22 @@
         "website": "https://umap.openstreetmap.fr/fr/map/sentiers-de-la-vallee-daspe_163874#14/42.9828/-0.5971"
       },
       "fetchedAt": "2026-10-05T05:32:57.492949+00:00",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-5478217",
+      "name": "Circuito Saludable Aeróbico",
+      "originalName": "Circuito Saludable Aeróbico",
+      "region": "south-america",
+      "center": [
+        -60.740456050000006,
+        -32.708085350000005
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/5478217",
+      "sourceTags": {
+        "network": "lwn"
+      },
+      "fetchedAt": "2026-10-07T17:59:40Z",
       "status": "待核验"
     },
     {
@@ -415286,6 +415775,24 @@
       "status": "待核验"
     },
     {
+      "id": "osm-relation-6814005",
+      "name": "Greater Patagonian Trail Section 23: Parque Nacional Lago Puelo",
+      "originalName": "Greater Patagonian Trail Section 23: Parque Nacional Lago Puelo",
+      "region": "south-america",
+      "center": [
+        -71.6055929,
+        -42.328075749999996
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/6814005",
+      "sourceTags": {
+        "network": "iwn",
+        "website": "https://www.wikiexplora.com/index.php/Greater_Patagonian_Trail",
+        "ref": "GPT23"
+      },
+      "fetchedAt": "2026-10-07T17:59:40Z",
+      "status": "待核验"
+    },
+    {
       "id": "osm-relation-6814214",
       "name": "Greater Patagonian Trail Section 20: Volcán Antillanca",
       "originalName": "Greater Patagonian Trail Section 20: Volcán Antillanca",
@@ -415391,6 +415898,24 @@
         "ref": "GPT15"
       },
       "fetchedAt": "2026-10-07T17:53:53Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-6814266",
+      "name": "Greater Patagonian Trail Section 24: Parque Nacional Los Alerces",
+      "originalName": "Greater Patagonian Trail Section 24: Parque Nacional Los Alerces",
+      "region": "south-america",
+      "center": [
+        -71.6685269,
+        -42.72779425
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/6814266",
+      "sourceTags": {
+        "network": "iwn",
+        "website": "https://www.wikiexplora.com/index.php/Greater_Patagonian_Trail",
+        "ref": "GPT24"
+      },
+      "fetchedAt": "2026-10-07T17:59:40Z",
       "status": "待核验"
     },
     {
@@ -418677,7 +419202,7 @@
         "distance": "7.4",
         "network": "lwn"
       },
-      "fetchedAt": "2026-10-07T17:53:53Z",
+      "fetchedAt": "2026-10-07T17:59:40Z",
       "status": "待核验"
     },
     {
@@ -432014,7 +432539,7 @@
         "network": "rwn",
         "website": "https://www.wikiexplora.com/index.php/Ruta_de_los_Pioneros"
       },
-      "fetchedAt": "2026-10-07T17:53:53Z",
+      "fetchedAt": "2026-10-07T17:59:40Z",
       "status": "待核验"
     },
     {
@@ -432048,7 +432573,7 @@
         "network": "rwn",
         "website": "https://www.wikiexplora.com/index.php/Ruta_de_los_Pioneros"
       },
-      "fetchedAt": "2026-10-07T17:53:53Z",
+      "fetchedAt": "2026-10-07T17:59:40Z",
       "status": "待核验"
     },
     {
@@ -432065,7 +432590,7 @@
         "network": "rwn",
         "website": "https://www.wikiexplora.com/index.php/Ruta_de_los_Pioneros"
       },
-      "fetchedAt": "2026-10-07T17:53:53Z",
+      "fetchedAt": "2026-10-07T17:59:40Z",
       "status": "待核验"
     },
     {
@@ -440996,7 +441521,7 @@
         "website": "https://www.wikiexplora.com/index.php/Greater_Patagonian_Trail",
         "ref": "GPT37H"
       },
-      "fetchedAt": "2026-10-07T17:53:53Z",
+      "fetchedAt": "2026-10-07T17:59:40Z",
       "status": "待核验"
     },
     {
@@ -442317,7 +442842,7 @@
         "network": "lwn",
         "website": "https://www.wikiexplora.com/Lagunas_de_la_Overa"
       },
-      "fetchedAt": "2026-10-07T17:53:53Z",
+      "fetchedAt": "2026-10-07T17:59:40Z",
       "status": "待核验"
     },
     {
@@ -448080,7 +448605,7 @@
       "sourceTags": {
         "network": "lwn"
       },
-      "fetchedAt": "2026-10-07T17:53:53Z",
+      "fetchedAt": "2026-10-07T17:59:40Z",
       "status": "待核验"
     },
     {
@@ -456698,6 +457223,38 @@
       "status": "待核验"
     },
     {
+      "id": "osm-relation-8630899",
+      "name": "Sendero El Resguardo",
+      "originalName": "Sendero El Resguardo",
+      "region": "south-america",
+      "center": [
+        -70.3483764,
+        -39.0526782
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/8630899",
+      "sourceTags": {
+        "network": "lwn"
+      },
+      "fetchedAt": "2026-10-07T17:59:40Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-8630900",
+      "name": "Sendero Paseo de la laguna",
+      "originalName": "Sendero Paseo de la laguna",
+      "region": "south-america",
+      "center": [
+        -70.34775435,
+        -39.054542850000004
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/8630900",
+      "sourceTags": {
+        "network": "lwn"
+      },
+      "fetchedAt": "2026-10-07T17:59:40Z",
+      "status": "待核验"
+    },
+    {
       "id": "osm-relation-8631039",
       "name": "Trilho do Alto dos Morrões",
       "originalName": "Trilho do Alto dos Morrões",
@@ -456748,6 +457305,22 @@
         "operator": "SMTSZ"
       },
       "fetchedAt": "2026-10-05T05:42:05.240567+00:00",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-8632317",
+      "name": "Sendero Cerro Mellizo Sur",
+      "originalName": "Sendero Cerro Mellizo Sur",
+      "region": "south-america",
+      "center": [
+        -70.32688105,
+        -39.065843900000004
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/8632317",
+      "sourceTags": {
+        "network": "lwn"
+      },
+      "fetchedAt": "2026-10-07T17:59:40Z",
       "status": "待核验"
     },
     {
@@ -457126,6 +457699,40 @@
       "status": "待核验"
     },
     {
+      "id": "osm-relation-8648355",
+      "name": "Etapa 18: Puesto de Casanova – Ruca Ñire",
+      "originalName": "Etapa 18: Puesto de Casanova – Ruca Ñire",
+      "region": "south-america",
+      "center": [
+        -71.52328800000001,
+        -40.20525095
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/8648355",
+      "sourceTags": {
+        "distance": "15.7",
+        "network": "nwn"
+      },
+      "fetchedAt": "2026-10-07T17:59:40Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-8648356",
+      "name": "Etapa 17: Quila Quina – Puerto de Casanova",
+      "originalName": "Etapa 17: Quila Quina – Puerto de Casanova",
+      "region": "south-america",
+      "center": [
+        -71.45302235,
+        -40.20290975
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/8648356",
+      "sourceTags": {
+        "distance": "10.5",
+        "network": "nwn"
+      },
+      "fetchedAt": "2026-10-07T17:59:40Z",
+      "status": "待核验"
+    },
+    {
       "id": "osm-relation-8649223",
       "name": "Les Bassins des Vallées",
       "originalName": "Les Bassins des Vallées",
@@ -457159,6 +457766,40 @@
       "sourceUrl": "https://www.openstreetmap.org/relation/8650472",
       "sourceTags": {},
       "fetchedAt": "2026-10-05T05:49:53.235873+00:00",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-8651473",
+      "name": "Sendero al Mirador Bandurrias",
+      "originalName": "Sendero al Mirador Bandurrias",
+      "region": "south-america",
+      "center": [
+        -71.36901180000001,
+        -40.161785800000004
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/8651473",
+      "sourceTags": {
+        "distance": "3.5",
+        "network": "lwn"
+      },
+      "fetchedAt": "2026-10-07T17:59:40Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-8651474",
+      "name": "Senda Miradores",
+      "originalName": "Senda Miradores",
+      "region": "south-america",
+      "center": [
+        -71.37194455,
+        -40.16550445
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/8651474",
+      "sourceTags": {
+        "distance": "4",
+        "network": "lwn"
+      },
+      "fetchedAt": "2026-10-07T17:59:40Z",
       "status": "待核验"
     },
     {
@@ -457252,6 +457893,25 @@
         "website": "https://fmm.es/rutas/ruta-senderismo-camino-schmid/"
       },
       "fetchedAt": "2026-10-05T05:32:57.492949+00:00",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-8659401",
+      "name": "Huella Andina Tramo 7 Etapa 23",
+      "originalName": "Huella Andina Tramo 7 Etapa 23",
+      "region": "south-america",
+      "center": [
+        -71.6378785,
+        -40.8207283
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/8659401",
+      "sourceTags": {
+        "distance": "12",
+        "network": "nwn",
+        "description": "Angostura - Bosque de Arrayan",
+        "ref": "HA"
+      },
+      "fetchedAt": "2026-10-07T17:59:40Z",
       "status": "待核验"
     },
     {
@@ -457439,6 +458099,38 @@
         "ref": "PR-NA 86"
       },
       "fetchedAt": "2026-10-05T05:37:03.029222+00:00",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-8671831",
+      "name": "Senda Última Esperanza",
+      "originalName": "Senda Última Esperanza",
+      "region": "south-america",
+      "center": [
+        -71.7244084,
+        -40.68681755
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/8671831",
+      "sourceTags": {
+        "network": "lwn"
+      },
+      "fetchedAt": "2026-10-07T17:59:40Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-8671832",
+      "name": "Senda Coihue el Abuelo",
+      "originalName": "Senda Coihue el Abuelo",
+      "region": "south-america",
+      "center": [
+        -71.7260963,
+        -40.683966999999996
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/8671832",
+      "sourceTags": {
+        "network": "lwn"
+      },
+      "fetchedAt": "2026-10-07T17:59:40Z",
       "status": "待核验"
     },
     {
@@ -458084,6 +458776,23 @@
         "website": "https://www.visitkoksijde.be/nl/polderwandelroute"
       },
       "fetchedAt": "2026-10-05T06:11:33.759189+00:00",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-8725734",
+      "name": "Mirador del Lago Verde",
+      "originalName": "Mirador del Lago Verde",
+      "region": "south-america",
+      "center": [
+        -71.71783984999999,
+        -42.7137364
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/8725734",
+      "sourceTags": {
+        "distance": "1.5",
+        "network": "lwn"
+      },
+      "fetchedAt": "2026-10-07T17:59:40Z",
       "status": "待核验"
     },
     {
@@ -459473,6 +460182,23 @@
       "status": "待核验"
     },
     {
+      "id": "osm-relation-8861474",
+      "name": "Sendero Laguna Esmeralda",
+      "originalName": "Sendero Laguna Esmeralda",
+      "region": "south-america",
+      "center": [
+        -68.12498915,
+        -54.707031
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/8861474",
+      "sourceTags": {
+        "distance": "4.82",
+        "network": "lwn"
+      },
+      "fetchedAt": "2026-10-07T17:59:40Z",
+      "status": "待核验"
+    },
+    {
       "id": "osm-relation-8864",
       "name": "Saxon Shore Way",
       "originalName": "Saxon Shore Way",
@@ -459718,7 +460444,7 @@
       "sourceTags": {
         "network": "lwn"
       },
-      "fetchedAt": "2026-10-07T17:53:53Z",
+      "fetchedAt": "2026-10-07T17:59:40Z",
       "status": "待核验"
     },
     {
@@ -459734,7 +460460,7 @@
       "sourceTags": {
         "network": "lwn"
       },
-      "fetchedAt": "2026-10-07T17:53:53Z",
+      "fetchedAt": "2026-10-07T17:59:40Z",
       "status": "待核验"
     },
     {
@@ -459750,7 +460476,7 @@
       "sourceTags": {
         "network": "lwn"
       },
-      "fetchedAt": "2026-10-07T17:53:53Z",
+      "fetchedAt": "2026-10-07T17:59:40Z",
       "status": "待核验"
     },
     {
@@ -459766,7 +460492,7 @@
       "sourceTags": {
         "network": "lwn"
       },
-      "fetchedAt": "2026-10-07T17:53:53Z",
+      "fetchedAt": "2026-10-07T17:59:40Z",
       "status": "待核验"
     },
     {
@@ -459818,7 +460544,7 @@
       "sourceTags": {
         "network": "lwn"
       },
-      "fetchedAt": "2026-10-07T17:53:53Z",
+      "fetchedAt": "2026-10-07T17:59:40Z",
       "status": "待核验"
     },
     {
@@ -459834,7 +460560,7 @@
       "sourceTags": {
         "network": "lwn"
       },
-      "fetchedAt": "2026-10-07T17:53:53Z",
+      "fetchedAt": "2026-10-07T17:59:40Z",
       "status": "待核验"
     },
     {
@@ -459884,7 +460610,7 @@
       "sourceTags": {
         "network": "lwn"
       },
-      "fetchedAt": "2026-10-07T17:53:53Z",
+      "fetchedAt": "2026-10-07T17:59:40Z",
       "status": "待核验"
     },
     {
@@ -459900,7 +460626,7 @@
       "sourceTags": {
         "network": "lwn"
       },
-      "fetchedAt": "2026-10-07T17:53:53Z",
+      "fetchedAt": "2026-10-07T17:59:40Z",
       "status": "待核验"
     },
     {
@@ -461200,6 +461926,23 @@
       "status": "待核验"
     },
     {
+      "id": "osm-relation-9051398",
+      "name": "Senda Laguna Torre",
+      "originalName": "Senda Laguna Torre",
+      "region": "south-america",
+      "center": [
+        -72.94188825,
+        -49.3316202
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/9051398",
+      "sourceTags": {
+        "network": "lwn",
+        "operator": "ANP"
+      },
+      "fetchedAt": "2026-10-07T17:59:40Z",
+      "status": "待核验"
+    },
+    {
       "id": "osm-relation-9056259",
       "name": "Sentiero Torrente Dimenticato",
       "originalName": "Sentiero Torrente Dimenticato",
@@ -461312,6 +462055,23 @@
       "status": "待核验"
     },
     {
+      "id": "osm-relation-9060898",
+      "name": "Senda Madre e Hija",
+      "originalName": "Senda Madre e Hija",
+      "region": "south-america",
+      "center": [
+        -72.9500648,
+        -49.309207099999995
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/9060898",
+      "sourceTags": {
+        "network": "lwn",
+        "operator": "ANP"
+      },
+      "fetchedAt": "2026-10-07T17:59:40Z",
+      "status": "待核验"
+    },
+    {
       "id": "osm-relation-9061",
       "name": "Test Way",
       "originalName": "Test Way",
@@ -461347,6 +462107,22 @@
       "status": "待核验"
     },
     {
+      "id": "osm-relation-9061957",
+      "name": "Sendero El Pilar - Rio Blanco",
+      "originalName": "Sendero El Pilar - Rio Blanco",
+      "region": "south-america",
+      "center": [
+        -72.94503515,
+        -49.257822950000005
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/9061957",
+      "sourceTags": {
+        "network": "lwn"
+      },
+      "fetchedAt": "2026-10-07T17:59:40Z",
+      "status": "待核验"
+    },
+    {
       "id": "osm-relation-9062741",
       "name": "Camino de San Olav",
       "originalName": "Camino de San Olav",
@@ -461378,6 +462154,22 @@
         "network": "lwn"
       },
       "fetchedAt": "2026-10-05T06:11:33.759189+00:00",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-9063573",
+      "name": "Senda Mirador Condores",
+      "originalName": "Senda Mirador Condores",
+      "region": "south-america",
+      "center": [
+        -72.88296034999999,
+        -49.3396775
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/9063573",
+      "sourceTags": {
+        "network": "lwn"
+      },
+      "fetchedAt": "2026-10-07T17:59:40Z",
       "status": "待核验"
     },
     {
@@ -462330,6 +463122,22 @@
       "status": "待核验"
     },
     {
+      "id": "osm-relation-9095170",
+      "name": "Senda Loma del Pliegue Tumbado",
+      "originalName": "Senda Loma del Pliegue Tumbado",
+      "region": "south-america",
+      "center": [
+        -72.93983779999999,
+        -49.3617451
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/9095170",
+      "sourceTags": {
+        "network": "lwn"
+      },
+      "fetchedAt": "2026-10-07T17:59:40Z",
+      "status": "待核验"
+    },
+    {
       "id": "osm-relation-9096701",
       "name": "大楠山ハイキングコース",
       "originalName": "大楠山ハイキングコース",
@@ -462889,7 +463697,7 @@
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/9116535",
       "sourceTags": {},
-      "fetchedAt": "2026-10-07T17:53:53Z",
+      "fetchedAt": "2026-10-07T17:59:40Z",
       "status": "待核验"
     },
     {
@@ -463065,7 +463873,23 @@
       "sourceTags": {
         "network": "rwn"
       },
-      "fetchedAt": "2026-10-07T17:53:53Z",
+      "fetchedAt": "2026-10-07T17:59:40Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-9131088",
+      "name": "Sendero Lago Desierto",
+      "originalName": "Sendero Lago Desierto",
+      "region": "south-america",
+      "center": [
+        -72.86348265000001,
+        -49.04104855
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/9131088",
+      "sourceTags": {
+        "network": "lwn"
+      },
+      "fetchedAt": "2026-10-07T17:59:40Z",
       "status": "待核验"
     },
     {
@@ -463299,7 +464123,7 @@
       "sourceTags": {
         "network": "lwn"
       },
-      "fetchedAt": "2026-10-07T17:53:53Z",
+      "fetchedAt": "2026-10-07T17:59:40Z",
       "status": "待核验"
     },
     {
@@ -463315,7 +464139,7 @@
       "sourceTags": {
         "network": "lwn"
       },
-      "fetchedAt": "2026-10-07T17:53:53Z",
+      "fetchedAt": "2026-10-07T17:59:40Z",
       "status": "待核验"
     },
     {
@@ -463331,7 +464155,7 @@
       "sourceTags": {
         "network": "lwn"
       },
-      "fetchedAt": "2026-10-07T17:53:53Z",
+      "fetchedAt": "2026-10-07T17:59:40Z",
       "status": "待核验"
     },
     {
@@ -465658,6 +466482,22 @@
         "network": "lwn"
       },
       "fetchedAt": "2026-10-05T05:23:35.519849+00:00",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-9229090",
+      "name": "Sendero de La Juntura",
+      "originalName": "Sendero de La Juntura",
+      "region": "south-america",
+      "center": [
+        -65.0113117,
+        -31.80346275
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/9229090",
+      "sourceTags": {
+        "network": "lwn"
+      },
+      "fetchedAt": "2026-10-07T17:59:40Z",
       "status": "待核验"
     },
     {
@@ -468803,6 +469643,23 @@
       "status": "待核验"
     },
     {
+      "id": "osm-relation-9365907",
+      "name": "Vuelta al Huemul",
+      "originalName": "Vuelta al Huemul",
+      "region": "south-america",
+      "center": [
+        -72.99131704999999,
+        -49.41229654999999
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/9365907",
+      "sourceTags": {
+        "network": "lwn",
+        "website": "https://en.wikivoyage.org/wiki/El_Chalten"
+      },
+      "fetchedAt": "2026-10-07T17:59:40Z",
+      "status": "待核验"
+    },
+    {
       "id": "osm-relation-9366842",
       "name": "歴史と文化の散歩道 世田谷コース",
       "originalName": "歴史と文化の散歩道 世田谷コース",
@@ -469802,7 +470659,23 @@
       "sourceTags": {
         "network": "lwn"
       },
-      "fetchedAt": "2026-10-07T17:53:53Z",
+      "fetchedAt": "2026-10-07T17:59:40Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-9376918",
+      "name": "Mirador del Valle",
+      "originalName": "Mirador del Valle",
+      "region": "south-america",
+      "center": [
+        -71.78070095,
+        -41.22073135
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/9376918",
+      "sourceTags": {
+        "network": "lwn"
+      },
+      "fetchedAt": "2026-10-07T17:59:40Z",
       "status": "待核验"
     },
     {
@@ -470022,7 +470895,7 @@
       "sourceTags": {
         "network": "lwn"
       },
-      "fetchedAt": "2026-10-07T17:53:53Z",
+      "fetchedAt": "2026-10-07T17:59:40Z",
       "status": "待核验"
     },
     {
@@ -470251,6 +471124,23 @@
         "ref": "PR-BI 25"
       },
       "fetchedAt": "2026-10-05T05:37:03.029222+00:00",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-9379221",
+      "name": "Etapa 16: Laguna Rosales - San Martín de Los Andes",
+      "originalName": "Etapa 16: Laguna Rosales - San Martín de Los Andes",
+      "region": "south-america",
+      "center": [
+        -71.34156444999999,
+        -40.137275450000004
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/9379221",
+      "sourceTags": {
+        "distance": "11.4",
+        "network": "nwn"
+      },
+      "fetchedAt": "2026-10-07T17:59:40Z",
       "status": "待核验"
     },
     {
@@ -501069,6 +501959,19 @@
       "candidateRelations": 320,
       "importedRelations": 308,
       "skippedIncompleteRelations": 12,
+      "skippedNestedRelations": 6
+    },
+    {
+      "sourceId": "south-america/argentina/261005",
+      "region": "south-america",
+      "sourceUrl": "https://download.geofabrik.de/south-america/argentina-261005.osm.pbf",
+      "sourceTimestamp": "2026-10-05T20:21:35Z",
+      "sha256": "e72e0de6314ff186f8a60fbdb9cd3efebd9fa9e4f68a27e0dfc842c952a096f1",
+      "bytes": 432319727,
+      "importedAt": "2026-10-07T17:59:40Z",
+      "candidateRelations": 119,
+      "importedRelations": 89,
+      "skippedIncompleteRelations": 30,
       "skippedNestedRelations": 6
     }
   ]
