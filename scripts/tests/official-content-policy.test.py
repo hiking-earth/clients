@@ -11,7 +11,8 @@ class MetadataPolicy(unittest.TestCase):
                 'articleHosts': ['official.example']}]
     def row(self, **patch):
         return {'id':'a','sourceId':'s','verified':True,'sourceUrl':self.sources[0]['url'],
-                'url':'https://official.example/a','title':'Notice','fetchedAt':self.now.isoformat(),**patch}
+                'url':'https://official.example/a','title':'Notice','region':'Region','sourceLabel':'Official',
+                'publishedAt':self.now.isoformat(),'fetchedAt':self.now.isoformat(),**patch}
     def test_traceable_fresh_metadata(self):
         rows, rejected = apply_metadata_policy([self.row()], self.sources, self.now)
         self.assertEqual(len(rows), 1); self.assertEqual(rejected, [])
@@ -35,7 +36,8 @@ class MetadataPolicy(unittest.TestCase):
         self.assertEqual(rejected[0]['reason'], 'source-feed-not-accepted')
         self.assertEqual(rejected[0]['record'], original)
     def test_invalid_source_and_date(self):
-        for row in [None, self.row(sourceId=[]), self.row(fetchedAt='bad'), self.row(fetchedAt='2026-10-07T00:00:00')]:
+        for row in [None, self.row(sourceId=[]), self.row(fetchedAt='bad'), self.row(fetchedAt='2026-10-07T00:00:00'),
+                    self.row(publishedAt='bad'), self.row(publishedAt='2026-10-07T00:00:00')]:
             rows,rejected=apply_metadata_policy([row],self.sources,self.now)
             self.assertFalse(rows); self.assertEqual(len(rejected),1)
     def test_expiry_boundary_and_unapproved_body(self):
@@ -43,4 +45,10 @@ class MetadataPolicy(unittest.TestCase):
         self.assertEqual(len(rows),1)
         rows,rejected=apply_metadata_policy([self.row(body='article text')],self.sources,self.now)
         self.assertFalse(rows); self.assertEqual(rejected[0]['reason'],'unsupported-content-rights')
+    def test_withhold_missing_attribution_future_publication_and_invalid_center(self):
+        for patch, reason in [({'region':' '},'missing-attribution'),
+                              ({'publishedAt':(self.now+dt.timedelta(days=1)).isoformat()},'future-publication-date'),
+                              ({'center':[181,0]},'invalid-center')]:
+            rows,rejected=apply_metadata_policy([self.row(**patch)],self.sources,self.now)
+            self.assertFalse(rows); self.assertEqual(rejected[0]['reason'],reason)
 if __name__ == '__main__': unittest.main()

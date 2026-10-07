@@ -4,7 +4,6 @@ This validates source records and provenance only. It never grants trail access,
 turns a discovery row into a navigable route, or substitutes for human review.
 """
 from datetime import datetime
-import math
 import re
 from urllib.parse import urlparse
 
@@ -41,7 +40,6 @@ def _center(value, label):
     lon, lat = value
     if (isinstance(lon, bool) or isinstance(lat, bool)
             or not isinstance(lon, (int, float)) or not isinstance(lat, (int, float))
-            or not math.isfinite(lon) or not math.isfinite(lat)
             or not -180 <= lon <= 180 or not -90 <= lat <= 90):
         raise ValueError(f'{label}: center is outside WGS84 bounds')
 

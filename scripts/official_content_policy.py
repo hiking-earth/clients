@@ -14,18 +14,34 @@ def review_metadata(row, sources, now):
     if acceptance is not None and acceptance != 'accepted': return 'source-feed-not-accepted'
     if row.get('verified') is not True or row.get('sourceUrl') != source.get('url'):
         return 'provenance-mismatch'
-    if not isinstance(row.get('title'), str) or not row['title'].strip(): return 'missing-title'
+    if not isinstance(row.get('id'), str) or not row['id'].strip() or len(row['id']) > 160: return 'invalid-record-id'
+    if not isinstance(row.get('title'), str) or not row['title'].strip() or len(row['title']) > 300: return 'missing-title'
+    if any(not isinstance(row.get(key), str) or not row[key].strip() for key in ('region', 'sourceLabel')):
+        return 'missing-attribution'
     if any(key in row for key in ('body', 'articleBody', 'image', 'imageUrl')):
         return 'unsupported-content-rights'
     try:
         url = urlsplit(row.get('url', ''))
-        if (url.scheme != 'https' or url.hostname not in source.get('articleHosts', [])
+        hosts = source.get('articleHosts')
+        if not isinstance(hosts, list) or not hosts:
+            return 'source-not-approved'
+        if (url.scheme != 'https' or url.hostname not in hosts
                 or url.username or url.password or url.port): return 'article-host-mismatch'
         fetched = dt.datetime.fromisoformat(row['fetchedAt'].replace('Z', '+00:00'))
         if fetched.tzinfo is None: return 'invalid-freshness-date'
+        published = dt.datetime.fromisoformat(row['publishedAt'].replace('Z', '+00:00'))
+        if published.tzinfo is None: return 'invalid-publication-date'
     except (ValueError, TypeError, KeyError, AttributeError): return 'invalid-record'
     if fetched > now + dt.timedelta(minutes=5): return 'future-freshness-date'
     if now - fetched > MAX_METADATA_AGE: return 'metadata-freshness-expired'
+    if published > now + dt.timedelta(minutes=5): return 'future-publication-date'
+    if 'center' in row:
+        center = row['center']
+        if (not isinstance(center, list) or len(center) != 2
+                or any(isinstance(value, bool) or not isinstance(value, (int, float))
+                       for value in center)
+                or not -180 <= center[0] <= 180 or not -90 <= center[1] <= 90):
+            return 'invalid-center'
     return None
 
 
