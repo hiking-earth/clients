@@ -28,5 +28,5 @@
 
 ## 后续有效期约束（源码，待统一检测）
 
-- `feedAcceptance: accepted` 必须同时有规范日期 `feedVerifiedAt`，且不在未来、距当前不超过90天。公告审核策略会把缺失、未来和过期核验日期分别转入 withheld；公开目录发布校验器也会拒绝携带过期accepted来源条目的分片。
+- `feedAcceptance: accepted` 必须同时有标准 `YYYY-MM-DD` 日期 `feedVerifiedAt`，且不在未来、距当前不超过90天。公告审核策略会把缺失、非标准、未来和过期核验日期分别转入 withheld；公开目录发布校验器也会拒绝携带过期accepted来源条目的分片。
 - 已新增对应隔离回归用例，按统一检测要求暂未执行。

@@ -151,7 +151,10 @@ def validate_news_catalog(data, now=None):
             raise ValueError(f'{label}: source {row["sourceId"]} feed has not been accepted')
         if acceptance == 'accepted':
             try:
-                verified_date = date.fromisoformat(source['feedVerifiedAt'])
+                raw_verified_date = source['feedVerifiedAt']
+                verified_date = date.fromisoformat(raw_verified_date)
+                if not isinstance(raw_verified_date, str) or verified_date.isoformat() != raw_verified_date:
+                    raise ValueError('non-canonical date')
             except (KeyError, TypeError, ValueError) as error:
                 raise ValueError(f'{label}: source {row["sourceId"]} has invalid feed verification date') from error
             if verified_date > today:

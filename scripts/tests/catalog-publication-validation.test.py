@@ -115,6 +115,7 @@ class NewsCatalogValidationTests(unittest.TestCase):
 
     def test_accepted_feed_requires_a_current_verification_date(self):
         for verified, error in [(None, 'invalid feed verification date'),
+                                ('2026-W41-3', 'invalid feed verification date'),
                                 ('2026-10-08', 'in the future'),
                                 ('2026-07-08', 'has expired')]:
             data = self.catalog()

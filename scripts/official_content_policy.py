@@ -14,7 +14,10 @@ def feed_acceptance_error(source, now):
     if acceptance != 'accepted':
         return 'source-feed-not-accepted'
     try:
-        verified = dt.date.fromisoformat(source['feedVerifiedAt'])
+        raw_date = source['feedVerifiedAt']
+        verified = dt.date.fromisoformat(raw_date)
+        if not isinstance(raw_date, str) or verified.isoformat() != raw_date:
+            return 'source-feed-verification-invalid'
     except (KeyError, TypeError, ValueError):
         return 'source-feed-verification-invalid'
     today = now.date()

@@ -37,6 +37,7 @@ class MetadataPolicy(unittest.TestCase):
         self.assertEqual(rejected[0]['record'], original)
     def test_feed_acceptance_requires_current_verification_date(self):
         cases = [({}, 'source-feed-verification-invalid'),
+                 ({'feedVerifiedAt':'2026-W41-3'}, 'source-feed-verification-invalid'),
                  ({'feedVerifiedAt':'2026-10-08'}, 'source-feed-verification-future'),
                  ({'feedVerifiedAt':'2026-07-08'}, 'source-feed-verification-expired')]
         for patch, reason in cases:
