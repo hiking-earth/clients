@@ -30,16 +30,7 @@ function equalHex(a, b) {
   if (typeof a !== 'string' || typeof b !== 'string' || a.length !== b.length) return false;
   return crypto.timingSafeEqual(Buffer.from(a, 'hex'), Buffer.from(b, 'hex'));
 }
-async function limit(scope, max) {
-  const window = Math.floor(Date.now() / (15 * 60 * 1000));
-  const id = hash(`${scope}:${window}`);
-  await db.runTransaction(async tx => {
-    const ref = tx.collection('client_rate_limits').doc(id);
-    const prior = (await ref.get()).data;
-    if ((prior?.count || 0) >= max) fail('操作过于频繁，请稍后重试', 429);
-    await ref.set({ data: { count: (prior?.count || 0) + 1, expiresAt: (window + 2) * 15 * 60 * 1000 } });
-  });
-}
+const limit = require('./rate-limit').createLimiter({ db, hash, fail });
 async function newSession(account) {
   const token = random(); const expiresAt = Date.now() + SESSION_MS;
   await db.runTransaction(async tx => {
