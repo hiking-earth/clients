@@ -2,7 +2,7 @@
   {
     "name": "monaco-20261006.pmtiles",
     "label": "摩纳哥示例区域",
-    "url": "/offline-maps/monaco-20261006.pmtiles",
+    "url": "/static/offline-maps/monaco-20261006.pmtiles",
     "bytes": 1168799,
     "sha256": "40231fd7abdc9a12261afba0ccfa23bf1ea8870d051cea6c0e943e7b0e87dc88",
     "attribution": "© OpenStreetMap contributors · Protomaps",

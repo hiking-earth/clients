@@ -2,7 +2,7 @@ export interface BasemapDownload {name:string;url:string;bytes:number;sha256:str
 export function validateBasemapDownload(value:BasemapDownload,origin:string):URL{
  if(!value||!/^[a-z0-9-]{1,80}\.pmtiles$/.test(value.name)||!Number.isSafeInteger(value.bytes)||value.bytes<127||value.bytes>64*1024*1024||!/^[a-f0-9]{64}$/.test(value.sha256))throw new Error('地图下载清单无效');
  const url=new URL(value.url,origin),base=new URL(origin);
- if(url.origin!==base.origin||url.username||url.password||url.search||url.hash||!/^\/offline-maps\/[a-z0-9-]{1,80}\.pmtiles$/.test(url.pathname)||url.pathname.split('/').pop()!==value.name)throw new Error('地图下载地址不受支持');
+ if(url.origin!==base.origin||url.username||url.password||url.search||url.hash||!/^\/static\/offline-maps\/[a-z0-9-]{1,80}\.pmtiles$/.test(url.pathname)||url.pathname.split('/').pop()!==value.name)throw new Error('地图下载地址不受支持');
  if(url.protocol!=='https:'&&!(url.protocol==='http:'&&['localhost','127.0.0.1'].includes(url.hostname)))throw new Error('地图下载需要HTTPS');return url;
 }
 /** Downloads from our same-origin distribution only. Never hotlinks the planet. */
