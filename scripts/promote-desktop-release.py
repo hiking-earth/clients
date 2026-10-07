@@ -13,6 +13,7 @@ REPO = "hiking-earth/clients"
 PLATFORMS = {
     "windows-x86_64": ".msi",
     "darwin-aarch64": ".app.tar.gz",
+    "darwin-x86_64": ".app.tar.gz",
     "linux-x86_64": ".AppImage",
 }
 REQUIRED_ACCEPTANCE = ["android", "h5", "weixin", "web", "windows", "macos", "macos-aarch64", "macos-x86_64", "linux"]
