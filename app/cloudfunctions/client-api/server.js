@@ -6,7 +6,7 @@ http.createServer(async (request, response) => {
   for await (const chunk of request) {
     bytes += chunk.length;
     if (bytes > MAX) {
-      response.writeHead(413, { 'content-type': 'application/json', 'access-control-allow-origin': '*' });
+      response.writeHead(413, { 'content-type': 'application/json' });
       response.end(JSON.stringify({ ok: false, errMsg: '请求体超过6 MB' })); return;
     }
     chunks.push(chunk);

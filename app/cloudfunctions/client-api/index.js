@@ -218,9 +218,9 @@ async function dispatch(action, data, token, remoteAddress) {
   return businessOperation(account, token, () => withIdentity(account.identity, () => require(`./business/${action}`).main({ ...data, nickname: account.nickname })));
 }
 exports.main = async event => {
-  const headers = { 'content-type': 'application/json; charset=utf-8',
-    'access-control-allow-origin': '*', 'access-control-allow-methods': 'POST, OPTIONS',
-    'access-control-allow-headers': 'Content-Type, Authorization', 'cache-control': 'no-store' };
+  // The public HTTP gateway owns CORS. Any upstream origin is concatenated
+  // with its own, including identical values, and rejected by WebKit.
+  const headers = { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' };
   const response = (statusCode, value) => ({ statusCode, headers, body: JSON.stringify(value) });
   if (event.httpMethod === 'OPTIONS') return response(204, {});
   if (event.httpMethod !== 'POST') return response(405, { ok: false, errMsg: '只支持POST请求' });
