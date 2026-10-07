@@ -1,3 +1,5 @@
+export const PUBLIC_MAP_DISTRIBUTION='https://hiking-earth.nanyu20050927.chatgpt.site/client-app/';
+export function mapDistributionBase(desktop:boolean,localBase:string):string{return desktop?PUBLIC_MAP_DISTRIBUTION:localBase;}
 export interface MapCatalogPack {name:string;label:string;url:string;bytes:number;sha256:string;attribution:string;license:string}
 export function validateMapCatalog(value:unknown):MapCatalogPack[]{
  if(!Array.isArray(value)||!value.length||value.length>128)throw new Error('地图目录无效');
