@@ -3,6 +3,7 @@ import * as tf from '@tensorflow/tfjs-core';
 import '@tensorflow/tfjs-backend-cpu';
 import '@tensorflow/tfjs-backend-webgl';
 import * as coco from '@tensorflow-models/coco-ssd';
+import {initializeGearBackend} from './gear-backend';
 // #endif
 export type LocalGearResult={items:{name:string;category:string}[];missing:{name:string;reason:string}[];usage:string[];plan:{name:string}[]};
 const labels:Record<string,[string,string]>={backpack:['背包','背包'],handbag:['手提包','其他'],suitcase:['行李箱','其他'],bottle:['瓶状物（请确认用途）','饮食'],cup:['杯子','饮食'],bowl:['碗','饮食'],knife:['刀具','其他'],fork:['叉子','饮食'],spoon:['勺子','饮食'],'cell phone':['手机','导航'],umbrella:['雨伞','其他']};
@@ -10,7 +11,7 @@ const labels:Record<string,[string,string]>={backpack:['背包','背包'],handba
 let model:Promise<coco.ObjectDetection>|undefined;
 let tail:Promise<void>=Promise.resolve();
 async function detector(){
- if(!model)model=(async()=>{try{await tf.setBackend('webgl');}catch{await tf.setBackend('cpu');}await tf.ready();return coco.load({base:'lite_mobilenet_v2',modelUrl:`${import.meta.env.BASE_URL}models/gear/model.json`});})().catch(error=>{model=undefined;throw error;});
+ if(!model)model=(async()=>{await initializeGearBackend(tf);return coco.load({base:'lite_mobilenet_v2',modelUrl:`${import.meta.env.BASE_URL}models/gear/model.json`});})().catch(error=>{model=undefined;throw error;});
  return model!;
 }
 // #endif
