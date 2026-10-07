@@ -1,4 +1,5 @@
 declare const wx: any;
+import {readChunkedCatalog,writeChunkedCatalog} from './catalog-file-chunks';
 /** Public catalog cache: large source records must not occupy key/value storage.
  * Native / WeChat use two private file slots and a small committed pointer;
  * H5 and bundled desktop use one atomic IndexedDB transaction per source.
@@ -112,7 +113,7 @@ export async function readCatalogCache(source:LocalDataSource,valid:(value:any)=
   // #ifndef H5
   const selected=uni.getStorageSync(pointerKey(source))===1?1:0;
   for(const slot of [selected,1-selected]){
-   try{const value=JSON.parse(await fileRead(filename(source,slot)));if(valid(value)){selectedSlots.set(source,slot);return value;}}catch{}
+   try{const value=JSON.parse(await readChunkedCatalog({read:fileRead,write:fileWrite},filename(source,slot)));if(valid(value)){selectedSlots.set(source,slot);return value;}}catch{}
   }
   // #endif
  }catch{}
@@ -128,7 +129,7 @@ export async function writeCatalogCache(source:LocalDataSource,value:unknown):Pr
  // #ifndef H5
  const text=JSON.stringify(value);if(utf8Size(text)>24*1024*1024)throw new Error('本机目录超过24 MB保存上限');
  const current=selectedSlots.get(source)??(uni.getStorageSync(pointerKey(source))===1?1:0),next=1-current;
- await fileWrite(filename(source,next),text);
+ await writeChunkedCatalog({read:fileRead,write:fileWrite},filename(source,next),text);
  uni.setStorageSync(pointerKey(source),next);selectedSlots.set(source,next);
  // #endif
  try{uni.removeStorageSync(LEGACY[source]);}catch{}
