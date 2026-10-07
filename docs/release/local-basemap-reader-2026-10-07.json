@@ -22,10 +22,15 @@
     "paths",
     "boundaries"
   ],
-  "browserVisualAcceptance": false,
+  "browserVisualAcceptance": {
+    "passed": true,
+    "scope": "Local H5 page loaded actual Lantau PMTiles through File chooser; roads, land and water visible; console error/warn list empty. Network-disconnected reload and persistence not verified.",
+    "screenshot": "local-basemap-render-2026-10-07.png"
+  },
   "nativeAndMiniProgramPmtilesRenderer": false,
   "labelsAndTerrain": false,
   "downloadAndPersistenceManagement": false,
   "publicDeployment": false,
-  "remainingDependenciesAudit": "103 pre-existing noncritical findings remain; no critical issue claim added"
+  "remainingDependenciesAudit": "103 pre-existing noncritical findings remain; no critical issue claim added",
+  "finalH5BuildExitCode": 0
 }
