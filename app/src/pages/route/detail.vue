@@ -28,6 +28,13 @@
           <text class="hl-dot">·</text><text class="sec-text">{{ h }}</text>
         </view>
       </view>
+      <view class="section">
+        <text class="sec-title">路线区域天气预报</text>
+        <text v-if="forecast?.status === 'available' && forecast.weather" class="sec-text">{{ forecast.weather.temperature }} · 风 {{ forecast.weather.wind }} · 湿度 {{ forecast.weather.humidity }} · {{ forecast.weather.rain }}</text>
+        <text class="sec-sub">{{ forecast?.status === 'available' ? `预报时刻 ${forecast.weather?.observedAt}` : forecast?.message || '正在获取预报…' }}</text>
+        <text class="sec-sub">MET Norway · CC BY 4.0。路线坐标预报不能代替属地预警，也不能证明路线开放。</text>
+        <button :disabled="forecastBusy" @click="loadForecast">刷新天气预报</button>
+      </view>
       <view class="section warn">
         <text class="sec-title">风险提示</text>
         <text class="sec-text">{{ route.archive.riskNotice }}</text>
@@ -56,18 +63,21 @@ import RegionPhoto from '@/components/RegionPhoto.vue';
 import { readLibrary, toggleFavorite } from '@/services/library';
 import { computed, ref } from "vue";
 import { onLoad } from "@dcloudio/uni-app";
+import { routeForecast, type RouteForecast } from '@/services/weather';
 import { ROUTES } from "@/services/route-catalog";
 import { STATUS_COLORS, isNavigable, type HikingRoute } from "@shared/types/route";
 
 const route = ref<HikingRoute | null>(null);
 const favorited = ref(false);
+const forecast=ref<RouteForecast|null>(null),forecastBusy=ref(false);
+async function loadForecast(){if(!route.value||forecastBusy.value)return;const selected=route.value;forecastBusy.value=true;try{const value=await routeForecast(selected.center);if(route.value?.id===selected.id)forecast.value=value;}finally{forecastBusy.value=false;}}
 function favorite() { if (route.value) { try { favorited.value = toggleFavorite(route.value.id); } catch (e) { uni.showToast({ title: String(e), icon: 'none' }); } } }
 
 onLoad((q) => {
   const id = q?.id as string;
   route.value = ROUTES.find((r) => r.id === id) ?? null;
   favorited.value = readLibrary().favorites.includes(id);
-  if (route.value) uni.setNavigationBarTitle({ title: route.value.name });
+  if (route.value) { uni.setNavigationBarTitle({ title: route.value.name }); void loadForecast(); }
 });
 
 const navigable = computed(() => (route.value ? isNavigable(route.value) : false));

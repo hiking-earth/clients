@@ -153,6 +153,7 @@ const qrLogin = require('./qr-login').service({ db,
   issueSession: newSession,
 });
 async function dispatch(action, data, token, remoteAddress) {
+  if (action === 'weather.forecast') { await limit('weather:global', 1000); return require('./weather').forecast(data); }
   if (action === 'auth.qr.start') { await limit(`qr-start:${hash(remoteAddress)}`, 30); return qrLogin.start(data); }
   if (action === 'auth.qr.claim' || action === 'auth.qr.cancel') {
     await limit(`qr-poll:${hash(remoteAddress)}`, 500);

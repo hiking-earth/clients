@@ -8,7 +8,7 @@
       <image v-if="qrImage" :src="qrImage" style="width:280px;height:280px" />
       <text class="hint">在徒步地球微信小程序中打开“扫码登录网页或桌面”，扫描后确认。二维码3分钟有效。</text>
       <button :disabled="qrStarting" @click="startQr">{{ qrStarting ? '正在生成…' : '生成 / 刷新登录二维码' }}</button>
-      <button v-if="qrImage" @click="stopQr">取消扫码登录</button>
+      <button v-if="qrImage" @click="stopQr()">取消扫码登录</button>
     </view>
     <!-- #endif -->
     <view v-if="!session" class="card">
@@ -67,7 +67,7 @@ const unsubscribeAccount=onAccountChange(()=>{refreshSession();recoveryCode.valu
 onShow(refreshSession);
 onUnload(()=>{unsubscribeAccount();stopQr();});
 const qrImage=ref(''),qrStarting=ref(false);let qrChallenge:DeviceChallenge|null=null,qrTimer:ReturnType<typeof setTimeout>|undefined,qrGeneration=0;
-function stopQr(){qrGeneration++;if(qrTimer)clearTimeout(qrTimer);qrTimer=undefined;const prior=qrChallenge;qrChallenge=null;qrImage.value='';if(prior)void cancelDeviceLogin(prior);}
+function stopQr(clearMessage=true){qrGeneration++;if(qrTimer)clearTimeout(qrTimer);qrTimer=undefined;const prior=qrChallenge;qrChallenge=null;qrImage.value='';if(prior&&clearMessage)message.value='已取消扫码登录';if(prior)void cancelDeviceLogin(prior);}
 async function startQr(){if(qrStarting.value)return;stopQr();const generation=qrGeneration;qrStarting.value=true;try{
  const value=await beginDeviceLogin();if(generation!==qrGeneration||accountSession()){void cancelDeviceLogin(value.challenge);return;}qrChallenge=value.challenge;qrImage.value=value.image;message.value='等待小程序扫码确认';
  const poll=async()=>{if(generation!==qrGeneration||!qrChallenge)return;try{
@@ -75,7 +75,7 @@ async function startQr(){if(qrStarting.value)return;stopQr();const generation=qr
  const done=await claimDeviceLogin(value.challenge,()=>generation===qrGeneration);if(generation!==qrGeneration)return;
  if(done){qrChallenge=null;qrImage.value='';refreshSession();message.value='微信扫码登录成功';return;}
  qrTimer=setTimeout(poll,2500);
- }catch(error){if(generation===qrGeneration){message.value=error instanceof Error?error.message:'扫码登录失败';stopQr();}}};qrTimer=setTimeout(poll,2500);
+ }catch(error){if(generation===qrGeneration){message.value=error instanceof Error?error.message:'扫码登录失败';stopQr(false);}}};qrTimer=setTimeout(poll,2500);
  }catch(error){message.value=error instanceof Error?error.message:'生成失败';}finally{qrStarting.value=false;}}
 
 function sameSession(expected:AccountSession|null){const current=accountSession();return current?.openid===expected?.openid&&current?.token===expected?.token;}
