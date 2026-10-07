@@ -230,6 +230,13 @@ exports.main = async event => {
   // with its own, including identical values, and rejected by WebKit.
   const headers = { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' };
   const response = (statusCode, value) => ({ statusCode, headers, body: JSON.stringify(value) });
+  if(event?.transport==='wechat-cloud') {
+    const context=cloud.getWXContext();
+    if(context.APPID!=='wx73248e013d48b534'||!context.OPENID)return response(401,{ok:false,errMsg:'微信调用身份无效'});
+    // Context scopes request throttling only. Business identity still requires
+    // the same verified opaque session used by the HTTPS gateway.
+    event={httpMethod:'POST',body:JSON.stringify({action:event.action,data:event.data}),headers:{authorization:typeof event.token==='string'?`Bearer ${event.token}`:''},requestContext:{sourceIp:`wechat:${context.APPID}:${context.OPENID}`}};
+  }
   if (event.httpMethod === 'OPTIONS') return response(204, {});
   if (event.httpMethod !== 'POST') return response(405, { ok: false, errMsg: '只支持POST请求' });
   try {

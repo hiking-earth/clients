@@ -1,10 +1,11 @@
-import { CLIENT_API_URL } from '@shared/constants';
+import { CLIENT_API_URL, CLOUD_ENV } from '@shared/constants';
 // #ifdef H5
 import { needsGatewayRelay, gatewayRelayRequest } from '@shared/network/gateway-relay';
 // #endif
 import { stopBackgroundRecording } from '@/services/background';
 import { listTracks, saveTrack, setTrackAutoSyncExcluded, trackStorageValid } from '@/services/tracks';
 import { stopCompass, stopLocationUpdates } from '@/services/location';
+declare const wx: any;
 
 export type AccountProfile = { openid: string; nickname: string; username: string };
 export type AccountSession = AccountProfile & { token: string; expiresAt: number };
@@ -100,6 +101,17 @@ function stillCurrentSession(expected:AccountSession|null):boolean {
 export async function accountRequest<T>(action: string, data: Record<string, unknown> = {}): Promise<AccountResponse<T>> {
   if (!accountApiConfigured()) return { ok: false, errMsg: '账号服务尚未配置，请稍后使用' };
   const session = accountSession();
+  // #ifdef MP-WEIXIN
+  try {
+    wx.cloud.init({env:CLOUD_ENV,traceUser:false});
+    const reply = await wx.cloud.callFunction({name:'client-api',data:{transport:'wechat-cloud',action,data,token:session?.token||''}});
+    const response = reply.result;
+    const result = JSON.parse(response.body) as AccountResponse<T>;
+    if(response.statusCode===401&&session&&result?.code==='SESSION_EXPIRED'&&stillCurrentSession(session))clearAccount();
+    if(response.statusCode>=200&&response.statusCode<300&&result?.ok===true)return result;
+    return {ok:false,errMsg:result?.errMsg||'服务未完成本次操作',code:result?.code==='TEAM_REQUEST_EXPIRED'?result.code:undefined};
+  } catch { return {ok:false,errMsg:'云服务请求未完成，请确认操作结果后重试'}; }
+  // #endif
   // #ifdef H5
   if(needsGatewayRelay()){
     try{
