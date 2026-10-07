@@ -19,11 +19,14 @@
     "h5Build": "passed",
     "wechatBuild": "passed",
     "cargoCheck": "passed",
-    "cargoTests": "running"
+    "cargoTests": {
+      "filenameValidation": "passed",
+      "publicCatalogRequest": "failed after 15.01 seconds with map request failure"
+    }
   },
   "limitations": [
     "New native adapter has not been packaged or accepted in Tauri window.",
-    "Actual native public network test is compiling in session32995.",
+    "Real Rust public network request failed; diagnose native network/proxy configuration before claiming readiness.",
     "Binary IPC and persistent map rendering need device acceptance."
   ]
 }
