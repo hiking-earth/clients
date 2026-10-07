@@ -102,3 +102,24 @@ test('cloud rejects business errors and revoked uploads before transport', async
   h.privacy.setPrivacyConsent('trackCloudSync', true);
   const result = await cloud.callCloud('track-sync'); assert.equal(result.ok, false); assert.equal(result.errMsg, 'invalid track');
 });
+
+test('location subscriber failure does not block another view', async () => {
+  const h=setup(); h.privacy.setPrivacyConsent('location',true); let received=0;
+  const a=h.location.startLocationUpdates(()=>{throw new Error('view disposed');});
+  const b=h.location.startLocationUpdates(()=>received++); h.requests[0].success();
+  assert.equal(await a,true); assert.equal(await b,true);
+  assert.doesNotThrow(()=>[...h.events][0]({latitude:1,longitude:2})); assert.equal(received,1);
+});
+test('compass subscriber failure does not block another view', () => {
+  const h=setup(); h.privacy.setPrivacyConsent('location',true); let received=0;
+  h.location.startCompass(()=>{throw new Error('view disposed');}); h.location.startCompass(()=>received++);
+  assert.doesNotThrow(()=>[...h.compass][0]({direction:42})); assert.equal(received,1);
+});
+test('throwing platform cleanup still settles pending start and revokes delivery', async () => {
+  const h=setup(); h.privacy.setPrivacyConsent('location',true); let received=0;
+  const pending=h.location.startLocationUpdates(()=>received++);
+  h.uni.offLocationChange=()=>{throw new Error('platform unavailable');};
+  h.uni.stopLocationUpdate=()=>{throw new Error('platform unavailable');};
+  assert.doesNotThrow(()=>h.location.stopLocationUpdates()); assert.equal(await pending,false);
+  h.requests[0].success(); assert.equal(received,0);
+});

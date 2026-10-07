@@ -30,26 +30,26 @@ function deliver(res: any) {
     altitude: optional(res.altitude), speed: optional(res.speed,true),
     accuracy: optional(res.horizontalAccuracy ?? res.accuracy,true), timestamp: Date.now(),
   };
-  locations.forEach((purpose, cb) => { if (allowed(purpose)) cb({...point}); });
+  locations.forEach((purpose, cb) => { if (allowed(purpose)) { try { cb({...point}); } catch { /* One view must not interrupt other subscribers. */ } } });
 }
 const locationListener = (res: any) => { if (running) deliver(res); };
 const compassListener = (res: any) => {
   if (!compassRunning || !hasPrivacyConsent("location")) return;
   if(!res || !Number.isFinite(res.direction) || res.direction<0 || res.direction>360)return;
   const value = filter.push(res.direction===360?0:res.direction);
-  headings.forEach((cb) => cb(value));
+  headings.forEach((cb) => { try { cb(value); } catch { /* Keep other consumers receiving headings. */ } });
 };
 function shutdown() {
   generation++;
   running = false;
   // #ifdef APP-PLUS
-  if (nativeWatch !== undefined) plus.geolocation.clearWatch(nativeWatch);
+  if (nativeWatch !== undefined) { try { plus.geolocation.clearWatch(nativeWatch); } catch { /* Internal revocation still completes. */ } }
   nativeWatch = undefined;
   // #endif
   if (pollTimer !== undefined) clearInterval(pollTimer);
   pollTimer = undefined;
-  uni.offLocationChange?.(locationListener);
-  uni.stopLocationUpdate?.({ complete: () => {} });
+  try { uni.offLocationChange?.(locationListener); } catch { /* The listener already rejects revoked updates. */ }
+  try { uni.stopLocationUpdate?.({ complete: () => {} }); } catch { /* Settle pending consumers even if the platform stop throws. */ }
   settle?.(false);
   settle = undefined;
   pending = undefined;
@@ -107,7 +107,7 @@ export async function startLocationUpdates(cb: LocationCallback, purpose: Purpos
         success: () => {
           if (!valid()) {
             // A newer start owns the platform stream; never stop it here.
-            if (!running && !pending) uni.stopLocationUpdate?.({ complete: () => {} });
+            if (!running && !pending) { try { uni.stopLocationUpdate?.({ complete: () => {} }); } catch { /* The canceled start remains revoked. */ } }
             resolve(false);
             return;
           }
@@ -148,8 +148,8 @@ export function stopCompass(cb?: HeadingCallback): void {
   if (cb) headings.delete(cb);
   else headings.clear();
   if (!headings.size && compassRunning) {
-    uni.offCompassChange?.(compassListener);
     compassRunning = false;
+    try { uni.offCompassChange?.(compassListener); } catch { /* Late events are rejected by compassRunning. */ }
   }
 }
 onPrivacyChange(() => {
