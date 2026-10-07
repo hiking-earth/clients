@@ -56,7 +56,7 @@
     </template>
 
     <!-- #ifdef H5 --><view class="notice">免费本机图像检测：照片不上传，模型首次使用会读取约20 MB资料。仅识别部分通用物体；候选结果须本人确认，不能判断完整装备或安全性。</view><!-- #endif -->
-    <!-- #ifndef H5 --><view class="notice">云端分析须主动授权。结果仅供参考，请按实际路线复核；未配置服务时不会上传到未知供应商。</view><!-- #endif -->
+    <!-- #ifndef H5 --><view class="notice">免费云端分析须主动授权：照片发送到徒步地球云端进行有限类别识别，默认不调用第三方视觉服务。请使用4 MB、400万像素以内的JPEG或PNG照片；候选结果须本人确认。</view><!-- #endif -->
   </scroll-view>
 </template>
 
