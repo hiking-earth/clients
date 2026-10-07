@@ -1,9 +1,15 @@
-import pathlib,subprocess,tempfile,unittest,zipfile,json
+import pathlib,subprocess,tempfile,unittest,zipfile,json,os,sys
 SCRIPT=pathlib.Path(__file__).resolve().parents[1]/'check-package-budget.py'
 class BudgetTests(unittest.TestCase):
  def check(self,path):
-  result=subprocess.run(['/usr/bin/python3',str(SCRIPT),str(path)],capture_output=True,text=True)
+  result=subprocess.run([sys.executable,str(SCRIPT),str(path)],capture_output=True,text=True)
   return result.returncode,json.loads(result.stdout)
+ def test_chinese_path_under_windows_encoding(self):
+  with tempfile.TemporaryDirectory() as root:
+   path=pathlib.Path(root)/'徒步地球.msi';path.write_bytes(b'candidate')
+   result=subprocess.run([sys.executable,str(SCRIPT),str(path)],capture_output=True,env=dict(os.environ,PYTHONIOENCODING='cp1252'))
+   self.assertEqual(result.returncode,0,result.stderr)
+   self.assertEqual(json.loads(result.stdout.decode('ascii'))['files'][0]['path'],str(path.resolve()))
  def test_decimal_limit(self):
   with tempfile.TemporaryDirectory() as root:
    path=pathlib.Path(root)/'candidate.bin'

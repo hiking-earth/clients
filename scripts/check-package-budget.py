@@ -21,6 +21,6 @@ for value in args.paths:
    row.update(installedBytes=unpacked,coverage='TAR unpacked regular file sizes');size=max(size,unpacked)
  row.update(limitBytes=LIMIT,passed=size<LIMIT);failed|=not row['passed'];rows.append(row)
 report={'schemaVersion':1,'limitBytes':LIMIT,'passed':not failed,'files':rows,'note':'Installed payload of DMG/MSI/AppImage/DEB requires separate directory measurement; runtime user data is excluded.'}
-text=json.dumps(report,ensure_ascii=False,indent=2)
-if args.report:pathlib.Path(args.report).write_text(text+'\n')
+text=json.dumps(report,ensure_ascii=True,indent=2)
+if args.report:pathlib.Path(args.report).write_text(text+'\n',encoding='utf-8')
 print(text);raise SystemExit(1 if failed else 0)
