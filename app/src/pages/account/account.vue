@@ -24,6 +24,9 @@
     </view>
     <view v-else class="card">
       <text class="subtitle">{{ session.username }}</text>
+      <text class="hint">统一账号 ID（用于核对管理员归属）</text>
+      <text selectable class="account-id">{{ session.openid }}</text>
+      <button :disabled="busy" @click="copyAccountId">复制账号 ID</button>
       <input v-model="nickname" maxlength="24" placeholder="昵称" />
       <button :disabled="busy" @click="updateNickname">保存昵称</button>
       <button @click="openModeration">社区管理（授权管理员）</button>
@@ -45,7 +48,7 @@
     </view>
     <text v-if="message" class="message">{{ message }}</text>
     <text v-if="!configured" class="hint">账号服务正在接入，当前尚不能提交。</text>
-    <text class="hint">微信登录后可通过小程序扫码确认，让网页和桌面使用同一账号；手机号绑定需另行验证。</text>
+    <text class="hint">微信登录后可通过小程序扫码确认，让网页和桌面使用同一账号。手机号验证码登录与微信手机号关联尚未接入，当前可使用微信扫码或账号密码登录。</text>
   </scroll-view>
 </template>
 
@@ -174,8 +177,14 @@ function deleteAccount() {
 }
 function openModeration() { uni.navigateTo({ url: '/pages/moderation/moderation' }); }
 function copyRecovery() { uni.setClipboardData({ data: recoveryCode.value }); }
+function copyAccountId() {
+  const current=accountSession();
+  if(!current||current.openid!==session.value?.openid||current.token!==session.value?.token)return;
+  uni.setClipboardData({data:current.openid,success:()=>{if(sameSession(current))message.value='账号 ID 已复制；此操作不会授予管理员权限';},fail:()=>{if(sameSession(current))message.value='复制未完成，可长按上方账号 ID 手动复制';}});
+}
 </script>
 
 <style scoped>
 .page{min-height:100vh;box-sizing:border-box;padding:24px 20px;background:#0f141b;color:#eef4ea}.title{display:block;font-size:24px;font-weight:700}.intro,.hint,.message{display:block;font-size:13px;line-height:1.7;margin:12px 0;color:#8a97a5}.card{margin:20px 0;padding:20px;background:#151d27;border-radius:16px}.tabs{display:flex;gap:8px}.tabs button{flex:1;padding:0;font-size:14px}.tabs .active,.primary{background:#b8f36b;color:#0f141b}.card input{height:44px;margin:14px 0;padding:0 12px;background:#202b37;border-radius:8px;color:#eef4ea}.card button{margin-top:12px;font-size:14px}.subtitle{display:block;font-size:16px;margin-top:12px}.code{display:block;word-break:break-all;font-family:monospace;margin:16px 0;color:#b8f36b}.message{color:#d8e9bb}
+.account-id{display:block;word-break:break-all;font-family:monospace;font-size:13px;line-height:1.7;color:#d8e9bb}
 </style>
