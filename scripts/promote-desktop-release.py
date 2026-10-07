@@ -5,6 +5,7 @@ import json
 import pathlib
 import re
 import subprocess
+import sys
 import tempfile
 from urllib.parse import unquote, urlsplit
 
@@ -110,6 +111,8 @@ def main():
             subprocess.run(["gh", "release", "download", args.tag, "--repo", REPO,
                             "--pattern", artifact_name, "--pattern", signature_name,
                             "--dir", str(work)], check=True)
+            subprocess.run([sys.executable, str(pathlib.Path(__file__).with_name("check-package-budget.py")),
+                            str(work / artifact_name)], check=True, capture_output=True, text=True)
             signature_file = work / signature_name
             if signature_file.read_text().strip() != entry["signature"].strip():
                 stop(f"Updater signature differs from the signed release asset for {platform}")

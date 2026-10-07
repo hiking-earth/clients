@@ -11,6 +11,7 @@ import os
 import pathlib
 import re
 import subprocess
+import sys
 import tempfile
 
 
@@ -89,6 +90,8 @@ def main() -> None:
         data = artifact_path.read_bytes()
         if len(data) != asset["size"]:
             stop("asset size mismatch")
+        subprocess.run([sys.executable, str(pathlib.Path(__file__).with_name("check-package-budget.py")),
+                        str(artifact_path)], check=True)
         sha = hashlib.sha256(data).hexdigest()
         if sha != platforms["android"].get("artifactSha256"):
             stop("Published APK differs from the accepted Android artifact")
