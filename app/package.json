@@ -57,6 +57,8 @@
     "@dcloudio/uni-mp-weixin": "3.0.0-5020420260813003",
     "@dcloudio/uni-mp-xhs": "3.0.0-5020420260813003",
     "@dcloudio/uni-quickapp-webview": "3.0.0-5020420260813003",
+    "@mapbox/vector-tile": "3.0.0",
+    "@noble/hashes": "1.8.0",
     "@tensorflow-models/coco-ssd": "2.2.3",
     "@tensorflow/tfjs-backend-cpu": "4.22.0",
     "@tensorflow/tfjs-backend-webgl": "4.22.0",
@@ -64,12 +66,11 @@
     "@tensorflow/tfjs-core": "4.22.0",
     "fast-xml-parser": "^5.11.2",
     "maplibre-gl": "6.4.1",
+    "pbf": "5.1.2",
     "pmtiles": "4.5.0",
     "qrcode": "^1.5.4",
     "vue": "^3.4.21",
-    "vue-i18n": "^9.1.9",
-    "@mapbox/vector-tile": "3.0.0",
-    "pbf": "5.1.2"
+    "vue-i18n": "^9.1.9"
   },
   "devDependencies": {
     "@dcloudio/types": "^3.4.8",
