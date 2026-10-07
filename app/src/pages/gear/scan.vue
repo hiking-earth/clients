@@ -2,7 +2,7 @@
   <scroll-view scroll-y class="page">
     <view class="intro">
       <text class="intro-title">拍照识装备</text>
-      <text class="intro-sub">选择装备照片，获取识别与打包建议；需先配置视觉服务</text>
+      <text class="intro-sub">选择照片，获取图像检测候选和出行核对清单</text>
     </view>
 
     <!-- 选路线（可选，影响规划建议） -->
@@ -55,12 +55,16 @@
       </view>
     </template>
 
-    <view class="notice">识别由云端视觉模型完成，上传前请确认已配置服务的图片使用和保留政策；结果供参考，出行前请按实际路线复核。</view>
+    <!-- #ifdef H5 --><view class="notice">免费本机图像检测：照片不上传，模型首次使用会读取约20 MB资料。仅识别部分通用物体；候选结果须本人确认，不能判断完整装备或安全性。</view><!-- #endif -->
+    <!-- #ifndef H5 --><view class="notice">云端分析须主动授权。结果仅供参考，请按实际路线复核；未配置服务时不会上传到未知供应商。</view><!-- #endif -->
   </scroll-view>
 </template>
 
 <script setup lang="ts">
 import { ref } from "vue";
+// #ifdef H5
+import { analyzeGearLocally } from "@/services/gear-local";
+// #endif
 declare const plus: any;
 import RouteSearchPicker from '@/components/RouteSearchPicker.vue';
 import { callCloud } from "@/services/cloud";
@@ -113,6 +117,7 @@ function chooseImage() {
 
 async function analyze() {
   if (!imagePath.value || analyzing.value) return;
+  // #ifndef H5
   if (!hasPrivacyConsent("gearImageUpload")) {
     uni.showModal({
       title: "需要照片分析授权",
@@ -121,11 +126,21 @@ async function analyze() {
     });
     return;
   }
+  // #endif
   analyzing.value = true;
   const epoch=++generation,path=imagePath.value,selectedRoute=routeId.value,selectedName=routeName.value,token=accountSession()?.token;
-  const current=()=>visible&&epoch===generation&&hasPrivacyConsent("gearImageUpload")&&accountSession()?.token===token&&imagePath.value===path&&routeId.value===selectedRoute;
+  let requiresUpload=false;
+  // #ifndef H5
+  requiresUpload=true;
+  // #endif
+  const current=()=>visible&&epoch===generation&&(!requiresUpload||hasPrivacyConsent("gearImageUpload"))&&accountSession()?.token===token&&imagePath.value===path&&routeId.value===selectedRoute;
   try {
-    // 小程序文件系统、App 原生文件读取、H5 FileReader 分别处理。
+    // #ifdef H5
+    const local=await analyzeGearLocally(path);
+    if(current())result.value={...local,plan:local.plan.map(p=>({...p,checked:false}))};
+    // #endif
+    // #ifndef H5
+    // 小程序文件系统、App 原生文件读取分别处理。
     const base64 = await readAsBase64(path);
     if(!current())return;
     if(base64.length>Math.ceil(4*1024*1024/3)*4)throw new Error("请选择4 MB以内的照片");
@@ -143,6 +158,7 @@ async function analyze() {
     } else {
       uni.showToast({ title: res.errMsg ?? "识别失败", icon: "none" });
     }
+    // #endif
   } catch (e) {
     if(!current())return;
     uni.showToast({ title: e instanceof Error ? e.message : "图片读取或识别失败", icon: "none" });

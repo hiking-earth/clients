@@ -11,6 +11,8 @@ const COLLECTIONS = [
   "user_notifications",
   "client_accounts",
   "client_sessions",
+  "client_qr_logins",
+  "client_wechat_tickets",
   "client_rate_limits",
   "community_reports",
   "companion_posts",  // 约伴帖（机审后发布）

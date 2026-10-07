@@ -12,6 +12,9 @@
         <text class="acc-sub">{{ openid ? '已登录，可使用云端功能' : '登录后可用云同步、组队与社区' }}</text>
       </view>
       <button v-if="!openid" class="login" @click="login">登录</button>
+      <!-- #ifdef MP-WEIXIN -->
+      <button @click="go('/pages/account/qr-confirm')">扫码登录网页或桌面</button>
+      <!-- #endif -->
     </view>
 
     <!-- 功能入口 -->
@@ -64,7 +67,7 @@ import { callCloud } from "@/services/cloud";
 import { listTracks, uploadTrackToCloud, currentTrackOwner, trackNeedsManualBackup, trackStorageValid, rawTrackStoreSnapshot } from "@/services/tracks";
 import { saveLocalTextFile } from '@/services/files';
 import { hasPrivacyConsent } from "@/services/privacy";
-import { accountSession, saveWeChatIdentity } from '@/services/account';
+import { accountSession, accountRequest, saveAccount, type AccountSession } from '@/services/account';
 import { APP_VERSION } from '@/services/version';
 
 const openid = ref("");
@@ -90,11 +93,13 @@ onShow(() => {
 
 async function login() {
   // #ifdef MP-WEIXIN
-  const res = await callCloud<{ openid: string; nickname: string }>("login");
+  const res = await callCloud<{ openid: string; nickname: string; ticket: string }>("login");
   const loginData = res.data;
   if (res.ok && loginData) {
     try{
-      saveWeChatIdentity(loginData.openid,loginData.nickname??"山友");
+      const exchanged = await accountRequest<AccountSession>('auth.wechat.exchange', { ticket: loginData.ticket });
+      if (!exchanged.ok || !exchanged.data) throw new Error(exchanged.errMsg || '微信账号登录未完成');
+      saveAccount(exchanged.data);
       openid.value = loginData.openid;
       nickname.value = loginData.nickname ?? "山友";
       uni.showToast({ title: "登录成功", icon: "success" });

@@ -2,6 +2,15 @@
   <scroll-view scroll-y class="page">
     <text class="title">{{ session ? '账号管理' : '徒步地球账号' }}</text>
     <text class="intro">同一账号可在手机、网页和桌面使用云端轨迹、组队与社区。</text>
+    <!-- #ifdef H5 -->
+    <view v-if="!session" class="card">
+      <text class="subtitle">微信扫码登录</text>
+      <image v-if="qrImage" :src="qrImage" style="width:280px;height:280px" />
+      <text class="hint">在徒步地球微信小程序中打开“扫码登录网页或桌面”，扫描后确认。二维码3分钟有效。</text>
+      <button :disabled="qrStarting" @click="startQr">{{ qrStarting ? '正在生成…' : '生成 / 刷新登录二维码' }}</button>
+      <button v-if="qrImage" @click="stopQr">取消扫码登录</button>
+    </view>
+    <!-- #endif -->
     <view v-if="!session" class="card">
       <view class="tabs">
         <button v-for="item in modes" :key="item.value" :class="{ active: mode === item.value }" @click="mode = item.value">{{ item.label }}</button>
@@ -18,10 +27,10 @@
       <input v-model="nickname" maxlength="24" placeholder="昵称" />
       <button :disabled="busy" @click="updateNickname">保存昵称</button>
       <button @click="openModeration">社区管理（授权管理员）</button>
-      <text class="subtitle">修改密码</text>
+      <view v-if="!wechatAccount"><text class="subtitle">修改密码</text>
       <input v-model="password" password maxlength="128" placeholder="当前密码" />
       <input v-model="newPassword" password maxlength="128" placeholder="新密码（至少10个字符）" />
-      <button :disabled="busy" @click="updatePassword">更新密码并退出其他设备</button>
+      <button :disabled="busy" @click="updatePassword">更新密码并退出其他设备</button></view>
       <button :disabled="busy" @click="logout(false)">退出当前设备</button>
       <button :disabled="busy" @click="logout(true)">退出所有设备</button>
       <text class="hint">注销会删除云轨迹、约伴内容、报名和求助记录，解散你创建的队伍。本机轨迹仍保留在原身份分区；收藏与行程会移入待确认的本机备份。以后可在新账号下明确确认转存或导入。</text>
@@ -36,24 +45,39 @@
     </view>
     <text v-if="message" class="message">{{ message }}</text>
     <text v-if="!configured" class="hint">账号服务正在接入，当前尚不能提交。</text>
-    <text class="hint">小程序原有的微信账号与统一账号独立。要跨端使用同一份云数据，请在各端登录同一统一账号。</text>
+    <text class="hint">微信登录后可通过小程序扫码确认，让网页和桌面使用同一账号；手机号绑定需另行验证。</text>
   </scroll-view>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { onShow, onUnload } from '@dcloudio/uni-app';
 import { accountApiConfigured, accountRequest, accountSession, clearAccount, clearDeletedAccountRequests, saveAccount, onAccountChange } from '@/services/account';
+import { beginDeviceLogin, claimDeviceLogin, cancelDeviceLogin, type DeviceChallenge } from '@/services/qr-login';
 import { archiveDeletedAccountLibrary } from '@/services/library';
 import type { AccountSession, AccountProfile } from '@/services/account';
 const modes = [{ value: 'sign-in', label: '登录' }, { value: 'register', label: '注册' }, { value: 'recover', label: '恢复密码' }] as const;
 const mode = ref<string>('sign-in'), username = ref(''), nickname = ref(''), password = ref(''), code = ref(''), newPassword = ref('');
 const recoveryCode = ref(''), message = ref(''), busy = ref(false), session = ref<AccountSession | null>(null);
 const configured = accountApiConfigured();
+const wechatAccount = computed(() => session.value?.username.startsWith('wx_') === true);
+declare const wx: any;
 function refreshSession(){session.value=accountSession();nickname.value=session.value?.nickname||'';}
 const unsubscribeAccount=onAccountChange(()=>{refreshSession();recoveryCode.value='';password.value='';newPassword.value='';code.value='';});
 onShow(refreshSession);
-onUnload(unsubscribeAccount);
+onUnload(()=>{unsubscribeAccount();stopQr();});
+const qrImage=ref(''),qrStarting=ref(false);let qrChallenge:DeviceChallenge|null=null,qrTimer:ReturnType<typeof setTimeout>|undefined,qrGeneration=0;
+function stopQr(){qrGeneration++;if(qrTimer)clearTimeout(qrTimer);qrTimer=undefined;const prior=qrChallenge;qrChallenge=null;qrImage.value='';if(prior)void cancelDeviceLogin(prior);}
+async function startQr(){if(qrStarting.value)return;stopQr();const generation=qrGeneration;qrStarting.value=true;try{
+ const value=await beginDeviceLogin();if(generation!==qrGeneration||accountSession()){void cancelDeviceLogin(value.challenge);return;}qrChallenge=value.challenge;qrImage.value=value.image;message.value='等待小程序扫码确认';
+ const poll=async()=>{if(generation!==qrGeneration||!qrChallenge)return;try{
+ if(Date.now()>=value.challenge.expiresAt)throw new Error('二维码已过期，请刷新');
+ const done=await claimDeviceLogin(value.challenge,()=>generation===qrGeneration);if(generation!==qrGeneration)return;
+ if(done){qrChallenge=null;qrImage.value='';refreshSession();message.value='微信扫码登录成功';return;}
+ qrTimer=setTimeout(poll,2500);
+ }catch(error){if(generation===qrGeneration){message.value=error instanceof Error?error.message:'扫码登录失败';stopQr();}}};qrTimer=setTimeout(poll,2500);
+ }catch(error){message.value=error instanceof Error?error.message:'生成失败';}finally{qrStarting.value=false;}}
+
 function sameSession(expected:AccountSession|null){const current=accountSession();return current?.openid===expected?.openid&&current?.token===expected?.token;}
 async function submit() {
   if (busy.value) return;
@@ -112,12 +136,24 @@ function logout(all: boolean) {
 }
 function deleteAccount() {
   const original=accountSession();if(!original)return;
-  if (!password.value) { message.value = '请先填写当前密码'; return; }
+  if (!wechatAccount.value && !password.value) { message.value = '请先填写当前密码'; return; }
   uni.showModal({ title: '永久注销账号', content: '云端数据删除后无法恢复。清理期间账号不能使用业务功能；完成后，本机收藏和行程转入待确认备份，轨迹仍留在原身份分区。确认开始注销？', success: async choice => {
     if (!choice.confirm || busy.value || !sameSession(original)) return;
     busy.value = true;
     try {
-      const result = await accountRequest<{ complete: boolean }>('auth.delete', { password: password.value });
+      let wechatTicket = '';
+      if (wechatAccount.value) {
+        // #ifdef MP-WEIXIN
+        const reauth = await wx.cloud.callFunction({ name: 'login', data: { action: 'reauth' } });
+        if (!reauth.result?.ticket) throw new Error(reauth.result?.errMsg || '微信身份确认失败');
+        wechatTicket = reauth.result.ticket;
+        // #endif
+        // #ifndef MP-WEIXIN
+        message.value = '请在微信小程序的账号管理中确认注销'; return;
+        // #endif
+      }
+      if (!sameSession(original)) return;
+      const result = await accountRequest<{ complete: boolean }>('auth.delete', { password: password.value, wechatTicket });
       if(!sameSession(original))return;
       if (!result.ok) { message.value = result.errMsg || '注销未完成，请保留登录状态重试'; return; }
       if (result.data?.complete===true) {
@@ -133,7 +169,7 @@ function deleteAccount() {
       }
       else if(result.data?.complete===false) message.value = '账号已进入注销，部分数据已清理。请再次点击“继续注销”完成剩余清理。';
       else message.value='注销回执格式无效，请保留登录状态重试确认';
-    } finally { busy.value = false; }
+    } catch(error) { message.value = error instanceof Error ? error.message : '注销未完成，请重试'; } finally { busy.value = false; }
   } });
 }
 function openModeration() { uni.navigateTo({ url: '/pages/moderation/moderation' }); }

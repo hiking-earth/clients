@@ -5,7 +5,7 @@ exports.main=async event=>{
  const context=cloud.getWXContext();
  if(context.OPENID||event.Type!=='Timer')return {errMsg:'仅定时任务可执行'};
  const now=Date.now();let removed=0,postponed=0;
- for(const collection of ['client_sessions','client_rate_limits']){
+ for(const collection of ['client_sessions','client_rate_limits','client_qr_logins','client_wechat_tickets']){
   const rows=(await db.collection(collection).where({expiresAt:db.command.lte(now)}).limit(100).get()).data;
   for(const row of rows)await db.runTransaction(async tx=>{const ref=tx.collection(collection).doc(row._id);const live=(await ref.get()).data;if(live&&Number.isFinite(live.expiresAt)&&live.expiresAt<=now){await ref.remove();removed++;}});
  }

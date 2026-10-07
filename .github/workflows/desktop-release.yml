@@ -101,6 +101,16 @@ jobs:
           releaseDraft: true
           prerelease: false
 
+      - name: Enforce 500 MB candidate package budget
+        shell: bash
+        run: |
+          count=0
+          while IFS= read -r -d '' artifact; do
+            python3 scripts/check-package-budget.py "$artifact"
+            count=$((count + 1))
+          done < <(find desktop/src-tauri/target/${{ matrix.target }}/release/bundle -type f \( -name '*.dmg' -o -name '*.msi' -o -name '*.AppImage' -o -name '*.deb' -o -name '*.tar.gz' -o -name '*.zip' \) -print0)
+          test "$count" -gt 0
+
       - name: Verify updater signatures against pinned public key
         shell: bash
         run: |

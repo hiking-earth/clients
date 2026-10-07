@@ -42,10 +42,14 @@ async function limit(scope, max) {
 }
 async function newSession(account) {
   const token = random(); const expiresAt = Date.now() + SESSION_MS;
-  await db.collection('client_sessions').doc(hash(token)).set({ data: {
-    accountId: hash(account.username), sessionVersion: account.sessionVersion,
-    expiresAt, createdAt: Date.now(),
-  } });
+  await db.runTransaction(async tx => {
+    const accountId = hash(account.username);
+    const latest = (await tx.collection('client_accounts').doc(accountId).get()).data;
+    if (!latest || latest.disabled || latest.deleting || latest.sessionVersion !== account.sessionVersion) fail('账号已改变，请重新登录', 401);
+    await tx.collection('client_sessions').doc(hash(token)).set({ data: {
+      accountId, sessionVersion: latest.sessionVersion, expiresAt, createdAt: Date.now(),
+    } });
+  });
   return { ...profile(account), token, expiresAt };
 }
 async function verifiedSession(token, allowDeletion = false) {
@@ -68,6 +72,7 @@ async function credentials(data) {
 }
 async function register(data, remoteAddress) {
   const username = nameOf(data.username), password = passwordOf(data.password);
+  if (username.startsWith('wx_')) fail('该账号前缀保留给微信登录');
   await limit(`register:name:${username}`, 3);
   // HTTP instances may share a proxy address; keep this a global burst guard.
   await limit(`register:${hash(remoteAddress)}`, 50);
@@ -143,7 +148,19 @@ async function businessOperation(account, token, operation) {
     if (!session || !latest || latest.deleting || latest.disabled || session.sessionVersion !== latest.sessionVersion) await stopSharing(account.identity);
   }
 }
+const qrLogin = require('./qr-login').service({ db,
+  accountById: async id => (await db.collection('client_accounts').doc(id).get()).data,
+  issueSession: newSession,
+});
 async function dispatch(action, data, token, remoteAddress) {
+  if (action === 'auth.qr.start') { await limit(`qr-start:${hash(remoteAddress)}`, 30); return qrLogin.start(data); }
+  if (action === 'auth.qr.claim' || action === 'auth.qr.cancel') {
+    await limit(`qr-poll:${hash(remoteAddress)}`, 500);
+    return action === 'auth.qr.claim' ? qrLogin.claim(data) : qrLogin.cancel(data);
+  }
+  if (action === 'auth.wechat.exchange') { await limit(`wechat-exchange:${hash(remoteAddress)}`, 100);
+    return require('./wechat-exchange').exchange(db, data.ticket, newSession);
+  }
   if (action === 'auth.register') return register(data, remoteAddress);
   if (action === 'auth.sign-in') return newSession(await credentials(data));
   if (action === 'auth.recover') return recover(data);
@@ -153,9 +170,20 @@ async function dispatch(action, data, token, remoteAddress) {
     return withIdentity(identity, () => require(`./business/${action}`).main(data));
   }
   const account = await verifiedSession(token, action === 'auth.delete');
+  if (action === 'auth.qr.inspect' || action === 'auth.qr.confirm') {
+    await limit(`qr-confirm:${account.identity}`, 60);
+    return action === 'auth.qr.inspect' ? qrLogin.inspect(data) : qrLogin.confirm(data, account);
+  }
   if (action === 'auth.delete') {
-    const candidate = (await derive(String(data.password || '').slice(0, 128), account.salt, 32)).toString('hex');
-    if (!equalHex(candidate, account.passwordHash)) fail('当前密码不正确', 400);
+    if (account.authProvider === 'wechat') {
+      if (!account.deleting) {
+        const reauthenticated = await require('./wechat-exchange').consume(db, data.wechatTicket, true);
+        if (reauthenticated.username !== account.username) fail('请使用当前微信账号确认注销', 403);
+      }
+    } else {
+      const candidate = (await derive(String(data.password || '').slice(0, 128), account.salt, 32)).toString('hex');
+      if (!equalHex(candidate, account.passwordHash)) fail('当前密码不正确', 400);
+    }
     return require('./delete-account').deleteAccount(db, account, hash(token));
   }
   if (action === 'login' || action === 'auth.profile') return profile(account);

@@ -154,6 +154,12 @@
       "style": {
         "navigationBarTitleText": "在线地图"
       }
+    },
+    {
+      "path": "pages/account/qr-confirm",
+      "style": {
+        "navigationBarTitleText": "扫码确认登录"
+      }
     }
   ],
   "globalStyle": {
