@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-07T17:09:15Z",
+  "generatedAt": "2026-10-07T17:25:38Z",
   "license": "ODbL-1.0",
   "attribution": "© OpenStreetMap contributors",
   "licenseUrl": "https://www.openstreetmap.org/copyright",
@@ -112105,14 +112105,13 @@
       "region": "japan",
       "center": [
         134.3864772,
-        34.0074146
+        34.0143334
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/13634172",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -113829,14 +113828,13 @@
       "region": "japan",
       "center": [
         134.3296997,
-        34.0186036
+        34.018603600000006
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/13653653",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -113845,15 +113843,14 @@
       "originalName": "四国遍路 1番札所霊山寺~2番札所極楽寺",
       "region": "japan",
       "center": [
-        134.4965648,
+        134.49656475,
         34.1574772
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/13653654",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -113878,15 +113875,14 @@
       "originalName": "四国遍路 10番札所切幡寺~11番札所藤井寺",
       "region": "japan",
       "center": [
-        134.3261779,
+        134.32617785000002,
         34.079604
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/13656407",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -113896,14 +113892,13 @@
       "region": "japan",
       "center": [
         134.4698108,
-        34.0440508
+        34.04405075
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/13656408",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -114365,14 +114360,13 @@
       "region": "japan",
       "center": [
         134.591698,
-        33.976621
+        33.97664285
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/13669292",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -114381,15 +114375,14 @@
       "originalName": "四国遍路 8番札所熊谷寺~9番札所法輪寺",
       "region": "japan",
       "center": [
-        134.3372141,
-        34.1133823
+        134.33721409999998,
+        34.11338225
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/13669293",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -114398,15 +114391,14 @@
       "originalName": "四国遍路 17番札所井戸寺~18番札所恩山寺",
       "region": "japan",
       "center": [
-        134.5337897,
-        34.0356418
+        134.53378974999998,
+        34.035641749999996
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/13669295",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -114416,14 +114408,13 @@
       "region": "japan",
       "center": [
         134.5282215,
-        34.0295859
+        34.029585850000004
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/13669296",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -114432,15 +114423,14 @@
       "originalName": "四国遍路 16番札所観音寺~17番札所井戸寺",
       "region": "japan",
       "center": [
-        134.4803419,
-        34.0766505
+        134.48034185,
+        34.07665045
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/13669297",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -114449,15 +114439,14 @@
       "originalName": "四国遍路 15番札所阿波国分寺~16番札所観音寺",
       "region": "japan",
       "center": [
-        134.4737416,
-        34.0615339
+        134.47374165,
+        34.06153395
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/13669298",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -114467,14 +114456,13 @@
       "region": "japan",
       "center": [
         134.3185627,
-        34.1035777
+        34.10357775
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/13669299",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -114483,15 +114471,14 @@
       "originalName": "四国遍路 14番札所常楽寺~15番札所阿波国分寺",
       "region": "japan",
       "center": [
-        134.4753654,
-        34.0528135
+        134.47536535,
+        34.05281345
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/13669300",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -114877,14 +114864,13 @@
       "region": "japan",
       "center": [
         134.5520763,
-        33.8663602
+        33.86636015
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/13676979",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -114893,15 +114879,14 @@
       "originalName": "四国遍路 20番札所鶴林寺~21番札所太龍寺",
       "region": "japan",
       "center": [
-        134.5149139,
-        33.8981886
+        134.51486775,
+        33.89818855
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/13676980",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -114910,15 +114895,14 @@
       "originalName": "四国遍路 2番札所極楽寺~3番札所金泉寺",
       "region": "japan",
       "center": [
-        134.4798779,
-        34.15161
+        134.47987790000002,
+        34.151610000000005
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/13676981",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -114927,15 +114911,14 @@
       "originalName": "四国遍路 3番札所金泉寺~4番札所大日寺",
       "region": "japan",
       "center": [
-        134.4491039,
-        34.1450463
+        134.44910385,
+        34.145046300000004
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/13676982",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -114944,15 +114927,14 @@
       "originalName": "四国遍路 4番札所大日寺~5番札所地蔵寺",
       "region": "japan",
       "center": [
-        134.4309943,
-        34.1435969
+        134.43099435,
+        34.143596900000006
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/13676983",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -114961,15 +114943,14 @@
       "originalName": "四国遍路 5番札所地蔵寺~6番札所安楽寺",
       "region": "japan",
       "center": [
-        134.4103602,
+        134.41036015,
         34.1275268
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/13676984",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -114978,15 +114959,14 @@
       "originalName": "四国遍路 6番札所安楽寺~7番札所十楽寺",
       "region": "japan",
       "center": [
-        134.3837119,
+        134.38371189999998,
         34.1191064
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/13676985",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -114995,15 +114975,14 @@
       "originalName": "四国遍路 19番札所立江寺~20番札所鶴林寺",
       "region": "japan",
       "center": [
-        134.5556281,
-        33.9408528
+        134.55562815,
+        33.94085265
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/13676986",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -115012,15 +114991,14 @@
       "originalName": "四国遍路 7番札所十楽寺~8番札所熊谷寺",
       "region": "japan",
       "center": [
-        134.3589875,
+        134.35898755,
         34.1201743
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/13676987",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -115353,15 +115331,14 @@
       "originalName": "四国遍路 24番札所最御崎寺~25番札所津照寺",
       "region": "japan",
       "center": [
-        134.1618515,
-        33.268205
+        134.16185395000002,
+        33.26820505
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/13692101",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -115371,14 +115348,13 @@
       "region": "japan",
       "center": [
         134.3531613,
-        33.4898049
+        33.48979825
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/13692104",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -115394,8 +115370,7 @@
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -115511,15 +115486,14 @@
       "originalName": "四国遍路 30番札所善楽寺~31番札所竹林寺",
       "region": "japan",
       "center": [
-        133.5771274,
-        33.5689845
+        133.57712735,
+        33.568984549999996
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/13697425",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -115528,15 +115502,14 @@
       "originalName": "四国遍路 29番札所土佐国分寺~30番札所善楽寺",
       "region": "japan",
       "center": [
-        133.6086624,
+        133.60866245,
         33.5949406
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/13697426",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -115546,14 +115519,13 @@
       "region": "japan",
       "center": [
         133.6724797,
-        33.5879147
+        33.587914749999996
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/13697427",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -115562,15 +115534,14 @@
       "originalName": "四国遍路 27番札所神峰寺~28番札所大日寺",
       "region": "japan",
       "center": [
-        133.9093125,
-        33.4419662
+        133.83756104999998,
+        33.51147095
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/13697428",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -115579,15 +115550,14 @@
       "originalName": "四国遍路 26番札所金剛頂寺~27番札所神峰寺",
       "region": "japan",
       "center": [
-        134.0466015,
-        33.3859602
+        134.04660145000003,
+        33.38596015
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/13697429",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -115596,15 +115566,14 @@
       "originalName": "四国遍路 25番札所津照寺~26番札所金剛頂寺",
       "region": "japan",
       "center": [
-        134.1355688,
+        134.13556875,
         33.2972185
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/13697430",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -115620,8 +115589,7 @@
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -115630,15 +115598,14 @@
       "originalName": "四国遍路 33番札所雪蹊寺~34番札所種間寺",
       "region": "japan",
       "center": [
-        133.5155132,
+        133.51551315,
         33.4943002
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/13698054",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -115647,15 +115614,14 @@
       "originalName": "四国遍路 32番札所禅師峰寺~33番札所雪蹊寺",
       "region": "japan",
       "center": [
-        133.5775931,
+        133.57759305000002,
         33.513423
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/13698055",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -115664,15 +115630,14 @@
       "originalName": "四国遍路 31番札所竹林寺~32番札所禅師峰寺",
       "region": "japan",
       "center": [
-        133.5942855,
+        133.59428545,
         33.5356726
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/13698056",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -115699,15 +115664,14 @@
       "originalName": "四国遍路 36番札所青竜寺~37番札所岩本寺",
       "region": "japan",
       "center": [
-        133.2936433,
+        133.29364325,
         33.3290839
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/13702898",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -115716,15 +115680,14 @@
       "originalName": "四国遍路 35番札所清滝寺~36番札所青竜寺",
       "region": "japan",
       "center": [
-        133.4312283,
-        33.4692644
+        133.43122835,
+        33.46926445
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/13702899",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -115806,8 +115769,7 @@
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -115817,14 +115779,13 @@
       "region": "japan",
       "center": [
         133.0400849,
-        32.9673677
+        32.96736775
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/13714395",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -115850,15 +115811,14 @@
       "originalName": "四国遍路 39番札所延光寺~40番札所観自在寺",
       "region": "japan",
       "center": [
-        132.6713044,
-        32.9523619
+        132.67130444999998,
+        32.95236185
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/13718606",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -115977,8 +115937,7 @@
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -115988,14 +115947,13 @@
       "region": "japan",
       "center": [
         132.7073894,
-        33.5116469
+        33.51164695
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/13725238",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -116004,15 +115962,14 @@
       "originalName": "四国遍路 42番札所佛木寺~43番札所明石寺",
       "region": "japan",
       "center": [
-        132.5504654,
+        132.55046545,
         33.3396294
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/13725239",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -116022,14 +115979,13 @@
       "region": "japan",
       "center": [
         132.5900448,
-        33.3024096
+        33.302409600000004
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/13725240",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -116045,8 +116001,7 @@
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -116072,15 +116027,14 @@
       "originalName": "四国遍路 45番札所岩屋寺~46番札所浄瑠璃寺",
       "region": "japan",
       "center": [
-        132.9028172,
-        33.7055058
+        132.90281715,
+        33.70550575
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/13727639",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -116110,15 +116064,14 @@
       "originalName": "四国遍路 49番札所浄土寺~50番札所繁多寺",
       "region": "japan",
       "center": [
-        132.8055227,
-        33.8221798
+        132.80552265,
+        33.82217985
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/13728611",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -116127,15 +116080,14 @@
       "originalName": "四国遍路 48番札所西林寺~49番札所浄土寺",
       "region": "japan",
       "center": [
-        132.8099204,
-        33.8049155
+        132.80992045,
+        33.804915550000004
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/13728612",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -116144,15 +116096,14 @@
       "originalName": "四国遍路 47番札所八坂寺~48番札所西林寺",
       "region": "japan",
       "center": [
-        132.8123929,
-        33.7757257
+        132.81239290000002,
+        33.77572565
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/13728613",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -116161,15 +116112,14 @@
       "originalName": "四国遍路 46番札所浄瑠璃寺~47番札所八坂寺",
       "region": "japan",
       "center": [
-        132.8163512,
-        33.7557948
+        132.81635115,
+        33.755794800000004
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/13728614",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -116267,15 +116217,14 @@
       "originalName": "四国遍路 53番札所圓明寺~54番札所延命寺",
       "region": "japan",
       "center": [
-        132.8520656,
-        33.9798487
+        132.85206555000002,
+        33.979848700000005
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/13733021",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -116284,15 +116233,14 @@
       "originalName": "四国遍路 52番札所太山寺~53番札所圓明寺",
       "region": "japan",
       "center": [
-        132.7274212,
-        33.8877036
+        132.72742125,
+        33.88770355
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/13733022",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -116302,14 +116250,13 @@
       "region": "japan",
       "center": [
         132.7558432,
-        33.8665462
+        33.866546150000005
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/13733023",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -116318,15 +116265,14 @@
       "originalName": "四国遍路 50番札所繁多寺~51番札所石手寺",
       "region": "japan",
       "center": [
-        132.8005674,
+        132.80056739999998,
         33.8378612
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/13733024",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -116506,8 +116452,7 @@
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -116516,15 +116461,14 @@
       "originalName": "四国遍路 56番札所泰山寺~57番札所栄福寺",
       "region": "japan",
       "center": [
-        132.9776887,
-        34.0397187
+        132.97768865,
+        34.039718699999995
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/13737900",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -116533,15 +116477,14 @@
       "originalName": "四国遍路 55番札所南光坊~56番札所泰山寺",
       "region": "japan",
       "center": [
-        132.9855969,
-        34.0592342
+        132.98559690000002,
+        34.059234200000006
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/13737901",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -116557,8 +116500,7 @@
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -116600,15 +116542,14 @@
       "originalName": "四国遍路 63番札所吉祥寺~64番札所前神寺",
       "region": "japan",
       "center": [
-        133.1448274,
-        33.8930926
+        133.14482735,
+        33.89309265
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/13740799",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -116617,15 +116558,14 @@
       "originalName": "四国遍路 62番札所宝寿寺~63番札所吉祥寺",
       "region": "japan",
       "center": [
-        133.1222364,
+        133.12223640000002,
         33.8964009
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/13740800",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -116634,15 +116574,14 @@
       "originalName": "四国遍路 61番札所香園寺~62番札所宝寿寺",
       "region": "japan",
       "center": [
-        133.1094981,
-        33.8954452
+        133.10949814999998,
+        33.89544515
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/13740801",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -116651,15 +116590,14 @@
       "originalName": "四国遍路 60番札所横峰寺~61番札所香園寺",
       "region": "japan",
       "center": [
-        133.1067198,
+        133.10671985,
         33.8658774
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/13740802",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -116669,14 +116607,13 @@
       "region": "japan",
       "center": [
         133.0681169,
-        33.931857
+        33.931856999999994
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/13740803",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -116686,14 +116623,13 @@
       "region": "japan",
       "center": [
         133.0016182,
-        34.0239108
+        34.023910799999996
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/13740804",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -116801,8 +116737,7 @@
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -116812,14 +116747,13 @@
       "region": "japan",
       "center": [
         133.6555596,
-        34.0007829
+        34.000782900000004
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/13744788",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -116835,8 +116769,7 @@
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -116923,14 +116856,13 @@
       "region": "japan",
       "center": [
         133.7092995,
-        34.1846976
+        34.184697650000004
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/13748780",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -116939,15 +116871,14 @@
       "originalName": "四国遍路 69番札所観音寺~70番札所本山寺",
       "region": "japan",
       "center": [
-        133.6708047,
-        34.1362653
+        133.67080470000002,
+        34.136265249999994
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/13748781",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -116957,14 +116888,13 @@
       "region": "japan",
       "center": [
         133.6475504,
-        34.1341382
+        34.134138199999995
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/13748782",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -116974,14 +116904,13 @@
       "region": "japan",
       "center": [
         133.6839463,
-        34.1182309
+        34.11823085
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/13748783",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -117048,14 +116977,13 @@
       "region": "japan",
       "center": [
         133.7830568,
-        34.2380087
+        34.23800865
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/13752019",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -117064,15 +116992,14 @@
       "originalName": "四国遍路 73番札所出釈迦寺~74番札所甲山寺",
       "region": "japan",
       "center": [
-        133.7580252,
-        34.2263346
+        133.75802515,
+        34.226334550000004
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/13752020",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -117088,8 +117015,7 @@
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -117099,14 +117025,13 @@
       "region": "japan",
       "center": [
         133.7505274,
-        34.2212391
+        34.22123905
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/13752022",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -117116,14 +117041,13 @@
       "region": "japan",
       "center": [
         133.7373472,
-        34.2266376
+        34.226637600000004
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/13752023",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -117133,14 +117057,13 @@
       "region": "japan",
       "center": [
         133.7937183,
-        34.2920627
+        34.29206275
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/13753044",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -117150,14 +117073,13 @@
       "region": "japan",
       "center": [
         133.7712094,
-        34.263141
+        34.26314095
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/13753045",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -117186,14 +117108,13 @@
       "region": "japan",
       "center": [
         133.9377283,
-        34.3180595
+        34.318059500000004
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/13754534",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -117203,14 +117124,13 @@
       "region": "japan",
       "center": [
         133.9135346,
-        34.3038699
+        34.303869899999995
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/13754535",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -117219,15 +117139,14 @@
       "originalName": "四国遍路 78番札所郷照寺~79番札所天皇寺",
       "region": "japan",
       "center": [
-        133.853538,
-        34.3110093
+        133.85353805,
+        34.31100925
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/13754536",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -117525,14 +117444,13 @@
       "region": "japan",
       "center": [
         134.0651043,
-        34.3221193
+        34.32211925
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/13763097",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -117541,15 +117459,14 @@
       "originalName": "四国遍路 82番札所根香寺~83番札所一宮寺",
       "region": "japan",
       "center": [
-        133.9938294,
-        34.3153955
+        133.99382945,
+        34.315395550000005
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/13763098",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -117558,15 +117475,14 @@
       "originalName": "四国遍路 81番札所白峯寺~82番札所根香寺",
       "region": "japan",
       "center": [
-        133.944293,
-        34.3363129
+        133.94429300000002,
+        34.336312899999996
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/13763099",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -117575,15 +117491,14 @@
       "originalName": "四国遍路 87番札所長尾寺~88番札所大窪寺",
       "region": "japan",
       "center": [
-        134.1890418,
+        134.18904185,
         34.2286744
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/13763344",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -117599,8 +117514,7 @@
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -117616,8 +117530,7 @@
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -117627,14 +117540,13 @@
       "region": "japan",
       "center": [
         134.120605,
-        34.35479
+        34.354790050000005
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/13763347",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -117720,15 +117632,14 @@
       "originalName": "四国遍路 88番札所大窪寺~1番札所霊山寺",
       "region": "japan",
       "center": [
-        134.3546932,
-        34.1901451
+        134.35469319999999,
+        34.19014505
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/13766029",
       "sourceTags": {
         "network": "nwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -312560,14 +312471,13 @@
       "region": "japan",
       "center": [
         134.6118795,
-        34.1726023
+        34.172602350000005
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/21039829",
       "sourceTags": {
         "network": "lwn"
       },
-      "fetchedAt": "2026-10-06T17:20:10.005383+00:00",
-      "lastSeenCycle": "2026-10-06T15:38:12.036152+00:00",
+      "fetchedAt": "2026-10-07T17:25:38Z",
       "status": "待核验"
     },
     {
@@ -495864,6 +495774,19 @@
       "importedRelations": 679,
       "skippedIncompleteRelations": 18,
       "skippedNestedRelations": 5
+    },
+    {
+      "sourceId": "asia/japan/shikoku-261006",
+      "region": "japan",
+      "sourceUrl": "https://download.geofabrik.de/asia/japan/shikoku-261006.osm.pbf",
+      "sourceTimestamp": "2026-10-06T20:21:06Z",
+      "sha256": "c57f808f8ff6811578aedb7e2e48f5b63e9c98d81c49790e846d96142a59dd9f",
+      "bytes": 89619370,
+      "importedAt": "2026-10-07T17:25:38Z",
+      "candidateRelations": 90,
+      "importedRelations": 90,
+      "skippedIncompleteRelations": 0,
+      "skippedNestedRelations": 0
     }
   ]
 }
