@@ -3,7 +3,9 @@ const cloud = require('wx-server-sdk');
 const crypto = require('crypto');
 const { promisify } = require('util');
 const { withIdentity } = require('./identity');
-cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
+// CPU photo inference can exceed the SDK's default HTTP timeout on cold start.
+// Keep a finite bound consistent with the client's photo request timeout.
+cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV, timeout: 60000 });
 const db = cloud.database({ throwOnNotFound: false });
 const derive = promisify(crypto.scrypt);
 const SESSION_MS = 7 * 24 * 60 * 60 * 1000;
@@ -214,7 +216,7 @@ async function dispatch(action, data, token, remoteAddress) {
   if (action === 'gear-scan') {
     await limit(`gear:${account.identity}`, 10);
     if (typeof data.image !== 'string' || data.image.length > 5.6 * 1024 * 1024) fail('图片过大或格式不正确');
-    // Keep the AI provider credentials in the existing isolated function.
+    // Image decoding and model execution stay in the isolated inference function.
     const result = await businessOperation(account, token, () => cloud.callFunction({ name: 'gear-scan', data: {
       image: data.image, routeName: String(data.routeName || '').slice(0, 120),
     } }));
