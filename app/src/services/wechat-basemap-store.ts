@@ -1,10 +1,13 @@
 import {isLocalMapPath} from './basemap-file-reader';
 export type WechatMapPack={id:string;name:string;path:string;bytes:number;savedAt:number};
+export type WechatMapView=WechatMapPack&{available:boolean;issue:string};
+class MapFileError extends Error{constructor(message:string,readonly missing:boolean){super(message);}}
+function fileMissing(error?:{errMsg?:string}){return typeof error?.errMsg==='string'&&/(?:ENOENT|no such file|file (?:not exist|does not exist))/i.test(error.errMsg);}
 export interface SavedMapApi{
  getStorageSync(key:string):unknown;setStorageSync(key:string,value:unknown):void;
- getSavedFileInfo(options:{filePath:string;success:(value:{size:number})=>void;fail:()=>void}):void;
- saveFile(options:{tempFilePath:string;success:(value:{savedFilePath:string})=>void;fail:()=>void}):void;
- removeSavedFile(options:{filePath:string;success:()=>void;fail:()=>void}):void;
+ getSavedFileInfo(options:{filePath:string;success:(value:{size:number})=>void;fail:(error?:{errMsg?:string})=>void}):void;
+ saveFile(options:{tempFilePath:string;success:(value:{savedFilePath:string})=>void;fail:(error?:{errMsg?:string})=>void}):void;
+ removeSavedFile(options:{filePath:string;success:()=>void;fail:(error?:{errMsg?:string})=>void}):void;
 }
 const KEY='he_wechat_basemaps_v1',MAX_PACK=64*1024*1024,BUDGET=192*1024*1024;
 export function validateWechatMapInventory(value:unknown):WechatMapPack[]{
@@ -18,10 +21,11 @@ export function createWechatMapStore(api:SavedMapApi,validateFile:(path:string,b
  let tail:Promise<unknown>=Promise.resolve();
  function serial<T>(work:()=>Promise<T>):Promise<T>{const result=tail.then(work);tail=result.catch(()=>{});return result;}
  const inventory=()=>validateWechatMapInventory(api.getStorageSync(KEY));
- const size=(path:string)=>new Promise<number>((resolve,reject)=>api.getSavedFileInfo({filePath:path,success:r=>resolve(r.size),fail:()=>reject(new Error('已保存地图文件不存在或无法读取'))}));
- const unlink=(path:string)=>new Promise<void>((resolve,reject)=>api.removeSavedFile({filePath:path,success:resolve,fail:()=>reject(new Error('未能删除地图文件'))}));
+ const size=(path:string)=>new Promise<number>((resolve,reject)=>api.getSavedFileInfo({filePath:path,success:r=>resolve(r.size),fail:error=>reject(new MapFileError('已保存地图文件不存在或无法读取',fileMissing(error)))}));
+ const unlink=(path:string)=>new Promise<void>((resolve,reject)=>api.removeSavedFile({filePath:path,success:resolve,fail:error=>reject(new MapFileError('未能删除地图文件',fileMissing(error)))}));
  return {
- list:()=>serial(async()=>{const rows=inventory();for(const row of rows){if(await size(row.path)!==row.bytes)throw new Error('本机地图文件大小变化，请保留原包');}return rows;}),
+ find:(name:string,bytes:number)=>serial(async()=>{const row=inventory().find(r=>r.name===name&&r.bytes===bytes);if(!row)return null;if(await size(row.path)!==row.bytes)throw new Error('已存地图大小变化，请保留原包');return {...row};}),
+ list:()=>serial(async()=>{const views:WechatMapView[]=[];for(const row of inventory()){let issue='';try{if(await size(row.path)!==row.bytes)issue='文件大小变化，请保留原包';}catch(error){issue=error instanceof MapFileError&&error.missing?'文件已被清理，可删除目录记录后重新下载':'文件暂时无法读取，请保留原包';}views.push({...row,available:!issue,issue});}return views;}),
  save:(path:string,bytes:number,name:string)=>serial(async()=>{
   if(typeof name!=='string'||!name.trim()||name.length>120||!Number.isSafeInteger(bytes)||bytes<127||bytes>MAX_PACK)throw new Error('地图包无效或超过64 MB');
   const rows=inventory();if(rows.length>=128||rows.reduce((n,r)=>n+r.bytes,0)+bytes>BUDGET)throw new Error('本机地图已满，请先删除不使用的地图包');
@@ -36,7 +40,7 @@ export function createWechatMapStore(api:SavedMapApi,validateFile:(path:string,b
  remove:(id:string)=>serial(async()=>{const rows=inventory(),row=rows.find(r=>r.id===id);if(!row)throw new Error('地图不在本机目录中');
   // Commit inventory before deleting bytes; restore it if filesystem removal fails.
   api.setStorageSync(KEY,rows.filter(r=>r.id!==id));
-  try{await unlink(row.path);}catch(error){try{api.setStorageSync(KEY,rows);}catch{throw new Error('文件未删除且目录恢复失败，请保留原包并检查微信存储空间');}throw error;}
+  try{await unlink(row.path);}catch(error){if(error instanceof MapFileError&&error.missing)return;try{api.setStorageSync(KEY,rows);}catch{throw new Error('文件未删除且目录恢复失败，请保留原包并检查微信存储空间');}throw error;}
  })
  };
 }
