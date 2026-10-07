@@ -5,7 +5,19 @@ import {cpSync,mkdirSync} from "node:fs";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [uni(), {
+  plugins: [{
+    name: 'hiking-maplibre-native-controls',
+    enforce: 'pre',
+    transform(source, id) {
+      if (!id.split('?')[0].replace(/\\/g, '/').endsWith('/maplibre-gl/dist/maplibre-gl.css')) return;
+      // MapLibre creates native DOM controls. uni's element-selector rewrite
+      // changes button/a into uni-button/uni-a, which cannot match those nodes.
+      return source
+        .replace(/(\.maplibregl-ctrl(?:-group)? )button\b/g, '$1[type="button"]')
+        .replace(/(\+ )button\b/g, '$1[type="button"]')
+        .replace(/(\.maplibregl-ctrl-attrib )a\b/g, '$1[href]');
+    },
+  }, uni(), {
     name: 'hiking-h5-map-assets',
     apply: 'build',
     closeBundle() {
