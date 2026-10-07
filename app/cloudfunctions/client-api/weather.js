@@ -22,10 +22,13 @@ exports.forecast = async data => {
         if (response.status === 304 && prior) return { ...prior, expiresAt };
         if (!response.ok) throw new Error('provider');
         const payload = await response.json();
-        const point = payload?.properties?.timeseries?.find(p => typeof p.time === 'string' && Date.parse(p.time) >= Date.now()-3600000);
+        const point = payload?.properties?.timeseries?.find(p => typeof p.time === 'string' && Date.parse(p.time) >= Date.now()-3600000 && Date.parse(p.time) <= Date.now()+7200000);
         const details = point?.data?.instant?.details;
-        if (!details || ![details.air_temperature, details.wind_speed, details.relative_humidity].every(Number.isFinite)) throw new Error('schema');
+        if (!details || ![details.air_temperature, details.wind_speed, details.relative_humidity].every(Number.isFinite)
+            || details.air_temperature < -100 || details.air_temperature > 70 || details.wind_speed < 0 || details.wind_speed > 150
+            || details.relative_humidity < 0 || details.relative_humidity > 100) throw new Error('schema');
         const rain = point.data.next_1_hours?.details?.precipitation_amount;
+        if (rain !== undefined && (!Number.isFinite(rain) || rain < 0 || rain > 1000)) throw new Error('schema');
         return { expiresAt, modified: response.headers.get('last-modified') || '', result: {
           status: 'available', provider: 'MET Norway', license: 'CC BY 4.0', sourceUrl: SOURCE, type: 'forecast',
           weather: { city: key, temperature: `${details.air_temperature} °C`, wind: `${details.wind_speed} m/s`,

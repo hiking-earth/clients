@@ -25,3 +25,15 @@ test('malformed supplier response degrades without inventing a forecast',async()
   try { const {forecast}=require(modulePath); const result=await forecast({latitude:0,longitude:0}); assert.equal(result.status,'unavailable'); assert.equal(result.weather,undefined); }
   finally {global.fetch=original;delete require.cache[modulePath];}
 });
+test('rejects stale or distant forecasts and impossible weather readings', async () => {
+ const original=global.fetch;
+ const cases=[{time:new Date(Date.now()-7200000).toISOString()}, {time:new Date(Date.now()+86400000).toISOString()}, {humidity:101},{wind:-1},{temperature:90},{rain:-2}];
+ try {
+  for(const item of cases){
+   delete require.cache[modulePath];
+   global.fetch=async()=>new Response(JSON.stringify({properties:{timeseries:[{time:item.time||new Date().toISOString(),data:{instant:{details:{air_temperature:item.temperature??20,wind_speed:item.wind??2,relative_humidity:item.humidity??50}},next_1_hours:{details:{precipitation_amount:item.rain??0}}}}]}}));
+   const result=await require(modulePath).forecast({latitude:1,longitude:1});
+   assert.equal(result.status,'unavailable');assert.equal(result.weather,undefined);
+  }
+ } finally {global.fetch=original;delete require.cache[modulePath];}
+});
