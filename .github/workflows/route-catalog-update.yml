@@ -53,6 +53,9 @@ jobs:
           import datetime, hashlib, json, os
           from collections import Counter
           from pathlib import Path
+          import sys
+          sys.path.insert(0, str(Path('scripts').resolve()))
+          from catalog_collection_status import news_source_status
           root = Path('shared/data')
           sources = [
               ('OSM', root/'catalog/osm.json', 'routes'),
@@ -143,9 +146,9 @@ jobs:
           news_sources = []
           for source in registry['sources']:
               state = news_states.get(source['id'], {})
-              health = 'failed' if state.get('lastError') else 'available' if state.get('lastSuccess') else 'pending'
-              news_sources.append({'id': source['id'], 'status': health, 'records': news_counts[source['id']], 'lastCollectedCount': state.get('lastCollectedCount'), 'lastAttempt': state.get('lastAttempt'), 'lastSuccess': state.get('lastSuccess'), 'feedVerified': False})
-              rows.append(f"| Official notices: {source['id']} | {news_counts[source['id']]} | {health}; last success {state.get('lastSuccess', 'none')} |")
+              source_status = news_source_status(source, state, news_counts[source['id']])
+              news_sources.append(source_status)
+              rows.append(f"| Official notices: {source['id']} | {news_counts[source['id']]} | {source_status['status']}; feed verification {source_status['feedVerificationStatus']}; last success {state.get('lastSuccess', 'none')} |")
           status = {'schemaVersion': 1, 'checkedAt': datetime.datetime.now(datetime.timezone.utc).isoformat(), 'runId': os.environ['GITHUB_RUN_ID'], 'sourceCommit': os.environ['GITHUB_SHA'], 'outcomes': outcomes, 'newsSources': news_sources, 'reconciliation': reconciliation, 'snapshots': snapshots, 'accessVerified': False}
           status_path = Path('shared/public-catalog/collection-status.json')
           status_path.parent.mkdir(parents=True, exist_ok=True)
