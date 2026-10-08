@@ -13,7 +13,7 @@ export async function publicSnapshot(source:'osm'|'usfs'|'hk'|'news'|'release'|'
   for(let attempt=0;attempt<3;attempt++){
    try{result=await callCloud<CatalogPage>('catalog-feed',{source,page,windowLimit:40000,...(snapshot?{snapshot}:{})});}
    catch{result={ok:false,errMsg:'公共资料请求未完成'};}
-   if(result.ok||attempt===2)break;
+   if(result.ok||attempt===2||result.errMsg==='操作过于频繁，请稍后重试')break;
    await new Promise<void>(resolve=>setTimeout(resolve,1000*(attempt+1)));
   }
   const data=result.data;
