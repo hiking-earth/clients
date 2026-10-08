@@ -14,7 +14,8 @@ import {projectGlobe,rotateGlobe} from './globe-projection';
 const props=defineProps<{routes:{id:string;center:[number,number]}[];selectedId?:string}>();
 const emit=defineEmits<{(e:'select',id:string):void}>();
 const id='earth-'+Math.random().toString(36).slice(2,9),instance=getCurrentInstance();
-const textureId=id+'-photo',photoStyle=ref<Record<string,string>>({width:'512px',height:'512px',left:'0px',top:'0px'});
+const resolution=uni.getSystemInfoSync().windowWidth<600?320:512;
+const textureId=id+'-photo',photoStyle=ref<Record<string,string>>({width:resolution+'px',height:resolution+'px',left:'0px',top:'0px'});
 const height=ref(400);let width=400,lon=100,lat=22,zoom=1,disposed=false,queued=false;
 let touch:{x:number;y:number}|null=null,origin:{x:number;y:number}|null=null,moved=false,pinch=0;
 let hits:{id:string;x:number;y:number}[]=[];
@@ -33,9 +34,9 @@ function schedule(){if(queued||disposed)return;queued=true;setTimeout(()=>{queue
 function draw(){
  const ctx=uni.createCanvasContext(id,instance?.proxy),h=height.value,cx=width/2,cy=width<600?h*.60:h/2+12,r=Math.min(width*.43,h*(width<600?.32:.39))*zoom;
  ctx.clearRect(0,0,width,h);
- photoStyle.value={width:'512px',height:'512px',left:(cx-r)+'px',top:(cy-r)+'px',transform:'scale('+2*r/512+')'};
- const rgba=renderEarth(512,lon,lat);
- void nextTick(()=>{if(!disposed)uni.canvasPutImageData({canvasId:textureId,x:0,y:0,width:512,height:512,data:rgba,fail:()=>{}},instance?.proxy);});
+ photoStyle.value={width:resolution+'px',height:resolution+'px',left:(cx-r)+'px',top:(cy-r)+'px',transform:'scale('+2*r/resolution+')'};
+ const rgba=renderEarth(resolution,lon,lat);
+ void nextTick(()=>{if(!disposed)uni.canvasPutImageData({canvasId:textureId,x:0,y:0,width:resolution,height:resolution,data:rgba,fail:()=>{}},instance?.proxy);});
  hits=[];const cells=new Set<string>();for(const route of props.routes){const v=projectGlobe(route.center[0],route.center[1],lon,lat);if(v.z<.04)continue;const x=cx+v.x*r,y=cy-v.y*r,key=Math.floor(x/18)+':'+Math.floor(y/18);if(cells.has(key)&&route.id!==props.selectedId)continue;cells.add(key);if(hits.length>=240)break;hits.push({id:route.id,x,y});ctx.beginPath();ctx.arc(x,y,route.id===props.selectedId?6:3,0,Math.PI*2);ctx.setFillStyle(route.id===props.selectedId?'#f6d995':'#f3c763');ctx.fill();}
  ctx.draw();
 }

@@ -1,7 +1,7 @@
 import texture from './earth-texture.json';
 
 const alphabet='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
-function decode(s:string){const out=new Uint8Array(Math.floor(s.length*3/4));let bits=0,value=0,n=0;for(const c of s){const k=alphabet.indexOf(c);if(k<0)continue;value=(value<<6)|k;bits+=6;if(bits>=8){bits-=8;out[n++]=(value>>bits)&255;}}return out.subarray(0,n);}
+function decode(s:string){if(typeof uni!=='undefined'&&typeof uni.base64ToArrayBuffer==='function')return new Uint8Array(uni.base64ToArrayBuffer(s));const out=new Uint8Array(Math.floor(s.length*3/4));let bits=0,value=0,n=0;for(const c of s){const k=alphabet.indexOf(c);if(k<0)continue;value=(value<<6)|k;bits+=6;if(bits>=8){bits-=8;out[n++]=(value>>bits)&255;}}return out.subarray(0,n);}
 const pixels=decode(texture.indices),palette=texture.palette;
 /** Inverse orthographic sphere sampling, using NASA's geographic satellite composite. */
 export function renderEarth(size:number,longitude:number,latitude:number){
