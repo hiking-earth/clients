@@ -11,23 +11,207 @@ concurrency:
 jobs:
   collect:
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    timeout-minutes: 85
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Scheduled workflows live on main; collectors and validation live here.
+          # Publication promotes only validated public data, never client releases.
+          ref: codex/mobile-privacy-controls
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
       - name: Collect USDA source records
-        run: python scripts/update-usfs-catalog.py
-      - name: Collect OSM source records
-        timeout-minutes: 25
+        id: usda
+        timeout-minutes: 10
         continue-on-error: true
-        run: python scripts/update-route-catalog.py --limit 1000
-      - name: Publish changed snapshot
+        run: python scripts/update-usfs-catalog.py
+      - name: Collect recent OSM changes
+        id: osm_incremental
+        timeout-minutes: 30
+        continue-on-error: true
+        run: python scripts/update-route-catalog.py
+      - name: Collect Hong Kong AFCD trails
+        id: hk
+        timeout-minutes: 5
+        continue-on-error: true
+        run: python scripts/update-hk-catalog.py
+      - name: Collect official announcements
+        id: content
+        timeout-minutes: 3
+        continue-on-error: true
+        run: python scripts/update-official-content.py
+      - name: Record collection outcomes
+        id: outcomes
+        if: always()
+        env:
+          USDA_OUTCOME: ${{ steps.usda.outcome }}
+          OSM_INCREMENTAL_OUTCOME: ${{ steps.osm_incremental.outcome }}
+          OSM_RECONCILIATION_OUTCOME: paused-public-global-sweep
+          HK_OUTCOME: ${{ steps.hk.outcome }}
+          CONTENT_OUTCOME: ${{ steps.content.outcome }}
         run: |
-          git add shared/data/catalog/
+          echo "### Hiking catalog collection" >> "$GITHUB_STEP_SUMMARY"
+          echo "USDA step: $USDA_OUTCOME; OSM recent-change script step: $OSM_INCREMENTAL_OUTCOME; OSM worldwide full-membership sweep: $OSM_RECONCILIATION_OUTCOME; Hong Kong AFCD: $HK_OUTCOME; official notices: $CONTENT_OUTCOME" >> "$GITHUB_STEP_SUMMARY"
+          python - <<'PY'
+          import datetime, hashlib, json, os
+          from collections import Counter
+          from pathlib import Path
+          import sys
+          sys.path.insert(0, str(Path('scripts').resolve()))
+          from catalog_collection_status import news_source_status
+          root = Path('shared/data')
+          sources = [
+              ('OSM', root/'catalog/osm.json', 'routes'),
+              ('USFS', root/'catalog/usfs.json', 'routes'),
+              ('Hong Kong AFCD', root/'catalog/hk-afcd.json', 'routes'),
+              ('Official notices', root/'content/official-news.json', 'items'),
+          ]
+          outcomes = dict(zip(('usfs','osm_incremental','osm_reconciliation','hk','news'), (os.environ.get(key, 'unknown') for key in ('USDA_OUTCOME','OSM_INCREMENTAL_OUTCOME','OSM_RECONCILIATION_OUTCOME','HK_OUTCOME','CONTENT_OUTCOME'))))
+          outcomes['osm'] = outcomes['osm_reconciliation']
+          snapshots = {}
+          rows = ['| Source snapshot | Records | Generated |', '|---|---:|---|']
+          for label, path, key in sources:
+              raw = path.read_bytes()
+              data = json.loads(raw)
+              snapshots[label] = {'records': len(data.get(key, [])), 'generatedAt': data.get('generatedAt'), 'sha256': hashlib.sha256(raw).hexdigest()}
+              rows.append(f"| {label} | {len(data.get(key, []))} | {data.get('generatedAt', 'unknown')} |")
+          osm = json.loads((root/'catalog/osm.json').read_text())
+          backfill = osm.get('backfill', {})
+          membership = osm.get('backfillState', {})
+          region_names = ('china','japan','south-asia','europe','north-america','oceania','south-america','africa')
+          coverage = osm.get('coverage', {}) if isinstance(osm.get('coverage'), dict) else {}
+          source_cursors = osm.get('sourceCursors', {}) if isinstance(osm.get('sourceCursors'), dict) else {}
+          failures = osm.get('failures', []) if isinstance(osm.get('failures'), list) else []
+          failed_regions = {item.get('region'): str(item.get('error', 'source request failed'))[:500] for item in failures if isinstance(item, dict) and isinstance(item.get('region'), str)}
+          if outcomes['osm_incremental'] == 'success':
+              region_attempts = {}
+              for region in region_names:
+                  if region in failed_regions:
+                      region_attempts[region] = {'status': 'failed', 'error': failed_regions[region]}
+                  elif region in coverage:
+                      region_attempts[region] = {'status': 'success', 'records': coverage[region], 'cursor': source_cursors.get(region)}
+                  else:
+                      region_attempts[region] = {'status': 'not-reported'}
+              refreshed = sum(1 for item in region_attempts.values() if item['status'] == 'success')
+              failed = sum(1 for item in region_attempts.values() if item['status'] == 'failed')
+              not_reported = sum(1 for item in region_attempts.values() if item['status'] == 'not-reported')
+              osm_incremental_status = 'success' if refreshed == len(region_names) and failed == 0 else 'partial' if refreshed else 'failure'
+          else:
+              region_attempts = {region: {'status': 'step-' + outcomes['osm_incremental']} for region in region_names}
+              refreshed = failed = 0; not_reported = len(region_names)
+              osm_incremental_status = 'failure' if outcomes['osm_incremental'] == 'failure' else 'unknown'
+          outcomes['osm_incremental_step'] = outcomes['osm_incremental']
+          outcomes['osm_incremental'] = osm_incremental_status
+          usfs = json.loads((root/'catalog/usfs.json').read_text())
+          usfs_progress = usfs.get('backfill', {})
+          reconciliation = {
+              'osm': {
+                  'supported': membership.get('reconciliationVersion') == 1,
+                  'cycleStartedAt': membership.get('cycleStartedAt'),
+                  'lastCompletedAt': membership.get('lastCompletedAt'),
+                  'lastRemovedFromDiscovery': membership.get('lastRemovedFromDiscovery'),
+              'pendingTiles': backfill.get('pendingTiles'),
+              'currentCycleComplete': membership.get('reconciliationVersion') == 1 and backfill.get('pendingTiles') == 0,
+              'scheduled': False,
+              'pauseReason': 'Public Overpass documentation discourages stitching bounding boxes to scrape worldwide data; use regional extracts or an owner-approved sustainable service.',
+              'lastAttemptSucceeded': None,
+              'incrementalAttemptSucceeded': osm_incremental_status == 'success',
+              'incrementalOutcome': osm_incremental_status,
+              'incrementalRegions': region_attempts,
+              },
+              'usfs': {
+                  'supported': usfs_progress.get('reconciliationVersion') == 2,
+                  'cycleStartedAt': usfs_progress.get('cycleStartedAt'),
+                  'lastCompletedAt': usfs_progress.get('lastCompletedAt'),
+                  'lastRemovedFromDiscovery': usfs_progress.get('lastRemovedFromDiscovery'),
+                  'nextObjectId': usfs_progress.get('nextObjectId'),
+                  'currentCycleComplete': usfs_progress.get('reconciliationVersion') == 2 and usfs_progress.get('nextObjectId') is None and bool(usfs_progress.get('lastCompletedAt')),
+                  'lastAttemptSucceeded': outcomes['usfs'] == 'success',
+              },
+              'hk': {
+                  'mode': 'complete-source-replacement',
+                  'lastAttemptSucceeded': outcomes['hk'] == 'success',
+              },
+          }
+          for source, progress in reconciliation.items():
+              rows.append(f"| Membership reconciliation: {source} | last removed {progress.get('lastRemovedFromDiscovery', 'not recorded')} | complete {progress.get('currentCycleComplete', 'not applicable')}; attempt {outcomes[source]} |")
+          regions = Counter(route.get('region', 'unknown') for route in osm.get('routes', []))
+          rows.append('| OSM records by region | ' + '; '.join(f'{name}: {count}' for name, count in sorted(regions.items())) + ' | source tags only |')
+          rows.append(f"| OSM grid backfill | {backfill.get('completedTiles', 0)} complete / {backfill.get('pendingTiles', 0)} pending | cycle {backfill.get('cycle', 0)} |")
+          rows.append(f"| OSM recent changes | {refreshed} / {len(region_names)} regions refreshed; {failed} reported failures; {not_reported} not reported | {osm_incremental_status} (step {outcomes['osm_incremental_step']}) |")
+          rows.extend(f"| OSM recent changes: {region} | {item['status']} | {item.get('records', item.get('error', ''))} |" for region, item in region_attempts.items())
+          budget = osm.get('sourceBudget', {})
+          rows.append(f"| OSM public API budget | {budget.get('downloadedBytes', 0)} / {budget.get('dailyByteLimit', 8388608)} bytes; {budget.get('queryCount', 0)} / {budget.get('dailyQueryLimit', 64)} queries | UTC day {budget.get('dateUTC', 'not recorded')} |")
+          news = json.loads((root/'content/official-news.json').read_text())
+          registry = json.loads((root/'content/official-sources.json').read_text())
+          news_states = {source['id']: source for source in news.get('sources', [])}
+          news_counts = Counter(item.get('sourceId', 'unknown') for item in news.get('items', []))
+          news_sources = []
+          for source in registry['sources']:
+              state = news_states.get(source['id'], {})
+              source_status = news_source_status(source, state, news_counts[source['id']])
+              news_sources.append(source_status)
+              rows.append(f"| Official notices: {source['id']} | {news_counts[source['id']]} | {source_status['status']}; feed verification {source_status['feedVerificationStatus']}; last success {state.get('lastSuccess', 'none')} |")
+          status = {'schemaVersion': 1, 'checkedAt': datetime.datetime.now(datetime.timezone.utc).isoformat(), 'runId': os.environ['GITHUB_RUN_ID'], 'sourceCommit': os.environ['GITHUB_SHA'], 'outcomes': outcomes, 'newsSources': news_sources, 'reconciliation': reconciliation, 'snapshots': snapshots, 'accessVerified': False}
+          status_path = Path('shared/public-catalog/collection-status.json')
+          status_path.parent.mkdir(parents=True, exist_ok=True)
+          status_path.write_text(json.dumps(status, ensure_ascii=False, indent=2) + '\n')
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as summary:
+              summary.write('\n'.join(rows) + '\n')
+          PY
+          echo "Failed sources retain their previous catalog. Automatic collection does not verify trail access or produce navigable geometry." >> "$GITHUB_STEP_SUMMARY"
+      - name: Prepare immutable compressed catalog pages
+        id: prepare_catalog
+        if: ${{ !cancelled() && steps.outcomes.outcome == 'success' }}
+        run: python scripts/prepare-catalog-pages.py
+      - name: Publish changed snapshot
+        id: publish
+        if: ${{ !cancelled() && steps.outcomes.outcome == 'success' && steps.prepare_catalog.outcome == 'success' }}
+        run: |
+          git add shared/data/catalog/ shared/data/content/ shared/data/offline/ shared/public-catalog/ app/cloudfunctions/catalog-feed/snapshots/ app/cloudfunctions/client-api/business/catalog-feed/snapshots/
+          if git diff --cached --quiet -- shared/data/catalog/ shared/data/content/ shared/data/offline/ shared/public-catalog/ app/cloudfunctions/catalog-feed/snapshots/ app/cloudfunctions/client-api/business/catalog-feed/snapshots/; then
+            echo "catalog_changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "catalog_changed=true" >> "$GITHUB_OUTPUT"
+          fi
           if git diff --cached --quiet; then exit 0; fi
           git config user.name 'hiking-earth-catalog[bot]'
           git config user.email 'catalog@users.noreply.github.com'
-          git commit -m 'data: refresh OSM hiking discovery catalog'
+          git commit -m 'data: refresh sourced hiking discovery catalogs'
           git push
+      - name: Publish validated pages to production read branch
+        if: ${{ !cancelled() && steps.publish.outcome == 'success' }}
+        run: python scripts/publish-public-catalog.py
+      - name: Set up Node.js for CloudBase CLI
+        if: ${{ !cancelled() && steps.publish.outcome == 'success' && steps.publish.outputs.catalog_changed == 'true' && vars.HIKING_CATALOG_AUTODEPLOY == 'true' }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+      - name: Deploy changed catalog snapshots to CloudBase
+        if: ${{ !cancelled() && steps.publish.outcome == 'success' && steps.publish.outputs.catalog_changed == 'true' && vars.HIKING_CATALOG_AUTODEPLOY == 'true' }}
+        env:
+          TENCENT_SECRET_ID: ${{ secrets.TENCENT_SECRET_ID }}
+          TENCENT_SECRET_KEY: ${{ secrets.TENCENT_SECRET_KEY }}
+          CLOUDBASE_ENV_ID: ${{ vars.CLOUDBASE_ENV_ID }}
+        run: |
+          set -euo pipefail
+          test -n "$TENCENT_SECRET_ID"
+          test -n "$TENCENT_SECRET_KEY"
+          test -n "$CLOUDBASE_ENV_ID"
+          node --version
+          npm install --global @cloudbase/cli@2.6.16
+          CLI_PATH="$(command -v tcb)"
+          node "$CLI_PATH" login --apiKeyId "$TENCENT_SECRET_ID" --apiKey "$TENCENT_SECRET_KEY"
+          BACKUP_DIR="$RUNNER_TEMP/hiking-catalog-cloudbase-$GITHUB_RUN_ID"
+          python3 scripts/deploy-client-functions.py \
+            --cloudbase-cli "$CLI_PATH" \
+            --node "$(command -v node)" \
+            --env "$CLOUDBASE_ENV_ID" \
+            --backup-dir "$BACKUP_DIR" \
+            --functions catalog-feed client-api
+      - name: Report complete collection failure
+        if: ${{ !cancelled() && steps.usda.outcome == 'failure' && steps.osm_incremental.outcome == 'failure' && steps.hk.outcome == 'failure' && steps.content.outcome == 'failure' }}
+        run: |
+          echo "All collectors failed; previous snapshots retained."
+          exit 1
