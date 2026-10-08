@@ -179,6 +179,9 @@ jobs:
           git config user.name 'hiking-earth-catalog[bot]'
           git config user.email 'catalog@users.noreply.github.com'
           git commit -m 'data: refresh sourced hiking discovery catalogs'
+          # Preserve source/doc commits added while the collectors were running.
+          # A concurrent data conflict stops publication rather than overwriting it.
+          git pull --rebase origin codex/mobile-privacy-controls
           git push
       - name: Publish validated pages to production read branch
         if: ${{ !cancelled() && steps.publish.outcome == 'success' }}
