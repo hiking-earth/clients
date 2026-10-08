@@ -19,16 +19,18 @@ function apply(data:any){
   if(data?.schemaVersion!==1||!Array.isArray(data.items)||data.items.length>500||!data.items.every(valid)
     ||new Set(data.items.map((r:OfficialNews)=>r.id)).size!==data.items.length
     ||typeof data.generatedAt!=='string'||!Number.isFinite(Date.parse(data.generatedAt))||Date.parse(data.generatedAt)>Date.now()+30000
-    ||data.items.some((r:OfficialNews)=>Date.parse(r.fetchedAt)>Date.parse(data.generatedAt))
-    ||(news.generatedAt!==null&&Date.parse(data.generatedAt)<Date.parse(news.generatedAt)))return false;
+    ||data.items.some((r:OfficialNews)=>Date.parse(r.fetchedAt)>Date.parse(data.generatedAt)))return false;
   const sources=data.sources===undefined?[]:data.sources;
   if(!Array.isArray(sources)||sources.length>50||new Set(sources.map((r:any)=>r?.id)).size!==sources.length
     ||!sources.every((r:any)=>r&&registry.sources.some(source=>source.id===r.id&&source.label===r.label&&source.url===r.url)&&typeof r.id==='string'&&typeof r.label==='string'&&r.label.length<=200
       &&[r.lastSuccess,r.lastAttempt].every(v=>v===undefined||(typeof v==='string'&&Number.isFinite(Date.parse(v))&&Date.parse(v)<=Date.now()+30000))
       &&(r.lastCollectedCount===undefined||(Number.isInteger(r.lastCollectedCount)&&r.lastCollectedCount>=0&&r.lastCollectedCount<=100))
       &&(r.lastError===undefined||r.lastError===null||typeof r.lastError==='string')))return false;
+  // Validate the complete response before classifying an older server fallback.
+  // Never replace newer bundled or cached records with an older snapshot.
+  if(news.generatedAt!==null&&Date.parse(data.generatedAt)<Date.parse(news.generatedAt))return 'stale';
   news.sources=registry.sources.map(source=>{const state=sources.find((r:any)=>r.id===source.id);return {id:source.id,label:source.label,...(state?{lastSuccess:state.lastSuccess,lastAttempt:state.lastAttempt,lastError:state.lastError,lastCollectedCount:state.lastCollectedCount}:{})};});
-  news.items=data.items;news.generatedAt=data.generatedAt;return true;
+  news.items=data.items;news.generatedAt=data.generatedAt;return 'applied';
 }
 apply(snapshot);
 try{apply(uni.getStorageSync(KEY));}catch{}
@@ -41,7 +43,9 @@ export async function refreshNews(force=false):Promise<void>{
   try{
     const data=await publicSnapshot('news');
     if(!foreground||epoch!==generation)return;
-    if(!apply(data))throw new Error('公告格式无效，保留本机资料');
+    const outcome=apply(data);
+    if(!outcome)throw new Error('公告格式无效，保留本机资料');
+    if(outcome==='stale')throw new Error('云端公告暂未更新，已保留较新的本机资料；稍后自动重试');
     last=Date.now();failures=0;news.retryAt=0;
     try{uni.setStorageSync(KEY,data);}catch{news.error='公告已更新，本机缓存保存失败';}
   }catch(e:any){if(!foreground||epoch!==generation)return;failures++;news.retryAt=Date.now()+Math.min(6*60*60*1000,15*60*1000*2**Math.min(failures-1,5));news.error=e?.message||'公告更新失败，保留本机资料';}
