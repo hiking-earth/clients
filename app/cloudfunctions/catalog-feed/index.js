@@ -95,13 +95,15 @@ async function directSnapshot(source){
  });
 }
 exports.main=async event=>{
+ let stage='manifest';
  if(!event||!catalogs.has(event.source)&&!Object.hasOwn(directPaths,event.source))return {errMsg:'资料源无效'};
  try{
-  if(Object.hasOwn(directPaths,event.source))return await directSnapshot(event.source);
+  if(Object.hasOwn(directPaths,event.source)){stage='direct';return await directSnapshot(event.source);}
   if(event.action==='search'){
    if(event.source==='news'||typeof event.query!=='string'||event.query.trim().length<2||event.query.length>100||!Number.isInteger(event.offset??0)||(event.offset??0)<0||(event.offset??0)>MAX_RECORDS)return {errMsg:'搜索词需2至100个字符，分页位置须有效'};
    if(event.snapshot!==undefined&&(typeof event.snapshot!=='string'||!HEX.test(event.snapshot)))return {errMsg:'资料版本无效'};
-   return await searchRows(event.source,await manifest(event.source,event.snapshot),event.query,event.offset??0);
+   const result=await manifest(event.source,event.snapshot);stage='search-index';
+   return await searchRows(event.source,result,event.query,event.offset??0);
   }
   const page=event.page===undefined?0:event.page;
   if(!Number.isInteger(page)||page<0||page>=MAX_RECORDS/PAGE_SIZE)return {errMsg:'资料页码无效'};
@@ -111,7 +113,7 @@ exports.main=async event=>{
   if(!Number.isInteger(limit)||limit<400||limit>MAX_RECORDS||limit%PAGE_SIZE!==0)return {errMsg:'目录窗口无效'};
   const total=Math.min(data.total,limit);
   if(page>=Math.max(1,Math.ceil(total/PAGE_SIZE)))return {errMsg:'资料页不存在'};
-  const content=await pageRows(event.source,result,page);
+  stage='page';const content=await pageRows(event.source,result,page);
   return {snapshot:data.snapshot,checkedAt:result.checkedAt,upstreamAvailable:result.upstreamAvailable&&content.upstreamAvailable,metadata:{...data.metadata,sourceTotal:data.total,loadedTotal:total,complete:total===data.total},key:data.key,items:content.rows,total,page,hasMore:(page+1)*PAGE_SIZE<total};
- }catch{return {errMsg:'资料暂时不可用，请保留上次成功同步的数据并稍后重试'};}
+ }catch{console.warn(JSON.stringify({event:'catalog-read-failed',source:event.source,stage}));return {errMsg:'资料暂时不可用，请保留上次成功同步的数据并稍后重试'};}
 };
