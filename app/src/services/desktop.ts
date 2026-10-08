@@ -28,15 +28,20 @@ export async function saveDesktopText(name: string, content: string): Promise<bo
 }
 export async function checkDesktopUpdate(): Promise<{version:string;notes:string} | null> {
   // #ifdef H5
-  if(isDesktop())return (window as DesktopWindow).__TAURI__!.core.invoke('check_app_update');
+  if(isDesktop())try{return await (window as DesktopWindow).__TAURI__!.core.invoke('check_app_update');}catch(error){throw desktopUpdateError(error,'无法检查更新，请稍后重试');}
   // #endif
   throw new Error('当前平台不是桌面客户端');
 }
 export async function installDesktopUpdate(version:string): Promise<void> {
   // #ifdef H5
-  if(isDesktop())return (window as DesktopWindow).__TAURI__!.core.invoke('install_app_update',{version});
+  if(isDesktop())try{return await (window as DesktopWindow).__TAURI__!.core.invoke('install_app_update',{version});}catch(error){throw desktopUpdateError(error,'更新失败，现有版本保持不变');}
   // #endif
   throw new Error('当前平台不是桌面客户端');
+}
+
+function desktopUpdateError(error:unknown,fallback:string):Error {
+  const known=['更新服务不可用','无法检查更新，请稍后重试','更新状态不可用','更新已变化，请重新检查','请先检查更新','更新失败，签名或网络校验未通过；现有版本保持不变'];
+  return new Error(typeof error==='string'&&known.includes(error)?error:fallback);
 }
 export async function restartDesktop(): Promise<void> {
   // #ifdef H5

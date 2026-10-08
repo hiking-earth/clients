@@ -7,8 +7,8 @@
 <picker :range="categories" :disabled="busy" @change="form.category=categories[Number($event.detail.value)]"><text>分类：{{form.category}}</text></picker>
 <textarea v-model="form.summary" :disabled="busy" maxlength="2000" placeholder="商品说明"/><input v-model="form.link" :disabled="busy" maxlength="2048" placeholder="HTTPS 商品链接"/><input v-model="form.priceHint" :disabled="busy" maxlength="100" placeholder="价格说明（可留空，需有依据）"/>
 <input v-model="form.sourceUrl" :disabled="busy" maxlength="2048" placeholder="HTTPS 归属来源"/><textarea v-model="form.rightsNote" :disabled="busy" maxlength="1000" placeholder="链接使用权及来源说明"/>
-<text>已确认真实使用授权 <switch :checked="form.rightsConfirmed" :disabled="busy" @change="setSwitch('rightsConfirmed', $event)"/></text>
-<text>公开发布 <switch :checked="form.published" :disabled="busy" @change="setSwitch('published', $event)"/></text>
+<text>已确认真实使用授权 <switch color="#b8f36b" :checked="form.rightsConfirmed" :disabled="busy" @change="setSwitch('rightsConfirmed', $event)"/></text>
+<text>公开发布 <switch color="#b8f36b" :checked="form.published" :disabled="busy" @change="setSwitch('published', $event)"/></text>
 <button :disabled="busy" @click="save">保存{{form.published?'并发布':'为未发布'}}</button><button :disabled="busy" @click="form=null">取消编辑</button></view>
 </scroll-view></template>
 <script setup lang="ts">

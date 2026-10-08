@@ -119,7 +119,9 @@ def main():
             parts = [unquote(part) for part in parsed.path.split("/")] if parsed else []
             if (not parsed or parsed.scheme != "https" or parsed.hostname != "github.com"
                     or parsed.username or parsed.password or parsed.port
-                    or len(parts) < 3 or parts[-3:-1] != ["download", args.tag]):
+                    or parsed.query or parsed.fragment
+                    or len(parts) != 7 or parts[1:5] != ["hiking-earth", "clients", "releases", "download"]
+                    or parts[-3:-1] != ["download", args.tag]):
                 stop(f"Updater URL is not pinned to release {args.tag}: {platform}")
             artifact_name = parts[-1]
             if pathlib.PurePosixPath(artifact_name).name != artifact_name or not artifact_name.endswith(suffix):
@@ -128,8 +130,8 @@ def main():
             artifact_meta, signature_meta = by_name.get(artifact_name), by_name.get(signature_name)
             if not artifact_meta or not signature_meta:
                 stop(f"Release is missing updater artifact or signature for {platform}")
-            if url != artifact_meta.get("browser_download_url"):
-                stop(f"Updater URL does not match the release asset for {platform}")
+            # Draft assets can use GitHub's temporary untagged URL; the
+            # manifest above is pinned to the final tag and exact asset name.
             subprocess.run(["gh", "release", "download", args.tag, "--repo", REPO,
                             "--pattern", artifact_name, "--pattern", signature_name,
                             "--dir", str(work)], check=True)
@@ -152,6 +154,12 @@ def main():
                             "-F", "draft=false", "-f", "make_latest=true")
         if published.get("draft") is not False or published.get("tag_name") != args.tag:
             stop("GitHub did not confirm publication; inspect release state before retrying")
+        published_assets = {a.get("name"): a for a in published.get("assets", [])}
+        for platform in PLATFORMS:
+            entry = manifest["platforms"][platform]
+            name = unquote(urlsplit(entry["url"]).path.rsplit("/", 1)[-1])
+            if published_assets.get(name, {}).get("browser_download_url") != entry["url"]:
+                stop(f"Published updater URL differs for {platform}; inspect release before retrying")
         latest = gh_json(f"repos/{REPO}/releases/latest")
         if latest.get("tag_name") != args.tag:
             stop("Release published, but GitHub latest channel does not point to the accepted tag")

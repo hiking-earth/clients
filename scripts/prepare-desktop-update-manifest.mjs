@@ -8,6 +8,7 @@ if(!metadataFile||!directory||!output||!/^[a-f0-9]{40}$/.test(sourceCommit||''))
 const release=JSON.parse(readFileSync(metadataFile,'utf8'));
 const config=JSON.parse(readFileSync(new URL('../desktop/src-tauri/tauri.conf.json',import.meta.url),'utf8'));
 if(release.draft!==true||release.target_commitish!==sourceCommit||!Array.isArray(release.assets))throw new Error('Expected draft release pinned to source commit');
+if(typeof release.tag_name!=='string'||!/^[-a-zA-Z0-9_.]+$/.test(release.tag_name))throw new Error('Invalid stable release tag');
 const platforms={};
 const specs=[
  ['windows-x86_64','.msi',()=>true],
@@ -28,7 +29,9 @@ for(const [platform,suffix,matchesArchitecture] of specs){
  const verification=spawnSync(process.execPath,[fileURLToPath(new URL('./verify-desktop-updater.mjs',import.meta.url)),path.join(directory,artifact.name)],{encoding:'utf8'});
  if(verification.status!==0)throw new Error(`Invalid ${platform} signature`);
  if(typeof artifact.browser_download_url!=='string'||!artifact.browser_download_url.startsWith('https://github.com/hiking-earth/clients/releases/download/'))throw new Error('Unexpected updater origin');
- platforms[platform]={url:artifact.browser_download_url,signature:readFileSync(path.join(directory,signature.name),'utf8').trim()};
+ // GitHub draft assets may expose an untagged temporary URL. The installed
+ // updater must retain the final release tag after the draft is published.
+ platforms[platform]={url:`https://github.com/hiking-earth/clients/releases/download/${encodeURIComponent(release.tag_name)}/${encodeURIComponent(artifact.name)}`,signature:readFileSync(path.join(directory,signature.name),'utf8').trim()};
 }
 writeFileSync(output,JSON.stringify({version:config.version,notes:'Candidate; full platform acceptance required before public release.',pub_date:release.created_at,platforms},null,2)+'\n');
-console.log('Prepared verified three-platform updater manifest; release remains draft.');
+console.log('Prepared verified four-platform updater manifest; release remains draft.');

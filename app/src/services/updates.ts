@@ -40,7 +40,7 @@ export async function checkForUpdate(force=false):Promise<void> {
   if(updateState.checking || updateState.installing || (!force && Date.now()<nextCheckAt))return;
   updateState.checking=true;updateState.message='';
   try {
-    if(isDesktop()) {const info=await checkDesktopUpdate();updateState.available=!!info;updateState.version=info?.version||'';updateState.notes=info?.notes||'';checkedSuccessfully();return;}
+    if(isDesktop()) {const info=await checkDesktopUpdate();updateState.available=!!info;updateState.version=info?.version||'';updateState.notes=info?.notes||'';updateState.message=info?'新版本已准备好，请保存当前工作后更新':'当前为最新已发布版本';checkedSuccessfully();return;}
     // #ifdef MP-WEIXIN
     if(miniManagerBound){updateState.message=updateState.available?'微信已下载更新，保存当前工作后可重启':'微信在下次小程序启动时继续检查更新';return;}
     const manager=uni.getUpdateManager();

@@ -1,7 +1,7 @@
 <template>
   <scroll-view scroll-y class="page">
     <view class="card"><text class="title">自动同步</text><text>开启后，收藏和行程会在同一账号的各端自动同步；已完成轨迹还需在隐私设置中单独开启云端轨迹备份。自动同步默认关闭。</text>
-      <view class="row"><text>当前账号自动同步</text><switch :checked="enabled" :disabled="!signedIn" @change="toggle" /></view>
+      <view class="row"><text>当前账号自动同步</text><switch color="#b8f36b" :checked="enabled" :disabled="!signedIn" @change="toggle" /></view>
       <text v-if="!signedIn">登录统一账号后，才能在本机与其他设备之间同步资料。</text>
       <button v-if="!signedIn" @click="openAccount">登录统一账号</button>
       <text>后台同步暂停，回到前台后继续。不会自动申请定位或共享位置。</text>

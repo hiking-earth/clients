@@ -10,7 +10,7 @@
    <view v-if="keyword" class="choices"><button v-for="route in matching" :key="route.id" :disabled="busy" @click="chooseRoute(route.id)">{{ route.name }} · {{ route.region }}</button></view>
    <input :disabled="busy" v-if="tab==='diaries'" v-model="title" maxlength="100" placeholder="日记标题" />
    <textarea :disabled="busy" v-model="body" maxlength="5000" placeholder="写下内容；公开内容需审核后展示" />
-   <view v-if="tab==='diaries'"><view class="row"><text>公开日记（默认仅自己）</text><switch :disabled="busy" :checked="isPublic" @change="isPublic=eventValue($event)" /></view><view class="row"><text>手动标记已到访</text><switch :disabled="busy" :checked="checkedIn" @change="checkedIn=eventValue($event)" /></view></view>
+   <view v-if="tab==='diaries'"><view class="row"><text>公开日记（默认仅自己）</text><switch color="#b8f36b" :disabled="busy" :checked="isPublic" @change="isPublic=eventValue($event)" /></view><view class="row"><text>手动标记已到访</text><switch color="#b8f36b" :disabled="busy" :checked="checkedIn" @change="checkedIn=eventValue($event)" /></view></view>
    <button :disabled="busy||!routeId||!body.trim()" @click="save">{{ editing?'保存修改':'提交' }}</button>
    <button :disabled="busy" v-if="editing" @click="cancelEdit()">取消编辑</button>
   </view>
