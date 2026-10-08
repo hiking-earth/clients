@@ -4,6 +4,7 @@ An isolated index preserves the caller's checkout and unrelated production code.
 Push is fast-forward only; concurrent production changes stop publication.
 """
 import os,subprocess,tempfile,json,hashlib,gzip
+from datetime import datetime
 from pathlib import Path
 from catalog_publication_validation import validate_news_catalog,validate_route_catalog
 ROOT=Path(__file__).resolve().parents[1]
@@ -29,10 +30,22 @@ def validate():
   if source=='news':validate_news_catalog(data)
   else:validate_route_catalog(source,data)
   print(source,len(rows))
+def ensure_not_older(parent):
+ for source in ('osm','usfs','hk','news'):
+  path=f'shared/public-catalog/{source}/manifest.json'
+  if not git('ls-tree','--name-only',parent,'--',path):continue
+  previous=json.loads(git('show',parent+':'+path))
+  incoming=json.loads((ROOT/path).read_bytes())
+  def timestamp(value):
+   result=datetime.fromisoformat(value['metadata']['generatedAt'].replace('Z','+00:00'))
+   if result.tzinfo is None:raise ValueError('Publication timestamp needs timezone')
+   return result
+  if timestamp(incoming)<timestamp(previous):raise ValueError(f'{source}: production snapshot is newer; publication stopped')
 def publish():
  validate()
  git('fetch','origin','main')
  parent=git('rev-parse','origin/main')
+ ensure_not_older(parent)
  with tempfile.TemporaryDirectory(prefix='hiking-public-index-') as temporary:
   env={**os.environ,'GIT_INDEX_FILE':str(Path(temporary)/'index')}
   git('read-tree',parent,env=env)

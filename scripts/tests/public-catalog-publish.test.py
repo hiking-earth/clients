@@ -23,4 +23,24 @@ class PublicationTests(unittest.TestCase):
    self.assertEqual(command('show','origin/main:production.txt'),'keep')
    self.assertEqual(command('show','origin/main:shared/releases/stable.json'),'not-ready')
    self.assertEqual(command('show','origin/main:shared/public-catalog/test.json'),'new')
+ def test_newer_production_snapshot_cannot_be_downgraded(self):
+  import json
+  with tempfile.TemporaryDirectory() as folder:
+   root=pathlib.Path(folder);target=root/'shared/public-catalog/news/manifest.json';target.parent.mkdir(parents=True)
+   target.write_text(json.dumps({'metadata':{'generatedAt':'2026-10-07T17:00:00Z'}}))
+   def fake(*args,**kwargs):
+    if args[0]=='ls-tree':return args[-1] if '/news/' in args[-1] else ''
+    return json.dumps({'metadata':{'generatedAt':'2026-10-08T17:00:00Z'}})
+   with patch.object(m,'ROOT',root),patch.object(m,'git',fake):
+    with self.assertRaisesRegex(ValueError,'production snapshot is newer'):m.ensure_not_older('parent')
+ def test_publication_timestamp_requires_timezone(self):
+  import json
+  with tempfile.TemporaryDirectory() as folder:
+   root=pathlib.Path(folder);target=root/'shared/public-catalog/news/manifest.json';target.parent.mkdir(parents=True)
+   target.write_text(json.dumps({'metadata':{'generatedAt':'2026-10-08T17:00:00'}}))
+   def fake(*args,**kwargs):
+    if args[0]=='ls-tree':return args[-1] if '/news/' in args[-1] else ''
+    return json.dumps({'metadata':{'generatedAt':'2026-10-07T17:00:00Z'}})
+   with patch.object(m,'ROOT',root),patch.object(m,'git',fake):
+    with self.assertRaisesRegex(ValueError,'needs timezone'):m.ensure_not_older('parent')
 if __name__=='__main__':unittest.main()
