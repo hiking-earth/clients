@@ -31,7 +31,7 @@ async function draw() {
   await nextTick();
   const ctx = uni.createCanvasContext(canvasId, instance?.proxy);
   const w = width.value, h = props.height;
-  ctx.setFillStyle('#151d27'); ctx.fillRect(0, 0, w, h);
+  ctx.setFillStyle('#1b2b32'); ctx.fillRect(0, 0, w, h);
   ctx.setStrokeStyle('#22313f'); ctx.setLineWidth(1);
   for (let x = 20; x < w; x += 40) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke(); }
   for (let y = 20; y < h; y += 40) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke(); }
@@ -67,5 +67,5 @@ onMounted(() => {
 watch(() => [props.points, props.position, props.height, props.layers], draw, { deep: true });
 </script>
 <style scoped>
-.controls{display:flex;gap:8px;padding:8px}.control-button{font-size:12px;background:#2d4648;color:#a7dfbf}.plot{width:100%;background:#142429;border-radius:12px;overflow:hidden}.canvas{width:100%}.legend{padding:8px 12px;font-size:11px;color:#a1b5b8}
+.controls{display:flex;gap:8px;padding:8px}.control-button{font-size:12px;background:#294448;color:#48c9a8}.plot{width:100%;background:#101c24;border-radius:12px;overflow:hidden}.canvas{width:100%}.legend{padding:8px 12px;font-size:11px;color:#a0b2b3}
 </style>

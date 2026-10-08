@@ -18,4 +18,4 @@ function open(url:string){
  // #endif
 }
 </script>
-<style scoped>.region-photo{padding:10px;background:#203237;border-radius:8px;margin:10px 0}text{display:block;margin:6px 0}</style>
+<style scoped>.region-photo{padding:10px;background:#1b2b32;border-radius:8px;margin:10px 0}text{display:block;margin:6px 0}</style>

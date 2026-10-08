@@ -181,20 +181,20 @@ function about() {
 </script>
 
 <style lang="scss" scoped>
-.page { min-height: 100vh; background: #0c171c; padding: 20px 16px; box-sizing: border-box; }
-.account { display: flex; align-items: center; background: #142429; border-radius: 10px; padding: 16px 12px; }
-.avatar { width: 48px; height: 48px; border-radius: 50%; background: #203237; color: #a7dfbf; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 700; }
+.page { min-height: 100vh; background: #080d17; padding: 20px 16px; box-sizing: border-box; }
+.account { display: flex; align-items: center; background: #101c24; border-radius: 10px; padding: 16px 12px; }
+.avatar { width: 48px; height: 48px; border-radius: 50%; background: #1b2b32; color: #48c9a8; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 700; }
 .acc-info { flex: 1; min-width: 0; margin-left: 12px; display: flex; flex-direction: column; gap: 4px; }
 .avatar, .login { flex-shrink: 0; }
-.nick { font-size: 16px; font-weight: 600; color: #edf4ef; }
-.acc-sub { font-size: 11px; color: #839a9e; }
-.login { padding: 0 20px; height: 32px; line-height: 32px; background: #a7dfbf; color: #0c171c; font-size: 13px; font-weight: 600; border-radius: 499.5px; }
-.group { margin-top: 14px; background: #142429; border-radius: 10px; overflow: hidden; }
-.row { display: flex; align-items: center; padding: 14px 12px; border-bottom: 0.5px solid #203237; }
+.nick { font-size: 16px; font-weight: 600; color: #eef4ea; }
+.acc-sub { font-size: 11px; color: #91aaa7; }
+.login { padding: 0 20px; height: 32px; line-height: 32px; background: #48c9a8; color: #080d17; font-size: 13px; font-weight: 600; border-radius: 499.5px; }
+.group { margin-top: 14px; background: #101c24; border-radius: 10px; overflow: hidden; }
+.row { display: flex; align-items: center; padding: 14px 12px; border-bottom: 0.5px solid #1b2b32; }
 .row:last-child { border-bottom: none; }
 .row-icon { font-size: 16px; width: 28px; }
-.row-name { flex: 1; font-size: 14px; color: #edf4ef; }
-.row-sub { font-size: 11px; color: #839a9e; margin-right: 6px; }
-.row-go { font-size: 16px; color: #839a9e; }
-.ver { margin-top: 24px; text-align: center; font-size: 10px; color: #839a9e; }
+.row-name { flex: 1; font-size: 14px; color: #eef4ea; }
+.row-sub { font-size: 11px; color: #91aaa7; margin-right: 6px; }
+.row-go { font-size: 16px; color: #91aaa7; }
+.ver { margin-top: 24px; text-align: center; font-size: 10px; color: #91aaa7; }
 </style>

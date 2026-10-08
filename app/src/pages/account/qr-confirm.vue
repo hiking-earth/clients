@@ -51,4 +51,4 @@ async function confirm(){if(busy.value||completed.value||disposed||!device.value
  if(result.ok){completed.value=true;message.value='已确认，请返回网页或桌面。';}else message.value=result.errMsg||'确认未完成';
  }finally{busy.value=false;}}
 </script>
-<style scoped>.page{padding:24px;background:#0c171c;color:#edf4ef;min-height:100vh}.title,.hint{display:block;margin:16px 0}.title{font-size:24px}.hint{line-height:1.7;color:#b0bdca}button{margin-top:16px}</style>
+<style scoped>.page{padding:24px;background:#080d17;color:#eef4ea;min-height:100vh}.title,.hint{display:block;margin:16px 0}.title{font-size:24px}.hint{line-height:1.7;color:#b0bdca}button{margin-top:16px}</style>

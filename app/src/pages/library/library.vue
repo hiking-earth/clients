@@ -121,5 +121,5 @@ function pull() {
 }
 </script>
 <style scoped>
-.page{height:100vh;box-sizing:border-box;padding:24px 20px;background:#0c171c;color:#edf4ef}.title{display:block;font-size:24px;font-weight:700}.hint{display:block;margin:12px 0;color:#a1b5b8;font-size:13px;line-height:1.7}.heading{display:block;font-weight:600;margin:20px 0 12px}.card{background:#142429;padding:16px;border-radius:12px;margin-bottom:12px}.input{background:#202b37;padding:12px;box-sizing:border-box;width:100%;margin:12px 0;border-radius:8px}button{font-size:14px;margin:10px 0;background:#a7dfbf;color:#0c171c}
+.page{height:100vh;box-sizing:border-box;padding:24px 20px;background:#080d17;color:#eef4ea}.title{display:block;font-size:24px;font-weight:700}.hint{display:block;margin:12px 0;color:#a0b2b3;font-size:13px;line-height:1.7}.heading{display:block;font-weight:600;margin:20px 0 12px}.card{background:#101c24;padding:16px;border-radius:12px;margin-bottom:12px}.input{background:#202b37;padding:12px;box-sizing:border-box;width:100%;margin:12px 0;border-radius:8px}button{font-size:14px;margin:10px 0;background:#48c9a8;color:#080d17}
 </style>

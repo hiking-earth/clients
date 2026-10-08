@@ -216,32 +216,32 @@ function readAsBase64(path: string): Promise<string> {
 </script>
 
 <style lang="scss" scoped>
-.page { min-height: 100vh; background: #0c171c; padding: 16px; box-sizing: border-box; }
-.intro-title { display: block; font-size: 22px; font-weight: 700; color: #edf4ef; }
-.intro-sub { display: block; margin-top: 4px; font-size: 12px; color: #a1b5b8; }
-.picker { margin-top: 12px; background: #203237; border-radius: 8px; padding: 10px 12px; font-size: 13px; color: #a1b5b8; }
-.shot { margin-top: 12px; height: 210px; background: #142429; border-radius: 10px; overflow: hidden; }
+.page { min-height: 100vh; background: #080d17; padding: 16px; box-sizing: border-box; }
+.intro-title { display: block; font-size: 22px; font-weight: 700; color: #eef4ea; }
+.intro-sub { display: block; margin-top: 4px; font-size: 12px; color: #a0b2b3; }
+.picker { margin-top: 12px; background: #1b2b32; border-radius: 8px; padding: 10px 12px; font-size: 13px; color: #a0b2b3; }
+.shot { margin-top: 12px; height: 210px; background: #101c24; border-radius: 10px; overflow: hidden; }
 .shot-img { width: 100%; height: 100%; }
 .shot-empty { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; }
 .shot-icon { font-size: 36px; }
-.shot-text { font-size: 13px; color: #839a9e; }
-.btn.primary { margin-top: 12px; background: #a7dfbf; color: #0c171c; font-weight: 600; border-radius: 499.5px; font-size: 15px; }
-.btn[disabled] { background: #203237; color: #839a9e; }
+.shot-text { font-size: 13px; color: #91aaa7; }
+.btn.primary { margin-top: 12px; background: #48c9a8; color: #080d17; font-weight: 600; border-radius: 499.5px; font-size: 15px; }
+.btn[disabled] { background: #1b2b32; color: #91aaa7; }
 .sec { margin-top: 18px; }
-.sec-title { display: block; font-size: 14px; font-weight: 600; color: #edf4ef; margin-bottom: 8px; }
+.sec-title { display: block; font-size: 14px; font-weight: 600; color: #eef4ea; margin-bottom: 8px; }
 .sec-title.warn { color: #ffd166; }
-.sec-title.accent { color: #a7dfbf; }
-.item { display: flex; align-items: center; justify-content: space-between; background: #142429; border-radius: 8px; padding: 10px 12px; margin-bottom: 6px; }
-.item-name { font-size: 14px; color: #edf4ef; }
-.item-cat { font-size: 11px; color: #839a9e; }
+.sec-title.accent { color: #48c9a8; }
+.item { display: flex; align-items: center; justify-content: space-between; background: #101c24; border-radius: 8px; padding: 10px 12px; margin-bottom: 6px; }
+.item-name { font-size: 14px; color: #eef4ea; }
+.item-cat { font-size: 11px; color: #91aaa7; }
 .item-why { font-size: 11px; color: #ffd166; max-width: 60%; text-align: right; }
 .usage { display: flex; gap: 6px; margin-bottom: 4px; }
-.usage-dot { color: #a7dfbf; }
-.usage-text { font-size: 13px; color: #a1b5b8; line-height: 1.6; }
-.plan { display: flex; align-items: center; gap: 10px; background: #142429; border-radius: 8px; padding: 10px 12px; margin-bottom: 6px; }
-.check { width: 20px; height: 20px; border-radius: 50%; border: 1px solid #839a9e; display: flex; align-items: center; justify-content: center; color: #0c171c; font-size: 12px; }
-.check.on { background: #a7dfbf; border-color: #a7dfbf; font-weight: 700; }
-.plan-text { font-size: 14px; color: #edf4ef; }
-.plan-text.done { color: #839a9e; text-decoration: line-through; }
-.notice { margin: 18px 0 32px; font-size: 10px; color: #839a9e; line-height: 1.7; }
+.usage-dot { color: #48c9a8; }
+.usage-text { font-size: 13px; color: #a0b2b3; line-height: 1.6; }
+.plan { display: flex; align-items: center; gap: 10px; background: #101c24; border-radius: 8px; padding: 10px 12px; margin-bottom: 6px; }
+.check { width: 20px; height: 20px; border-radius: 50%; border: 1px solid #91aaa7; display: flex; align-items: center; justify-content: center; color: #080d17; font-size: 12px; }
+.check.on { background: #48c9a8; border-color: #48c9a8; font-weight: 700; }
+.plan-text { font-size: 14px; color: #eef4ea; }
+.plan-text.done { color: #91aaa7; text-decoration: line-through; }
+.notice { margin: 18px 0 32px; font-size: 10px; color: #91aaa7; line-height: 1.7; }
 </style>

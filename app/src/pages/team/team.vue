@@ -410,37 +410,37 @@ function copyCode() {
 </script>
 
 <style lang="scss" scoped>
-.page { height: 100vh; background: #0c171c; padding: 16px; box-sizing: border-box; }
+.page { height: 100vh; background: #080d17; padding: 16px; box-sizing: border-box; }
 .entry { display: flex; flex-direction: column; padding-top: 40px; }
-.entry-title { font-size: 24px; font-weight: 700; color: #edf4ef; }
-.entry-sub { margin-top: 4px; font-size: 12px; color: #a1b5b8; }
+.entry-title { font-size: 24px; font-weight: 700; color: #eef4ea; }
+.entry-sub { margin-top: 4px; font-size: 12px; color: #a0b2b3; }
 .btn { margin-top: 16px; border-radius: 499.5px; font-size: 15px; }
-.btn.primary { background: #a7dfbf; color: #0c171c; font-weight: 600; }
-.btn.ghost { background: #203237; color: #edf4ef; width: 90px; margin-top: 0; }
+.btn.primary { background: #48c9a8; color: #080d17; font-weight: 600; }
+.btn.ghost { background: #1b2b32; color: #eef4ea; width: 90px; margin-top: 0; }
 .join-row { display: flex; gap: 8px; margin-top: 12px; align-items: center; }
-.input { flex: 1; background: #203237; border-radius: 499.5px; padding: 10px 16px; font-size: 14px; color: #edf4ef; }
-.ph { color: #839a9e; }
-.privacy { margin-top: 24px; font-size: 10px; color: #839a9e; line-height: 1.7; }
-.team-bar { display: flex; align-items: center; background: #142429; border-radius: 10px; padding: 12px; }
+.input { flex: 1; background: #1b2b32; border-radius: 499.5px; padding: 10px 16px; font-size: 14px; color: #eef4ea; }
+.ph { color: #91aaa7; }
+.privacy { margin-top: 24px; font-size: 10px; color: #91aaa7; line-height: 1.7; }
+.team-bar { display: flex; align-items: center; background: #101c24; border-radius: 10px; padding: 12px; }
 .team-info { flex: 1; display: flex; flex-direction: column; gap: 4px; }
-.team-name { font-size: 16px; font-weight: 600; color: #edf4ef; }
-.team-code { font-size: 12px; color: #a7dfbf; }
+.team-name { font-size: 16px; font-weight: 600; color: #eef4ea; }
+.team-code { font-size: 12px; color: #48c9a8; }
 .leave { font-size: 13px; color: #ff7b72; padding: 4px 8px; }
 .share-tip { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; padding: 10px 12px; background: rgba(255, 209, 102, 0.1); border-radius: 8px; font-size: 12px; color: #ffd166; }
-.share-tip.on { background: rgba(184, 243, 107, 0.1); color: #a7dfbf; }
-.share-on { padding: 4px 12px; background: #a7dfbf; color: #0c171c; border-radius: 499.5px; font-size: 11px; font-weight: 600; }
-.share-on.off { background: #203237; color: #a1b5b8; }
+.share-tip.on { background: rgba(184, 243, 107, 0.1); color: #48c9a8; }
+.share-on { padding: 4px 12px; background: #48c9a8; color: #080d17; border-radius: 499.5px; font-size: 11px; font-weight: 600; }
+.share-on.off { background: #1b2b32; color: #a0b2b3; }
 .members { margin-top: 12px; flex: 1; }
-.member { display: flex; align-items: center; background: #142429; border-radius: 10px; padding: 12px; margin-bottom: 8px; }
-.avatar { width: 36px; height: 36px; border-radius: 50%; background: #203237; color: #a7dfbf; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 600; }
+.member { display: flex; align-items: center; background: #101c24; border-radius: 10px; padding: 12px; margin-bottom: 8px; }
+.avatar { width: 36px; height: 36px; border-radius: 50%; background: #1b2b32; color: #48c9a8; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 600; }
 .m-info { flex: 1; margin-left: 10px; display: flex; flex-direction: column; gap: 3px; }
-.m-name { font-size: 14px; font-weight: 600; color: #edf4ef; }
-.leader, .me { margin-left: 6px; font-size: 9px; color: #0c171c; background: #a7dfbf; border-radius: 4px; padding: 1px 5px; }
+.m-name { font-size: 14px; font-weight: 600; color: #eef4ea; }
+.leader, .me { margin-left: 6px; font-size: 9px; color: #080d17; background: #48c9a8; border-radius: 4px; padding: 1px 5px; }
 .me { background: #65c7ff; }
-.m-time { font-size: 10px; color: #839a9e; }
+.m-time { font-size: 10px; color: #91aaa7; }
 .m-dist { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; }
-.m-dist-v { font-size: 15px; font-weight: 700; color: #edf4ef; }
-.m-go { font-size: 11px; color: #a7dfbf; }
-.empty { text-align: center; color: #839a9e; font-size: 12px; padding: 24px 0; }
-.tip { padding: 12px 0; font-size: 10px; color: #839a9e; text-align: center; }
+.m-dist-v { font-size: 15px; font-weight: 700; color: #eef4ea; }
+.m-go { font-size: 11px; color: #48c9a8; }
+.empty { text-align: center; color: #91aaa7; font-size: 12px; padding: 24px 0; }
+.tip { padding: 12px 0; font-size: 10px; color: #91aaa7; text-align: center; }
 </style>

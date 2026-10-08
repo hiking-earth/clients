@@ -97,4 +97,4 @@ function chooseWechat() { uni.chooseMessageFile({ count: 1, type: 'file', extens
 } }); }
 // #endif
 </script>
-<style scoped>.page{height:100vh;padding:24px 20px;box-sizing:border-box;background:#0c171c;color:#edf4ef}.title{display:block;font-size:20px}.hint{display:block;font-size:13px;color:#a1b5b8;line-height:1.7;margin:12px 0}.card{padding:16px;border-radius:12px;background:#142429;margin-bottom:16px}.input{width:100%;height:220px;box-sizing:border-box;padding:12px;background:#202b37;margin:16px 0}button{background:#a7dfbf;margin:12px 0;font-size:14px}</style>
+<style scoped>.page{height:100vh;padding:24px 20px;box-sizing:border-box;background:#080d17;color:#eef4ea}.title{display:block;font-size:20px}.hint{display:block;font-size:13px;color:#a0b2b3;line-height:1.7;margin:12px 0}.card{padding:16px;border-radius:12px;background:#101c24;margin-bottom:16px}.input{width:100%;height:220px;box-sizing:border-box;padding:12px;background:#202b37;margin:16px 0}button{background:#48c9a8;margin:12px 0;font-size:14px}</style>
