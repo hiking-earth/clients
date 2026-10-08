@@ -26,3 +26,14 @@ def require_iphone_acceptance(platforms, store_url=None):
                 or not isinstance(row.get('evidence'), list) or not row['evidence']
                 or any(not isinstance(item, str) or not item.strip() for item in row['evidence'])):
             raise SystemExit('iPhone check requires passed status and evidence: ' + name)
+
+
+def require_platform_evidence(platforms, names):
+    """Require reviewable per-platform references, not a bare passed flag."""
+    for name in names:
+        row = platforms.get(name) if isinstance(platforms, dict) else None
+        evidence = row.get('evidence') if isinstance(row, dict) else None
+        if (not isinstance(row, dict) or row.get('status') != 'passed'
+                or not isinstance(evidence, list) or not evidence
+                or any(not isinstance(item, str) or not item.strip() for item in evidence)):
+            raise SystemExit('Platform acceptance requires passed status and evidence: ' + name)

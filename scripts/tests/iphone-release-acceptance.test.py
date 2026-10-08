@@ -4,7 +4,7 @@ import sys
 import unittest
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
-from release_acceptance import IPHONE_CHECKS, require_iphone_acceptance
+from release_acceptance import IPHONE_CHECKS, require_iphone_acceptance, require_platform_evidence
 
 
 class IPhoneAcceptance(unittest.TestCase):
@@ -12,6 +12,16 @@ class IPhoneAcceptance(unittest.TestCase):
         return {'ios': {'status': 'passed', 'delivery': 'pwa', 'device': 'physical-iphone',
                         'checks': {key: {'status': 'passed', 'evidence': ['fixture-only']}
                                    for key in IPHONE_CHECKS}}}
+
+    def test_platform_pass_flag_without_evidence_rejected(self):
+        for evidence in [None, [], [' '], [123], 'report.json']:
+            with self.assertRaises(SystemExit):
+                require_platform_evidence({'web': {'status': 'passed', 'evidence': evidence}}, ['web'])
+
+    def test_platform_reviewable_reference_structure_accepted(self):
+        require_platform_evidence({'web': {'status': 'passed', 'evidence': ['docs/release/fixture.json']}}, ['web'])
+        with self.assertRaises(SystemExit):
+            require_platform_evidence({'web': {'status': 'pending', 'evidence': ['fixture']}}, ['web'])
 
     def test_complete_structure_accepted(self):
         require_iphone_acceptance(self.report())

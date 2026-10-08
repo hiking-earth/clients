@@ -8,7 +8,7 @@ import subprocess
 import sys
 import tempfile
 from urllib.parse import unquote, urlsplit
-from release_acceptance import require_iphone_acceptance
+from release_acceptance import require_iphone_acceptance, require_platform_evidence
 
 REPO = "hiking-earth/clients"
 PLATFORMS = {
@@ -78,6 +78,7 @@ def main():
     if any(not isinstance(platforms.get(name), dict) or platforms[name].get("status") != "passed"
            for name in REQUIRED_ACCEPTANCE):
         stop("Unified acceptance is incomplete; desktop release remains draft")
+    require_platform_evidence(platforms, REQUIRED_ACCEPTANCE)
     require_iphone_acceptance(platforms)
 
     release = gh_json(f"repos/{REPO}/releases/tags/{args.tag}")
