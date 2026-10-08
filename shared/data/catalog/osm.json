@@ -1,33 +1,36 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-07T23:03:16Z",
+  "generatedAt": "2026-10-08T05:58:44Z",
   "license": "ODbL-1.0",
   "attribution": "© OpenStreetMap contributors",
   "licenseUrl": "https://www.openstreetmap.org/copyright",
   "coverage": {
-    "china": 0,
-    "japan": 1,
+    "japan": 0,
     "oceania": 0,
     "south-america": 0,
-    "africa": 2,
-    "south-asia": 1
+    "africa": 0,
+    "south-asia": 0
   },
   "sourceCursors": {
     "china": "2026-10-07T23:03:16Z",
-    "japan": "2026-10-07T23:03:16Z",
-    "oceania": "2026-10-07T23:03:16Z",
-    "south-america": "2026-10-07T23:03:16Z",
-    "africa": "2026-10-07T23:03:16Z",
-    "south-asia": "2026-10-07T23:03:16Z"
+    "japan": "2026-10-08T05:58:44Z",
+    "oceania": "2026-10-08T05:58:44Z",
+    "south-america": "2026-10-08T05:58:44Z",
+    "africa": "2026-10-08T05:58:44Z",
+    "south-asia": "2026-10-08T05:58:44Z"
   },
   "failures": [
     {
+      "region": "china",
+      "error": "HTTP Error 504: Gateway Timeout"
+    },
+    {
       "region": "europe",
-      "error": "The read operation timed out"
+      "error": "HTTP Error 504: Gateway Timeout"
     },
     {
       "region": "north-america",
-      "error": "runtime error: Query timed out in \"query\" at line 1 after 50 seconds."
+      "error": "The read operation timed out"
     }
   ],
   "routes": [
