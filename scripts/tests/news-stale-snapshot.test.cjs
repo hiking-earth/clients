@@ -2,7 +2,7 @@ const test=require('node:test'),assert=require('node:assert/strict'),fs=require(
 const ts=require('../../app/node_modules/typescript');
 const registry=require('../../shared/data/content/official-sources.json');
 const bundled=require('../../shared/data/content/official-news.json');
-const folder='shared/public-catalog/news/386fc3e99f75f71474c70651d39e9007d17d0b0995c613651721a32e6376dbb1';
+const folder='scripts/tests/fixtures/news-stale';
 const manifest=JSON.parse(fs.readFileSync(`${folder}/manifest.json`));
 const older={...manifest.metadata,items:JSON.parse(zlib.gunzipSync(fs.readFileSync(`${folder}/page-00000.json.gz`)))};
 function harness(){const source=fs.readFileSync('app/src/services/news.ts','utf8');const validator=source.slice(source.indexOf('function officialUrl'),source.indexOf('apply(snapshot)'));const news={items:bundled.items,generatedAt:bundled.generatedAt,sources:[{id:'retained'}]};const box={registry,news,Date,Set,exports:{}};vm.runInNewContext(ts.transpile(validator+'\nexports.apply=apply;', {module:ts.ModuleKind.CommonJS}),box);return {news,apply:box.exports.apply};}
