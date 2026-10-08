@@ -8,9 +8,9 @@
       <text class="hero-sub">发现下一段旅程</text>
       <text class="hero-sub">{{ ROUTES.length }} 条路线档案 · 新收录路线开放状态待核验</text>
       <text class="hero-sub">路线数据 © OpenStreetMap contributors · ODbL</text>
-      <view v-if="showSources" class="source-status"><text v-for="source in catalogSources" :key="source.id" class="hero-sub">{{ source.label }}：{{ catalogCacheState[source.id].message }}</text></view>
+      <view v-if="showSources || catalogRefreshing" class="source-status"><text v-for="source in catalogSources" :key="source.id" class="hero-sub">{{ source.label }}：{{ catalogRefreshState[source.id] ? '正在获取目录，已保存资料仍可查看' : catalogCacheState[source.id].message }}</text></view>
       <button size="mini" class="quiet" @click="showSources=!showSources">{{showSources?'收起同步状态':'目录同步状态'}}</button>
-      <button size="mini" @click="refreshRouteCatalog(true)">刷新路线目录</button>
+      <button size="mini" :disabled="catalogRefreshing" @click="refreshRouteCatalog(true)">{{catalogRefreshing ? '正在刷新目录…' : '刷新路线目录'}}</button>
       <view class="search-box">
         <input v-model="keyword" class="search-input" placeholder="搜索路线 / 地区 / 景观" placeholder-class="ph" confirm-type="search" />
       </view>
@@ -81,7 +81,7 @@
 import { computed, ref, watch } from "vue";
 import ExploreGlobe from "@/components/ExploreGlobe.vue";
 const selectedRoute=ref('');
-import { ROUTES, catalogCacheState, refreshRouteCatalog, rememberDiscoveredRoute } from "@/services/route-catalog";
+import { ROUTES, catalogCacheState, catalogRefreshState, refreshRouteCatalog, rememberDiscoveredRoute } from "@/services/route-catalog";
 import {searchPublicCatalog} from "@/services/catalog-search";
 import type {HikingRoute} from "@shared/types/route";
 import { STATUS_COLORS, isNavigable, type RouteStatus, type Season } from "@shared/types/route";
@@ -90,6 +90,7 @@ const catalogSources=[{id:'osm',label:'OSM'},{id:'usfs',label:'美国国家森�
 const catalogSourceLabels=catalogSources.map(source=>source.label);
 const keyword = ref("");
 const showSources=ref(false);
+const catalogRefreshing=computed(()=>Object.values(catalogRefreshState).some(Boolean));
 const searchSourceIndex=ref(0),onlineMode=ref(false),searchLoading=ref(false),searchHasMore=ref(false),searchMessage=ref(''),onlineRoutes=ref<HikingRoute[]>([]);
 let searchGeneration=0,searchSnapshot='',searchOffset=0;
 function leaveOnlineSearch(){searchGeneration++;onlineMode.value=false;searchLoading.value=false;searchHasMore.value=false;onlineRoutes.value=[];searchMessage.value='';}
