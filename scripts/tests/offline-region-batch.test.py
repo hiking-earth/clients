@@ -2,7 +2,7 @@ import importlib.util,pathlib,tempfile,json,hashlib,unittest
 spec=importlib.util.spec_from_file_location('batch',pathlib.Path(__file__).parents[1]/'build-offline-regions.py');batch=importlib.util.module_from_spec(spec);spec.loader.exec_module(batch)
 class BatchTests(unittest.TestCase):
  def test_regions_world_and_negative_bounds(self):
-  config=json.loads(pathlib.Path('shared/maps/regions.json').read_text());rows=batch.validate_regions(config);self.assertEqual(len(rows),6);self.assertEqual(rows[0]['scope'],'global-overview');self.assertTrue(any(row['bbox'].startswith('-') for row in rows))
+  config=json.loads(pathlib.Path('shared/maps/regions.json').read_text());rows=batch.validate_regions(config);self.assertEqual({row['id'] for row in rows},{row['id'] for row in config['regions']});self.assertEqual(sum(row.get('scope')=='global-overview' for row in rows),1);self.assertEqual(rows[0]['scope'],'global-overview');self.assertTrue(any(row['bbox'].startswith('-') for row in rows))
  def test_invalid_and_duplicate(self):
   row={'id':'region','name':'Region','bbox':'1,2,1.1,2.1'}
   for config in [{},{'schemaVersion':1,'regions':[row,row]},{'schemaVersion':1,'regions':[{**row,'id':'../a'}]},{'schemaVersion':1,'regions':[{**row,'maxZoom':True}]},{'schemaVersion':1,'regions':[{**row,'bbox':'1,2,10,11'}]}]:
