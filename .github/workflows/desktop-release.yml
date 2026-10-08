@@ -101,6 +101,17 @@ jobs:
           releaseDraft: true
           prerelease: false
 
+      - name: Verify full macOS application code signature
+        if: matrix.os == 'macos-latest'
+        shell: bash
+        run: |
+          count=0
+          while IFS= read -r -d '' application; do
+            codesign --verify --deep --strict "$application"
+            count=$((count + 1))
+          done < <(find desktop/src-tauri/target/${{ matrix.target }}/release/bundle/macos -maxdepth 1 -type d -name '*.app' -print0)
+          test "$count" -gt 0
+
       - name: Enforce 500 MB candidate package budget
         shell: bash
         run: |

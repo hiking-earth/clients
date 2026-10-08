@@ -1,4 +1,7 @@
 import assert from 'node:assert/strict';import {writeFile} from 'node:fs/promises';
+const reportOption=process.argv.find(arg=>arg.startsWith('--report='));
+const reportPath=reportOption?.slice('--report='.length)||'docs/release/deployed-site-api-acceptance-2026-10-07.json';
+if(!/^docs\/release\/[a-zA-Z0-9._-]+\.json$/.test(reportPath))throw new Error('Report must be a JSON file inside docs/release');
 const base='https://hiking-earth.nanyu20050927.chatgpt.site';const checks=[];
 async function request(action,data={},token){const response=await fetch(base+'/api/client-api',{method:'POST',headers:{'Content-Type':'application/json',...(token?{Authorization:`Bearer ${token}`}:{})},body:JSON.stringify({action,data}),signal:AbortSignal.timeout(65000)});return {response,body:await response.json()};}
 let challenge;
@@ -10,4 +13,4 @@ try{
 }catch(error){checks.push({name:'live site API',passed:false,error:error.message});}
 finally{if(challenge){try{const cancelled=await request('auth.qr.cancel',challenge);assert.equal(cancelled.body.ok,true);checks.push({name:'test challenge cancelled',passed:true});}catch(error){checks.push({name:'test challenge cleanup',passed:false,error:error.message});}}}
 const report={checkedAt:new Date().toISOString(),passed:checks.every(c=>c.passed),scope:'Live Sites proxy weather, catalog, expired token and anonymous QR lifecycle; no production account login or device confirmation claim.',checks};
-await writeFile(new URL('../../docs/release/deployed-site-api-acceptance-2026-10-07.json',import.meta.url),JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify(report));if(!report.passed)process.exitCode=1;
+await writeFile(new URL('../../'+reportPath,import.meta.url),JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify(report));if(!report.passed)process.exitCode=1;
