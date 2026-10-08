@@ -48,5 +48,5 @@ function goConflict(){uni.navigateTo({url:'/pages/library/library'});}
 async function install(){const result=await uni.showModal({title:'更新客户端',content:'请先保存当前工作。确认后下载更新；系统可能要求安装或重启。'});if(result.confirm)await applyUpdate();}
 </script>
 <style scoped>
-.page{min-height:100vh;background:#080d17;padding:12px;box-sizing:border-box;color:#eef4ea}.card{background:#1b2b32;border-radius:10px;padding:14px;margin-bottom:12px;display:flex;flex-direction:column;gap:10px}.title{font-size:18px;font-weight:700}.row{display:flex;align-items:center;justify-content:space-between}.error{color:#ffd166}button{background:#48c9a8;color:#10151c}
+.page{min-height:100vh;background:#01030a;padding:12px;box-sizing:border-box;color:#f4f8f2}.card{background:#151f24;border-radius:10px;padding:14px;margin-bottom:12px;display:flex;flex-direction:column;gap:10px}.title{font-size:18px;font-weight:700}.row{display:flex;align-items:center;justify-content:space-between}.error{color:#ffd166}button{background:#b8f36b;color:#10151c}
 </style>

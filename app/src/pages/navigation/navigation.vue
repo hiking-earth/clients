@@ -68,21 +68,21 @@ function goTeam() {
 </script>
 
 <style lang="scss" scoped>
-.page { display: flex; flex-direction: column; height: 100vh; background: #080d17; }
+.page { display: flex; flex-direction: column; height: 100vh; background: #01030a; }
 .intro { padding: 20px 16px 12px; }
-.intro-title { display: block; font-size: 22px; font-weight: 700; color: #eef4ea; }
-.intro-sub { display: block; margin-top: 4px; font-size: 12px; color: #a0b2b3; }
+.intro-title { display: block; font-size: 22px; font-weight: 700; color: #f4f8f2; }
+.intro-sub { display: block; margin-top: 4px; font-size: 12px; color: #a7b5aa; }
 .list { flex: 1; padding: 0 16px; box-sizing: border-box; }
-.group-title { font-size: 12px; color: #91aaa7; margin: 12px 0 8px; }
-.card { display: flex; align-items: center; background: #101c24; border-radius: 10px; padding: 14px 12px; margin-bottom: 8px; }
+.group-title { font-size: 12px; color: #a7b5aa; margin: 12px 0 8px; }
+.card { display: flex; align-items: center; background: #050c12; border-radius: 10px; padding: 14px 12px; margin-bottom: 8px; }
 .card-l { flex: 1; display: flex; flex-direction: column; gap: 4px; }
-.card-name { font-size: 15px; font-weight: 600; color: #eef4ea; }
-.card-meta { font-size: 11px; color: #a0b2b3; }
-.go { font-size: 18px; color: #48c9a8; }
+.card-name { font-size: 15px; font-weight: 600; color: #f4f8f2; }
+.card-meta { font-size: 11px; color: #a7b5aa; }
+.go { font-size: 18px; color: #b8f36b; }
 .team-entry { display: flex; align-items: center; background: rgba(184, 243, 107, 0.1); border: 0.5px solid rgba(184, 243, 107, 0.3); border-radius: 10px; padding: 14px 12px; margin: 8px 0 4px; }
 .team-l { flex: 1; display: flex; flex-direction: column; gap: 4px; }
-.team-t { font-size: 15px; font-weight: 600; color: #eef4ea; }
-.team-s { font-size: 11px; color: #a0b2b3; }
-.empty { color: #91aaa7; font-size: 12px; padding: 12px 0; }
-.notice { margin: 16px 0 24px; padding: 12px; background: #1b2b32; border-radius: 8px; font-size: 11px; color: #a0b2b3; line-height: 1.7; }
+.team-t { font-size: 15px; font-weight: 600; color: #f4f8f2; }
+.team-s { font-size: 11px; color: #a7b5aa; }
+.empty { color: #a7b5aa; font-size: 12px; padding: 12px 0; }
+.notice { margin: 16px 0 24px; padding: 12px; background: #151f24; border-radius: 8px; font-size: 11px; color: #a7b5aa; line-height: 1.7; }
 </style>

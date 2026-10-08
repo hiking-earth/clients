@@ -66,4 +66,4 @@ async function save(){
  if(current(ctx)&&!form.value)await load(false);
 }
 </script>
-<style scoped>.page{padding:14px;box-sizing:border-box;min-height:100vh;background:#080d17;color:#eef4ea}.card{padding:12px;margin:10px 0;background:#1b2b32;border-radius:8px}text{display:block;margin:8px 0}.title{font-size:18px}input,textarea{padding:8px;margin:6px 0;background:#101820;width:100%;box-sizing:border-box}button{margin:6px 0}</style>
+<style scoped>.page{padding:14px;box-sizing:border-box;min-height:100vh;background:#01030a;color:#f4f8f2}.card{padding:12px;margin:10px 0;background:#151f24;border-radius:8px}text{display:block;margin:8px 0}.title{font-size:18px}input,textarea{padding:8px;margin:6px 0;background:#101820;width:100%;box-sizing:border-box}button{margin:6px 0}</style>

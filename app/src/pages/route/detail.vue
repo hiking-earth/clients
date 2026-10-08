@@ -89,27 +89,27 @@ function startNav() {
 </script>
 
 <style lang="scss" scoped>
-.page { height: 100vh; background: #080d17; }
+.page { height: 100vh; background: #01030a; }
 .banner { width: 100%; height: 210px; }
 .body { padding: 16px; padding-bottom: 80px; }
 .head { display: flex; align-items: center; gap: 6px; }
 .dot { width: 8px; height: 8px; border-radius: 50%; }
-.status { font-size: 12px; color: #a0b2b3; }
-.region { margin-left: auto; font-size: 12px; color: #91aaa7; }
-.name { display: block; margin-top: 6px; font-size: 22px; font-weight: 700; color: #eef4ea; }
-.grid { display: flex; margin-top: 14px; background: #101c24; border-radius: 10px; padding: 12px 0; }
+.status { font-size: 12px; color: #a7b5aa; }
+.region { margin-left: auto; font-size: 12px; color: #a7b5aa; }
+.name { display: block; margin-top: 6px; font-size: 22px; font-weight: 700; color: #f4f8f2; }
+.grid { display: flex; margin-top: 14px; background: #050c12; border-radius: 10px; padding: 12px 0; }
 .cell { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
-.cell-v { font-size: 13px; font-weight: 600; color: #eef4ea; }
-.cell-k { font-size: 10px; color: #91aaa7; }
+.cell-v { font-size: 13px; font-weight: 600; color: #f4f8f2; }
+.cell-k { font-size: 10px; color: #a7b5aa; }
 .section { margin-top: 16px; }
-.sec-title { display: block; font-size: 14px; font-weight: 600; color: #eef4ea; margin-bottom: 6px; }
-.sec-text { font-size: 13px; color: #a0b2b3; line-height: 1.7; }
-.sec-sub { display: block; margin-top: 4px; font-size: 11px; color: #91aaa7; }
+.sec-title { display: block; font-size: 14px; font-weight: 600; color: #f4f8f2; margin-bottom: 6px; }
+.sec-text { font-size: 13px; color: #a7b5aa; line-height: 1.7; }
+.sec-sub { display: block; margin-top: 4px; font-size: 11px; color: #a7b5aa; }
 .hl { display: flex; gap: 4px; }
-.hl-dot { color: #48c9a8; }
+.hl-dot { color: #b8f36b; }
 .warn .sec-title { color: #ff9a62; }
-.footer { position: fixed; left: 0; right: 0; bottom: 0; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); background: linear-gradient(transparent, #080d17 30%); }
+.footer { position: fixed; left: 0; right: 0; bottom: 0; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); background: linear-gradient(transparent, #01030a 30%); }
 .btn { border-radius: 499.5px; font-size: 15px; font-weight: 600; }
-.btn.primary { background: #48c9a8; color: #080d17; }
-.btn.disabled { background: #1b2b32; color: #91aaa7; }
+.btn.primary { background: #b8f36b; color: #01030a; }
+.btn.disabled { background: #151f24; color: #a7b5aa; }
 </style>

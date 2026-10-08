@@ -16,4 +16,4 @@ onShow(()=>{void refreshNews();});function open(url:string){
  uni.setClipboardData({data:url});
  // #endif
 }
-</script><style scoped>.page{padding:15px;box-sizing:border-box;background:#080d17;color:#eef4ea;min-height:100vh}.card{padding:12px;margin:10px 0;background:#1b2b32;border-radius:10px}text{display:block;margin:8px 0}.title{font-size:17px}.hint{color:#a0b2b3}input{padding:10px;background:#1b2b32}</style>
+</script><style scoped>.page{padding:15px;box-sizing:border-box;background:#01030a;color:#f4f8f2;min-height:100vh}.card{padding:12px;margin:10px 0;background:#151f24;border-radius:10px}text{display:block;margin:8px 0}.title{font-size:17px}.hint{color:#a7b5aa}input{padding:10px;background:#151f24}</style>

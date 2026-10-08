@@ -33,4 +33,4 @@ async function save(){
  }catch(e){if(current(ctx))message.value=e instanceof Error?e.message:'保存失败';}finally{if(current(ctx))busy.value=false;}
 }
 
-</script><style scoped>.page{box-sizing:border-box;padding:15px;background:#080d17;color:#eef4ea;min-height:100vh}.title{font-size:18px}text{display:block;margin:10px 0}input,textarea{padding:10px;background:#1b2b32;margin:7.5px 0;width:100%;box-sizing:border-box}button{margin:7.5px 0}</style>
+</script><style scoped>.page{box-sizing:border-box;padding:15px;background:#01030a;color:#f4f8f2;min-height:100vh}.title{font-size:18px}text{display:block;margin:10px 0}input,textarea{padding:10px;background:#151f24;margin:7.5px 0;width:100%;box-sizing:border-box}button{margin:7.5px 0}</style>

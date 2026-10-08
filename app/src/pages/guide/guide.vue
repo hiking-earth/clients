@@ -89,23 +89,23 @@ function open(it: GuideItem) {
 </script>
 
 <style lang="scss" scoped>
-.page { min-height: 100vh; background: #080d17; }
+.page { min-height: 100vh; background: #01030a; }
 .intro { padding: 20px 16px 8px; }
-.intro-title { display: block; font-size: 22px; font-weight: 700; color: #eef4ea; }
-.intro-sub { display: block; margin-top: 4px; font-size: 11px; color: #a0b2b3; }
+.intro-title { display: block; font-size: 22px; font-weight: 700; color: #f4f8f2; }
+.intro-sub { display: block; margin-top: 4px; font-size: 11px; color: #a7b5aa; }
 .chips { white-space: nowrap; padding: 4px 0; }
 .chips-inner { display: inline-flex; gap: 8px; padding: 0 16px; }
-.chip { padding: 5px 12px; font-size: 12px; color: #a0b2b3; background: #1b2b32; border-radius: 499.5px; }
-.chip.on { color: #080d17; background: #48c9a8; font-weight: 600; }
+.chip { padding: 5px 12px; font-size: 12px; color: #a7b5aa; background: #151f24; border-radius: 499.5px; }
+.chip.on { color: #01030a; background: #b8f36b; font-weight: 600; }
 .list { padding: 8px 16px 0; }
-.card { display: flex; align-items: center; background: #101c24; border-radius: 10px; padding: 14px 12px; margin-bottom: 8px; }
+.card { display: flex; align-items: center; background: #050c12; border-radius: 10px; padding: 14px 12px; margin-bottom: 8px; }
 .card-l { flex: 1; display: flex; flex-direction: column; gap: 4px; }
-.card-title { font-size: 15px; font-weight: 600; color: #eef4ea; }
-.card-summary { font-size: 12px; color: #a0b2b3; line-height: 1.5; }
+.card-title { font-size: 15px; font-weight: 600; color: #f4f8f2; }
+.card-summary { font-size: 12px; color: #a7b5aa; line-height: 1.5; }
 .card-foot { display: flex; gap: 8px; margin-top: 2px; }
-.cat { font-size: 10px; color: #48c9a8; background: #1b2b32; padding: 2px 7px; border-radius: 4px; }
+.cat { font-size: 10px; color: #b8f36b; background: #151f24; padding: 2px 7px; border-radius: 4px; }
 .price { font-size: 11px; color: #ffd166; }
-.go { font-size: 20px; color: #91aaa7; }
-.empty { text-align: center; color: #91aaa7; font-size: 12px; padding: 32px 0; }
-.notice { margin: 12px 16px 32px; font-size: 10px; color: #91aaa7; line-height: 1.7; }
+.go { font-size: 20px; color: #a7b5aa; }
+.empty { text-align: center; color: #a7b5aa; font-size: 12px; padding: 32px 0; }
+.notice { margin: 12px 16px 32px; font-size: 10px; color: #a7b5aa; line-height: 1.7; }
 </style>

@@ -165,13 +165,13 @@
   "globalStyle": {
     "navigationBarTextStyle": "white",
     "navigationBarTitleText": "徒步地球",
-    "navigationBarBackgroundColor": "#080d17",
-    "backgroundColor": "#080d17"
+    "navigationBarBackgroundColor": "#01030a",
+    "backgroundColor": "#01030a"
   },
   "tabBar": {
-    "color": "#a0b2b3",
-    "selectedColor": "#48c9a8",
-    "backgroundColor": "#101c24",
+    "color": "#a7b5aa",
+    "selectedColor": "#b8f36b",
+    "backgroundColor": "#050c12",
     "borderStyle": "black",
     "list": [
       {
