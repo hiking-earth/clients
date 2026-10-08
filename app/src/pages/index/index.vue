@@ -1,12 +1,15 @@
 <template>
-  <view class="page">
+  <view class="page explore-home">
+    <view class="earth-stage"><ExploreGlobe :routes="globeRoutes" :selected-id="selectedRoute" @select="selectGlobeRoute" /></view>
+    <view class="explore-panel">
     <!-- 自定义导航头 -->
     <view class="hero">
       <text class="hero-title">徒步地球</text>
-      <text class="hero-sub">以 3D 地球发现全球徒步路线 · 客户端</text>
+      <text class="hero-sub">发现下一段旅程</text>
       <text class="hero-sub">{{ ROUTES.length }} 条路线档案 · 新收录路线开放状态待核验</text>
       <text class="hero-sub">路线数据 © OpenStreetMap contributors · ODbL</text>
-      <text v-for="source in catalogSources" :key="source.id" class="hero-sub">{{ source.label }}：{{ catalogCacheState[source.id].message }}</text>
+      <view v-if="showSources" class="source-status"><text v-for="source in catalogSources" :key="source.id" class="hero-sub">{{ source.label }}：{{ catalogCacheState[source.id].message }}</text></view>
+      <button size="mini" class="quiet" @click="showSources=!showSources">{{showSources?'收起同步状态':'目录同步状态'}}</button>
       <button size="mini" @click="refreshRouteCatalog(true)">刷新路线目录</button>
       <view class="search-box">
         <input v-model="keyword" class="search-input" placeholder="搜索路线 / 地区 / 景观" placeholder-class="ph" confirm-type="search" />
@@ -70,11 +73,14 @@
       <view v-if="filtered.length === 0" class="empty">没有匹配的路线</view>
       <view class="disclaimer">候选版本，不构成导航服务或许可；出行以属地公告为准</view>
     </scroll-view>
+    </view>
   </view>
 </template>
 
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
+import ExploreGlobe from "@/components/ExploreGlobe.vue";
+const selectedRoute=ref('');
 import { ROUTES, catalogCacheState, refreshRouteCatalog, rememberDiscoveredRoute } from "@/services/route-catalog";
 import {searchPublicCatalog} from "@/services/catalog-search";
 import type {HikingRoute} from "@shared/types/route";
@@ -83,6 +89,7 @@ import { STATUS_COLORS, isNavigable, type RouteStatus, type Season } from "@shar
 const catalogSources=[{id:'osm',label:'OSM'},{id:'usfs',label:'美国国家森林'},{id:'hk',label:'香港官方步道'}] as const;
 const catalogSourceLabels=catalogSources.map(source=>source.label);
 const keyword = ref("");
+const showSources=ref(false);
 const searchSourceIndex=ref(0),onlineMode=ref(false),searchLoading=ref(false),searchHasMore=ref(false),searchMessage=ref(''),onlineRoutes=ref<HikingRoute[]>([]);
 let searchGeneration=0,searchSnapshot='',searchOffset=0;
 function leaveOnlineSearch(){searchGeneration++;onlineMode.value=false;searchLoading.value=false;searchHasMore.value=false;onlineRoutes.value=[];searchMessage.value='';}
@@ -117,6 +124,8 @@ const filtered = computed(() => {
   });
 });
 
+const globeRoutes=computed(()=>{const step=Math.max(1,Math.ceil(filtered.value.length/2000));return filtered.value.filter((route,index)=>index%step===0||route.id===selectedRoute.value);});
+function selectGlobeRoute(id:string){selectedRoute.value=id;const route=filtered.value.find(r=>r.id===id);if(route)goDetail(route);}
 function goDetail(route: HikingRoute) {
   rememberDiscoveredRoute(route);const id=route.id;
   uni.navigateTo({ url: `/pages/route/detail?id=${encodeURIComponent(id)}` });
@@ -124,30 +133,33 @@ function goDetail(route: HikingRoute) {
 </script>
 
 <style lang="scss" scoped>
-.page { display: flex; flex-direction: column; height: 100vh; background: #0f141b; }
-.hero { padding: 88rpx 32rpx 16rpx; }
-.hero-title { display: block; font-size: 56rpx; font-weight: 700; color: #eef4ea; }
-.hero-sub { display: block; margin-top: 8rpx; font-size: 24rpx; color: #8a97a5; }
-.online-search { display:flex;flex-direction:column;gap:12rpx;padding:12rpx 32rpx;font-size:24rpx;color:#8a97a5; }
-.search-box { margin-top: 24rpx; background: #1a2430; border-radius: 16rpx; padding: 8rpx 24rpx; }
-.search-input { height: 64rpx; font-size: 28rpx; color: #eef4ea; }
-.ph { color: #5c6a78; }
-.chips { white-space: nowrap; padding: 8rpx 0; }
-.chips-inner { display: inline-flex; gap: 16rpx; padding: 0 32rpx; }
-.chip { padding: 10rpx 24rpx; font-size: 24rpx; color: #8a97a5; background: #1a2430; border-radius: 999rpx; }
-.chip.on { color: #0f141b; background: #b8f36b; font-weight: 600; }
-.list { flex: 1; padding: 8rpx 32rpx 0; box-sizing: border-box; }
-.card { background: #151d27; border-radius: 20rpx; padding: 24rpx; margin-bottom: 24rpx; }
-.card-head { display: flex; align-items: center; gap: 12rpx; }
-.dot { width: 16rpx; height: 16rpx; border-radius: 50%; }
-.card-status { font-size: 22rpx; color: #aeb9c4; }
-.card-region { margin-left: auto; font-size: 22rpx; color: #5c6a78; }
-.card-name { display: block; margin-top: 12rpx; font-size: 32rpx; font-weight: 600; color: #eef4ea; }
-.card-summary { display: block; margin-top: 8rpx; font-size: 24rpx; color: #8a97a5; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
-.card-meta { display: flex; flex-wrap: wrap; gap: 24rpx; margin-top: 16rpx; font-size: 22rpx; color: #aeb9c4; }
-.card-tags { display: flex; flex-wrap: wrap; gap: 12rpx; margin-top: 16rpx; }
-.tag { font-size: 20rpx; color: #8a97a5; background: #1a2430; padding: 6rpx 16rpx; border-radius: 8rpx; }
-.tag.nav { color: #b8f36b; }
-.empty { text-align: center; color: #5c6a78; padding: 80rpx 0; font-size: 26rpx; }
-.disclaimer { text-align: center; color: #445059; font-size: 20rpx; padding: 24rpx 0 48rpx; }
+.page { display:flex; flex-direction:column; min-height:100vh; background:#0c171c; }
+.earth-stage{padding:12px 12px 0;box-sizing:border-box;}
+.explore-panel{display:flex;flex-direction:column;min-height:0;}
+@media(min-width:800px){.page{flex-direction:row;height:calc(100vh - 50px);min-height:0;padding:20px;gap:20px;box-sizing:border-box}.earth-stage{flex:1;min-width:0;padding:0}.explore-panel{width:360px;flex-shrink:0;background:#132328;border:1px solid #29413f;border-radius:24px;overflow:hidden}.list{min-height:0;height:0;flex:1}.hero{padding-top:24px!important}}
+.hero { padding: 14px 16px 8px; }
+.hero-title { display: block; font-size: 28px; font-weight: 700; color: #edf4ef; }
+.hero-sub { display: block; margin-top: 4px; font-size: 12px; color: #a1b5b8; }
+.online-search { display:flex;flex-direction:column;gap:6px;padding:6px 16px;font-size:12px;color:#a1b5b8; }
+.search-box { margin-top: 12px; background: #203237; border-radius: 8px; padding: 4px 12px; }
+.search-input { height: 32px; font-size: 14px; color: #edf4ef; }
+.ph { color: #839a9e; }
+.chips { white-space: nowrap; padding: 4px 0; }
+.chips-inner { display: inline-flex; gap: 8px; padding: 0 16px; }
+.chip { padding: 5px 12px; font-size: 12px; color: #a1b5b8; background: #203237; border-radius: 499.5px; }
+.chip.on { color: #0c171c; background: #a7dfbf; font-weight: 600; }
+.list { height:420px; flex: none; padding: 4px 16px 0; box-sizing: border-box; }
+.card { background: #142429; border-radius: 10px; padding: 12px; margin-bottom: 12px; }
+.card-head { display: flex; align-items: center; gap: 6px; }
+.dot { width: 8px; height: 8px; border-radius: 50%; }
+.card-status { font-size: 11px; color: #aeb9c4; }
+.card-region { margin-left: auto; font-size: 11px; color: #839a9e; }
+.card-name { display: block; margin-top: 6px; font-size: 16px; font-weight: 600; color: #edf4ef; }
+.card-summary { display: block; margin-top: 4px; font-size: 12px; color: #a1b5b8; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.card-meta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 8px; font-size: 11px; color: #aeb9c4; }
+.card-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.tag { font-size: 10px; color: #a1b5b8; background: #203237; padding: 3px 8px; border-radius: 4px; }
+.tag.nav { color: #a7dfbf; }
+.empty { text-align: center; color: #839a9e; padding: 40px 0; font-size: 13px; }
+.disclaimer { text-align: center; color: #839a9e; font-size: 10px; padding: 12px 0 24px; }
 </style>

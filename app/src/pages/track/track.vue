@@ -306,25 +306,25 @@ onUnmounted(() => {
 </script>
 
 <style lang="scss" scoped>
-.page { display: flex; flex-direction: column; height: 100vh; background: #0f141b; }
-.panel { padding: 40rpx 32rpx 24rpx; }
-.stats { display: flex; background: #151d27; border-radius: 20rpx; padding: 28rpx 0; }
-.stat { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8rpx; }
-.stat-v { font-size: 34rpx; font-weight: 700; color: #eef4ea; }
-.stat-k { font-size: 20rpx; color: #5c6a78; }
-.controls { display: flex; gap: 24rpx; margin-top: 24rpx; }
-.btn { flex: 1; border-radius: 999rpx; font-size: 30rpx; font-weight: 600; }
-.btn.start { background: #b8f36b; color: #0f141b; }
-.btn.pause { background: #ffd166; color: #0f141b; }
-.btn.stop { background: #ff7b72; color: #0f141b; }
-.hint { display: block; margin-top: 16rpx; font-size: 22rpx; color: #5c6a78; text-align: center; }
-.list { flex: 1; padding: 0 32rpx; box-sizing: border-box; }
-.group-title { font-size: 24rpx; color: #5c6a78; margin: 16rpx 0; }
-.card { display: flex; align-items: center; background: #151d27; border-radius: 20rpx; padding: 28rpx 24rpx; margin-bottom: 16rpx; }
-.card-l { flex: 1; display: flex; flex-direction: column; gap: 8rpx; }
-.card-name { font-size: 30rpx; font-weight: 600; color: #eef4ea; }
-.card-meta { font-size: 22rpx; color: #8a97a5; }
-.synced { font-size: 20rpx; color: #b8f36b; }
-.empty { color: #5c6a78; font-size: 24rpx; text-align: center; padding: 48rpx 0; }
-.privacy-note { display:block; margin:16rpx 32rpx; padding:20rpx; border-radius:16rpx; background:#202b37; color:#ffd166; font-size:22rpx; line-height:1.6; }
+.page { display: flex; flex-direction: column; height: 100vh; background: #0c171c; }
+.panel { padding: 20px 16px 12px; }
+.stats { display: flex; background: #142429; border-radius: 10px; padding: 14px 0; }
+.stat { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.stat-v { font-size: 17px; font-weight: 700; color: #edf4ef; }
+.stat-k { font-size: 10px; color: #839a9e; }
+.controls { display: flex; gap: 12px; margin-top: 12px; }
+.btn { flex: 1; border-radius: 499.5px; font-size: 15px; font-weight: 600; }
+.btn.start { background: #a7dfbf; color: #0c171c; }
+.btn.pause { background: #ffd166; color: #0c171c; }
+.btn.stop { background: #ff7b72; color: #0c171c; }
+.hint { display: block; margin-top: 8px; font-size: 11px; color: #839a9e; text-align: center; }
+.list { flex: 1; padding: 0 16px; box-sizing: border-box; }
+.group-title { font-size: 12px; color: #839a9e; margin: 8px 0; }
+.card { display: flex; align-items: center; background: #142429; border-radius: 10px; padding: 14px 12px; margin-bottom: 8px; }
+.card-l { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+.card-name { font-size: 15px; font-weight: 600; color: #edf4ef; }
+.card-meta { font-size: 11px; color: #a1b5b8; }
+.synced { font-size: 10px; color: #a7dfbf; }
+.empty { color: #839a9e; font-size: 12px; text-align: center; padding: 24px 0; }
+.privacy-note { display:block; margin:8px 16px; padding:10px; border-radius:8px; background:#202b37; color:#ffd166; font-size:11px; line-height:1.6; }
 </style>

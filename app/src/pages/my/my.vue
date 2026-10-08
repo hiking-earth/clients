@@ -1,9 +1,5 @@
 <template>
   <scroll-view scroll-y class="page">
-    <button @click="go('/pages/guide/manage')">导购资料管理（管理员）</button>
-    <button @click="go('/pages/my/route-review')">官方路线审核（管理员）</button>
-    <button @click="go('/pages/route/news')">官方户外公告</button>
-    <button @click="go('/pages/my/import')">迁移旧网页日记与留言</button>
     <!-- 账号 -->
     <view class="account">
       <view class="avatar">{{ nickname.slice(0, 1) }}</view>
@@ -18,6 +14,7 @@
     <!-- #endif -->
 
     <!-- 功能入口 -->
+    <view class="group"><view class="row" @click="go('/pages/route/news')"><text class="row-icon">◉</text><text class="row-name">官方户外公告</text><text class="row-go">›</text></view></view>
     <view class="group"><view class="row" @click="go('/pages/companion/social')"><text class="row-icon">✎</text><text class="row-name">云端日记、队聊与通知</text><text class="row-go">›</text></view></view>
     <view class="group"><view class="row" @click="go('/pages/library/library')"><text class="row-icon">♡</text><text class="row-name">收藏与行程</text><text class="row-go">›</text></view></view>
     <view class="group">
@@ -56,6 +53,7 @@
       </view>
     </view>
 
+    <view v-if="openid" class="group"><view class="row" @click="showOperations=!showOperations"><text class="row-name">运营工具</text><text class="row-sub">需管理员权限</text><text class="row-go">›</text></view><view v-if="showOperations"><button @click="go('/pages/guide/manage')">导购资料管理</button><button @click="go('/pages/my/route-review')">官方路线审核</button></view></view>
     <view class="ver">徒步地球客户端 v{{ APP_VERSION }} · 全端客户端</view>
   </scroll-view>
 </template>
@@ -71,6 +69,7 @@ import { exchangeMiniProgramWeChat } from '@/services/wechat-login';
 import { APP_VERSION } from '@/services/version';
 
 const openid = ref("");
+const showOperations=ref(false);
 const nickname = ref("未登录");
 const unsynced = ref(0);
 const tracksValid=ref(trackStorageValid());
@@ -182,20 +181,20 @@ function about() {
 </script>
 
 <style lang="scss" scoped>
-.page { min-height: 100vh; background: #0f141b; padding: 40rpx 32rpx; box-sizing: border-box; }
-.account { display: flex; align-items: center; background: #151d27; border-radius: 20rpx; padding: 32rpx 24rpx; }
-.avatar { width: 96rpx; height: 96rpx; border-radius: 50%; background: #1a2430; color: #b8f36b; display: flex; align-items: center; justify-content: center; font-size: 40rpx; font-weight: 700; }
-.acc-info { flex: 1; min-width: 0; margin-left: 24rpx; display: flex; flex-direction: column; gap: 8rpx; }
+.page { min-height: 100vh; background: #0c171c; padding: 20px 16px; box-sizing: border-box; }
+.account { display: flex; align-items: center; background: #142429; border-radius: 10px; padding: 16px 12px; }
+.avatar { width: 48px; height: 48px; border-radius: 50%; background: #203237; color: #a7dfbf; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 700; }
+.acc-info { flex: 1; min-width: 0; margin-left: 12px; display: flex; flex-direction: column; gap: 4px; }
 .avatar, .login { flex-shrink: 0; }
-.nick { font-size: 32rpx; font-weight: 600; color: #eef4ea; }
-.acc-sub { font-size: 22rpx; color: #5c6a78; }
-.login { padding: 0 40rpx; height: 64rpx; line-height: 64rpx; background: #b8f36b; color: #0f141b; font-size: 26rpx; font-weight: 600; border-radius: 999rpx; }
-.group { margin-top: 28rpx; background: #151d27; border-radius: 20rpx; overflow: hidden; }
-.row { display: flex; align-items: center; padding: 28rpx 24rpx; border-bottom: 1rpx solid #1a2430; }
+.nick { font-size: 16px; font-weight: 600; color: #edf4ef; }
+.acc-sub { font-size: 11px; color: #839a9e; }
+.login { padding: 0 20px; height: 32px; line-height: 32px; background: #a7dfbf; color: #0c171c; font-size: 13px; font-weight: 600; border-radius: 499.5px; }
+.group { margin-top: 14px; background: #142429; border-radius: 10px; overflow: hidden; }
+.row { display: flex; align-items: center; padding: 14px 12px; border-bottom: 0.5px solid #203237; }
 .row:last-child { border-bottom: none; }
-.row-icon { font-size: 32rpx; width: 56rpx; }
-.row-name { flex: 1; font-size: 28rpx; color: #eef4ea; }
-.row-sub { font-size: 22rpx; color: #5c6a78; margin-right: 12rpx; }
-.row-go { font-size: 32rpx; color: #5c6a78; }
-.ver { margin-top: 48rpx; text-align: center; font-size: 20rpx; color: #445059; }
+.row-icon { font-size: 16px; width: 28px; }
+.row-name { flex: 1; font-size: 14px; color: #edf4ef; }
+.row-sub { font-size: 11px; color: #839a9e; margin-right: 6px; }
+.row-go { font-size: 16px; color: #839a9e; }
+.ver { margin-top: 24px; text-align: center; font-size: 10px; color: #839a9e; }
 </style>

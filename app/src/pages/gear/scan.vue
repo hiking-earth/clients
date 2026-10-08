@@ -216,32 +216,32 @@ function readAsBase64(path: string): Promise<string> {
 </script>
 
 <style lang="scss" scoped>
-.page { min-height: 100vh; background: #0f141b; padding: 32rpx; box-sizing: border-box; }
-.intro-title { display: block; font-size: 44rpx; font-weight: 700; color: #eef4ea; }
-.intro-sub { display: block; margin-top: 8rpx; font-size: 24rpx; color: #8a97a5; }
-.picker { margin-top: 24rpx; background: #1a2430; border-radius: 16rpx; padding: 20rpx 24rpx; font-size: 26rpx; color: #8a97a5; }
-.shot { margin-top: 24rpx; height: 420rpx; background: #151d27; border-radius: 20rpx; overflow: hidden; }
+.page { min-height: 100vh; background: #0c171c; padding: 16px; box-sizing: border-box; }
+.intro-title { display: block; font-size: 22px; font-weight: 700; color: #edf4ef; }
+.intro-sub { display: block; margin-top: 4px; font-size: 12px; color: #a1b5b8; }
+.picker { margin-top: 12px; background: #203237; border-radius: 8px; padding: 10px 12px; font-size: 13px; color: #a1b5b8; }
+.shot { margin-top: 12px; height: 210px; background: #142429; border-radius: 10px; overflow: hidden; }
 .shot-img { width: 100%; height: 100%; }
-.shot-empty { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16rpx; }
-.shot-icon { font-size: 72rpx; }
-.shot-text { font-size: 26rpx; color: #5c6a78; }
-.btn.primary { margin-top: 24rpx; background: #b8f36b; color: #0f141b; font-weight: 600; border-radius: 999rpx; font-size: 30rpx; }
-.btn[disabled] { background: #1a2430; color: #5c6a78; }
-.sec { margin-top: 36rpx; }
-.sec-title { display: block; font-size: 28rpx; font-weight: 600; color: #eef4ea; margin-bottom: 16rpx; }
+.shot-empty { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; }
+.shot-icon { font-size: 36px; }
+.shot-text { font-size: 13px; color: #839a9e; }
+.btn.primary { margin-top: 12px; background: #a7dfbf; color: #0c171c; font-weight: 600; border-radius: 499.5px; font-size: 15px; }
+.btn[disabled] { background: #203237; color: #839a9e; }
+.sec { margin-top: 18px; }
+.sec-title { display: block; font-size: 14px; font-weight: 600; color: #edf4ef; margin-bottom: 8px; }
 .sec-title.warn { color: #ffd166; }
-.sec-title.accent { color: #b8f36b; }
-.item { display: flex; align-items: center; justify-content: space-between; background: #151d27; border-radius: 16rpx; padding: 20rpx 24rpx; margin-bottom: 12rpx; }
-.item-name { font-size: 28rpx; color: #eef4ea; }
-.item-cat { font-size: 22rpx; color: #5c6a78; }
-.item-why { font-size: 22rpx; color: #ffd166; max-width: 60%; text-align: right; }
-.usage { display: flex; gap: 12rpx; margin-bottom: 8rpx; }
-.usage-dot { color: #b8f36b; }
-.usage-text { font-size: 26rpx; color: #8a97a5; line-height: 1.6; }
-.plan { display: flex; align-items: center; gap: 20rpx; background: #151d27; border-radius: 16rpx; padding: 20rpx 24rpx; margin-bottom: 12rpx; }
-.check { width: 40rpx; height: 40rpx; border-radius: 50%; border: 2rpx solid #5c6a78; display: flex; align-items: center; justify-content: center; color: #0f141b; font-size: 24rpx; }
-.check.on { background: #b8f36b; border-color: #b8f36b; font-weight: 700; }
-.plan-text { font-size: 28rpx; color: #eef4ea; }
-.plan-text.done { color: #5c6a78; text-decoration: line-through; }
-.notice { margin: 36rpx 0 64rpx; font-size: 20rpx; color: #445059; line-height: 1.7; }
+.sec-title.accent { color: #a7dfbf; }
+.item { display: flex; align-items: center; justify-content: space-between; background: #142429; border-radius: 8px; padding: 10px 12px; margin-bottom: 6px; }
+.item-name { font-size: 14px; color: #edf4ef; }
+.item-cat { font-size: 11px; color: #839a9e; }
+.item-why { font-size: 11px; color: #ffd166; max-width: 60%; text-align: right; }
+.usage { display: flex; gap: 6px; margin-bottom: 4px; }
+.usage-dot { color: #a7dfbf; }
+.usage-text { font-size: 13px; color: #a1b5b8; line-height: 1.6; }
+.plan { display: flex; align-items: center; gap: 10px; background: #142429; border-radius: 8px; padding: 10px 12px; margin-bottom: 6px; }
+.check { width: 20px; height: 20px; border-radius: 50%; border: 1px solid #839a9e; display: flex; align-items: center; justify-content: center; color: #0c171c; font-size: 12px; }
+.check.on { background: #a7dfbf; border-color: #a7dfbf; font-weight: 700; }
+.plan-text { font-size: 14px; color: #edf4ef; }
+.plan-text.done { color: #839a9e; text-decoration: line-through; }
+.notice { margin: 18px 0 32px; font-size: 10px; color: #839a9e; line-height: 1.7; }
 </style>

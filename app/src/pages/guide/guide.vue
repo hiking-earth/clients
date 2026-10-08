@@ -89,23 +89,23 @@ function open(it: GuideItem) {
 </script>
 
 <style lang="scss" scoped>
-.page { min-height: 100vh; background: #0f141b; }
-.intro { padding: 40rpx 32rpx 16rpx; }
-.intro-title { display: block; font-size: 44rpx; font-weight: 700; color: #eef4ea; }
-.intro-sub { display: block; margin-top: 8rpx; font-size: 22rpx; color: #8a97a5; }
-.chips { white-space: nowrap; padding: 8rpx 0; }
-.chips-inner { display: inline-flex; gap: 16rpx; padding: 0 32rpx; }
-.chip { padding: 10rpx 24rpx; font-size: 24rpx; color: #8a97a5; background: #1a2430; border-radius: 999rpx; }
-.chip.on { color: #0f141b; background: #b8f36b; font-weight: 600; }
-.list { padding: 16rpx 32rpx 0; }
-.card { display: flex; align-items: center; background: #151d27; border-radius: 20rpx; padding: 28rpx 24rpx; margin-bottom: 16rpx; }
-.card-l { flex: 1; display: flex; flex-direction: column; gap: 8rpx; }
-.card-title { font-size: 30rpx; font-weight: 600; color: #eef4ea; }
-.card-summary { font-size: 24rpx; color: #8a97a5; line-height: 1.5; }
-.card-foot { display: flex; gap: 16rpx; margin-top: 4rpx; }
-.cat { font-size: 20rpx; color: #b8f36b; background: #1a2430; padding: 4rpx 14rpx; border-radius: 8rpx; }
-.price { font-size: 22rpx; color: #ffd166; }
-.go { font-size: 40rpx; color: #5c6a78; }
-.empty { text-align: center; color: #5c6a78; font-size: 24rpx; padding: 64rpx 0; }
-.notice { margin: 24rpx 32rpx 64rpx; font-size: 20rpx; color: #445059; line-height: 1.7; }
+.page { min-height: 100vh; background: #0c171c; }
+.intro { padding: 20px 16px 8px; }
+.intro-title { display: block; font-size: 22px; font-weight: 700; color: #edf4ef; }
+.intro-sub { display: block; margin-top: 4px; font-size: 11px; color: #a1b5b8; }
+.chips { white-space: nowrap; padding: 4px 0; }
+.chips-inner { display: inline-flex; gap: 8px; padding: 0 16px; }
+.chip { padding: 5px 12px; font-size: 12px; color: #a1b5b8; background: #203237; border-radius: 499.5px; }
+.chip.on { color: #0c171c; background: #a7dfbf; font-weight: 600; }
+.list { padding: 8px 16px 0; }
+.card { display: flex; align-items: center; background: #142429; border-radius: 10px; padding: 14px 12px; margin-bottom: 8px; }
+.card-l { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+.card-title { font-size: 15px; font-weight: 600; color: #edf4ef; }
+.card-summary { font-size: 12px; color: #a1b5b8; line-height: 1.5; }
+.card-foot { display: flex; gap: 8px; margin-top: 2px; }
+.cat { font-size: 10px; color: #a7dfbf; background: #203237; padding: 2px 7px; border-radius: 4px; }
+.price { font-size: 11px; color: #ffd166; }
+.go { font-size: 20px; color: #839a9e; }
+.empty { text-align: center; color: #839a9e; font-size: 12px; padding: 32px 0; }
+.notice { margin: 12px 16px 32px; font-size: 10px; color: #839a9e; line-height: 1.7; }
 </style>

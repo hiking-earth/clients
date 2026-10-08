@@ -15,4 +15,4 @@ function chooseWeb(){const input=document.createElement('input');input.type='fil
 // #ifdef MP-WEIXIN
 function chooseWechat(){uni.chooseMessageFile({count:1,type:'file',extension:['json'],success:r=>{const file=r.tempFiles[0];if(file.size>5*1024*1024){message.value='文件最多5 MB';return;}uni.getFileSystemManager().readFile({filePath:file.path,encoding:'utf8',success:data=>{source.value=String(data.data);preview();},fail:()=>{message.value='读取失败';}});}});}
 // #endif
-</script><style scoped>.page{padding:30rpx;box-sizing:border-box;background:#0f141b;color:#eef4ea;min-height:100vh}text{display:block;margin:20rpx 0}.title{font-size:36rpx}textarea{height:250rpx;background:#1a2430;width:100%;padding:20rpx;box-sizing:border-box}button{margin:20rpx 0}</style>
+</script><style scoped>.page{padding:15px;box-sizing:border-box;background:#0c171c;color:#edf4ef;min-height:100vh}text{display:block;margin:10px 0}.title{font-size:18px}textarea{height:125px;background:#203237;width:100%;padding:10px;box-sizing:border-box}button{margin:10px 0}</style>

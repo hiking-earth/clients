@@ -53,16 +53,16 @@ function toggle(key: PrivacyConsentKey, event: Event | { detail: { value: boolea
 </script>
 
 <style lang="scss" scoped>
-.page { min-height: 100vh; background: #0f141b; padding: 36rpx 28rpx 56rpx; box-sizing: border-box; }
-.intro { display: flex; flex-direction: column; gap: 14rpx; padding: 8rpx 4rpx 28rpx; }
-.title { color: #eef4ea; font-size: 42rpx; font-weight: 700; }
-.desc { color: #8a97a5; font-size: 24rpx; line-height: 1.7; }
-.group { overflow: hidden; border-radius: 20rpx; background: #151d27; }
-.item { display: flex; align-items: center; gap: 20rpx; padding: 28rpx 24rpx; border-bottom: 1rpx solid #1a2430; }
+.page { min-height: 100vh; background: #0c171c; padding: 18px 14px 28px; box-sizing: border-box; }
+.intro { display: flex; flex-direction: column; gap: 7px; padding: 4px 2px 14px; }
+.title { color: #edf4ef; font-size: 21px; font-weight: 700; }
+.desc { color: #a1b5b8; font-size: 12px; line-height: 1.7; }
+.group { overflow: hidden; border-radius: 10px; background: #142429; }
+.item { display: flex; align-items: center; gap: 10px; padding: 14px 12px; border-bottom: 0.5px solid #203237; }
 .item:last-child { border-bottom: 0; }
-.copy { display: flex; flex: 1; flex-direction: column; gap: 8rpx; }
-.name { color: #eef4ea; font-size: 28rpx; font-weight: 600; }
-.detail { color: #8a97a5; font-size: 22rpx; line-height: 1.6; }
-.footnote { display: flex; flex-direction: column; gap: 14rpx; margin-top: 28rpx; padding: 26rpx 24rpx; border-radius: 20rpx; background: #151d27; color: #8a97a5; font-size: 22rpx; line-height: 1.7; }
-.foot-title { color: #b8f36b; font-size: 25rpx; font-weight: 600; }
+.copy { display: flex; flex: 1; flex-direction: column; gap: 4px; }
+.name { color: #edf4ef; font-size: 14px; font-weight: 600; }
+.detail { color: #a1b5b8; font-size: 11px; line-height: 1.6; }
+.footnote { display: flex; flex-direction: column; gap: 7px; margin-top: 14px; padding: 13px 12px; border-radius: 10px; background: #142429; color: #a1b5b8; font-size: 11px; line-height: 1.7; }
+.foot-title { color: #a7dfbf; font-size: 12.5px; font-weight: 600; }
 </style>

@@ -16,6 +16,10 @@ async function persist(source:CatalogSource,data:any){
  try{await writeCatalogCache(source,data);catalogCacheState[source]={saved:true,message:`已保存${data.routes.length}条${data.complete===false?`，来源共${data.sourceTotal}条，其余可在线检索`:''}，可离线查看`};}
  catch{catalogCacheState[source]={saved:false,message:'本次资料仅在内存中，离线保存失败，请检查设备空间'};}
 }
+function failedRefresh(source:CatalogSource){
+ const saved=catalogCacheState[source].saved;
+ catalogCacheState[source]={saved,message:saved?'目录更新失败，保留本机资料；稍后自动重试':'目录更新失败，暂无本机缓存；稍后自动重试'};
+}
 export const ROUTES=reactive([...bundled]);
 let inflight=false;
 let nextOsmAttempt=0;let osmFailures=0;
@@ -42,7 +46,7 @@ function refreshAll(force=false):void {
   refreshUsfsCatalog(force);refreshHkCatalog(force);
   if(inflight || (!force && Date.now()<nextOsmAttempt))return;
   inflight=true;
-  void publicSnapshot('osm').then(async data=>{if(!valid(data))throw new Error('OSM目录格式无效');apply(data);await persist('osm',data);osmFailures=0;nextOsmAttempt=Date.now()+6*60*60*1000;}).catch(()=>{osmFailures++;nextOsmAttempt=Date.now()+Math.min(6*60*60*1000,15*60*1000*2**Math.min(osmFailures-1,5));}).finally(()=>{inflight=false;});
+  void publicSnapshot('osm').then(async data=>{if(!valid(data))throw new Error('OSM目录格式无效');apply(data);await persist('osm',data);osmFailures=0;nextOsmAttempt=Date.now()+6*60*60*1000;}).catch(()=>{failedRefresh('osm');osmFailures++;nextOsmAttempt=Date.now()+Math.min(6*60*60*1000,15*60*1000*2**Math.min(osmFailures-1,5));}).finally(()=>{inflight=false;});
 }
 
 let nextUsfsAttempt=0,usfsFailures=0;
@@ -54,7 +58,7 @@ export function refreshUsfsCatalog(force=false): void {
     if(!validUsfs(data))throw new Error('USFS目录格式无效');
     await persist('usfs',data);
     latestUsfs=data;curated=[...seed,...catalogRoutes(latestUsfs),...catalogRoutes(latestHk)];apply(latestOsm);usfsFailures=0;nextUsfsAttempt=Date.now()+6*60*60*1000;
-  }).catch(()=>{usfsFailures++;nextUsfsAttempt=Date.now()+Math.min(6*60*60*1000,15*60*1000*2**Math.min(usfsFailures-1,5));}).finally(()=>{usfsLoading=false;});
+  }).catch(()=>{failedRefresh('usfs');usfsFailures++;nextUsfsAttempt=Date.now()+Math.min(6*60*60*1000,15*60*1000*2**Math.min(usfsFailures-1,5));}).finally(()=>{usfsLoading=false;});
 }
 
 function validUsfs(data:any): boolean {
@@ -73,7 +77,7 @@ let hkLoading=false;
 export function refreshHkCatalog(force=false):void {
  if(hkLoading||(!force&&Date.now()<nextHkAttempt))return;
  hkLoading=true;
- void publicSnapshot('hk').then(async data=>{if(!validHk(data))throw new Error('香港步道目录格式无效');applyHk(data);await persist('hk',data);hkFailures=0;nextHkAttempt=Date.now()+6*60*60*1000;}).catch(()=>{hkFailures++;nextHkAttempt=Date.now()+Math.min(6*60*60*1000,15*60*1000*2**Math.min(hkFailures-1,5));}).finally(()=>{hkLoading=false;});
+ void publicSnapshot('hk').then(async data=>{if(!validHk(data))throw new Error('香港步道目录格式无效');applyHk(data);await persist('hk',data);hkFailures=0;nextHkAttempt=Date.now()+6*60*60*1000;}).catch(()=>{failedRefresh('hk');hkFailures++;nextHkAttempt=Date.now()+Math.min(6*60*60*1000,15*60*1000*2**Math.min(hkFailures-1,5));}).finally(()=>{hkLoading=false;});
 }
 
 // Restore before the first remote refresh so late disk reads cannot overwrite

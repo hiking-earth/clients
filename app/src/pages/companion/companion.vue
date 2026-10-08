@@ -215,31 +215,34 @@ async function submit() {
 </script>
 
 <style lang="scss" scoped>
-.page { height: 100vh; background: #0f141b; }
-.list { height: 100%; padding: 24rpx 32rpx; box-sizing: border-box; }
-.card { background: #151d27; border-radius: 20rpx; padding: 28rpx 24rpx; margin-bottom: 20rpx; }
+.page { height: 100vh; background: #0c171c; }
+.list { height: 100%; padding: 12px 16px; box-sizing: border-box; }
+.card { background: #142429; border-radius: 10px; padding: 14px 12px; margin-bottom: 10px; }
 .card-head { display: flex; justify-content: space-between; }
-.nick { font-size: 24rpx; color: #b8f36b; }
-.date { font-size: 22rpx; color: #5c6a78; }
-.title { display: block; margin-top: 12rpx; font-size: 32rpx; font-weight: 600; color: #eef4ea; }
-.content { display: block; margin-top: 8rpx; font-size: 26rpx; color: #8a97a5; line-height: 1.6; }
-.card-foot { display: flex; align-items: center; margin-top: 16rpx; gap: 16rpx; }
-.members { font-size: 22rpx; color: #aeb9c4; }
-.route { flex: 1; font-size: 22rpx; color: #5c6a78; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.join { padding: 8rpx 32rpx; background: #b8f36b; color: #0f141b; font-size: 24rpx; font-weight: 600; border-radius: 999rpx; }
-.join.full { background: #1a2430; color: #5c6a78; }
-.empty { text-align: center; color: #5c6a78; padding: 80rpx 0; font-size: 26rpx; }
-.notice { margin: 24rpx 0 160rpx; font-size: 20rpx; color: #445059; line-height: 1.7; }
-.fab { position: fixed; right: 32rpx; bottom: calc(48rpx + env(safe-area-inset-bottom)); padding: 20rpx 36rpx; background: #b8f36b; color: #0f141b; font-size: 28rpx; font-weight: 600; border-radius: 999rpx; box-shadow: 0 8rpx 24rpx rgba(0,0,0,0.4); }
+.nick { font-size: 12px; color: #a7dfbf; }
+.date { font-size: 11px; color: #839a9e; }
+.title { display: block; margin-top: 6px; font-size: 16px; font-weight: 600; color: #edf4ef; }
+.content { display: block; margin-top: 4px; font-size: 13px; color: #a1b5b8; line-height: 1.6; }
+.card-foot { display: flex; align-items: center; margin-top: 8px; gap: 8px; }
+.members { font-size: 11px; color: #aeb9c4; }
+.route { flex: 1; font-size: 11px; color: #839a9e; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.join { padding: 4px 16px; background: #a7dfbf; color: #0c171c; font-size: 12px; font-weight: 600; border-radius: 499.5px; }
+.join.full { background: #203237; color: #839a9e; }
+.empty { text-align: center; color: #839a9e; padding: 40px 0; font-size: 13px; }
+.notice { margin: 12px 0 80px; font-size: 10px; color: #839a9e; line-height: 1.7; }
+.fab { position: fixed; right: 16px; bottom: calc(24px + env(safe-area-inset-bottom)); padding: 10px 18px; background: #a7dfbf; color: #0c171c; font-size: 14px; font-weight: 600; border-radius: 499.5px; box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
 .mask { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: flex; align-items: flex-end; }
-.form { width: 100%; background: #151d27; border-radius: 32rpx 32rpx 0 0; padding: 40rpx 32rpx calc(40rpx + env(safe-area-inset-bottom)); }
-.form-title { display: block; font-size: 32rpx; font-weight: 600; color: #eef4ea; margin-bottom: 24rpx; }
-.input { background: #1a2430; border-radius: 16rpx; padding: 20rpx 24rpx; font-size: 28rpx; color: #eef4ea; margin-bottom: 16rpx; }
-.textarea { background: #1a2430; border-radius: 16rpx; padding: 20rpx 24rpx; font-size: 28rpx; color: #eef4ea; margin-bottom: 16rpx; height: 160rpx; width: auto; }
-.picker { color: #8a97a5; }
-.ph { color: #5c6a78; }
-.form-actions { display: flex; gap: 24rpx; margin-top: 8rpx; }
-.btn { flex: 1; border-radius: 999rpx; font-size: 28rpx; }
-.btn.ghost { background: #1a2430; color: #8a97a5; }
-.btn.primary { background: #b8f36b; color: #0f141b; font-weight: 600; }
+.form { width: 100%; background: #142429; border-radius: 16px 16px 0 0; padding: 20px 16px calc(20px + env(safe-area-inset-bottom)); }
+.form-title { display: block; font-size: 16px; font-weight: 600; color: #edf4ef; margin-bottom: 12px; }
+.input { background: #203237; border-radius: 8px; padding: 10px 12px; font-size: 14px; color: #edf4ef; margin-bottom: 8px; }
+.textarea { background: #203237; border-radius: 8px; padding: 10px 12px; font-size: 14px; color: #edf4ef; margin-bottom: 8px; height: 80px; width: auto; }
+.picker { color: #a1b5b8; }
+.ph { color: #839a9e; }
+.form-actions { display: flex; gap: 12px; margin-top: 4px; }
+.btn { flex: 1; border-radius: 499.5px; font-size: 14px; }
+.btn.ghost { background: #203237; color: #a1b5b8; }
+.btn.primary { background: #a7dfbf; color: #0c171c; font-weight: 600; }
+/* #ifdef H5 */
+.fab{bottom:calc(74px + env(safe-area-inset-bottom))}.mask{z-index:1000}
+/* #endif */
 </style>

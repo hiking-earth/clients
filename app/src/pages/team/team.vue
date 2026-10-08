@@ -410,37 +410,37 @@ function copyCode() {
 </script>
 
 <style lang="scss" scoped>
-.page { height: 100vh; background: #0f141b; padding: 32rpx; box-sizing: border-box; }
-.entry { display: flex; flex-direction: column; padding-top: 80rpx; }
-.entry-title { font-size: 48rpx; font-weight: 700; color: #eef4ea; }
-.entry-sub { margin-top: 8rpx; font-size: 24rpx; color: #8a97a5; }
-.btn { margin-top: 32rpx; border-radius: 999rpx; font-size: 30rpx; }
-.btn.primary { background: #b8f36b; color: #0f141b; font-weight: 600; }
-.btn.ghost { background: #1a2430; color: #eef4ea; width: 180rpx; margin-top: 0; }
-.join-row { display: flex; gap: 16rpx; margin-top: 24rpx; align-items: center; }
-.input { flex: 1; background: #1a2430; border-radius: 999rpx; padding: 20rpx 32rpx; font-size: 28rpx; color: #eef4ea; }
-.ph { color: #5c6a78; }
-.privacy { margin-top: 48rpx; font-size: 20rpx; color: #445059; line-height: 1.7; }
-.team-bar { display: flex; align-items: center; background: #151d27; border-radius: 20rpx; padding: 24rpx; }
-.team-info { flex: 1; display: flex; flex-direction: column; gap: 8rpx; }
-.team-name { font-size: 32rpx; font-weight: 600; color: #eef4ea; }
-.team-code { font-size: 24rpx; color: #b8f36b; }
-.leave { font-size: 26rpx; color: #ff7b72; padding: 8rpx 16rpx; }
-.share-tip { display: flex; align-items: center; justify-content: space-between; margin-top: 20rpx; padding: 20rpx 24rpx; background: rgba(255, 209, 102, 0.1); border-radius: 16rpx; font-size: 24rpx; color: #ffd166; }
-.share-tip.on { background: rgba(184, 243, 107, 0.1); color: #b8f36b; }
-.share-on { padding: 8rpx 24rpx; background: #b8f36b; color: #0f141b; border-radius: 999rpx; font-size: 22rpx; font-weight: 600; }
-.share-on.off { background: #1a2430; color: #8a97a5; }
-.members { margin-top: 24rpx; flex: 1; }
-.member { display: flex; align-items: center; background: #151d27; border-radius: 20rpx; padding: 24rpx; margin-bottom: 16rpx; }
-.avatar { width: 72rpx; height: 72rpx; border-radius: 50%; background: #1a2430; color: #b8f36b; display: flex; align-items: center; justify-content: center; font-size: 30rpx; font-weight: 600; }
-.m-info { flex: 1; margin-left: 20rpx; display: flex; flex-direction: column; gap: 6rpx; }
-.m-name { font-size: 28rpx; font-weight: 600; color: #eef4ea; }
-.leader, .me { margin-left: 12rpx; font-size: 18rpx; color: #0f141b; background: #b8f36b; border-radius: 8rpx; padding: 2rpx 10rpx; }
+.page { height: 100vh; background: #0c171c; padding: 16px; box-sizing: border-box; }
+.entry { display: flex; flex-direction: column; padding-top: 40px; }
+.entry-title { font-size: 24px; font-weight: 700; color: #edf4ef; }
+.entry-sub { margin-top: 4px; font-size: 12px; color: #a1b5b8; }
+.btn { margin-top: 16px; border-radius: 499.5px; font-size: 15px; }
+.btn.primary { background: #a7dfbf; color: #0c171c; font-weight: 600; }
+.btn.ghost { background: #203237; color: #edf4ef; width: 90px; margin-top: 0; }
+.join-row { display: flex; gap: 8px; margin-top: 12px; align-items: center; }
+.input { flex: 1; background: #203237; border-radius: 499.5px; padding: 10px 16px; font-size: 14px; color: #edf4ef; }
+.ph { color: #839a9e; }
+.privacy { margin-top: 24px; font-size: 10px; color: #839a9e; line-height: 1.7; }
+.team-bar { display: flex; align-items: center; background: #142429; border-radius: 10px; padding: 12px; }
+.team-info { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+.team-name { font-size: 16px; font-weight: 600; color: #edf4ef; }
+.team-code { font-size: 12px; color: #a7dfbf; }
+.leave { font-size: 13px; color: #ff7b72; padding: 4px 8px; }
+.share-tip { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; padding: 10px 12px; background: rgba(255, 209, 102, 0.1); border-radius: 8px; font-size: 12px; color: #ffd166; }
+.share-tip.on { background: rgba(184, 243, 107, 0.1); color: #a7dfbf; }
+.share-on { padding: 4px 12px; background: #a7dfbf; color: #0c171c; border-radius: 499.5px; font-size: 11px; font-weight: 600; }
+.share-on.off { background: #203237; color: #a1b5b8; }
+.members { margin-top: 12px; flex: 1; }
+.member { display: flex; align-items: center; background: #142429; border-radius: 10px; padding: 12px; margin-bottom: 8px; }
+.avatar { width: 36px; height: 36px; border-radius: 50%; background: #203237; color: #a7dfbf; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 600; }
+.m-info { flex: 1; margin-left: 10px; display: flex; flex-direction: column; gap: 3px; }
+.m-name { font-size: 14px; font-weight: 600; color: #edf4ef; }
+.leader, .me { margin-left: 6px; font-size: 9px; color: #0c171c; background: #a7dfbf; border-radius: 4px; padding: 1px 5px; }
 .me { background: #65c7ff; }
-.m-time { font-size: 20rpx; color: #5c6a78; }
-.m-dist { display: flex; flex-direction: column; align-items: flex-end; gap: 6rpx; }
-.m-dist-v { font-size: 30rpx; font-weight: 700; color: #eef4ea; }
-.m-go { font-size: 22rpx; color: #b8f36b; }
-.empty { text-align: center; color: #5c6a78; font-size: 24rpx; padding: 48rpx 0; }
-.tip { padding: 24rpx 0; font-size: 20rpx; color: #445059; text-align: center; }
+.m-time { font-size: 10px; color: #839a9e; }
+.m-dist { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; }
+.m-dist-v { font-size: 15px; font-weight: 700; color: #edf4ef; }
+.m-go { font-size: 11px; color: #a7dfbf; }
+.empty { text-align: center; color: #839a9e; font-size: 12px; padding: 24px 0; }
+.tip { padding: 12px 0; font-size: 10px; color: #839a9e; text-align: center; }
 </style>

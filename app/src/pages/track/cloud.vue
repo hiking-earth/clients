@@ -102,9 +102,9 @@ async function remove(id: string) {
 }
 </script>
 <style scoped>
-.page { box-sizing: border-box; padding: 32rpx; background: #0f141b; color: #eef4ea; min-height: 100vh; }
-.hint { display: block; margin-bottom: 24rpx; color: #8a97a5; }
-.card { padding: 24rpx; margin: 24rpx 0; background: #151d27; border-radius: 16rpx; }
-button { margin-top: 16rpx; background: #1a2430; color: #b8f36b; }
+.page { box-sizing: border-box; padding: 16px; background: #0c171c; color: #edf4ef; min-height: 100vh; }
+.hint { display: block; margin-bottom: 12px; color: #a1b5b8; }
+.card { padding: 12px; margin: 12px 0; background: #142429; border-radius: 8px; }
+button { margin-top: 8px; background: #203237; color: #a7dfbf; }
 .error { color: #ff7b72; }
 </style>

@@ -35,4 +35,4 @@ function zoom(delta:number){if(!archive)return;const next=Math.max(archive.heade
 onMounted(()=>{uni.createSelectorQuery().in(instance?.proxy).select(`#${id}`).boundingClientRect((r:any)=>{if(r?.width)width=r.width;void open();}).exec();});
 watch(()=>[props.filePath,props.bytes],()=>void open());onUnmounted(()=>{disposed=true;generation++;archive=null;});
 </script>
-<style scoped>.map{width:100%;height:320px;background:#142024}.controls{display:flex;flex-wrap:wrap;gap:4px}.control-button{font-size:12px}.hint{display:block;font-size:12px;color:#8a97a5;padding:8px}</style>
+<style scoped>.map{width:100%;height:320px;background:#142024}.controls{display:flex;flex-wrap:wrap;gap:4px}.control-button{font-size:12px}.hint{display:block;font-size:12px;color:#a1b5b8;padding:8px}</style>
