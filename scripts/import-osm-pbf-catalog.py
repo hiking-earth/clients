@@ -15,6 +15,7 @@ from pathlib import Path
 import re
 import shutil
 import tempfile
+import time
 from importlib.machinery import SourceFileLoader
 from urllib.parse import urlsplit
 
@@ -215,7 +216,13 @@ def main():
                 for way_id in way_ids:
                     ways_to_routes[way_id].append(rid)
 
+        relation_scan_started = time.monotonic()
+        print(json.dumps({"phase": "scan-relations", "status": "started", "sourceId": args.source_id}), flush=True)
         RelationReader().apply_file(str(pbf), locations=False)
+        print(json.dumps({
+            "phase": "scan-relations", "status": "complete", "candidates": len(candidates),
+            "nestedRejected": rejected_nested, "elapsedSeconds": round(time.monotonic() - relation_scan_started, 1),
+        }), flush=True)
         if not candidates:
             raise ValueError("No named hiking/foot route relations with direct way members were found")
 
@@ -247,8 +254,24 @@ def main():
         processor = processor.with_filter(osmium.filter.EntityFilter(osmium.osm.WAY))
         processor = processor.with_filter(osmium.filter.IdFilter(ways_to_routes.keys()).enable_for(osmium.osm.WAY))
         way_reader = RouteWayReader()
+        way_scan_started = time.monotonic()
+        matched_ways = 0
+        print(json.dumps({
+            "phase": "resolve-way-nodes", "status": "started", "candidateRelations": len(candidates),
+            "referencedWays": len(ways_to_routes),
+        }), flush=True)
         for obj in processor:
             way_reader.way(obj)
+            matched_ways += 1
+            if matched_ways % 100_000 == 0:
+                print(json.dumps({
+                    "phase": "resolve-way-nodes", "status": "progress", "matchedWays": matched_ways,
+                    "elapsedSeconds": round(time.monotonic() - way_scan_started, 1),
+                }), flush=True)
+        print(json.dumps({
+            "phase": "resolve-way-nodes", "status": "complete", "matchedWays": matched_ways,
+            "elapsedSeconds": round(time.monotonic() - way_scan_started, 1),
+        }), flush=True)
 
         now = dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z")
         staged = {}
