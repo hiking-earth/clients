@@ -7,7 +7,15 @@ export async function publicSnapshot(source:'osm'|'usfs'|'hk'|'news'|'release'|'
  }
  type CatalogPage={snapshot:string;key:string;total:number;metadata:any;items:any[];hasMore:boolean;page:number};
  const loadPage=async(page:number,snapshot?:string):Promise<CatalogPage>=>{
-  const result=await callCloud<CatalogPage>('catalog-feed',{source,page,windowLimit:40000,...(snapshot?{snapshot}:{})});
+  // Read-only page retries keep the same snapshot; validation failures below
+  // are never retried or accepted as a different version.
+  let result:{ok:boolean;data?:CatalogPage;errMsg?:string}={ok:false};
+  for(let attempt=0;attempt<3;attempt++){
+   try{result=await callCloud<CatalogPage>('catalog-feed',{source,page,windowLimit:40000,...(snapshot?{snapshot}:{})});}
+   catch{result={ok:false,errMsg:'公共资料请求未完成'};}
+   if(result.ok||attempt===2)break;
+   await new Promise<void>(resolve=>setTimeout(resolve,1000*(attempt+1)));
+  }
   const data=result.data;
   if(!result.ok||!data||!Array.isArray(data.items)||data.page!==page||data.items.length>CATALOG_PAGE_SIZE||!Number.isInteger(data.total)||data.total<0||data.total>40000||!/^([a-f0-9]{64})$/.test(data.snapshot)||typeof data.key!=='string')throw new Error(result.errMsg||'资料页无效，保留本机资料');
   if(data.hasMore!==((page+1)*CATALOG_PAGE_SIZE<data.total))throw new Error('资料分页状态无效');
