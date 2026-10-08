@@ -14,6 +14,10 @@ jobs:
     timeout-minutes: 85
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Scheduled workflows live on main; collectors and validation live here.
+          # Publication promotes only validated public data, never client releases.
+          ref: codex/mobile-privacy-controls
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
