@@ -9,6 +9,12 @@ export async function exchangeMiniProgramWeChat(): Promise<AccountSession> {
   throw new Error('请在徒步地球微信小程序中使用微信一键登录');
   // #endif
   // #ifdef MP-WEIXIN
+  return exchangeTrustedMiniProgramIdentity();
+  // #endif
+}
+
+// #ifdef MP-WEIXIN
+async function exchangeTrustedMiniProgramIdentity(): Promise<AccountSession> {
   if (accountSession()) throw new Error('当前已有账号登录，请先退出再切换身份');
   const issued = await callCloud<WeChatLoginTicket>('login');
   if (!issued.ok || !issued.data) throw new Error(issued.errMsg || '微信身份确认失败');
@@ -30,5 +36,5 @@ export async function exchangeMiniProgramWeChat(): Promise<AccountSession> {
     throw new Error('微信登录身份映射不一致');
   }
   return exchanged.data;
-  // #endif
 }
+// #endif
