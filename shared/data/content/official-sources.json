@@ -1,0 +1,74 @@
+{
+  "schemaVersion": 1,
+  "sources": [
+    {
+      "id": "nps-grand-canyon-news",
+      "label": "美国国家公园管理局 · 大峡谷",
+      "url": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "articleHosts": [
+        "www.nps.gov"
+      ],
+      "format": "rss",
+      "reuse": "metadata-links-only"
+    },
+    {
+      "id": "nps-grand-canyon-backcountry",
+      "label": "美国国家公园管理局 · 大峡谷步道公告",
+      "url": "https://www.nps.gov/grca/planyourvisit/upload/grca-backcountry.xml",
+      "region": "美国 · 大峡谷",
+      "center": [
+        -112.113,
+        36.106
+      ],
+      "articleHosts": [
+        "www.nps.gov"
+      ],
+      "format": "rss",
+      "reuse": "metadata-links-only"
+    },
+    {
+      "id": "nps-yellowstone-news",
+      "label": "美国国家公园管理局 · 黄石",
+      "url": "https://www.nps.gov/feeds/getNewsRSS.htm?id=yell",
+      "region": "美国 · 黄石",
+      "articleHosts": [
+        "www.nps.gov"
+      ],
+      "format": "rss",
+      "reuse": "metadata-links-only",
+      "evidenceUrl": "https://www.nps.gov/yell/learn/news/index.htm",
+      "verifiedLinkAt": "2026-10-07",
+      "feedAcceptance": "accepted",
+      "feedVerifiedAt": "2026-10-07"
+    },
+    {
+      "id": "hk-government-outdoor-news",
+      "label": "香港特区政府新闻公报 · 户外相关标题筛选",
+      "url": "https://www.info.gov.hk/gia/rss/general_zh.xml",
+      "region": "中国 · 香港",
+      "articleHosts": [
+        "www.info.gov.hk"
+      ],
+      "format": "rss",
+      "reuse": "metadata-links-only",
+      "titleKeywords": [
+        "郊野",
+        "行山",
+        "遠足",
+        "步道",
+        "露營",
+        "地質公園",
+        "登山"
+      ],
+      "evidenceUrl": "https://data.gov.hk/en-data/dataset/hk-isd-gnmis-gnmis/resource/68cd851b-703d-41cc-9da2-e63f8afb8fc0",
+      "verifiedLinkAt": "2026-10-07",
+      "feedAcceptance": "accepted",
+      "feedVerifiedAt": "2026-10-07"
+    }
+  ]
+}
