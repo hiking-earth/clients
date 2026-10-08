@@ -1,36 +1,36 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-08T05:58:44Z",
+  "generatedAt": "2026-10-08T13:24:06Z",
   "license": "ODbL-1.0",
   "attribution": "© OpenStreetMap contributors",
   "licenseUrl": "https://www.openstreetmap.org/copyright",
   "coverage": {
+    "china": 6,
     "japan": 0,
     "oceania": 0,
-    "south-america": 0,
     "africa": 0,
     "south-asia": 0
   },
   "sourceCursors": {
-    "china": "2026-10-07T23:03:16Z",
-    "japan": "2026-10-08T05:58:44Z",
-    "oceania": "2026-10-08T05:58:44Z",
+    "china": "2026-10-08T13:24:06Z",
+    "japan": "2026-10-08T13:24:06Z",
+    "oceania": "2026-10-08T13:24:06Z",
     "south-america": "2026-10-08T05:58:44Z",
-    "africa": "2026-10-08T05:58:44Z",
-    "south-asia": "2026-10-08T05:58:44Z"
+    "africa": "2026-10-08T13:24:06Z",
+    "south-asia": "2026-10-08T13:24:06Z"
   },
   "failures": [
-    {
-      "region": "china",
-      "error": "HTTP Error 504: Gateway Timeout"
-    },
     {
       "region": "europe",
       "error": "HTTP Error 504: Gateway Timeout"
     },
     {
       "region": "north-america",
-      "error": "The read operation timed out"
+      "error": "HTTP Error 504: Gateway Timeout"
+    },
+    {
+      "region": "south-america",
+      "error": "HTTP Error 504: Gateway Timeout"
     }
   ],
   "routes": [
@@ -39960,6 +39960,22 @@
       "status": "待核验"
     },
     {
+      "id": "osm-relation-18109381",
+      "name": "仰天窝穿越",
+      "originalName": "仰天窝穿越",
+      "region": "china",
+      "center": [
+        104.3096282,
+        30.5295785
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/18109381",
+      "sourceTags": {
+        "network": "lwn"
+      },
+      "fetchedAt": "2026-10-08T13:24:06Z",
+      "status": "待核验"
+    },
+    {
       "id": "osm-relation-18114645",
       "name": "Etapa 15: Puerto Arturo – Laguna Rosales",
       "originalName": "Etapa 15: Puerto Arturo – Laguna Rosales",
@@ -45793,6 +45809,40 @@
       "status": "待核验"
     },
     {
+      "id": "osm-relation-21462533",
+      "name": "Broghil Pass Trail",
+      "originalName": "Broghil Pass Trail",
+      "region": "china",
+      "center": [
+        73.3971619,
+        36.9367433
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/21462533",
+      "sourceTags": {
+        "network": "lwn",
+        "operator": "Afghanistan Pamir Trail Map"
+      },
+      "fetchedAt": "2026-10-08T13:24:06Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-21462590",
+      "name": "Zorkul River Trail",
+      "originalName": "Zorkul River Trail",
+      "region": "china",
+      "center": [
+        73.0868869,
+        37.2078657
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/21462590",
+      "sourceTags": {
+        "network": "lwn",
+        "operator": "Afghanistan Pamir Trail Map"
+      },
+      "fetchedAt": "2026-10-08T13:24:06Z",
+      "status": "待核验"
+    },
+    {
       "id": "osm-relation-2146833",
       "name": "弘法山公園・吾妻山コース",
       "originalName": "弘法山公園・吾妻山コース",
@@ -45875,6 +45925,40 @@
         "operator": "IAT"
       },
       "fetchedAt": "2026-10-06T13:20:54Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-21579669",
+      "name": "Shaur Pass Trail",
+      "originalName": "Shaur Pass Trail",
+      "region": "china",
+      "center": [
+        73.5106715,
+        37.1959147
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/21579669",
+      "sourceTags": {
+        "network": "lwn",
+        "operator": "Afghanistan Pamir Trail Map"
+      },
+      "fetchedAt": "2026-10-08T13:24:06Z",
+      "status": "待核验"
+    },
+    {
+      "id": "osm-relation-21579670",
+      "name": "Maorestan Trail",
+      "originalName": "Maorestan Trail",
+      "region": "china",
+      "center": [
+        73.0162525,
+        37.1472886
+      ],
+      "sourceUrl": "https://www.openstreetmap.org/relation/21579670",
+      "sourceTags": {
+        "network": "lwn",
+        "operator": "Afghanistan Pamir Trail Map"
+      },
+      "fetchedAt": "2026-10-08T13:24:06Z",
       "status": "待核验"
     },
     {
@@ -64682,14 +64766,14 @@
       "originalName": "인천둘레길 1코스",
       "region": "china",
       "center": [
-        126.7188492,
-        37.5500521
+        126.7188654,
+        37.550044
       ],
       "sourceUrl": "https://www.openstreetmap.org/relation/6083186",
       "sourceTags": {
         "network": "lwn"
       },
-      "fetchedAt": "2026-10-04T21:21:03Z",
+      "fetchedAt": "2026-10-08T13:24:06Z",
       "status": "待核验"
     },
     {
