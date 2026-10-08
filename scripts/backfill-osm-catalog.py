@@ -110,4 +110,4 @@ if not state['queue']:
 previous.update({'backfillState':state,'routes':sorted(records.values(),key=lambda r:r['id']),'generatedAt':now,'failures':failures,'backfill':{'completedTiles':len(state['completed']),'pendingTiles':len(state['queue']),'cycle':state['cycle'],'lastProcessedTiles':processed},'coverageNote':'Bounded full-membership spatial backfill and revisits; incomplete until the pending queue has been traversed. No opening or navigation permission implied.'})
 # Snapshot includes the authoritative cursor; the separate state is a compatibility mirror.
 for path,data in [(DEST,previous),(STATE,state)]:
- tmp=path.with_suffix('.tmp');tmp.write_text(json.dumps(data,ensure_ascii=False,indent=2)+'\n');os.replace(tmp,path)
+ tmp=path.with_suffix('.tmp');tmp.write_text(json.dumps(data,ensure_ascii=False,indent=None if path==DEST else 2,separators=(',',':') if path==DEST else None,allow_nan=False)+'\n');os.replace(tmp,path)

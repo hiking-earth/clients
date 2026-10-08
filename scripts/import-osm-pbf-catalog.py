@@ -337,7 +337,7 @@ def main():
         try:
             with tempfile.NamedTemporaryFile(mode="wb", dir=catalog_path.parent, delete=False) as handle:
                 temporary_catalog = Path(handle.name)
-                handle.write((json.dumps(snapshot, ensure_ascii=False, indent=2, allow_nan=False) + "\n").encode("utf-8"))
+                handle.write((json.dumps(snapshot, ensure_ascii=False, separators=(",", ":"), allow_nan=False) + "\n").encode("utf-8"))
                 handle.flush()
                 os.fsync(handle.fileno())
             os.replace(temporary_catalog, catalog_path)

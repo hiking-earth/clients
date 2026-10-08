@@ -244,7 +244,7 @@ def main():
     snapshot=dict(previous);snapshot.update({'schemaVersion':1,'lastUpdateAttemptAt':now,'sourceBudget':budget,'sourceCursors':cursors,'failures':failures})
     if counts:
         snapshot.update({'generatedAt':now,'license':'ODbL-1.0','attribution':'© OpenStreetMap contributors','licenseUrl':'https://www.openstreetmap.org/copyright','coverage':counts,'routes':sorted(records.values(),key=lambda r:r['id'])})
-    dest.parent.mkdir(parents=True,exist_ok=True);temp=dest.with_suffix('.tmp');temp.write_text(json.dumps(snapshot,ensure_ascii=False,indent=2)+'\n');os.replace(temp,dest)
+    dest.parent.mkdir(parents=True,exist_ok=True);temp=dest.with_suffix('.tmp');temp.write_text(json.dumps(snapshot,ensure_ascii=False,separators=(',',':'),allow_nan=False)+'\n');os.replace(temp,dest)
     result={'catalogCount':len(records),'coverage':counts,'sourceCursors':cursors,'failures':len(failures),'sourceBudget':budget}
     print(json.dumps(result,ensure_ascii=False))
     if not counts:raise SystemExit('No OSM regions refreshed; query budget and failure state saved without advancing source watermarks')
