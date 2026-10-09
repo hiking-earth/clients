@@ -25,8 +25,8 @@ class Platforms(unittest.TestCase):
  def test_missing_intel_update_never_publishes(self):
   sha='a'*40
   report={'schemaVersion':1,'complete':True,'sourceCommit':sha,'version':'0.2.1',
-          'platforms':{key:{'status':'passed','updaterArtifactSha256':'b'*64} for key in module.REQUIRED_ACCEPTANCE}}
-  report['platforms']['ios']={'status':'passed','delivery':'pwa','device':'physical-iphone','checks':{key:{'status':'passed','evidence':['fixture-only']} for key in IPHONE_CHECKS}}
+          'platforms':{key:{'status':'passed','evidence':['fixture-only'],'updaterArtifactSha256':'b'*64} for key in module.REQUIRED_ACCEPTANCE}}
+  report['platforms']['ios']={'status':'passed','evidence':['fixture-only'],'delivery':'pwa','device':'physical-iphone','checks':{key:{'status':'passed','evidence':['fixture-only']} for key in IPHONE_CHECKS}}
   calls=[]
   def api(*args):
    calls.append(args)
