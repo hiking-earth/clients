@@ -4,12 +4,30 @@ on:
     branches: [main, codex/mobile-privacy-controls]
     paths:
       - '.github/workflows/offline-map-build.yml'
+      - 'scripts/plan-offline-region.py'
       - 'scripts/build-offline-region.py'
       - 'scripts/build-offline-regions.py'
       - 'scripts/export-offline-map-inventory.py'
       - 'scripts/install-offline-map-batch.py'
       - 'shared/maps/regions.json'
   workflow_dispatch:
+    inputs:
+      custom_latitude:
+        description: 'Optional selected-area latitude; leave blank for configured regions'
+        type: string
+        default: ''
+      custom_longitude:
+        description: 'Selected-area longitude (-180..180)'
+        type: string
+        default: ''
+      custom_radius_km:
+        description: 'Selected-area radius in kilometres (1..10)'
+        type: string
+        default: '5'
+      custom_name:
+        description: 'Selected-area display name'
+        type: string
+        default: 'Selected area'
   schedule:
     - cron: '43 3 * * 1'
 permissions:
@@ -37,14 +55,31 @@ jobs:
           echo '3ed7dbf4ec2e6dfe5e25b6f70d1ffc932729f93c86db353bf514dd71010a312f  '"$RUNNER_TEMP/pmtiles/tool.tar.gz" | sha256sum --check
           tar -xzf "$RUNNER_TEMP/pmtiles/tool.tar.gz" -C "$RUNNER_TEMP/pmtiles" pmtiles
           "$RUNNER_TEMP/pmtiles/pmtiles" version
-      - name: Build configured regions from one upstream snapshot
-        run: python scripts/build-offline-regions.py --regions shared/maps/regions.json --output regional-maps --pmtiles "$RUNNER_TEMP/pmtiles/pmtiles"
-      - name: Verify distributable map inventory
-        run: python scripts/export-offline-map-inventory.py --input regional-maps --output regional-maps/catalog.json --regions shared/maps/regions.json
-      - name: Update client map catalog and immutable source assets
+      - name: Select configured or requested region
+        env:
+          CUSTOM_LATITUDE: ${{ inputs.custom_latitude }}
+          CUSTOM_LONGITUDE: ${{ inputs.custom_longitude }}
+          CUSTOM_RADIUS: ${{ inputs.custom_radius_km }}
+          CUSTOM_NAME: ${{ inputs.custom_name }}
         run: |
           set -euo pipefail
-          python scripts/install-offline-map-batch.py --input regional-maps --regions shared/maps/regions.json --pmtiles "$RUNNER_TEMP/pmtiles/pmtiles"
+          mkdir -p regional-maps
+          if [ -n "$CUSTOM_LATITUDE" ] || [ -n "$CUSTOM_LONGITUDE" ]; then
+            python scripts/plan-offline-region.py --latitude="$CUSTOM_LATITUDE" --longitude="$CUSTOM_LONGITUDE" --radius-km="$CUSTOM_RADIUS" --name="$CUSTOM_NAME" --output regional-maps/request.json
+            echo 'CUSTOM_REGION=true' >> "$GITHUB_ENV"
+          else
+            cp shared/maps/regions.json regional-maps/request.json
+            echo 'CUSTOM_REGION=false' >> "$GITHUB_ENV"
+          fi
+      - name: Build selected regions from one upstream snapshot
+        run: python scripts/build-offline-regions.py --regions regional-maps/request.json --output regional-maps --pmtiles "$RUNNER_TEMP/pmtiles/pmtiles"
+      - name: Verify distributable map inventory
+        run: python scripts/export-offline-map-inventory.py --input regional-maps --output regional-maps/catalog.json --regions regional-maps/request.json
+      - name: Update client map catalog and immutable source assets
+        if: env.CUSTOM_REGION == 'false'
+        run: |
+          set -euo pipefail
+          python scripts/install-offline-map-batch.py --input regional-maps --regions regional-maps/request.json --pmtiles "$RUNNER_TEMP/pmtiles/pmtiles"
           git add app/map-assets/static/offline-maps/ app/src/data/basemap-packs.json
           if git diff --cached --quiet; then exit 0; fi
           git config user.name 'hiking-earth-maps[bot]'
@@ -62,4 +97,4 @@ jobs:
       - name: Record delivery boundary
         if: always()
         run: |
-          echo 'Complete verified batches update the source catalog; partial runs retain its prior version. Public site deployment and runtime acceptance remain separate. Basemaps do not verify trail access or provide terrain elevations.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Configured verified batches update the source catalog; custom regions are downloadable artifacts and do not enlarge the application bundle; partial runs retain its prior version. Public site deployment and runtime acceptance remain separate. Basemaps do not verify trail access or provide terrain elevations.' >> "$GITHUB_STEP_SUMMARY"
