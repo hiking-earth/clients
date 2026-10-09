@@ -49,4 +49,4 @@ async function mutate(id:string,action:string,version?:number){
 function review(id:string,action:string,version:number){void mutate(id,action,version);}
 function handle(id:string,action:string){void mutate(id,action);}
 </script>
-<style scoped>.page{height:100vh;background:#01030a;color:#f4f8f2;padding:24px;box-sizing:border-box}.title{display:block;font-size:20px}.hint{display:block;color:#a7b5aa;font-size:13px;margin:12px 0}.card{padding:16px;margin:16px 0;background:#050c12;border-radius:12px}.content,.reason{display:block;margin:12px 0;font-size:14px}.reason{color:#ffd166}button{margin-top:12px;font-size:14px;background:#b8f36b}</style>
+<style scoped>.page{height:100vh;background:#01030a;color:#f4f8f2;padding:24px;box-sizing:border-box}.title{display:block;font-size:20px}.hint{display:block;color:#a7b5aa;font-size:13px;margin:12px 0}.card{padding:16px;margin:16px 0;background:#050c12;border-radius:12px}.content,.reason{display:block;margin:12px 0;font-size:14px}.reason{color:#ffd166}button{margin-top:12px;font-size:14px;background:#b8f36b;color:#01030a}</style>
