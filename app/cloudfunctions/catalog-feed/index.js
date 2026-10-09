@@ -108,12 +108,22 @@ exports.main=async event=>{
   const page=event.page===undefined?0:event.page;
   if(!Number.isInteger(page)||page<0||page>=MAX_RECORDS/PAGE_SIZE)return {errMsg:'资料页码无效'};
   if(event.snapshot!==undefined&&(typeof event.snapshot!=='string'||!HEX.test(event.snapshot)))return {errMsg:'资料版本无效'};
-  const result=await manifest(event.source,event.snapshot),data=result.data;
+  let result=await manifest(event.source,event.snapshot),data=result.data;
   const limit=event.windowLimit===undefined?MAX_RECORDS:event.windowLimit;
   if(!Number.isInteger(limit)||limit<400||limit>MAX_RECORDS||limit%PAGE_SIZE!==0)return {errMsg:'目录窗口无效'};
   const total=Math.min(data.total,limit);
   if(page>=Math.max(1,Math.ceil(total/PAGE_SIZE)))return {errMsg:'资料页不存在'};
-  stage='page';const content=await pageRows(event.source,result,page);
-  return {snapshot:data.snapshot,checkedAt:result.checkedAt,upstreamAvailable:result.upstreamAvailable&&content.upstreamAvailable,metadata:{...data.metadata,sourceTotal:data.total,loadedTotal:total,complete:total===data.total},key:data.key,items:content.rows,total,page,hasMore:(page+1)*PAGE_SIZE<total};
+  stage='page';let content;
+  try{content=await pageRows(event.source,result,page);}catch(error){
+   // Only the first unpinned request may select a bundled version. Later
+   // requests must retain their exact snapshot and cannot mix page versions.
+   if(event.snapshot!==undefined||page!==0||error?.code!=='ENOENT')throw error;
+   const bundled=validateManifest(JSON.parse(fs.readFileSync(path.join(__dirname,'snapshots',event.source,'manifest.json'),'utf8')),event.source);
+   if(bundled.snapshot===data.snapshot)throw error;
+   result={data:bundled,upstreamAvailable:false,checkedAt:Date.now()};data=bundled;
+   content=await pageRows(event.source,result,0);
+  }
+  const responseTotal=Math.min(data.total,limit);
+  return {snapshot:data.snapshot,checkedAt:result.checkedAt,upstreamAvailable:result.upstreamAvailable&&content.upstreamAvailable,metadata:{...data.metadata,sourceTotal:data.total,loadedTotal:responseTotal,complete:responseTotal===data.total},key:data.key,items:content.rows,total:responseTotal,page,hasMore:(page+1)*PAGE_SIZE<responseTotal};
  }catch{console.warn(JSON.stringify({event:'catalog-read-failed',source:event.source,stage}));return {errMsg:'资料暂时不可用，请保留上次成功同步的数据并稍后重试'};}
 };
