@@ -8,6 +8,7 @@ on:
       - 'scripts/build-offline-region.py'
       - 'scripts/build-offline-regions.py'
       - 'scripts/export-offline-map-inventory.py'
+      - 'scripts/export-custom-map-distribution.py'
       - 'scripts/install-offline-map-batch.py'
       - 'shared/maps/regions.json'
   workflow_dispatch:
@@ -75,6 +76,9 @@ jobs:
         run: python scripts/build-offline-regions.py --regions regional-maps/request.json --output regional-maps --pmtiles "$RUNNER_TEMP/pmtiles/pmtiles"
       - name: Verify distributable map inventory
         run: python scripts/export-offline-map-inventory.py --input regional-maps --output regional-maps/catalog.json --regions regional-maps/request.json
+      - name: Export custom maps for separate static distribution
+        if: env.CUSTOM_REGION == 'true'
+        run: python scripts/export-custom-map-distribution.py --input regional-maps --regions regional-maps/request.json --output regional-maps/distribution
       - name: Update client map catalog and immutable source assets
         if: env.CUSTOM_REGION == 'false'
         run: |
