@@ -57,8 +57,16 @@ jobs:
             try {
               if ($null -ne $process -and -not $process.HasExited) {
                 $process.CloseMainWindow() | Out-Null
-                if (-not $process.WaitForExit(5000)) { $process.Kill(); $process.WaitForExit() }
+                if (-not $process.WaitForExit(5000)) {
+                  $process.Kill()
+                  if (-not $process.WaitForExit(5000)) { throw 'Candidate did not terminate after cleanup' }
+                }
               }
+              $record.cleanupSucceeded=$true
+            } catch {
+              $record.passed=$false
+              $record.cleanupSucceeded=$false
+              throw
             } finally {
               $record | ConvertTo-Json | Set-Content evidence/windows-launch.json -Encoding utf8
             }
