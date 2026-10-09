@@ -8,3 +8,12 @@ test('synchronous adapter failure does not leave a stuck pending promise',async(
 test('malformed or oversized remote response never replaces catalog',async()=>{for(const text of ['{}','x'.repeat(256*1024+1)]){const store=out.createMapCatalog([row],async()=>text);await assert.rejects(store.refresh());assert.equal(store.snapshot()[0].name,'test.pmtiles');}});
 
 test('desktop uses fixed public distribution and browser keeps local base',()=>{assert.equal(out.mapDistributionBase(true,'tauri://localhost/'),out.PUBLIC_MAP_DISTRIBUTION);assert.equal(out.mapDistributionBase(false,'https://example.test/client-app/'),'https://example.test/client-app/');});
+test('optional bounds reject malformed geometry and preserve independent snapshots',()=>{
+ for(const bounds of [[0,0,0,1],[-181,0,1,1],[0,-86,1,1],[0,0,Infinity,1],'bad'])assert.throws(()=>out.validateMapCatalog([{...row,bounds}]));
+ const store=out.createMapCatalog([{...row,bounds:[0,0,1,1]}],async()=>JSON.stringify([row]));const a=store.snapshot();a[0].bounds[0]=0.5;assert.equal(store.snapshot()[0].bounds[0],0);
+});
+test('location selection uses declared coverage and never implies coverage of unknown bounds',()=>{
+ const packs=out.validateMapCatalog([row,{...row,name:'covered.pmtiles',url:'static/offline-maps/covered.pmtiles',bounds:[113,22,114,23]}]);
+ assert.equal(out.mapsCoveringLocation(packs,22.5,113.5).length,1);assert.equal(out.mapsCoveringLocation(packs,0,0).length,0);
+ for(const args of [[NaN,0],[91,0],[0,181]])assert.throws(()=>out.mapsCoveringLocation(packs,...args));
+});

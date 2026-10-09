@@ -28,7 +28,7 @@ def install(source,repo,config,verify):
         verify(source/row['file'])
         if path.exists():
             if path.stat().st_size!=row['bytes'] or hashlib.sha256(path.read_bytes()).hexdigest()!=row['sha256']:raise ValueError('immutable map name collision')
-        added.append({'name':row['file'],'label':row['name'],'url':'static/offline-maps/'+row['file'],'bytes':row['bytes'],'sha256':row['sha256'],'attribution':row['attribution'],'license':row['license']})
+        added.append({'name':row['file'],'label':row['name'],'url':'static/offline-maps/'+row['file'],'bytes':row['bytes'],'sha256':row['sha256'],'attribution':row['attribution'],'license':row['license'],'bounds':row['bounds']})
     next_catalog=keep+added
     catalog_bytes=sum(row['bytes'] for row in next_catalog)
     if catalog_bytes>500_000_000:raise ValueError('referenced map assets exceed 500 MB')

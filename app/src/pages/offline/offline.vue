@@ -2,11 +2,14 @@
   <text class="title">离线资料</text><text class="hint">本机轨迹可离线查看。本页可导入你有权使用的WGS84 GeoJSON道路或边界资料，不下载商业地图瓦片，不含地形高程。</text>
   <view v-for="layer in layers" :key="layer.id" class="card"><text class="title">{{ layer.name }}</text><text class="hint">{{ layer.attribution }} · {{ layer.license }} · {{ (layer.bytes/1024).toFixed(0) }} KB</text><button :disabled="busy" @click="activate(layer.id)">{{ active === layer.id ? '正在使用' : '用于轨迹与导航示意' }}</button><button :disabled="busy" @click="remove(layer.id)">删除资料</button></view>
   <TrackCanvas v-if="preview" :points="[]" :layers="preview.paths" :attribution="preview.attribution" />
+  <!-- #ifdef H5 || MP-WEIXIN -->
+  <view class="card"><text class="title">查找位置的离线地图</text><input v-model="mapLatitude" placeholder="纬度，例如 22.23" /><input v-model="mapLongitude" placeholder="经度，例如 113.95" /><button :disabled="busy" @click="filterMapLocation">查找覆盖此位置的地图</button><button v-if="mapLocation" :disabled="busy" @click="mapLocation=null">显示全部地区</button><text v-if="mapLocation" class="hint">仅显示目录中已生成、覆盖此位置的地图。没有结果时，该位置尚无可下载包；全球概览不含详细道路。</text></view>
+  <!-- #endif -->
   <!-- #ifdef H5 -->
-  <text class="title">区域离线底图</text><button :disabled="busy" @click="chooseBasemap">打开本机PMTiles地图包</button><text class="hint">支持最多64 MB的PMTiles v3矢量地图包。本机读取，不上传；当前为道路和地物视图，导入后保存到本机，总量最多192 MiB。浏览器清理站点数据会删除地图，请保留原包。</text><view v-for="pack in availableBasemaps" :key="pack.name" class="card"><text>{{pack.label}} · {{(pack.bytes/1048576).toFixed(2)}} MiB</text><text class="hint">{{pack.attribution}} · {{pack.license}}。仅底图，不代表步道开放许可。</text><button :disabled="busy" @click="downloadMapPack(pack)">下载并保存区域地图</button></view><view v-for="pack in savedBasemaps" :key="pack.id" class="card"><text>{{pack.name}} · {{(pack.bytes/1048576).toFixed(2)}} MiB</text><button :disabled="busy" @click="viewSavedBasemap(pack.blob)">查看地图</button><button :disabled="busy" @click="removeBasemap(pack.id)">删除地图包</button></view><view v-if="basemapFile" id="offline-map-preview"><OfflineBasemap :file="basemapFile" /></view>
+  <text class="title">区域离线底图</text><button :disabled="busy" @click="chooseBasemap">打开本机PMTiles地图包</button><text class="hint">支持最多64 MB的PMTiles v3矢量地图包。本机读取，不上传；当前为道路和地物视图，导入后保存到本机，总量最多192 MiB。浏览器清理站点数据会删除地图，请保留原包。</text><view v-for="pack in visibleBasemaps" :key="pack.name" class="card"><text>{{pack.label}} · {{(pack.bytes/1048576).toFixed(2)}} MiB</text><text class="hint">{{pack.attribution}} · {{pack.license}}。仅底图，不代表步道开放许可。</text><button :disabled="busy" @click="downloadMapPack(pack)">下载并保存区域地图</button></view><view v-for="pack in savedBasemaps" :key="pack.id" class="card"><text>{{pack.name}} · {{(pack.bytes/1048576).toFixed(2)}} MiB</text><button :disabled="busy" @click="viewSavedBasemap(pack.blob)">查看地图</button><button :disabled="busy" @click="removeBasemap(pack.id)">删除地图包</button></view><view v-if="basemapFile" id="offline-map-preview"><OfflineBasemap :file="basemapFile" /></view>
   <!-- #endif -->
   <!-- #ifdef MP-WEIXIN -->
-  <text class="title">区域离线底图</text><view v-for="pack in wechatAvailableMaps" :key="pack.name" class="card"><text>{{pack.label}} · {{(pack.bytes/1048576).toFixed(2)}} MiB</text><text class="hint">{{pack.attribution}} · {{pack.license}}</text><button :disabled="busy" @click="downloadWechatMap(pack)">下载并保存区域地图</button></view><button :disabled="busy" @click="chooseWechatBasemap">从聊天文件保存PMTiles地图</button><text class="hint">每包最多64 MB，总量最多192 MiB，保存在微信本机文件中、不上传。微信清理数据可能删除地图，请保留原包。</text><view v-for="pack in wechatSavedMaps" :key="pack.id" class="card"><text>{{pack.name}} · {{(pack.bytes/1048576).toFixed(2)}} MiB</text><text v-if="pack.issue" class="hint">{{pack.issue}}</text><button :disabled="busy||!pack.available" @click="viewWechatBasemap(pack.id)">查看地图</button><button :disabled="busy" @click="removeWechatBasemap(pack.id)">删除地图包</button></view><view v-if="wechatBasemap" id="offline-map-preview"><WechatBasemap :key="wechatBasemap.path" :file-path="wechatBasemap.path" :bytes="wechatBasemap.bytes" /></view>
+  <text class="title">区域离线底图</text><view v-for="pack in visibleWechatMaps" :key="pack.name" class="card"><text>{{pack.label}} · {{(pack.bytes/1048576).toFixed(2)}} MiB</text><text class="hint">{{pack.attribution}} · {{pack.license}}</text><button :disabled="busy" @click="downloadWechatMap(pack)">下载并保存区域地图</button></view><button :disabled="busy" @click="chooseWechatBasemap">从聊天文件保存PMTiles地图</button><text class="hint">每包最多64 MB，总量最多192 MiB，保存在微信本机文件中、不上传。微信清理数据可能删除地图，请保留原包。</text><view v-for="pack in wechatSavedMaps" :key="pack.id" class="card"><text>{{pack.name}} · {{(pack.bytes/1048576).toFixed(2)}} MiB</text><text v-if="pack.issue" class="hint">{{pack.issue}}</text><button :disabled="busy||!pack.available" @click="viewWechatBasemap(pack.id)">查看地图</button><button :disabled="busy" @click="removeWechatBasemap(pack.id)">删除地图包</button></view><view v-if="wechatBasemap" id="offline-map-preview"><WechatBasemap :key="wechatBasemap.path" :file-path="wechatBasemap.path" :bytes="wechatBasemap.bytes" /></view>
   <!-- #endif -->
   <text class="title">全球离线概览</text><button :disabled="busy" @click="saveWorld">保存全球陆地轮廓到本机</button><text class="hint">内置 Natural Earth 公共领域全球陆地轮廓（1:110m），无需联网即可保存和查看。仅供全球概览，不含详细道路、地形高程和导航信息。</text>
   <text class="title">官方参考资料</text><button :disabled="busy" @click="downloadHk">{{downloading ? '下载中…' : '下载香港郊野公园官方步道参考线'}}</button><text class="hint">来源：香港政府渔农自然护理署 / DATA.GOV.HK。参考线不包含底图、高程或当前开放许可；下载后可离线叠加查看。</text>
@@ -24,6 +27,11 @@ import {publicSnapshot} from '@/services/public-data';
 import { chooseNativeText } from '@/services/files';
 import { computed, ref, watch, nextTick } from 'vue';
 const mapScrollTarget=ref('');
+// #ifdef H5 || MP-WEIXIN
+import {mapsCoveringLocation} from '@/services/basemap-catalog';
+const mapLatitude=ref(''),mapLongitude=ref(''),mapLocation=ref<{latitude:number;longitude:number}|null>(null);
+function filterMapLocation(){try{if(!mapLatitude.value.trim()||!mapLongitude.value.trim())throw new Error('请填写经度和纬度');const latitude=Number(mapLatitude.value),longitude=Number(mapLongitude.value);mapsCoveringLocation([],latitude,longitude);mapLocation.value={latitude,longitude};message.value='位置筛选已更新';}catch(e){message.value=e instanceof Error?e.message:'位置无效';}}
+// #endif
 async function revealMap(){mapScrollTarget.value='';await nextTick();mapScrollTarget.value='offline-map-preview';}
 import { onShow } from '@dcloudio/uni-app';
 import TrackCanvas from '@/components/TrackCanvas.vue';
@@ -37,6 +45,7 @@ import {isDesktop,requestDesktopMapCatalog,requestDesktopMapDownload} from '@/se
 const mapBase=mapDistributionBase(isDesktop(),new URL(import.meta.env.BASE_URL,location.href).href);
 const mapCatalog=createMapCatalog(bundledBasemaps,()=>isDesktop()?requestDesktopMapCatalog():requestMapCatalog(mapBase));
 const availableBasemaps=ref(mapCatalog.snapshot());
+const visibleBasemaps=computed(()=>mapLocation.value?mapsCoveringLocation(availableBasemaps.value,mapLocation.value.latitude,mapLocation.value.longitude):availableBasemaps.value);
 onShow(async()=>{try{availableBasemaps.value=await mapCatalog.refresh();}catch{message.value='地图目录暂时无法更新，保留已有目录';}});
 import {downloadBasemap,downloadDesktopBasemap,type BasemapDownload} from '@/services/basemap-download';
 async function downloadMapPack(pack:BasemapDownload){if(busy.value)return;mutating.value=true;message.value='正在下载并校验地图，请稍候';try{const file=isDesktop()?await downloadDesktopBasemap(pack,requestDesktopMapDownload):await downloadBasemap(pack,mapBase,undefined,bytes=>{message.value=`地图下载 ${(bytes/1048576).toFixed(2)} MiB`;});const saved=await saveBasemap(file);await refreshBasemaps();basemapFile.value=saved.blob;message.value='地图已校验并保存';}catch(e){message.value=e instanceof Error?e.message:'地图下载失败';}finally{mutating.value=false;}}
@@ -78,6 +87,7 @@ import bundledWechatMaps from '@/data/basemap-packs.json';
 import {createMapCatalog as createWechatCatalog,requestMapCatalog as requestWechatCatalog} from '@/services/basemap-catalog';
 const wechatCatalog=createWechatCatalog(bundledWechatMaps,()=>requestWechatCatalog('https://hiking-earth.nanyu20050927.chatgpt.site/client-app/'));
 const wechatAvailableMaps=ref(wechatCatalog.snapshot());
+const visibleWechatMaps=computed(()=>mapLocation.value?mapsCoveringLocation(wechatAvailableMaps.value,mapLocation.value.latitude,mapLocation.value.longitude):wechatAvailableMaps.value);
 onShow(async()=>{try{wechatAvailableMaps.value=await wechatCatalog.refresh();}catch{message.value='地图目录暂时无法更新，保留已有目录';}});
 import {downloadWechatBasemap,type MapDownloadPack} from '@/services/wechat-basemap-download';
 import {verifyBasemapDigest} from '@/services/basemap-digest';

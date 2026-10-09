@@ -6,7 +6,13 @@
     "bytes": 1168799,
     "sha256": "40231fd7abdc9a12261afba0ccfa23bf1ea8870d051cea6c0e943e7b0e87dc88",
     "attribution": "© OpenStreetMap contributors · Protomaps",
-    "license": "ODbL-1.0 Produced Work"
+    "license": "ODbL-1.0 Produced Work",
+    "bounds": [
+      7.4,
+      43.7,
+      7.45,
+      43.75
+    ]
   },
   {
     "name": "annapurna-20261007.pmtiles",
@@ -15,7 +21,13 @@
     "bytes": 464863,
     "sha256": "99293932ae1c3c3833895fe21828ee028616707dc7143dff53e98ecacae651c3",
     "attribution": "© OpenStreetMap contributors · Protomaps",
-    "license": "ODbL-1.0 Produced Work"
+    "license": "ODbL-1.0 Produced Work",
+    "bounds": [
+      83.85,
+      28.45,
+      84,
+      28.6
+    ]
   },
   {
     "name": "aoraki-20261007.pmtiles",
@@ -24,7 +36,13 @@
     "bytes": 720816,
     "sha256": "f8766b6c7613f92c50cdf512fe77e58f5b99c5bfd4d043ddeca5c965cbf3b8cd",
     "attribution": "© OpenStreetMap contributors · Protomaps",
-    "license": "ODbL-1.0 Produced Work"
+    "license": "ODbL-1.0 Produced Work",
+    "bounds": [
+      170.1,
+      -43.8,
+      170.25,
+      -43.65
+    ]
   },
   {
     "name": "banff-20261007.pmtiles",
@@ -33,7 +51,13 @@
     "bytes": 811892,
     "sha256": "cb3a4c7cf33ecfda928a1f15fbf796517a7dfa54ae0cbf7d749caf7d9f1fcacd",
     "attribution": "© OpenStreetMap contributors · Protomaps",
-    "license": "ODbL-1.0 Produced Work"
+    "license": "ODbL-1.0 Produced Work",
+    "bounds": [
+      -116.25,
+      51.15,
+      -116.1,
+      51.3
+    ]
   },
   {
     "name": "blue-mountains-20261007.pmtiles",
@@ -42,7 +66,13 @@
     "bytes": 2965996,
     "sha256": "6a8f8d6659f796fc9343f54915df622278cafa3209d81a0f9ccd2d3bf3b12f4d",
     "attribution": "© OpenStreetMap contributors · Protomaps",
-    "license": "ODbL-1.0 Produced Work"
+    "license": "ODbL-1.0 Produced Work",
+    "bounds": [
+      150.25,
+      -33.75,
+      150.4,
+      -33.6
+    ]
   },
   {
     "name": "cappadocia-20261007.pmtiles",
@@ -51,7 +81,13 @@
     "bytes": 1190071,
     "sha256": "dcf2f3bbc49bc4b94ea28d01ff997bd5f6dd640b60aeeb54ff7fa4a6242c4daf",
     "attribution": "© OpenStreetMap contributors · Protomaps",
-    "license": "ODbL-1.0 Produced Work"
+    "license": "ODbL-1.0 Produced Work",
+    "bounds": [
+      34.8,
+      38.55,
+      34.95,
+      38.7
+    ]
   },
   {
     "name": "chamonix-20261007.pmtiles",
@@ -60,7 +96,13 @@
     "bytes": 2648390,
     "sha256": "d974e51bbf22f05c198568b2da17a91b538d12ce3d719cfbdd111813d63241fd",
     "attribution": "© OpenStreetMap contributors · Protomaps",
-    "license": "ODbL-1.0 Produced Work"
+    "license": "ODbL-1.0 Produced Work",
+    "bounds": [
+      6.8,
+      45.86,
+      6.94,
+      45.9799999
+    ]
   },
   {
     "name": "dolomites-20261007.pmtiles",
@@ -69,7 +111,13 @@
     "bytes": 3791992,
     "sha256": "3b41637cb6fc7614d5ce6025d95723ab0ecd626d506df065ba784eed3b3554b2",
     "attribution": "© OpenStreetMap contributors · Protomaps",
-    "license": "ODbL-1.0 Produced Work"
+    "license": "ODbL-1.0 Produced Work",
+    "bounds": [
+      11.65,
+      46.45,
+      11.8,
+      46.6
+    ]
   },
   {
     "name": "el-chalten-20261007.pmtiles",
@@ -78,7 +126,13 @@
     "bytes": 827431,
     "sha256": "4544d5ddf2309573735768f8734d0349e19fb0f64457682255c9e3ec84e2f225",
     "attribution": "© OpenStreetMap contributors · Protomaps",
-    "license": "ODbL-1.0 Produced Work"
+    "license": "ODbL-1.0 Produced Work",
+    "bounds": [
+      -73,
+      -49.4,
+      -72.85,
+      -49.25
+    ]
   },
   {
     "name": "everest-20261007.pmtiles",
@@ -87,7 +141,13 @@
     "bytes": 700471,
     "sha256": "171c85ba22ff1bf34e63b2dbe7e40316d44ab7ea63a464152a784d5ba880068e",
     "attribution": "© OpenStreetMap contributors · Protomaps",
-    "license": "ODbL-1.0 Produced Work"
+    "license": "ODbL-1.0 Produced Work",
+    "bounds": [
+      86.7,
+      27.85,
+      86.85,
+      28
+    ]
   },
   {
     "name": "fuji-20261007.pmtiles",
@@ -96,7 +156,13 @@
     "bytes": 845089,
     "sha256": "c80ae604c7de0351e4ef2e4fdf13a6f3b06473f8a067ecba8c68d12bda79847f",
     "attribution": "© OpenStreetMap contributors · Protomaps",
-    "license": "ODbL-1.0 Produced Work"
+    "license": "ODbL-1.0 Produced Work",
+    "bounds": [
+      138.66,
+      35.3,
+      138.8,
+      35.42
+    ]
   },
   {
     "name": "grand-canyon-20261007.pmtiles",
@@ -105,7 +171,13 @@
     "bytes": 1428708,
     "sha256": "ebaf48f858cf6749b323478bb7506444405a3f6d1069daaceac9a2774da4b065",
     "attribution": "© OpenStreetMap contributors · Protomaps",
-    "license": "ODbL-1.0 Produced Work"
+    "license": "ODbL-1.0 Produced Work",
+    "bounds": [
+      -112.2,
+      36.05,
+      -112.05,
+      36.2
+    ]
   },
   {
     "name": "iceland-highlands-20261007.pmtiles",
@@ -114,7 +186,13 @@
     "bytes": 371156,
     "sha256": "53bb8e17b1b33b746159c17f2e244ff1b3684bc0e2c8b8922a53faa3468af14a",
     "attribution": "© OpenStreetMap contributors · Protomaps",
-    "license": "ODbL-1.0 Produced Work"
+    "license": "ODbL-1.0 Produced Work",
+    "bounds": [
+      -19.2,
+      63.95,
+      -19.05,
+      64.1
+    ]
   },
   {
     "name": "kilimanjaro-20261007.pmtiles",
@@ -123,7 +201,13 @@
     "bytes": 260059,
     "sha256": "e0d09aefa1a22a1e5ea134e24137238f24a44744a5179c6ed9f5f0bc4653f6da",
     "attribution": "© OpenStreetMap contributors · Protomaps",
-    "license": "ODbL-1.0 Produced Work"
+    "license": "ODbL-1.0 Produced Work",
+    "bounds": [
+      37.3,
+      -3.15,
+      37.45,
+      -3
+    ]
   },
   {
     "name": "kumano-kodo-20261007.pmtiles",
@@ -132,7 +216,13 @@
     "bytes": 811573,
     "sha256": "6aa22fdfb186ff07759da9632fc3a011bfbf103099984abc677cb845923c7fc3",
     "attribution": "© OpenStreetMap contributors · Protomaps",
-    "license": "ODbL-1.0 Produced Work"
+    "license": "ODbL-1.0 Produced Work",
+    "bounds": [
+      135.55,
+      33.75,
+      135.7,
+      33.9
+    ]
   },
   {
     "name": "lake-district-20261007.pmtiles",
@@ -141,7 +231,13 @@
     "bytes": 3889764,
     "sha256": "8fe57871bde0c0acd635bced2a2aeee334bfaadc0df2520dce1d2cded7879ef9",
     "attribution": "© OpenStreetMap contributors · Protomaps",
-    "license": "ODbL-1.0 Produced Work"
+    "license": "ODbL-1.0 Produced Work",
+    "bounds": [
+      -3.15,
+      54.35,
+      -3,
+      54.5
+    ]
   },
   {
     "name": "lantau-20261007.pmtiles",
@@ -150,7 +246,13 @@
     "bytes": 703302,
     "sha256": "659122aa3d724e932e8b799134cdbed0c12cd0eef61f17a87bc6ec0c60558b89",
     "attribution": "© OpenStreetMap contributors · Protomaps",
-    "license": "ODbL-1.0 Produced Work"
+    "license": "ODbL-1.0 Produced Work",
+    "bounds": [
+      113.92,
+      22.2,
+      113.99,
+      22.26
+    ]
   },
   {
     "name": "madeira-20261007.pmtiles",
@@ -159,7 +261,13 @@
     "bytes": 3608483,
     "sha256": "95738a79a0e7dafdf5d10791493860dd07ed829bf378ca98e9a26c91984dce0a",
     "attribution": "© OpenStreetMap contributors · Protomaps",
-    "license": "ODbL-1.0 Produced Work"
+    "license": "ODbL-1.0 Produced Work",
+    "bounds": [
+      -17.1,
+      32.65,
+      -16.95,
+      32.8
+    ]
   },
   {
     "name": "milford-track-20261007.pmtiles",
@@ -168,7 +276,13 @@
     "bytes": 667979,
     "sha256": "ff74f7042402efde44f10e588628e9c87e5627d844d3f175182245cfeaf63b89",
     "attribution": "© OpenStreetMap contributors · Protomaps",
-    "license": "ODbL-1.0 Produced Work"
+    "license": "ODbL-1.0 Produced Work",
+    "bounds": [
+      167.8,
+      -44.7,
+      167.95,
+      -44.55
+    ]
   },
   {
     "name": "table-mountain-20261007.pmtiles",
@@ -177,7 +291,13 @@
     "bytes": 4484693,
     "sha256": "1a508ea257eb5d2757bd53e2845295a3b131faf1fcb40704e11fe6cb6475e845",
     "attribution": "© OpenStreetMap contributors · Protomaps",
-    "license": "ODbL-1.0 Produced Work"
+    "license": "ODbL-1.0 Produced Work",
+    "bounds": [
+      18.35,
+      -34.02,
+      18.48,
+      -33.9
+    ]
   },
   {
     "name": "torres-del-paine-20261007.pmtiles",
@@ -186,7 +306,13 @@
     "bytes": 322671,
     "sha256": "ca5fb450dacf6fa849cd3fec602318961b8d2bf478596e1e8861bc112b6db3d8",
     "attribution": "© OpenStreetMap contributors · Protomaps",
-    "license": "ODbL-1.0 Produced Work"
+    "license": "ODbL-1.0 Produced Work",
+    "bounds": [
+      -73.05,
+      -51.05,
+      -72.9,
+      -50.9
+    ]
   },
   {
     "name": "world-overview-20261007.pmtiles",
@@ -195,7 +321,13 @@
     "bytes": 15049547,
     "sha256": "0ef4fdda656e07bef9b0c126266ee4597315a68a3273cbc9922e7af40fb99f4a",
     "attribution": "© OpenStreetMap contributors · Protomaps",
-    "license": "ODbL-1.0 Produced Work"
+    "license": "ODbL-1.0 Produced Work",
+    "bounds": [
+      -180,
+      -85.0511287,
+      180,
+      85.0511287
+    ]
   },
   {
     "name": "yosemite-valley-20261007.pmtiles",
@@ -204,6 +336,12 @@
     "bytes": 2317599,
     "sha256": "46169da0cb56d1bbb379fa9ee3f4b1eee1e9083754ccc90e36bd01d600869029",
     "attribution": "© OpenStreetMap contributors · Protomaps",
-    "license": "ODbL-1.0 Produced Work"
+    "license": "ODbL-1.0 Produced Work",
+    "bounds": [
+      -119.65,
+      37.68,
+      -119.5,
+      37.8
+    ]
   }
 ]
