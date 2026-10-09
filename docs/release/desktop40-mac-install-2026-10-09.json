@@ -10,8 +10,12 @@
   "catalog_observed": {
     "hk": "saved 167",
     "usfs": "saved 40000 of 50089; remainder online",
-    "osm": "still fetching at last observation"
+    "osm": "saved 26852; refresh finished"
   },
   "acceptance": "partial",
-  "pending": ["OSM synchronization outcome", "globe drag rotation", "account and multi-device business acceptance", "formal update release"]
+  "pending": [
+    "globe drag rotation",
+    "account and multi-device business acceptance",
+    "formal update release"
+  ]
 }
