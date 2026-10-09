@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-10-08T23:22:21.873307+00:00",
-  "runId": "37858692862",
-  "sourceCommit": "ce7b776aa79d2252c4b3ae8fa3bbd88bc77e7209",
+  "checkedAt": "2026-10-09T06:08:12.570894+00:00",
+  "runId": "37891627346",
+  "sourceCommit": "ea64dcd541aaaf5dc91c21040033fd63a3ce13a1",
   "outcomes": {
     "usfs": "success",
     "osm_incremental": "partial",
@@ -18,8 +18,8 @@
       "status": "available",
       "records": 101,
       "lastCollectedCount": 100,
-      "lastAttempt": "2026-10-08T23:22:18.036562+00:00",
-      "lastSuccess": "2026-10-08T23:22:18.036557+00:00",
+      "lastAttempt": "2026-10-09T06:08:09.522769+00:00",
+      "lastSuccess": "2026-10-09T06:08:09.522760+00:00",
       "feedAcceptance": null,
       "feedVerifiedAt": null,
       "feedVerificationStatus": "legacy-no-explicit-acceptance",
@@ -30,8 +30,8 @@
       "status": "available",
       "records": 1,
       "lastCollectedCount": 1,
-      "lastAttempt": "2026-10-08T23:22:18.047324+00:00",
-      "lastSuccess": "2026-10-08T23:22:18.047320+00:00",
+      "lastAttempt": "2026-10-09T06:08:09.534909+00:00",
+      "lastSuccess": "2026-10-09T06:08:09.534906+00:00",
       "feedAcceptance": null,
       "feedVerifiedAt": null,
       "feedVerificationStatus": "legacy-no-explicit-acceptance",
@@ -42,8 +42,8 @@
       "status": "available",
       "records": 101,
       "lastCollectedCount": 100,
-      "lastAttempt": "2026-10-08T23:22:18.065455+00:00",
-      "lastSuccess": "2026-10-08T23:22:18.065451+00:00",
+      "lastAttempt": "2026-10-09T06:08:09.557396+00:00",
+      "lastSuccess": "2026-10-09T06:08:09.557393+00:00",
       "feedAcceptance": "accepted",
       "feedVerifiedAt": "2026-10-07",
       "feedVerificationStatus": "current",
@@ -54,8 +54,8 @@
       "status": "available",
       "records": 0,
       "lastCollectedCount": 0,
-      "lastAttempt": "2026-10-08T23:22:19.699766+00:00",
-      "lastSuccess": "2026-10-08T23:22:19.699759+00:00",
+      "lastAttempt": "2026-10-09T06:08:10.333497+00:00",
+      "lastSuccess": "2026-10-09T06:08:10.333491+00:00",
       "feedAcceptance": "accepted",
       "feedVerifiedAt": "2026-10-07",
       "feedVerificationStatus": "current",
@@ -77,39 +77,42 @@
       "incrementalOutcome": "partial",
       "incrementalRegions": {
         "china": {
-          "status": "failed",
-          "error": "HTTP 504: Gateway Timeout"
+          "status": "success",
+          "records": 17,
+          "cursor": "2026-10-09T05:52:51Z"
         },
         "japan": {
-          "status": "failed",
-          "error": "HTTP 504: Gateway Timeout"
+          "status": "success",
+          "records": 0,
+          "cursor": "2026-10-09T05:52:51Z"
         },
         "south-asia": {
           "status": "success",
-          "records": 1,
-          "cursor": "2026-10-08T23:08:31Z"
+          "records": 2,
+          "cursor": "2026-10-09T05:53:49Z"
         },
         "europe": {
           "status": "failed",
-          "error": "runtime error: Query timed out in \"query\" at line 1 after 52 seconds."
+          "error": "The read operation timed out"
         },
         "north-america": {
           "status": "failed",
-          "error": "runtime error: Query timed out in \"query\" at line 1 after 46 seconds."
+          "error": "runtime error: Query timed out in \"query\" at line 1 after 52 seconds."
         },
         "oceania": {
           "status": "success",
-          "records": 2,
-          "cursor": "2026-10-08T23:10:35Z"
+          "records": 0,
+          "cursor": "2026-10-09T05:54:51Z"
         },
         "south-america": {
-          "status": "failed",
-          "error": "HTTP 504: Gateway Timeout"
+          "status": "success",
+          "records": 2,
+          "cursor": "2026-10-09T05:55:54Z"
         },
         "africa": {
           "status": "success",
           "records": 0,
-          "cursor": "2026-10-08T23:10:35Z"
+          "cursor": "2026-10-09T05:55:54Z"
         }
       }
     },
@@ -118,7 +121,7 @@
       "cycleStartedAt": "2026-10-08T14:47:03.028192+00:00",
       "lastCompletedAt": "2026-10-06T19:20:17.341740+00:00",
       "lastRemovedFromDiscovery": 0,
-      "nextObjectId": 9677946,
+      "nextObjectId": 9673946,
       "currentCycleComplete": false,
       "lastAttemptSucceeded": true
     },
@@ -129,24 +132,24 @@
   },
   "snapshots": {
     "OSM": {
-      "records": 145990,
-      "generatedAt": "2026-10-08T23:18:57Z",
-      "sha256": "73cf4f2aff748cade79d9cd752d4d740683cce87a2b21da6ab142fb09da4a011"
+      "records": 146002,
+      "generatedAt": "2026-10-09T06:04:41Z",
+      "sha256": "abca1b12adda9001bf26cddf0af47d248be73626dd171c88f889617e291cb7fb"
     },
     "USFS": {
       "records": 50089,
-      "generatedAt": "2026-10-08T23:18:40.263915+00:00",
-      "sha256": "1e2ba994c2cbb868f02b1045820dc39a6e8441254221c9917e11eb117b00700f"
+      "generatedAt": "2026-10-09T06:04:25.775644+00:00",
+      "sha256": "8c2f3cdc6f89b577484e7f7a7a03b5ef2300b65cb3603c9ecb41c28a72446f1c"
     },
     "Hong Kong AFCD": {
       "records": 167,
-      "generatedAt": "2026-10-08T23:22:17.530397+00:00",
-      "sha256": "fe3224e21c72708c5528840ad4d390062df142ca37e816568077ca7fb03b8c51"
+      "generatedAt": "2026-10-09T06:08:08.962550+00:00",
+      "sha256": "5c85fd7bdb8cebba2b6736c9dff21c20c66a5af46b4db19626d970c3dce765c8"
     },
     "Official notices": {
       "records": 203,
-      "generatedAt": "2026-10-08T23:22:19.699795+00:00",
-      "sha256": "d96e9627cec9f097278bbfaf8c73842f40e7bbcb8ef5803b23b65391d565c7c2"
+      "generatedAt": "2026-10-09T06:08:10.333534+00:00",
+      "sha256": "61b838ec1d7ddc94abc729093488966f8396fe2431b81e769fe469dfed7671aa"
     }
   },
   "accessVerified": false
