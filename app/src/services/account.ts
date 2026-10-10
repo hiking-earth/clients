@@ -1,3 +1,4 @@
+import {browserReportsOffline} from './network-state';
 import { CLIENT_API_URL, CLOUD_ENV } from '@shared/constants';
 // #ifdef H5
 import { needsGatewayRelay, gatewayRelayRequest } from '@shared/network/gateway-relay';
@@ -100,6 +101,7 @@ function stillCurrentSession(expected:AccountSession|null):boolean {
 }
 export async function accountRequest<T>(action: string, data: Record<string, unknown> = {}): Promise<AccountResponse<T>> {
   if (!accountApiConfigured()) return { ok: false, errMsg: '账号服务尚未配置，请稍后使用' };
+  if(browserReportsOffline())return {ok:false,code:'NETWORK_OFFLINE',errMsg:'当前设备离线，请保留本机资料，联网后再试。'};
   const session = accountSession();
   // #ifdef MP-WEIXIN
   try {
