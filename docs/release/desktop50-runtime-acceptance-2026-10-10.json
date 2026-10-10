@@ -7,6 +7,17 @@
   "releaseTag": "desktop-50",
   "releaseUrl": "https://github.com/hiking-earth/clients/releases/tag/untagged-cd83e784ac1ee6f01b80",
   "draft": true,
+  "updaterManifest": {
+    "version": "0.2.3",
+    "notes": "Candidate; full platform acceptance required before public release.",
+    "platforms": [
+      "windows-x86_64",
+      "darwin-aarch64",
+      "darwin-x86_64",
+      "linux-x86_64"
+    ],
+    "allFourPlatformEntriesPresent": true
+  },
   "platforms": {
     "windows-x64": {
       "build": "passed",
