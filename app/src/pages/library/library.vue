@@ -7,7 +7,7 @@
     <text v-if="!library.favorites.length" class="hint">在路线详情中收藏路线。</text>
     <text class="heading">创建行程</text>
     <RouteSearchPicker v-model="selected" placeholder="搜索或选择行程路线（可选）" />
-    <input v-model="date" class="input" placeholder="出发日期 YYYY-MM-DD" />
+    <input v-model="date" class="input date-input" placeholder="出发日期 YYYY-MM-DD" />
     <textarea v-model="notes" maxlength="2000" class="input" placeholder="集合点、交通、住宿和装备备忘" />
     <button :disabled="!libraryValid" @click="addPlan">保存行程</button>
     <view v-for="plan in library.plans" :key="plan.id" class="card">
@@ -124,5 +124,5 @@ function pull() {
 }
 </script>
 <style scoped>
-.page{height:100vh;box-sizing:border-box;padding:24px 20px;background:#01030a;color:#f4f8f2}.title{display:block;font-size:24px;font-weight:700}.hint{display:block;margin:12px 0;color:#a7b5aa;font-size:13px;line-height:1.7}.heading{display:block;font-weight:600;margin:20px 0 12px}.card{background:#050c12;padding:16px;border-radius:12px;margin-bottom:12px}.input{background:#202b37;padding:12px;box-sizing:border-box;width:100%;margin:12px 0;border-radius:8px}button{font-size:14px;margin:10px 0;background:#b8f36b;color:#01030a}
+.page{height:100vh;box-sizing:border-box;padding:24px 20px;background:#01030a;color:#f4f8f2}.title{display:block;font-size:24px;font-weight:700}.hint{display:block;margin:12px 0;color:#a7b5aa;font-size:13px;line-height:1.7}.heading{display:block;font-weight:600;margin:20px 0 12px}.card{background:#050c12;padding:16px;border-radius:12px;margin-bottom:12px}.input{background:#202b37;padding:12px;box-sizing:border-box;width:100%;margin:12px 0;border-radius:8px}.date-input{height:44px;min-height:44px}.date-input :deep(.uni-input-input){height:44px;min-height:44px}button{font-size:14px;margin:10px 0;background:#b8f36b;color:#01030a}
 </style>
