@@ -10,7 +10,7 @@ import subprocess
 import tempfile
 
 
-bundles = list(pathlib.Path(os.environ["APP_BUNDLE_DIR"]).glob("*.app"))
+bundles = [bundle.resolve() for bundle in pathlib.Path(os.environ["APP_BUNDLE_DIR"]).glob("*.app")]
 if len(bundles) != 1:
     raise SystemExit("Expected exactly one packaged macOS application")
 
