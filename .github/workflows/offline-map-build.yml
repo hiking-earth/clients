@@ -98,6 +98,19 @@ jobs:
           path: regional-maps/
           if-no-files-found: warn
           retention-days: 14
+      - name: Publish verified custom maps as durable free downloads
+        if: env.CUSTOM_REGION == 'true' && success()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          tag="offline-maps-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          python scripts/package-custom-map-delivery.py --input regional-maps/distribution --output regional-maps/custom-maps.zip
+          gh release create "$tag" regional-maps/custom-maps.zip \
+            --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --latest=false \
+            --title "Verified regional offline maps $GITHUB_RUN_ID" \
+            --notes "Verified regional basemap bundle with checksums, source inventory and attribution. Not a trail access approval or terrain elevation dataset."
       - name: Record delivery boundary
         if: always()
         run: |
