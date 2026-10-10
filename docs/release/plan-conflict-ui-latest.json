@@ -1,0 +1,16 @@
+{
+  "scope": "Actual two Chrome sessions plan UI and automatic sync engine triggered via immediate sync; excludes timed polling, tracks, physical devices",
+  "checks": [
+    {
+      "name": "password login through visible UI",
+      "passed": true
+    },
+    {
+      "name": "isolated UI account removed",
+      "passed": true
+    }
+  ],
+  "passed": false,
+  "error": "locator.fill: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator('uni-input.input input')\n    - locator resolved to <input step=\"\" type=\"text\" maxlength=\"140\" inputmode=\"text\" autocomplete=\"off\" enterkeyhint=\"done\" class=\"uni-input-input\"/>\n    - fill(\"2026-11-01\")\n  - attempting fill action\n    2 × waiting for element to be visible, enabled and editable\n      - element is not visible\n    - retrying fill action\n    - waiting 20ms\n    2 × waiting for element to be visible, enabled and editable\n      - element is not visible\n    - retrying fill action\n      - waiting 100ms\n    59 × waiting for element to be visible, enabled and editable\n       - element is not visible\n     - retrying fill action\n       - waiting 500ms\n",
+  "checkedAt": "2026-10-10T13:33:20.232Z"
+}
