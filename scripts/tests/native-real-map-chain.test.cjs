@@ -2,7 +2,7 @@ const test=require('node:test'),assert=require('node:assert/strict'),fs=require(
 function load(file,deps={}){const exports={};vm.runInNewContext(ts.transpileModule(fs.readFileSync(path.resolve(__dirname,'../../app/src/services',file),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020}}).outputText,{exports,require:name=>deps[name],ArrayBuffer,Uint8Array,setTimeout,clearTimeout});return exports;}
 const ranges=load('basemap-file-reader.ts'),native=load('native-basemap-reader.ts',{'./basemap-file-reader':ranges}),local=load('local-basemap.ts',{pmtiles:require('../../app/node_modules/pmtiles')}),canvas=load('basemap-canvas.ts',{'@mapbox/vector-tile':require('../../app/node_modules/@mapbox/vector-tile'),pbf:require('../../app/node_modules/pbf')});
 test('real repository map crosses native-style sliced base64 bridge into road geometry',async()=>{
- const bytes=fs.readFileSync(path.resolve(__dirname,'../../app/map-assets/static/offline-maps/lantau-20261007.pmtiles'));let requests=[],closed=0;
+ const bytes=fs.readFileSync(require('./helpers/real-map-fixture.cjs')('lantau'));let requests=[],closed=0;
  function file(buffer){return {size:buffer.length,close:()=>closed++,slice:(start,end)=>{requests.push({start,end});return {...file(buffer.subarray(start,end)),buffer:buffer.subarray(start,end)}}};}
  class Reader{readAsDataURL(part){this.result='data:application/octet-stream;base64,'+part.buffer.toString('base64');this.onload();}abort(){this.onabort?.();}}
  const io={FileReader:Reader,resolveLocalFileSystemURL:(p,ok)=>ok({file:ok=>ok(file(bytes))})};
