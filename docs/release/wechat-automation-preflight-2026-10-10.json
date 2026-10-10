@@ -9,7 +9,7 @@
   "failureMessage": "Client network socket disconnected before secure TLS connection was established",
   "phase": "Fetching AppID permissions",
   "runtimeAcceptance": false,
-  "decision": "Do not count CLI exit zero as acceptance; preserve build and avoid duplicate automation sessions. Same-cause recovery capped at three.",
+  "decision": "Stop identical WeChat CLI auto retries until external state changes; preserve candidates and continue other independent full-end tasks.",
   "recoveryAttempts": [
     {
       "attempt": 1,
@@ -22,7 +22,15 @@
       "failureCode": "ECONNRESET",
       "processExitCode": 0,
       "automationReady": false
+    },
+    {
+      "attempt": 3,
+      "checkedAt": "2026-10-10T09:05:16.693506+00:00",
+      "failureCode": "ECONNRESET",
+      "processExitCode": 0,
+      "automationReady": false
     }
   ],
-  "nextRecoveryAttempt": 3
+  "nextRecoveryAttempt": null,
+  "retryLimitReached": true
 }
