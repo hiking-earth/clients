@@ -32,7 +32,7 @@ export async function openLocalBasemap(id:string,bytes:number,read:LocalRangeRea
  if(metadata.name!=='Protomaps Basemap'||typeof metadata.version!=='string'||!/^4\.\d+\.\d+$/.test(metadata.version)||!Array.isArray(layers)||layers.length>32||!layers.some(layer=>layer?.id==='roads')||!layers.some(layer=>layer?.id==='water'))throw new Error('当前视图仅支持Protomaps v4区域底图');
  return {key,archive,header};
 }
-/** Geometry styles are fully local; labels/glyphs are a separate next layer. */
+/** Fully local geometry; the viewer overlays system-font labels without glyph URLs. */
 export function localBasemapStyle(key:string):StyleSpecification{
  if(!/^offline-basemap-[a-z0-9-]{1,96}$/.test(key))throw new Error('离线地图标识无效');
  return {version:8,sources:{basemap:{type:'vector',url:`pmtiles://${key}`,attribution:'© OpenStreetMap contributors · Protomaps'}},layers:[
