@@ -54,8 +54,9 @@ const mapCatalog=createMapCatalog(bundledBasemaps,()=>isDesktop()?requestDesktop
 const availableBasemaps=ref(mapCatalog.snapshot());
 const visibleBasemaps=computed(()=>mapLocation.value?mapsCoveringLocation(availableBasemaps.value,mapLocation.value.latitude,mapLocation.value.longitude):availableBasemaps.value);
 onShow(async()=>{try{availableBasemaps.value=await mapCatalog.refresh();}catch{message.value='地图目录暂时无法更新，保留已有目录';}});
+import {findVerifiedSavedBasemap} from '@/services/verified-basemap';
 import {downloadBasemap,downloadDesktopBasemap,type BasemapDownload} from '@/services/basemap-download';
-async function downloadMapPack(pack:BasemapDownload){if(busy.value)return;mutating.value=true;message.value='正在下载并校验地图，请稍候';try{const file=isDesktop()?await downloadDesktopBasemap(pack,requestDesktopMapDownload):await downloadBasemap(pack,mapBase,undefined,bytes=>{message.value=`地图下载 ${(bytes/1048576).toFixed(2)} MiB`;});const saved=await saveBasemap(file);await refreshBasemaps();basemapFile.value=saved.blob;message.value='地图已校验并保存';}catch(e){message.value=e instanceof Error?e.message:'地图下载失败';}finally{mutating.value=false;}}
+async function downloadMapPack(pack:BasemapDownload){if(busy.value)return;mutating.value=true;message.value='正在核对本机地图版本';try{const rows=await listBasemaps();const existing=await findVerifiedSavedBasemap(rows,pack);if(existing){savedBasemaps.value=rows;basemapFile.value=existing.blob;message.value='本机已有相同版本，已校验并打开';return;}message.value='正在下载并校验地图，请稍候';const file=isDesktop()?await downloadDesktopBasemap(pack,requestDesktopMapDownload):await downloadBasemap(pack,mapBase,undefined,bytes=>{message.value=`地图下载 ${(bytes/1048576).toFixed(2)} MiB`;});const saved=await saveBasemap(file);await refreshBasemaps();basemapFile.value=saved.blob;message.value='地图已校验并保存';}catch(e){message.value=e instanceof Error?e.message:'地图下载失败';}finally{mutating.value=false;}}
 import {listBasemaps,saveBasemap,deleteBasemap,type SavedBasemap} from '@/services/basemap-store';
 const basemapFile=ref<Blob|null>(null),savedBasemaps=ref<SavedBasemap[]>([]);
 function viewSavedBasemap(file:Blob){basemapFile.value=file;void revealMap();}
