@@ -3,12 +3,26 @@
 import {getCurrentInstance,onMounted,onUnmounted,ref,watch,nextTick} from 'vue';
 import {openLocalBasemap} from '@/services/local-basemap';
 import {fileRangeReader} from '@/services/basemap-file-reader';
+// #ifdef APP-PLUS
+import {nativeMapRangeReader,type NativeMapIO} from '@/services/native-basemap-reader';
+// #endif
 import {decodeMapShapes,mapTileCenter} from '@/services/basemap-canvas';
 const props=defineProps<{filePath:string;bytes:number}>(),instance=getCurrentInstance();
 const id=`basemap-${Math.random().toString(36).slice(2,10)}`,status=ref('正在读取本机地图');
 let generation=0,disposed=false,width=300,archive:Awaited<ReturnType<typeof openLocalBasemap>>|null=null,z=0,x=0,y=0;
 async function open(){const token=++generation;archive=null;status.value='正在读取本机地图';try{
- const result=await openLocalBasemap('wechat',props.bytes,fileRangeReader(uni.getFileSystemManager(),props.filePath,props.bytes));
+ let read: (offset:number,length:number)=>Promise<ArrayBuffer>;
+ // #ifdef MP-WEIXIN
+ read=fileRangeReader(uni.getFileSystemManager(),props.filePath,props.bytes);
+ // #endif
+ // #ifdef APP-PLUS
+ read=nativeMapRangeReader(plus.io as unknown as NativeMapIO,props.filePath,props.bytes,value=>uni.base64ToArrayBuffer(value));
+ // #endif
+ // #ifndef APP-PLUS || MP-WEIXIN
+ throw new Error('当前平台不支持原生文件地图');
+ // #endif
+ // Each open gets a distinct PMTiles cache identity, even for replaced same-size files.
+ const result=await openLocalBasemap(`local-${Date.now()}-${Math.random().toString(36).slice(2,12)}`,props.bytes,read!);
  if(disposed||token!==generation)return;archive=result;z=result.header.maxZoom;const h=result.header,c=mapTileCenter((h.minLon+h.maxLon)/2,(h.minLat+h.maxLat)/2,z);x=c.x;y=c.y;await draw();
 }catch{if(!disposed&&token===generation)status.value='地图读取失败，请保留原始地图包';}}
 async function draw(){const current=archive;if(!current||disposed)return;const token=++generation;
