@@ -29,7 +29,8 @@
   </scroll-view>
 </template>
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
+import { syncState } from '@/services/sync';
 import { onShow, onUnload } from '@dcloudio/uni-app';
 import { ROUTES } from '@/services/route-catalog';
 import RouteSearchPicker from '@/components/RouteSearchPicker.vue';
@@ -43,6 +44,8 @@ const owner = ref(libraryOwner()), libraryValid = ref(currentLibraryStorageValid
 let loadedOwner = owner.value;
 function refreshLibrary() { owner.value = libraryOwner(); loadedOwner = owner.value; libraryValid.value = currentLibraryStorageValid(); library.value = readLibrary(); const legacyState = legacyLibraryBackupStatus(); legacy.value = legacyState.library; legacyInvalid.value = legacyState.invalid; deletedArchives.value = listDeletedLibraryArchives(); }
 onShow(refreshLibrary);
+// A foreground sync may finish after this page has already read its local copy.
+watch(() => syncState.lastSuccess, refreshLibrary);
 const unsubscribeAccount = onAccountChange(refreshLibrary);
 onUnload(unsubscribeAccount);
 function routeName(id: string) { return ROUTES.find(r => r.id === id)?.name || '路线资料暂不可用'; }
