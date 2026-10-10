@@ -113,6 +113,15 @@ jobs:
           done < <(find desktop/src-tauri/target/${{ matrix.target }}/release/bundle/macos -maxdepth 1 -type d -name '*.app' -print0)
           test "$count" -gt 0
 
+      - name: macOS packaged application launch check
+        if: matrix.os == 'macos-latest'
+        timeout-minutes: 2
+        shell: bash
+        env:
+          APP_BUNDLE_DIR: desktop/src-tauri/target/${{ matrix.target }}/release/bundle/macos
+          BUILD_TARGET: ${{ matrix.target }}
+        run: python3 scripts/acceptance/smoke-macos-bundle.py
+
       - name: Enforce 500 MB candidate package budget
         shell: bash
         run: |
@@ -207,6 +216,15 @@ jobs:
         with:
           name: windows-launch-evidence
           path: evidence/windows-launch.json
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Preserve macOS launch evidence
+        if: always() && matrix.os == 'macos-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-launch-evidence-${{ matrix.target }}
+          path: runtime-evidence/macos-launch.json
           if-no-files-found: warn
           retention-days: 14
 
