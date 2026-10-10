@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-10-10T12:29:07.259267+00:00",
-  "runId": "38051973020",
-  "sourceCommit": "63a126d9a66033f5defbc8895eb0f3fe739fb84b",
+  "checkedAt": "2026-10-10T18:57:47.075374+00:00",
+  "runId": "manual-usfs-backfill-2026-10-11",
+  "sourceCommit": "3a07cb2",
   "outcomes": {
-    "usfs": "success",
+    "usfs": "partial",
     "osm_incremental": "partial",
     "osm_reconciliation": "paused-public-global-sweep",
     "hk": "success",
@@ -18,32 +18,32 @@
       "status": "available",
       "records": 101,
       "lastCollectedCount": 100,
-      "lastAttempt": "2026-10-10T12:29:04.371594+00:00",
-      "lastSuccess": "2026-10-10T12:29:04.371592+00:00",
-      "feedAcceptance": null,
-      "feedVerifiedAt": null,
-      "feedVerificationStatus": "legacy-no-explicit-acceptance",
-      "feedVerified": null
+      "lastAttempt": "2026-10-10T15:19:04.995736+00:00",
+      "lastSuccess": "2026-10-10T15:19:04.995730+00:00",
+      "feedAcceptance": "accepted",
+      "feedVerifiedAt": "2026-10-10",
+      "feedVerificationStatus": "current",
+      "feedVerified": true
     },
     {
       "id": "nps-grand-canyon-backcountry",
       "status": "available",
       "records": 1,
       "lastCollectedCount": 1,
-      "lastAttempt": "2026-10-10T12:29:04.386721+00:00",
-      "lastSuccess": "2026-10-10T12:29:04.386718+00:00",
-      "feedAcceptance": null,
-      "feedVerifiedAt": null,
-      "feedVerificationStatus": "legacy-no-explicit-acceptance",
-      "feedVerified": null
+      "lastAttempt": "2026-10-10T15:19:08.854363+00:00",
+      "lastSuccess": "2026-10-10T15:19:08.854353+00:00",
+      "feedAcceptance": "accepted",
+      "feedVerifiedAt": "2026-10-10",
+      "feedVerificationStatus": "current",
+      "feedVerified": true
     },
     {
       "id": "nps-yellowstone-news",
       "status": "available",
       "records": 101,
       "lastCollectedCount": 100,
-      "lastAttempt": "2026-10-10T12:29:04.412980+00:00",
-      "lastSuccess": "2026-10-10T12:29:04.412977+00:00",
+      "lastAttempt": "2026-10-10T15:19:11.968304+00:00",
+      "lastSuccess": "2026-10-10T15:19:11.968279+00:00",
       "feedAcceptance": "accepted",
       "feedVerifiedAt": "2026-10-07",
       "feedVerificationStatus": "current",
@@ -54,8 +54,8 @@
       "status": "available",
       "records": 0,
       "lastCollectedCount": 0,
-      "lastAttempt": "2026-10-10T12:29:05.779372+00:00",
-      "lastSuccess": "2026-10-10T12:29:05.779368+00:00",
+      "lastAttempt": "2026-10-10T15:19:14.944600+00:00",
+      "lastSuccess": "2026-10-10T15:19:14.944584+00:00",
       "feedAcceptance": "accepted",
       "feedVerifiedAt": "2026-10-07",
       "feedVerificationStatus": "current",
@@ -118,9 +118,11 @@
       "cycleStartedAt": "2026-10-09T22:35:49.505903+00:00",
       "lastCompletedAt": "2026-10-09T13:12:04.862320+00:00",
       "lastRemovedFromDiscovery": 40989,
-      "nextObjectId": 9760365,
+      "nextObjectId": 9708253,
       "currentCycleComplete": false,
-      "lastAttemptSucceeded": true
+      "lastAttemptSucceeded": false,
+      "lastSuccessAt": "2026-10-10T17:40:58.001394+00:00",
+      "lastError": "Historical backfill attempt failed after 3 TLS EOF retries at objectid page offset 1000; previous successful snapshot retained."
     },
     "hk": {
       "mode": "complete-source-replacement",
@@ -134,9 +136,9 @@
       "sha256": "5e4a1e26d9688210cb44a9fcbd76d81d1bbf14bdcefd8adcfb590cbe564807a1"
     },
     "USFS": {
-      "records": 9241,
-      "generatedAt": "2026-10-10T12:26:51.963891+00:00",
-      "sha256": "c4a55ec2fbc846ec0490452e3d067dc4d483c7c6972b920ebc2133e002c269ca"
+      "records": 37719,
+      "generatedAt": "2026-10-10T17:40:58.001394+00:00",
+      "sha256": "6e7e349bc928ee257011b3f7e5f7e83ff6121c111217f356dd663dc488ab36e3"
     },
     "Hong Kong AFCD": {
       "records": 167,
@@ -145,8 +147,8 @@
     },
     "Official notices": {
       "records": 203,
-      "generatedAt": "2026-10-10T12:29:05.779400+00:00",
-      "sha256": "14fb8c33f98be237900df66c194b2123a7fab9bf8b95795efa087538b4f218c6"
+      "generatedAt": "2026-10-10T15:19:14.944637+00:00",
+      "sha256": "a3f332c322175c16c970ab88ff29655e44d7776107f885f3002237d5d798cef3"
     }
   },
   "accessVerified": false
