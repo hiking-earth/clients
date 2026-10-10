@@ -2,7 +2,7 @@
   <text class="title">离线资料</text><text class="hint">本机轨迹可离线查看。本页可导入你有权使用的WGS84 GeoJSON道路或边界资料，不下载商业地图瓦片，不含地形高程。</text>
   <view v-for="layer in layers" :key="layer.id" class="card"><text class="title">{{ layer.name }}</text><text class="hint">{{ layer.attribution }} · {{ layer.license }} · {{ (layer.bytes/1024).toFixed(0) }} KB</text><button :disabled="busy" @click="activate(layer.id)">{{ active === layer.id ? '正在使用' : '用于轨迹与导航示意' }}</button><button :disabled="busy" @click="remove(layer.id)">删除资料</button></view>
   <TrackCanvas v-if="preview" :points="[]" :layers="preview.paths" :attribution="preview.attribution" />
-  <!-- #ifdef H5 || MP-WEIXIN -->
+  <!-- #ifdef H5 || MP-WEIXIN || APP-PLUS -->
   <view class="card"><text class="title">查找位置的离线地图</text><view class="map-coordinates"><view><text class="map-coordinate-label">纬度</text><input class="map-coordinate-input" v-model="mapLatitude" placeholder="例如 22.23" /></view><view><text class="map-coordinate-label">经度</text><input class="map-coordinate-input" v-model="mapLongitude" placeholder="例如 113.95" /></view></view><button :disabled="busy" @click="filterMapLocation">查找覆盖此位置的地图</button><text v-if="mapLocationMessage" class="hint">{{mapLocationMessage}}</text><button v-if="mapLocation" :disabled="busy" @click="mapLocation=null;mapLocationMessage=''">显示全部地区</button><text v-if="mapLocation" class="hint">仅显示目录中已生成、覆盖此位置的地图。没有结果时，该位置尚无可下载包；全球概览不含详细道路。</text></view>
   <!-- #endif -->
   <!-- #ifdef H5 -->
@@ -10,6 +10,12 @@
   <!-- #endif -->
   <!-- #ifdef MP-WEIXIN -->
   <text class="title">区域离线底图</text><view v-for="pack in visibleWechatMaps" :key="pack.name" class="card"><text>{{pack.label}} · {{(pack.bytes/1048576).toFixed(2)}} MiB</text><text class="hint">{{pack.attribution}} · {{pack.license}}</text><button :disabled="busy" @click="downloadWechatMap(pack)">下载并保存区域地图</button></view><button :disabled="busy" @click="chooseWechatBasemap">从聊天文件保存PMTiles地图</button><text class="hint">每包最多64 MB，总量最多192 MiB，保存在微信本机文件中、不上传。微信清理数据可能删除地图，请保留原包。</text><view v-for="pack in wechatSavedMaps" :key="pack.id" class="card"><text>{{pack.name}} · {{(pack.bytes/1048576).toFixed(2)}} MiB</text><text v-if="pack.issue" class="hint">{{pack.issue}}</text><button :disabled="busy||!pack.available" @click="viewWechatBasemap(pack.id)">查看地图</button><button :disabled="busy" @click="removeWechatBasemap(pack.id)">删除地图包</button></view><view v-if="wechatBasemap" id="offline-map-preview"><WechatBasemap :key="wechatBasemap.path" :file-path="wechatBasemap.path" :bytes="wechatBasemap.bytes" /></view>
+  <!-- #endif -->
+  <!-- #ifdef APP-PLUS -->
+  <text class="title">区域离线底图</text><text class="hint">每包最多64 MB，本机总量最多192 MiB；道路地物底图不含地名、高程或当前步道开放许可。卸载或清理应用数据会删除地图。</text>
+  <view v-for="pack in visibleNativeMaps" :key="pack.name" class="card"><text>{{pack.label}} · {{(pack.bytes/1048576).toFixed(2)}} MiB</text><text class="hint">{{pack.attribution}} · {{pack.license}}</text><button :disabled="busy" @click="downloadNativeMap(pack)">下载并保存区域地图</button></view>
+  <view v-for="pack in nativeSavedMaps" :key="pack.id" class="card"><text>{{pack.name}} · {{(pack.bytes/1048576).toFixed(2)}} MiB</text><text v-if="pack.issue" class="hint">{{pack.issue}}</text><button :disabled="busy||!pack.available" @click="viewNativeMap(pack.id)">查看地图</button><button :disabled="busy" @click="removeNativeMap(pack.id)">删除地图包</button></view>
+  <view v-if="nativeBasemap" id="offline-map-preview"><NativeBasemap :key="nativeBasemap.path" :file-path="nativeBasemap.path" :bytes="nativeBasemap.bytes" /></view>
   <!-- #endif -->
   <text class="title">全球离线概览</text><button :disabled="busy" @click="saveWorld">保存全球陆地轮廓到本机</button><text class="hint">内置 Natural Earth 公共领域全球陆地轮廓（1:110m），无需联网即可保存和查看。仅供全球概览，不含详细道路、地形高程和导航信息。</text>
   <text class="title">官方参考资料</text><button :disabled="busy" @click="downloadHk">{{downloading ? '下载中…' : '下载香港郊野公园官方步道参考线'}}</button><text class="hint">来源：香港政府渔农自然护理署 / DATA.GOV.HK。参考线不包含底图、高程或当前开放许可；下载后可离线叠加查看。</text>
@@ -27,7 +33,7 @@ import {publicSnapshot} from '@/services/public-data';
 import { chooseNativeText } from '@/services/files';
 import { computed, ref, watch, nextTick } from 'vue';
 const mapScrollTarget=ref('');
-// #ifdef H5 || MP-WEIXIN
+// #ifdef H5 || MP-WEIXIN || APP-PLUS
 import {mapsCoveringLocation} from '@/services/basemap-catalog';
 const mapLocationMessage=ref('');
 const mapLatitude=ref(''),mapLongitude=ref(''),mapLocation=ref<{latitude:number;longitude:number}|null>(null);
@@ -81,6 +87,35 @@ function choose() {
   const input = document.createElement('input'); input.type = 'file'; input.accept = '.json,.geojson,application/json';
   input.onchange = async () => { const file = input.files?.[0]; if (!file) return; if (file.size > 5*1024*1024) { message.value = '资料超过5 MB'; return; } try { source.value = await file.text(); } catch { message.value = '读取失败'; } }; input.click();
 }
+// #endif
+// #ifdef APP-PLUS
+import NativeBasemap from '@/components/WechatBasemap.vue';
+import bundledNativeMaps from '@/data/basemap-packs.json';
+import {createMapCatalog as createNativeCatalog,requestMapCatalog as requestNativeCatalog,PUBLIC_MAP_DISTRIBUTION} from '@/services/basemap-catalog';
+import {createNativeMapApi} from '@/services/native-map-api';
+import {nativeMapRangeReader,type NativeMapIO} from '@/services/native-basemap-reader';
+import {createWechatMapStore as createNativeMapStore,type WechatMapView as NativeMapView} from '@/services/wechat-basemap-store';
+import {downloadWechatBasemap as downloadNativePack,type MapDownloadPack as NativeDownloadPack} from '@/services/wechat-basemap-download';
+import {verifyBasemapDigest as verifyNativeDigest} from '@/services/basemap-digest';
+import {openLocalBasemap as openNativeArchive} from '@/services/local-basemap';
+const nativeIO=plus.io as unknown as NativeMapIO;
+const nativeApi=createNativeMapApi(uni as unknown as Parameters<typeof createNativeMapApi>[0],nativeIO,path=>path.startsWith('_doc/')?path:plus.io.convertAbsoluteFileSystem(path),value=>uni.base64ToArrayBuffer(value));
+const nativeRead=(path:string,bytes:number)=>nativeMapRangeReader(nativeIO,path,bytes,value=>uni.base64ToArrayBuffer(value));
+const nativeStore=createNativeMapStore(nativeApi,(path,bytes)=>openNativeArchive(`native-${Date.now()}-${Math.random().toString(36).slice(2,10)}`,bytes,nativeRead(path,bytes)),'native');
+const nativeCatalog=createNativeCatalog(bundledNativeMaps,()=>requestNativeCatalog(PUBLIC_MAP_DISTRIBUTION));
+const nativeAvailableMaps=ref(nativeCatalog.snapshot()),nativeSavedMaps=ref<NativeMapView[]>([]),nativeBasemap=ref<{path:string;bytes:number}|null>(null);
+const visibleNativeMaps=computed(()=>mapLocation.value?mapsCoveringLocation(nativeAvailableMaps.value,mapLocation.value.latitude,mapLocation.value.longitude):nativeAvailableMaps.value);
+watch(nativeBasemap,file=>{if(file)void revealMap();});
+async function refreshNativeMaps(){nativeSavedMaps.value=await nativeStore.list();}
+onShow(async()=>{try{await refreshNativeMaps();}catch(e){message.value=e instanceof Error?e.message:'地图目录恢复失败';}try{nativeAvailableMaps.value=await nativeCatalog.refresh();}catch{message.value='地图目录暂时无法更新，保留已有目录';}});
+async function downloadNativeMap(pack:NativeDownloadPack){if(busy.value)return;mutating.value=true;try{
+ const existing=await nativeStore.find(pack.name,pack.bytes);
+ if(existing){message.value='正在校验已有地图';await verifyNativeDigest(nativeRead(existing.path,existing.bytes),existing.bytes,pack.sha256);nativeBasemap.value={path:existing.path,bytes:existing.bytes};message.value='已有地图校验通过，无需重复下载';return;}
+ const file=await downloadNativePack(nativeApi,pack,(n,stage)=>{message.value=`地图${stage==='verify'?'校验':'下载'} ${(n/1048576).toFixed(2)} MiB`;});
+ const saved=await nativeStore.save(file.path,file.bytes,pack.name);await refreshNativeMaps();nativeBasemap.value={path:saved.path,bytes:saved.bytes};message.value='地图已校验并保存到本机';
+}catch(e){message.value=e instanceof Error?e.message:'地图下载失败';}finally{mutating.value=false;}}
+async function viewNativeMap(id:string){if(busy.value)return;mutating.value=true;try{await refreshNativeMaps();const pack=nativeSavedMaps.value.find(row=>row.id===id);if(!pack)throw new Error('地图不在本机目录中');if(!pack.available)throw new Error(pack.issue);nativeBasemap.value={path:pack.path,bytes:pack.bytes};}catch(e){message.value=e instanceof Error?e.message:'地图读取失败';}finally{mutating.value=false;}}
+function removeNativeMap(id:string){if(busy.value)return;uni.showModal({title:'删除地图包',content:'删除本机地图副本？请保留原包。',success:async result=>{if(!result.confirm||busy.value)return;mutating.value=true;try{await nativeStore.remove(id);nativeBasemap.value=null;await refreshNativeMaps();message.value='地图已删除';}catch(e){message.value=e instanceof Error?e.message:'地图删除失败';}finally{mutating.value=false;}}});}
 // #endif
 // #ifdef MP-WEIXIN
 import WechatBasemap from '@/components/WechatBasemap.vue';
