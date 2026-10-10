@@ -10,6 +10,7 @@ const PAGE_SIZE=400,MAX_RECORDS=250000,HEX=/^[a-f0-9]{64}$/;
 const manifests=new Map(),pages=new Map(),indexes=new Map(),directCache=new Map(),pending=new Map();
 let pageBytes=0,indexBytes=0;
 const hash=buffer=>crypto.createHash('sha256').update(buffer).digest('hex');
+const SAFE_ERROR_CODES=new Set(['ECONNRESET','ETIMEDOUT','ENOTFOUND','EAI_AGAIN','ECONNREFUSED','ENOENT','EACCES','AbortError','TimeoutError','UND_ERR_CONNECT_TIMEOUT','UND_ERR_HEADERS_TIMEOUT','UND_ERR_SOCKET']);
 async function single(key,job){
  if(pending.has(key))return pending.get(key);
  const task=job();pending.set(key,task);try{return await task;}finally{pending.delete(key);}
@@ -125,5 +126,11 @@ exports.main=async event=>{
   }
   const responseTotal=Math.min(data.total,limit);
   return {snapshot:data.snapshot,checkedAt:result.checkedAt,upstreamAvailable:result.upstreamAvailable&&content.upstreamAvailable,metadata:{...data.metadata,sourceTotal:data.total,loadedTotal:responseTotal,complete:responseTotal===data.total},key:data.key,items:content.rows,total:responseTotal,page,hasMore:(page+1)*PAGE_SIZE<responseTotal};
- }catch{console.warn(JSON.stringify({event:'catalog-read-failed',source:event.source,stage}));return {errMsg:'资料暂时不可用，请保留上次成功同步的数据并稍后重试'};}
+ }catch(error){
+  const diagnostic={event:'catalog-read-failed',source:event.source,stage};
+  if(SAFE_ERROR_CODES.has(error?.code))diagnostic.errorCode=error.code;
+  else if(SAFE_ERROR_CODES.has(error?.name))diagnostic.errorCode=error.name;
+  console.warn(JSON.stringify(diagnostic));
+  return {errMsg:'资料暂时不可用，请保留上次成功同步的数据并稍后重试'};
+ }
 };
