@@ -6,7 +6,7 @@
     <view class="hero">
       <text class="hero-title">徒步地球</text>
       <text class="hero-sub">发现下一段旅程</text>
-      <text class="hero-sub">{{ ROUTES.length }} 条路线档案 · 新收录路线开放状态待核验</text>
+      <text class="hero-sub">本机已载入 {{ ROUTES.length }} 条路线档案 · 新收录路线开放状态待核验</text>
       <text class="hero-sub">路线数据 © OpenStreetMap contributors · ODbL</text>
       <view v-if="showSources || catalogRefreshing" class="source-status"><text v-for="source in catalogSources" :key="source.id" class="hero-sub">{{ source.label }}：{{ catalogRefreshState[source.id] ? '正在获取目录，已保存资料仍可查看' : catalogCacheState[source.id].message }}</text></view>
       <button size="mini" class="quiet" @click="showSources=!showSources">{{showSources?'收起同步状态':'目录同步状态'}}</button>

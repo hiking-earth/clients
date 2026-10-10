@@ -31,7 +31,7 @@
     "routeList": "visible",
     "sourceAttribution": "visible"
   },
-  "observedIssue": "Candidate displays 35,988 OSM route records while the current public snapshot contains 146,007; this candidate predates the latest client branch and is not the final build.",
+  "observedIssue": "The home screen displays 35,988 bundled/local route records; the current online OSM snapshot contains 146,007. These counts have different scopes, so this comparison alone does not prove a candidate data defect. The candidate source predates the latest client branch and is not the final build.",
   "screenshot": {
     "localPath": "~/.local/share/hiking-earth/acceptance/desktop-50/mac-window.png",
     "bytes": 528111,
