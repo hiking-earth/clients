@@ -18,5 +18,12 @@
     "passed": true,
     "nativeMapFiles": 0
   },
-  "regressionTests": 187
+  "regressionTests": 187,
+  "actualAppBuild": {
+    "passed": true,
+    "nativeViewerBytes": 1514336,
+    "sha256": "e123230eff2befb91aa9b297693f3cf8d04b528a1576102ac5cf930e97506ebb",
+    "matchesTrackedAsset": true
+  },
+  "untrackedAppSourceInputs": []
 }
