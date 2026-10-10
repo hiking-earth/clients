@@ -8,5 +8,8 @@
   "appBytes": 75113488,
   "runtimeAccepted": false,
   "installed": false,
-  "scope": "Downloaded cloud candidate mounted read-only and signature verified; no native UI acceptance"
+  "scope": "Downloaded cloud candidate mounted read-only and signature verified; no native UI acceptance",
+  "githubReleaseId": 408629789,
+  "remoteDigestMatches": true,
+  "remoteDigest": "sha256:a173d39a9ae8e749093bd578cdd998a24ce7027e106a8fa37b9bfaf3a35a43ea"
 }
