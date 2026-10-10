@@ -164,6 +164,52 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
+      - name: Windows bounded process launch check
+        if: matrix.os == 'windows-latest'
+        timeout-minutes: 2
+        shell: pwsh
+        env:
+          BUILD_RUN_ID: ${{ github.run_id }}
+          EXPECTED_COMMIT: ${{ github.sha }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $programs = @(Get-Item desktop/src-tauri/target/x86_64-pc-windows-msvc/release/hiking-earth-desktop.exe)
+          if ($programs.Count -ne 1) { throw 'Expected exactly one built program' }
+          $program = $programs[0]
+          $record = [ordered]@{schemaVersion=1; buildRun=$env:BUILD_RUN_ID; sourceCommit=$env:EXPECTED_COMMIT; sha256=(Get-FileHash $program.FullName -Algorithm SHA256).Hash.ToLower(); platform='windows-x64'; scope='Process launch only, not UI or business acceptance'; observedSeconds=20; passed=$false}
+          New-Item -ItemType Directory evidence -Force | Out-Null
+          $process = $null
+          try {
+            $process = Start-Process -FilePath $program.FullName -WorkingDirectory $program.DirectoryName -PassThru
+            if ($process.WaitForExit(20000)) { $record.exitCode=$process.ExitCode; throw 'Candidate exited during startup observation' }
+            $record.passed=$true
+          } finally {
+            try {
+              if ($null -ne $process -and -not $process.HasExited) {
+                $process.CloseMainWindow() | Out-Null
+                if (-not $process.WaitForExit(5000)) {
+                  $process.Kill()
+                  if (-not $process.WaitForExit(5000)) { throw 'Candidate did not terminate after cleanup' }
+                }
+              }
+              $record.cleanupSucceeded=$true
+            } catch {
+              $record.passed=$false
+              $record.cleanupSucceeded=$false
+              throw
+            } finally {
+              $record | ConvertTo-Json | Set-Content evidence/windows-launch.json -Encoding utf8
+            }
+          }
+      - name: Preserve Windows launch evidence
+        if: always() && matrix.os == 'windows-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-launch-evidence
+          path: evidence/windows-launch.json
+          if-no-files-found: warn
+          retention-days: 14
+
       - name: 保存 Windows 程序与打包产物
         if: always() && matrix.os == 'windows-latest'
         uses: actions/upload-artifact@v4
