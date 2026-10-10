@@ -14,7 +14,11 @@
         "www.nps.gov"
       ],
       "format": "rss",
-      "reuse": "metadata-links-only"
+      "reuse": "metadata-links-only",
+      "evidenceUrl": "https://www.nps.gov/grca/planyourvisit/rss-feed-info.htm",
+      "verifiedLinkAt": "2026-10-10",
+      "feedAcceptance": "accepted",
+      "feedVerifiedAt": "2026-10-10"
     },
     {
       "id": "nps-grand-canyon-backcountry",
@@ -29,7 +33,11 @@
         "www.nps.gov"
       ],
       "format": "rss",
-      "reuse": "metadata-links-only"
+      "reuse": "metadata-links-only",
+      "evidenceUrl": "https://www.nps.gov/grca/planyourvisit/rss-feed-info.htm",
+      "verifiedLinkAt": "2026-10-10",
+      "feedAcceptance": "accepted",
+      "feedVerifiedAt": "2026-10-10"
     },
     {
       "id": "nps-yellowstone-news",
