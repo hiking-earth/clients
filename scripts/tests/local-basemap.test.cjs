@@ -2,7 +2,7 @@ const test=require('node:test'),assert=require('node:assert/strict'),fs=require(
 const ts=require('../../app/node_modules/typescript'),pmtiles=require('../../app/node_modules/pmtiles');
 const exportsObject={};vm.runInNewContext(ts.transpileModule(fs.readFileSync(require.resolve('../../app/src/services/local-basemap.ts'),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020}}).outputText,{exports:exportsObject,ArrayBuffer,Uint8Array,require:()=>pmtiles});
 const {openLocalBasemap,localBasemapStyle}=exportsObject;
-const sample='/Users/nanyu/.local/share/hiking-earth/acceptance/offline-maps/lantau.pmtiles';
+const sample=require('node:path').resolve(__dirname,'../../app/map-assets/static/offline-maps/lantau-20261007.pmtiles');
 function fixture(){const buffer=fs.readFileSync(sample),calls=[];return {buffer,calls,read:async(offset,length)=>{calls.push({offset,length});const b=buffer.subarray(offset,offset+length);return b.buffer.slice(b.byteOffset,b.byteOffset+b.byteLength);}};}
 test('reject invalid identities and sizes before any reads',async()=>{for(const [id,size] of [['../bad',128],['good',0],['good',64*1024*1024+1]])await assert.rejects(openLocalBasemap(id,size,async()=>{throw new Error('must not read');}));});
 test('local geometry style has no external fonts/sprites/style URL',()=>{const s=localBasemapStyle('offline-basemap-test');assert.equal(s.sources.basemap.url,'pmtiles://offline-basemap-test');assert.equal(s.glyphs,undefined);assert.equal(s.sprite,undefined);assert.ok(s.layers.some(l=>l.id==='paths'));assert.throws(()=>localBasemapStyle('https://remote'));});
