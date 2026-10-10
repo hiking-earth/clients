@@ -1,3 +1,4 @@
+import {browserReportsOffline} from './network-state';
 export const PUBLIC_MAP_DISTRIBUTION='https://hiking-earth.nanyu20050927.chatgpt.site/client-app/';
 export function mapDistributionBase(desktop:boolean,localBase:string):string{return desktop?PUBLIC_MAP_DISTRIBUTION:localBase;}
 export interface MapCatalogPack {name:string;label:string;url:string;bytes:number;sha256:string;attribution:string;license:string;bounds?:number[]}
@@ -22,6 +23,7 @@ export function createMapCatalog(seed:unknown,request:()=>Promise<string>,now=()
 }
 export function requestMapCatalog(base:string):Promise<string>{
  if(!/^(?:https:\/\/[a-z0-9.-]+(?::[0-9]+)?|http:\/\/(?:localhost|127\.0\.0\.1|tauri\.localhost)(?::[0-9]+)?|tauri:\/\/localhost)\/(?:[a-zA-Z0-9_-]+\/)*$/.test(base))return Promise.reject(new Error('地图目录地址不受支持'));
+ if(browserReportsOffline())return Promise.reject(new Error('当前设备离线，保留本机地图目录，联网后再更新'));
  const url=base+'static/offline-maps/catalog.json';
  return new Promise((resolve,reject)=>uni.request({url,method:'GET',timeout:15000,dataType:'text',responseType:'text',success:r=>{if(r.statusCode!==200||typeof r.data!=='string')reject(new Error('地图目录暂时无法更新，保留已有目录'));else resolve(r.data);},fail:()=>reject(new Error('地图目录暂时无法更新，保留已有目录'))}));
 }

@@ -1,5 +1,5 @@
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),ts=require('../../app/node_modules/typescript');
-const out={};vm.runInNewContext(ts.transpileModule(fs.readFileSync('app/src/services/basemap-catalog.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020}}).outputText,{exports:out});
+let offline=false,requests=0;const out={};vm.runInNewContext(ts.transpileModule(fs.readFileSync('app/src/services/basemap-catalog.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020}}).outputText,{exports:out,require:()=>({browserReportsOffline:()=>offline}),uni:{request(){requests++;}}});
 const row={name:'test.pmtiles',label:'Test',url:'static/offline-maps/test.pmtiles',bytes:127,sha256:'a'.repeat(64),attribution:'OSM',license:'ODbL-1.0 Produced Work'};
 test('catalog rejects duplicate names, external URLs and missing rights',()=>{for(const rows of [[],[row,row],[{...row,url:'https://other/map'}],[{...row,attribution:''}],[{...row,bytes:NaN}]])assert.throws(()=>out.validateMapCatalog(rows));});
 test('success refresh coalesces and keeps independent snapshots',async()=>{let calls=0;const store=out.createMapCatalog([row],async()=>{calls++;return JSON.stringify([{...row,label:'New'}]);});const [a,b]=await Promise.all([store.refresh(),store.refresh()]);assert.equal(calls,1);assert.equal(a[0].label,'New');a[0].label='Changed';assert.equal(b[0].label,'New');await store.refresh();assert.equal(calls,1);});
@@ -20,3 +20,5 @@ test('location selection uses declared coverage and never implies coverage of un
 test('older catalog preserves verified bounds only for identical pack bytes',async()=>{
  for(const changed of [false,true]){const store=out.createMapCatalog([{...row,bounds:[0,0,1,1]}],async()=>JSON.stringify([{...row,sha256:changed?'b'.repeat(64):row.sha256}]));const packs=await store.refresh();assert.equal(Boolean(packs[0].bounds),!changed);}
 });
+
+test('explicitly offline map catalog does not issue a request',async()=>{offline=true;try{await assert.rejects(out.requestMapCatalog('https://example.com/client-app/'),/离线/);assert.equal(requests,0);}finally{offline=false;}});
