@@ -9,4 +9,6 @@ test('website reference and shared client use identical accent',()=>{
  if(!fs.existsSync('web/app/globals.css'))return;
  const css=fs.readFileSync('web/app/globals.css','utf8');
  assert.equal(css.match(/--lime:\s*(#[0-9a-f]{6})/i)?.[1].toLowerCase(),p.accent);
+ assert.match(css,/rgba\(184,243,107,/i,'website accent tints must use the published lime green');
+ assert.doesNotMatch(css,/rgba\(167,223,191,/i,'superseded mint-green accent tints must not remain');
 });
