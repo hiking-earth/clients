@@ -15,26 +15,26 @@
     ]
   },
   {
-    "name": "annapurna-20261007.pmtiles",
+    "name": "annapurna-20261009.pmtiles",
     "label": "安纳布尔纳周边局部底图",
-    "url": "static/offline-maps/annapurna-20261007.pmtiles",
+    "url": "static/offline-maps/annapurna-20261009.pmtiles",
     "bytes": 464863,
-    "sha256": "99293932ae1c3c3833895fe21828ee028616707dc7143dff53e98ecacae651c3",
+    "sha256": "a318a3b4faa4f5102124ba517fe6b3c80dcf456d8ea8d7b470d29ba02cf4eb37",
     "attribution": "© OpenStreetMap contributors · Protomaps",
     "license": "ODbL-1.0 Produced Work",
     "bounds": [
       83.85,
       28.45,
-      84,
+      84.0,
       28.6
     ]
   },
   {
-    "name": "aoraki-20261007.pmtiles",
+    "name": "aoraki-20261009.pmtiles",
     "label": "奥拉基库克山周边局部底图",
-    "url": "static/offline-maps/aoraki-20261007.pmtiles",
+    "url": "static/offline-maps/aoraki-20261009.pmtiles",
     "bytes": 720816,
-    "sha256": "f8766b6c7613f92c50cdf512fe77e58f5b99c5bfd4d043ddeca5c965cbf3b8cd",
+    "sha256": "3eb66f799e2add6992674ed7470f5d95816bfedb921988f67f15c0163e1e6813",
     "attribution": "© OpenStreetMap contributors · Protomaps",
     "license": "ODbL-1.0 Produced Work",
     "bounds": [
@@ -45,11 +45,11 @@
     ]
   },
   {
-    "name": "banff-20261007.pmtiles",
+    "name": "banff-20261009.pmtiles",
     "label": "班夫国家公园周边局部底图",
-    "url": "static/offline-maps/banff-20261007.pmtiles",
-    "bytes": 811892,
-    "sha256": "cb3a4c7cf33ecfda928a1f15fbf796517a7dfa54ae0cbf7d749caf7d9f1fcacd",
+    "url": "static/offline-maps/banff-20261009.pmtiles",
+    "bytes": 811627,
+    "sha256": "191bf9c79dfd3c2bcf88c0ef62ef913ad414de03e32e70e533aae826603d88e8",
     "attribution": "© OpenStreetMap contributors · Protomaps",
     "license": "ODbL-1.0 Produced Work",
     "bounds": [
@@ -60,11 +60,11 @@
     ]
   },
   {
-    "name": "blue-mountains-20261007.pmtiles",
+    "name": "blue-mountains-20261009.pmtiles",
     "label": "澳大利亚蓝山周边局部底图",
-    "url": "static/offline-maps/blue-mountains-20261007.pmtiles",
-    "bytes": 2965996,
-    "sha256": "6a8f8d6659f796fc9343f54915df622278cafa3209d81a0f9ccd2d3bf3b12f4d",
+    "url": "static/offline-maps/blue-mountains-20261009.pmtiles",
+    "bytes": 2965789,
+    "sha256": "4fce53c8f680bd197bef8bf802fe298ae4e2d801c656a3621c0878b7c454d7ed",
     "attribution": "© OpenStreetMap contributors · Protomaps",
     "license": "ODbL-1.0 Produced Work",
     "bounds": [
@@ -75,11 +75,11 @@
     ]
   },
   {
-    "name": "cappadocia-20261007.pmtiles",
+    "name": "cappadocia-20261009.pmtiles",
     "label": "卡帕多奇亚周边局部底图",
-    "url": "static/offline-maps/cappadocia-20261007.pmtiles",
-    "bytes": 1190071,
-    "sha256": "dcf2f3bbc49bc4b94ea28d01ff997bd5f6dd640b60aeeb54ff7fa4a6242c4daf",
+    "url": "static/offline-maps/cappadocia-20261009.pmtiles",
+    "bytes": 1190069,
+    "sha256": "99d44cfd8e4e8b40c20742cbfb29dba96f7a9d79b55cfafa3ee4206566662573",
     "attribution": "© OpenStreetMap contributors · Protomaps",
     "license": "ODbL-1.0 Produced Work",
     "bounds": [
@@ -90,26 +90,26 @@
     ]
   },
   {
-    "name": "chamonix-20261007.pmtiles",
+    "name": "chamonix-20261009.pmtiles",
     "label": "霞慕尼周边局部底图",
-    "url": "static/offline-maps/chamonix-20261007.pmtiles",
-    "bytes": 2648390,
-    "sha256": "d974e51bbf22f05c198568b2da17a91b538d12ce3d719cfbdd111813d63241fd",
+    "url": "static/offline-maps/chamonix-20261009.pmtiles",
+    "bytes": 2648610,
+    "sha256": "d2c16609ab13111337c1d3f88d551da6cd40d3ddfc2b6b9a616ed9ba0d35bfa2",
     "attribution": "© OpenStreetMap contributors · Protomaps",
     "license": "ODbL-1.0 Produced Work",
     "bounds": [
       6.8,
       45.86,
       6.94,
-      45.9799999
+      45.98
     ]
   },
   {
-    "name": "dolomites-20261007.pmtiles",
+    "name": "dolomites-20261009.pmtiles",
     "label": "多洛米蒂周边局部底图",
-    "url": "static/offline-maps/dolomites-20261007.pmtiles",
-    "bytes": 3791992,
-    "sha256": "3b41637cb6fc7614d5ce6025d95723ab0ecd626d506df065ba784eed3b3554b2",
+    "url": "static/offline-maps/dolomites-20261009.pmtiles",
+    "bytes": 3792613,
+    "sha256": "abaa04fc5bf1ce9b8bc7fd18e3823eac49faf3e374cd0051908f6f44d9bea525",
     "attribution": "© OpenStreetMap contributors · Protomaps",
     "license": "ODbL-1.0 Produced Work",
     "bounds": [
@@ -120,41 +120,41 @@
     ]
   },
   {
-    "name": "el-chalten-20261007.pmtiles",
+    "name": "el-chalten-20261009.pmtiles",
     "label": "埃尔查尔滕周边局部底图",
-    "url": "static/offline-maps/el-chalten-20261007.pmtiles",
+    "url": "static/offline-maps/el-chalten-20261009.pmtiles",
     "bytes": 827431,
-    "sha256": "4544d5ddf2309573735768f8734d0349e19fb0f64457682255c9e3ec84e2f225",
+    "sha256": "3550073275dfdc05bed7b4fb791e14b568af9362bbfe468abac1c168a4ccff36",
     "attribution": "© OpenStreetMap contributors · Protomaps",
     "license": "ODbL-1.0 Produced Work",
     "bounds": [
-      -73,
+      -73.0,
       -49.4,
       -72.85,
       -49.25
     ]
   },
   {
-    "name": "everest-20261007.pmtiles",
+    "name": "everest-20261009.pmtiles",
     "label": "珠峰地区周边局部底图",
-    "url": "static/offline-maps/everest-20261007.pmtiles",
-    "bytes": 700471,
-    "sha256": "171c85ba22ff1bf34e63b2dbe7e40316d44ab7ea63a464152a784d5ba880068e",
+    "url": "static/offline-maps/everest-20261009.pmtiles",
+    "bytes": 700522,
+    "sha256": "235407e7ecaaf6be4939273a64b44444d893d6fef57cdcb358b7601fdd13ab2f",
     "attribution": "© OpenStreetMap contributors · Protomaps",
     "license": "ODbL-1.0 Produced Work",
     "bounds": [
       86.7,
       27.85,
       86.85,
-      28
+      28.0
     ]
   },
   {
-    "name": "fuji-20261007.pmtiles",
+    "name": "fuji-20261009.pmtiles",
     "label": "富士山周边局部底图",
-    "url": "static/offline-maps/fuji-20261007.pmtiles",
+    "url": "static/offline-maps/fuji-20261009.pmtiles",
     "bytes": 845089,
-    "sha256": "c80ae604c7de0351e4ef2e4fdf13a6f3b06473f8a067ecba8c68d12bda79847f",
+    "sha256": "687beaa73728a457312e678836d3795bc4e56bb7886733a5401f352761d0dda4",
     "attribution": "© OpenStreetMap contributors · Protomaps",
     "license": "ODbL-1.0 Produced Work",
     "bounds": [
@@ -165,11 +165,11 @@
     ]
   },
   {
-    "name": "grand-canyon-20261007.pmtiles",
+    "name": "grand-canyon-20261009.pmtiles",
     "label": "大峡谷周边局部底图",
-    "url": "static/offline-maps/grand-canyon-20261007.pmtiles",
-    "bytes": 1428708,
-    "sha256": "ebaf48f858cf6749b323478bb7506444405a3f6d1069daaceac9a2774da4b065",
+    "url": "static/offline-maps/grand-canyon-20261009.pmtiles",
+    "bytes": 1428687,
+    "sha256": "d9d14c6b9c35b4bebc32c934a57e9973f234f43ff9a3689f8a4c7d0fb25e9ec5",
     "attribution": "© OpenStreetMap contributors · Protomaps",
     "license": "ODbL-1.0 Produced Work",
     "bounds": [
@@ -180,11 +180,11 @@
     ]
   },
   {
-    "name": "iceland-highlands-20261007.pmtiles",
+    "name": "iceland-highlands-20261009.pmtiles",
     "label": "冰岛高地周边局部底图",
-    "url": "static/offline-maps/iceland-highlands-20261007.pmtiles",
+    "url": "static/offline-maps/iceland-highlands-20261009.pmtiles",
     "bytes": 371156,
-    "sha256": "53bb8e17b1b33b746159c17f2e244ff1b3684bc0e2c8b8922a53faa3468af14a",
+    "sha256": "5c29abe9078b984cebb331d25bcaaa2f6ab514f29a2c64e995b9b30db8f54861",
     "attribution": "© OpenStreetMap contributors · Protomaps",
     "license": "ODbL-1.0 Produced Work",
     "bounds": [
@@ -195,26 +195,26 @@
     ]
   },
   {
-    "name": "kilimanjaro-20261007.pmtiles",
+    "name": "kilimanjaro-20261009.pmtiles",
     "label": "乞力马扎罗周边局部底图",
-    "url": "static/offline-maps/kilimanjaro-20261007.pmtiles",
-    "bytes": 260059,
-    "sha256": "e0d09aefa1a22a1e5ea134e24137238f24a44744a5179c6ed9f5f0bc4653f6da",
+    "url": "static/offline-maps/kilimanjaro-20261009.pmtiles",
+    "bytes": 260055,
+    "sha256": "5bc43b9e162aaf5a81ecc4319a81e810bf242cc1af63a530e978627552a4ea48",
     "attribution": "© OpenStreetMap contributors · Protomaps",
     "license": "ODbL-1.0 Produced Work",
     "bounds": [
       37.3,
       -3.15,
       37.45,
-      -3
+      -3.0
     ]
   },
   {
-    "name": "kumano-kodo-20261007.pmtiles",
+    "name": "kumano-kodo-20261009.pmtiles",
     "label": "熊野古道周边局部底图",
-    "url": "static/offline-maps/kumano-kodo-20261007.pmtiles",
-    "bytes": 811573,
-    "sha256": "6aa22fdfb186ff07759da9632fc3a011bfbf103099984abc677cb845923c7fc3",
+    "url": "static/offline-maps/kumano-kodo-20261009.pmtiles",
+    "bytes": 811579,
+    "sha256": "eb5af174f7138acb671f668dbe6333eaac5b6466a611ad93077425bee5582463",
     "attribution": "© OpenStreetMap contributors · Protomaps",
     "license": "ODbL-1.0 Produced Work",
     "bounds": [
@@ -225,26 +225,26 @@
     ]
   },
   {
-    "name": "lake-district-20261007.pmtiles",
+    "name": "lake-district-20261009.pmtiles",
     "label": "英国湖区周边局部底图",
-    "url": "static/offline-maps/lake-district-20261007.pmtiles",
-    "bytes": 3889764,
-    "sha256": "8fe57871bde0c0acd635bced2a2aeee334bfaadc0df2520dce1d2cded7879ef9",
+    "url": "static/offline-maps/lake-district-20261009.pmtiles",
+    "bytes": 3889768,
+    "sha256": "91fc06519b14b33ba9b93c93f096a49195439f70246476fe10f77c5085d514d0",
     "attribution": "© OpenStreetMap contributors · Protomaps",
     "license": "ODbL-1.0 Produced Work",
     "bounds": [
       -3.15,
       54.35,
-      -3,
+      -3.0,
       54.5
     ]
   },
   {
-    "name": "lantau-20261007.pmtiles",
+    "name": "lantau-20261009.pmtiles",
     "label": "香港大屿山局部底图",
-    "url": "static/offline-maps/lantau-20261007.pmtiles",
-    "bytes": 703302,
-    "sha256": "659122aa3d724e932e8b799134cdbed0c12cd0eef61f17a87bc6ec0c60558b89",
+    "url": "static/offline-maps/lantau-20261009.pmtiles",
+    "bytes": 703305,
+    "sha256": "cd2de4209f8df1b7b3ceb6fa788b3a7672d8a7f387a3c6610017172ac9c8155d",
     "attribution": "© OpenStreetMap contributors · Protomaps",
     "license": "ODbL-1.0 Produced Work",
     "bounds": [
@@ -255,11 +255,11 @@
     ]
   },
   {
-    "name": "madeira-20261007.pmtiles",
+    "name": "madeira-20261009.pmtiles",
     "label": "马德拉岛周边局部底图",
-    "url": "static/offline-maps/madeira-20261007.pmtiles",
-    "bytes": 3608483,
-    "sha256": "95738a79a0e7dafdf5d10791493860dd07ed829bf378ca98e9a26c91984dce0a",
+    "url": "static/offline-maps/madeira-20261009.pmtiles",
+    "bytes": 3608510,
+    "sha256": "38bb72a780a65da63f6a8c0553bfb03dfda807c8d95dbeb87010d2fe3b69e697",
     "attribution": "© OpenStreetMap contributors · Protomaps",
     "license": "ODbL-1.0 Produced Work",
     "bounds": [
@@ -270,11 +270,11 @@
     ]
   },
   {
-    "name": "milford-track-20261007.pmtiles",
+    "name": "milford-track-20261009.pmtiles",
     "label": "米尔福德步道周边局部底图",
-    "url": "static/offline-maps/milford-track-20261007.pmtiles",
+    "url": "static/offline-maps/milford-track-20261009.pmtiles",
     "bytes": 667979,
-    "sha256": "ff74f7042402efde44f10e588628e9c87e5627d844d3f175182245cfeaf63b89",
+    "sha256": "b335227806cf4b001baf0bef35a96f99f11477ff20be41b583ed8aed95783c13",
     "attribution": "© OpenStreetMap contributors · Protomaps",
     "license": "ODbL-1.0 Produced Work",
     "bounds": [
@@ -285,11 +285,11 @@
     ]
   },
   {
-    "name": "table-mountain-20261007.pmtiles",
+    "name": "table-mountain-20261009.pmtiles",
     "label": "桌山周边局部底图",
-    "url": "static/offline-maps/table-mountain-20261007.pmtiles",
-    "bytes": 4484693,
-    "sha256": "1a508ea257eb5d2757bd53e2845295a3b131faf1fcb40704e11fe6cb6475e845",
+    "url": "static/offline-maps/table-mountain-20261009.pmtiles",
+    "bytes": 4497875,
+    "sha256": "49fe75ebf15a4eb85994d1544fda752e9d080a891d233ceec305b1f0be5f4f82",
     "attribution": "© OpenStreetMap contributors · Protomaps",
     "license": "ODbL-1.0 Produced Work",
     "bounds": [
@@ -300,11 +300,11 @@
     ]
   },
   {
-    "name": "torres-del-paine-20261007.pmtiles",
+    "name": "torres-del-paine-20261009.pmtiles",
     "label": "百内国家公园周边局部底图",
-    "url": "static/offline-maps/torres-del-paine-20261007.pmtiles",
+    "url": "static/offline-maps/torres-del-paine-20261009.pmtiles",
     "bytes": 322671,
-    "sha256": "ca5fb450dacf6fa849cd3fec602318961b8d2bf478596e1e8861bc112b6db3d8",
+    "sha256": "9378312ad0433fef86c9b0d888f55068d928be7c4bc46df02ac0c5d0316fdf74",
     "attribution": "© OpenStreetMap contributors · Protomaps",
     "license": "ODbL-1.0 Produced Work",
     "bounds": [
@@ -315,26 +315,26 @@
     ]
   },
   {
-    "name": "world-overview-20261007.pmtiles",
+    "name": "world-overview-20261009.pmtiles",
     "label": "全球离线概览底图（缩放0–5级）",
-    "url": "static/offline-maps/world-overview-20261007.pmtiles",
-    "bytes": 15049547,
-    "sha256": "0ef4fdda656e07bef9b0c126266ee4597315a68a3273cbc9922e7af40fb99f4a",
+    "url": "static/offline-maps/world-overview-20261009.pmtiles",
+    "bytes": 15048112,
+    "sha256": "79185a9aaa5f762ca5f6f749aa20625ce2535e623ee1daf092afc5580f380ac2",
     "attribution": "© OpenStreetMap contributors · Protomaps",
     "license": "ODbL-1.0 Produced Work",
     "bounds": [
-      -180,
-      -85.0511287,
-      180,
-      85.0511287
+      -180.0,
+      -85.05112878,
+      180.0,
+      85.05112878
     ]
   },
   {
-    "name": "yosemite-valley-20261007.pmtiles",
+    "name": "yosemite-valley-20261009.pmtiles",
     "label": "优胜美地谷周边局部底图",
-    "url": "static/offline-maps/yosemite-valley-20261007.pmtiles",
+    "url": "static/offline-maps/yosemite-valley-20261009.pmtiles",
     "bytes": 2317599,
-    "sha256": "46169da0cb56d1bbb379fa9ee3f4b1eee1e9083754ccc90e36bd01d600869029",
+    "sha256": "97a4165b53b39be6e256e8fa4cc163078bf895ddba1b40f8328815667399eb73",
     "attribution": "© OpenStreetMap contributors · Protomaps",
     "license": "ODbL-1.0 Produced Work",
     "bounds": [
