@@ -17,3 +17,6 @@ test('location selection uses declared coverage and never implies coverage of un
  assert.equal(out.mapsCoveringLocation(packs,22.5,113.5).length,1);assert.equal(out.mapsCoveringLocation(packs,0,0).length,0);
  for(const args of [[NaN,0],[91,0],[0,181]])assert.throws(()=>out.mapsCoveringLocation(packs,...args));
 });
+test('older catalog preserves verified bounds only for identical pack bytes',async()=>{
+ for(const changed of [false,true]){const store=out.createMapCatalog([{...row,bounds:[0,0,1,1]}],async()=>JSON.stringify([{...row,sha256:changed?'b'.repeat(64):row.sha256}]));const packs=await store.refresh();assert.equal(Boolean(packs[0].bounds),!changed);}
+});

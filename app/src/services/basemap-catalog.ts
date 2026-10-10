@@ -17,7 +17,7 @@ export function createMapCatalog(seed:unknown,request:()=>Promise<string>,now=()
  const snapshot=()=>packs.map(row=>({...row,...(row.bounds?{bounds:[...row.bounds]}:{})}));
  return {snapshot,refresh():Promise<MapCatalogPack[]>{
   if(pending)return pending.then(()=>snapshot());if(now()<next)return Promise.resolve(snapshot());
-  pending=(async()=>{try{const text=await Promise.resolve().then(request);if(typeof text!=='string'||text.length>256*1024)throw new Error('地图目录过大');const updated=validateMapCatalog(JSON.parse(text));packs=updated;next=now()+3600000;return snapshot();}catch(error){next=now()+60000;throw error;}finally{pending=null;}})();return pending.then(()=>snapshot());
+  pending=(async()=>{try{const text=await Promise.resolve().then(request);if(typeof text!=='string'||text.length>256*1024)throw new Error('地图目录过大');const updated=validateMapCatalog(JSON.parse(text));packs=updated.map(row=>{if(row.bounds)return row;const known=packs.find(old=>old.name===row.name&&old.bytes===row.bytes&&old.sha256===row.sha256);return known?.bounds?{...row,bounds:[...known.bounds]}:row;});next=now()+3600000;return snapshot();}catch(error){next=now()+60000;throw error;}finally{pending=null;}})();return pending.then(()=>snapshot());
  }};
 }
 export function requestMapCatalog(base:string):Promise<string>{
