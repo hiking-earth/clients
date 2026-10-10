@@ -1,5 +1,5 @@
 const fs=require('node:fs'),path=require('node:path'),esbuild=require('esbuild');
-const root=path.resolve(__dirname,'..'),output=path.join(root,'src/static/native-map');fs.mkdirSync(output,{recursive:true});
+const root=path.resolve(__dirname,'..'),output=path.join(root,'native-assets/static/native-map');fs.mkdirSync(output,{recursive:true});
 const main=esbuild.buildSync({entryPoints:[path.join(root,'map-viewer/main.js')],bundle:true,write:false,format:'iife',target:'es2020',minify:true}).outputFiles[0].text;
 const worker=esbuild.buildSync({entryPoints:[path.join(root,'node_modules/maplibre-gl/dist/maplibre-gl-worker.mjs')],bundle:true,write:false,format:'iife',target:'es2020',minify:true}).outputFiles[0].text;
 const css=fs.readFileSync(path.join(root,'node_modules/maplibre-gl/dist/maplibre-gl.css'),'utf8');

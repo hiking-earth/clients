@@ -1,7 +1,7 @@
 import { defineConfig } from "vite";
 import uni from "@dcloudio/vite-plugin-uni";
 import path from "node:path";
-import {cpSync,mkdirSync} from "node:fs";
+import {cpSync,mkdirSync,rmSync} from "node:fs";
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -22,11 +22,13 @@ export default defineConfig({
     apply: 'build',
     closeBundle() {
       const platform = process.env.UNI_PLATFORM;
-      if (platform !== 'h5' && platform !== 'app' && platform !== 'app-plus') return;
-      const output = path.resolve(process.env.UNI_OUTPUT_DIR || 'dist/build/h5');
+      if (!['h5','app','app-plus','mp-weixin'].includes(platform || '')) return;
+      const output = path.resolve(process.env.UNI_OUTPUT_DIR || `dist/build/${platform}`);
       const relative = path.relative(path.resolve(__dirname, 'dist'), output);
       if (relative.startsWith('..') || path.isAbsolute(relative)) throw new Error('Unexpected client build output');
       const isNative = platform === 'app' || platform === 'app-plus';
+      if (!isNative) rmSync(path.join(output, 'static', 'native-map'), {recursive: true, force: true});
+      if (platform !== 'h5' && platform !== 'app' && platform !== 'app-plus') return;
       const directory = isNative ? 'native-map' : 'offline-maps';
       const target = path.join(output, 'static', directory);
       mkdirSync(target, {recursive: true});

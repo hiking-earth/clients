@@ -1,0 +1,22 @@
+{
+  "cause": "Generator still wrote App-only map viewer into shared src/static while build hook already uses native-assets",
+  "change": "Generator now writes native-assets/static/native-map",
+  "backup": "/Users/nanyu/.local/share/hiking-earth/backups/native-map-static-20261010/viewer.html",
+  "sha256": "65a7cad3c634ec00b82dea2f2bd2e54d5e5a87c9bf770ebf67d5072bb0365730",
+  "sourceAssetRetained": "app/native-assets/static/native-map/viewer.html",
+  "limits": [
+    "Earlier resource archives retain their recorded extra input and remain historical",
+    "New platform builds require verification"
+  ],
+  "actualWechatBuild": {
+    "passed": true,
+    "files": 176,
+    "bytes": 1483218,
+    "nativeMapFiles": 0
+  },
+  "actualH5Build": {
+    "passed": true,
+    "nativeMapFiles": 0
+  },
+  "regressionTests": 187
+}
