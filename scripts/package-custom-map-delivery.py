@@ -3,6 +3,7 @@
 import argparse, hashlib, json, pathlib, re, zipfile
 
 def package(source, target):
+    if (source/'catalog.json').is_symlink():raise ValueError('Linked catalog rejected')
     rows=json.loads((source/'catalog.json').read_text())
     if not isinstance(rows,list) or not 1<=len(rows)<=32:raise ValueError('Invalid map inventory')
     names=set()
@@ -15,6 +16,17 @@ def package(source, target):
         if not row.get('license') or not row.get('attribution'):raise ValueError('Map reuse attribution missing')
     inventory=source/'source-inventory.json'
     if inventory.is_symlink() or not inventory.is_file():raise ValueError('Source inventory missing')
+    provenance=json.loads(inventory.read_text())
+    if not isinstance(provenance,dict) or provenance.get('schemaVersion')!=1 or provenance.get('accessVerified') is not False or provenance.get('terrainIncluded') is not False:raise ValueError('Invalid source inventory')
+    records=provenance.get('maps')
+    if not isinstance(records,list) or len(records)!=len(rows):raise ValueError('Incomplete source inventory')
+    by_name={record.get('file'):record for record in records if isinstance(record,dict)}
+    if set(by_name)!=names or len(by_name)!=len(records):raise ValueError('Source inventory file mismatch')
+    for row in rows:
+        record=by_name[row['name']]
+        if any(record.get(key)!=row.get(key) for key in ['bytes','sha256','license','attribution','bounds']) or record.get('name')!=row.get('label') or record.get('license')!='ODbL-1.0 Produced Work' or not record.get('sourcePolicy'):raise ValueError('Source inventory attribution or digest mismatch')
+    total=sum(row['bytes'] for row in rows)
+    if total>500_000_000 or provenance.get('bytes')!=total:raise ValueError('Distribution total mismatch')
     if target.exists():raise ValueError('Delivery output already exists')
     with zipfile.ZipFile(target,'x',zipfile.ZIP_DEFLATED) as archive:
         for name in sorted(names|{'catalog.json','source-inventory.json'}):archive.write(source/name,name)
