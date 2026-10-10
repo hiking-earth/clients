@@ -9,5 +9,20 @@
   "failureMessage": "Client network socket disconnected before secure TLS connection was established",
   "phase": "Fetching AppID permissions",
   "runtimeAcceptance": false,
-  "decision": "Do not count CLI exit zero as acceptance; preserve build and avoid duplicate automation sessions. Same-cause recovery capped at three."
+  "decision": "Do not count CLI exit zero as acceptance; preserve build and avoid duplicate automation sessions. Same-cause recovery capped at three.",
+  "recoveryAttempts": [
+    {
+      "attempt": 1,
+      "failureCode": "ECONNRESET",
+      "automationReady": false
+    },
+    {
+      "attempt": 2,
+      "checkedAt": "2026-10-10T08:35:22.590987+00:00",
+      "failureCode": "ECONNRESET",
+      "processExitCode": 0,
+      "automationReady": false
+    }
+  ],
+  "nextRecoveryAttempt": 3
 }
