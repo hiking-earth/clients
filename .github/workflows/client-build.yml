@@ -4,7 +4,7 @@ on:
   workflow_call:
   push:
     branches: [main]
-    paths: ['app/**', 'shared/**', '.github/workflows/client-build.yml']
+    paths: ['app/**', 'shared/**', 'scripts/check-package-budget.py', '.github/workflows/client-build.yml']
 permissions:
   contents: read
 concurrency:
@@ -39,6 +39,11 @@ jobs:
         env:
           VITE_CLIENT_API_URL: ${{ vars.CLIENT_API_URL }}
         run: npm run build:${{ matrix.platform }}
+      - name: Enforce 500 MB client install budget
+        run: >-
+          python3 scripts/check-package-budget.py
+          "app/dist/build/${{ matrix.platform }}"
+          --report "$RUNNER_TEMP/client-${{ matrix.platform }}-size-budget.json"
       - uses: actions/upload-artifact@v4
         with:
           name: client-${{ matrix.platform }}-${{ github.sha }}
