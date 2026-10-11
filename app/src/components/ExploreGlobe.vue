@@ -48,7 +48,7 @@ function draw(){
  ctx.draw();
 }
 async function measure(){await nextTick();uni.createSelectorQuery().in(instance?.proxy).select('#'+id).boundingClientRect((v:any)=>{if(v?.width){width=v.width;canvasBounds={left:v.left,top:v.top};schedule();}}).exec();}
-function resize(){const w=uni.getSystemInfoSync();height.value=w.windowWidth>=800?Math.max(360,w.windowHeight-166):340;void measure();}
+function resize(){const w=uni.getSystemInfoSync();height.value=w.windowWidth>=800?Math.max(360,w.windowHeight-162):340;void measure();}
 // #ifdef H5
 let nativeCanvas:HTMLElement|null=null;
 const mouseBindings=[['mousedown',mouseStart],['mousemove',mouseMove],['mouseup',end],['mouseleave',cancel],['wheel',wheel]] as const;

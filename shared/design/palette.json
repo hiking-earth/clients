@@ -6,5 +6,12 @@
   "text": "#f4f8f2",
   "muted": "#a7b5aa",
   "accent": "#b8f36b",
-  "border": "#29323a"
+  "border": "#29323a",
+  "homeTopbarHeight": "66px",
+  "homeTopbarRadius": "20px",
+  "homeBrandMarkSize": "40px",
+  "homePanelWidth": "374px",
+  "homeMobileTopbarHeight": "58px",
+  "homeMobileTopbarRadius": "17px",
+  "homeMobileBrandMarkSize": "36px"
 }

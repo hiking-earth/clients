@@ -11,9 +11,19 @@ for (const key of keys) {
     throw new Error(`Invalid shared palette value: ${key}`);
   }
 }
+const layoutKeys = ['homeTopbarHeight', 'homeTopbarRadius', 'homeBrandMarkSize', 'homePanelWidth',
+  'homeMobileTopbarHeight', 'homeMobileTopbarRadius', 'homeMobileBrandMarkSize'];
+for (const key of layoutKeys) {
+  if (typeof palette[key] !== 'string' || !/^\d+(?:\.\d+)?px$/.test(palette[key])) {
+    throw new Error(`Invalid shared layout value: ${key}`);
+  }
+}
 const css = `/* Generated from shared/design/palette.json by scripts/sync-design-palette.mjs. */
 :root {
-${keys.map(key => `  --he-color-${key}: ${palette[key]};`).join('\n')}
+${[
+  ...keys.map(key => `  --he-color-${key}: ${palette[key]};`),
+  ...layoutKeys.map(key => `  --he-${key.replace(/[A-Z]/g, letter => `-${letter.toLowerCase()}`)}: ${palette[key]};`),
+].join('\n')}
 }
 `;
 writeFileSync(path.join(root, 'shared/design/palette.css'), css);
