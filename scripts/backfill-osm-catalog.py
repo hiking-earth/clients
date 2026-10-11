@@ -6,7 +6,7 @@ import argparse,datetime,json,pathlib,time,os,math,atexit
 from importlib.machinery import SourceFileLoader
 SOURCE=SourceFileLoader('hiking_osm',str(pathlib.Path(__file__).with_name('update-route-catalog.py'))).load_module()
 ROOT=pathlib.Path(__file__).resolve().parents[1];DEST=ROOT/'shared/data/catalog/osm.json';STATE=ROOT/'shared/data/catalog/osm-backfill-state.json'
-REGION_PRIORITY=['china','japan','south-asia','europe','north-america','oceania','south-america','africa']
+REGION_PRIORITY=['china','japan','south-asia','europe','north-america','oceania','south-america','africa','asia']
 # Approximate destination/city centers spread the first passes across more
 # provinces; they affect queue order only and are not route/access assertions.
 CHINA_HIKING_HOTSPOTS=[

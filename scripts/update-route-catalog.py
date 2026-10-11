@@ -3,6 +3,9 @@
 import argparse, datetime, hashlib, json, math, pathlib, re, tempfile, time, urllib.request, urllib.parse, urllib.error, os
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 REGIONS = {'china': (18,73,54,135), 'europe': (35,-11,71,35), 'north-america': (24,-130,60,-60), 'japan': (30,129,46,146), 'oceania': (-48,110,-10,179), 'south-america': (-56,-82,13,-34), 'africa': (-35,-18,37,52), 'south-asia': (5,65,36,100)}
+# PBF country extracts may add Asian discovery records without enabling a
+# broad public Overpass bounding-box scan of the continent.
+DISCOVERY_REGIONS = set(REGIONS) | {'asia'}
 MAX_DAILY_BYTES = 8 * 1024 * 1024
 MAX_DAILY_QUERIES = 64
 MAX_RESPONSE_BYTES = 1024 * 1024
@@ -122,7 +125,7 @@ def validate_previous_snapshot(previous, path):
     if not isinstance(previous, dict) or not isinstance(previous.get('routes'), list):
         raise SystemExit(f'Invalid OSM catalog snapshot at {path}; previous snapshot retained')
     seen=set()
-    allowed_regions=set(REGIONS)|{'hong-kong','macao'}
+    allowed_regions=DISCOVERY_REGIONS|{'hong-kong','macao'}
     for index, route in enumerate(previous['routes']):
         if not isinstance(route, dict):
             raise SystemExit(f'Invalid OSM route at index {index}; previous snapshot retained')
@@ -224,7 +227,7 @@ def main():
                 if rid in staged:continue
                 old=records.get(rid)
                 old_region=old.get('region') if old else None
-                chosen=old_region if old_region in REGIONS or old_region in ('hong-kong','macao') else observed
+                chosen=old_region if old_region in DISCOVERY_REGIONS or old_region in ('hong-kong','macao') else observed
                 old_status=old.get('status') if old and isinstance(old.get('status'),str) else '待核验'
                 row={'id':rid,'name':tags.get('name:zh') or tags['name'],'originalName':tags['name'],'region':chosen,'center':[lon,lat], 'sourceUrl':f'https://www.openstreetmap.org/relation/{rid_value}','sourceTags':{k:v for k,v in tags.items() if k in ('distance','ascent','descent','network','operator','website','description','access','ref')},'fetchedAt':now,'status':old_status}
                 if active_cycle:row['lastSeenCycle']=active_cycle

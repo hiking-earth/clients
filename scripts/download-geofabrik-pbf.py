@@ -111,6 +111,8 @@ def main():
     parser.add_argument("--workers", type=int, default=6)
     parser.add_argument("--chunk-mib", type=int, default=8)
     parser.add_argument("--attempts", type=int, default=3, help="Attempts per range before preserving state and stopping")
+    parser.add_argument("--max-bytes", type=int, default=MAX_BYTES,
+                        help="Reject larger extracts before allocating a partial download")
     args = parser.parse_args()
     if not valid_url(args.url) or not args.url.lower().endswith(".osm.pbf"):
         parser.error("--url must be a pinned HTTPS .osm.pbf URL on download.geofabrik.de")
@@ -123,6 +125,8 @@ def main():
         parser.error("--chunk-mib must be 1..32")
     if type(args.attempts) is not int or not 1 <= args.attempts <= 5:
         parser.error("--attempts must be 1..5")
+    if type(args.max_bytes) is not int or not 1 <= args.max_bytes <= MAX_BYTES:
+        parser.error(f"--max-bytes must be 1..{MAX_BYTES}")
 
     output = args.output.expanduser().resolve()
     output.parent.mkdir(parents=True, exist_ok=True)
@@ -139,6 +143,8 @@ def main():
             raise SystemExit("Output already exists; preserve it and choose a new path")
 
         size = discover_size(args.url)
+        if size > args.max_bytes:
+            raise SystemExit(f"PBF is {size} bytes; configured source cap is {args.max_bytes} bytes")
         expected_md5 = fetch_md5(checksum_url)
         required_free = size + 128 * 1024 * 1024
         if shutil.disk_usage(output.parent).free < required_free:

@@ -1,7 +1,7 @@
 import { ROUTES as curated } from './routes.seed';
 import { discoveryNameReview, discoveryTagHighlights, discoveryTagValue } from './discovery-tags';
 import type { HikingRoute } from '../types/route';
-const regions: Record<string, string> = {china:'中国检索区域','hong-kong':'香港',macao:'澳门',europe:'欧洲','north-america':'北美',japan:'日本及周边检索区域',oceania:'大洋洲','south-america':'南美',africa:'非洲','south-asia':'南亚'};
+const regions: Record<string, string> = {china:'中国检索区域','hong-kong':'香港',macao:'澳门',europe:'欧洲','north-america':'北美',japan:'日本及周边检索区域',oceania:'大洋洲','south-america':'南美',africa:'非洲','south-asia':'南亚',asia:'亚洲'};
 // Discovery records never gain navigation or opening permission from OSM presence.
 export function catalogRoutes(data: {routes: any[], attribution?: string}): HikingRoute[] {
   return data.routes.map((raw: any) => {

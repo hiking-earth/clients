@@ -19,6 +19,7 @@ class PbfRegionClassificationTests(unittest.TestCase):
 
     def test_other_regions_are_not_reclassified(self):
         self.assertEqual(importer.classify_region('japan', 139.7, 35.6), 'japan')
+        self.assertEqual(importer.classify_region('asia', 100.5, 13.7), 'asia')
 
 
 if __name__ == '__main__':

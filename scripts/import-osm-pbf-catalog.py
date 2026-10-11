@@ -24,7 +24,7 @@ ROOT = Path(__file__).resolve().parents[1]
 DEST = ROOT / "shared/data/catalog/osm.json"
 REGIONS = (
     "china", "hong-kong", "macao", "europe", "north-america", "japan",
-    "oceania", "south-america", "africa", "south-asia",
+    "oceania", "south-america", "africa", "south-asia", "asia",
 )
 TAG_ALLOWLIST = (
     "distance", "ascent", "descent", "network", "operator", "website",
