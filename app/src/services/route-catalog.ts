@@ -7,11 +7,12 @@ import { ROUTES as seed } from '@shared/data/routes.seed';
 // embedded into every H5, native app, or mini-program package.
 let latestUsfs:any={routes:[],attribution:'USDA Forest Service'};
 let latestHk:any={routes:[],attribution:'DATA.GOV.HK-terms-1.2'};
+let latestNzdoc:any={routes:[],attribution:'Crown Copyright: Department of Conservation Te Papa Atawhai'};
 const extras=new Map<string,typeof seed[number]>();
-let curated=[...seed,...catalogRoutes(latestUsfs),...catalogRoutes(latestHk)];
+let curated=[...seed,...catalogRoutes(latestUsfs),...catalogRoutes(latestHk),...catalogRoutes(latestNzdoc)];
 try{const value=uni.getStorageSync('he_selected_catalog_routes_v1');if(Array.isArray(value)&&value.length<=200)for(const route of value){if(route&&typeof route.id==='string'&&['name','region','summary','distance','ascent','duration','difficulty','bestSeason','image','imageCredit'].every(key=>typeof route[key]==='string')&&Array.isArray(route.center)&&route.center.length===2&&route.center.every(Number.isFinite)&&Math.abs(route.center[0])<=180&&Math.abs(route.center[1])<=90&&route.archive&&typeof route.archive.source?.label==='string'&&typeof route.archive.checkedAt==='string'&&typeof route.archive.riskNotice==='string'&&Array.isArray(route.archive.highlights)&&route.archive.highlights.every((value:any)=>typeof value==='string')&&Array.isArray(route.path)&&Array.isArray(route.scenery)&&route.scenery.every((value:any)=>typeof value==='string')&&Array.isArray(route.bestSeasons))extras.set(route.id,{...route,status:'待核验',openingExpiresAt:0,trackMode:'不展示轨迹',path:[]});}}catch{}
 let latestOsm: any = {routes:[],attribution:'© OpenStreetMap contributors · ODbL-1.0'};
-export const catalogCacheState=reactive<Record<CatalogSource,{saved:boolean;message:string}>>({osm:{saved:false,message:'未同步'},usfs:{saved:false,message:'未同步'},hk:{saved:false,message:'未同步'}});
+export const catalogCacheState=reactive<Record<CatalogSource,{saved:boolean;message:string}>>({osm:{saved:false,message:'未同步'},usfs:{saved:false,message:'未同步'},hk:{saved:false,message:'未同步'},nzdoc:{saved:false,message:'未同步'}});
 async function persist(source:CatalogSource,data:any){
  try{await writeCatalogCache(source,data);catalogCacheState[source]={saved:true,message:`已保存${data.routes.length}条${data.complete===false?`，来源共${data.sourceTotal}条，其余可在线检索`:''}，可离线查看`};}
  catch{catalogCacheState[source]={saved:false,message:'本次资料仅在内存中，离线保存失败，请检查设备空间'};}
@@ -21,7 +22,7 @@ function failedRefresh(source:CatalogSource){
  catalogCacheState[source]={saved,message:saved?'目录更新失败，保留本机资料；稍后自动重试':'目录更新失败，暂无本机缓存；稍后自动重试'};
 }
 export const ROUTES=reactive([...bundled]);
-export const catalogRefreshState=reactive<Record<CatalogSource,boolean>>({osm:false,usfs:false,hk:false});
+export const catalogRefreshState=reactive<Record<CatalogSource,boolean>>({osm:false,usfs:false,hk:false,nzdoc:false});
 let inflight=false;
 let nextOsmAttempt=0;let osmFailures=0;
 const listeners=new Set<()=>void>();
@@ -44,7 +45,7 @@ export function refreshRouteCatalog(force=false): void {
   void restoreCatalogs().then(()=>refreshAll(force));
 }
 function refreshAll(force=false):void {
-  refreshUsfsCatalog(force);refreshHkCatalog(force);
+  refreshUsfsCatalog(force);refreshHkCatalog(force);refreshNzdocCatalog(force);
   if(inflight || (!force && Date.now()<nextOsmAttempt))return;
   inflight=true;catalogRefreshState.osm=true;
   void publicSnapshot('osm').then(async data=>{if(!valid(data))throw new Error('OSM目录格式无效');apply(data);await persist('osm',data);osmFailures=0;nextOsmAttempt=Date.now()+6*60*60*1000;}).catch(()=>{failedRefresh('osm');osmFailures++;nextOsmAttempt=Date.now()+Math.min(6*60*60*1000,15*60*1000*2**Math.min(osmFailures-1,5));}).finally(()=>{inflight=false;catalogRefreshState.osm=false;});
@@ -58,7 +59,7 @@ export function refreshUsfsCatalog(force=false): void {
   void publicSnapshot('usfs').then(async data=>{
     if(!validUsfs(data))throw new Error('USFS目录格式无效');
     await persist('usfs',data);
-    latestUsfs=data;curated=[...seed,...catalogRoutes(latestUsfs),...catalogRoutes(latestHk)];apply(latestOsm);usfsFailures=0;nextUsfsAttempt=Date.now()+6*60*60*1000;
+    latestUsfs=data;curated=[...seed,...catalogRoutes(latestUsfs),...catalogRoutes(latestHk),...catalogRoutes(latestNzdoc)];apply(latestOsm);usfsFailures=0;nextUsfsAttempt=Date.now()+6*60*60*1000;
   }).catch(()=>{failedRefresh('usfs');usfsFailures++;nextUsfsAttempt=Date.now()+Math.min(6*60*60*1000,15*60*1000*2**Math.min(usfsFailures-1,5));}).finally(()=>{usfsLoading=false;catalogRefreshState.usfs=false;});
 }
 
@@ -71,7 +72,7 @@ function validUsfs(data:any): boolean {
 
 
 function validHk(data:any):boolean {return data?.schemaVersion===1&&data.license==='DATA.GOV.HK-terms-1.2'&&Number.isFinite(Date.parse(data.generatedAt))&&Array.isArray(data.routes)&&data.routes.length<=2000&&data.routes.every((r:any)=>r&&typeof r.id==='string'&&/^hk-afcd-\d+$/.test(r.id)&&typeof r.name==='string'&&Array.isArray(r.center)&&r.center.length===2&&r.center.every(Number.isFinite)&&Math.abs(r.center[0])<=180&&Math.abs(r.center[1])<=90&&r.sourceUrl==='https://portal.csdi.gov.hk/server/rest/services/common/afcd_rcd_1665568199103_4360/FeatureServer/0'&&r.sourceTags&&Array.isArray(r.referencePaths)&&r.referencePaths.length<=100&&r.referencePaths.every((path:any)=>Array.isArray(path)&&path.length<=151&&path.every((point:any)=>Array.isArray(point)&&point.length===2&&point.every(Number.isFinite)&&Math.abs(point[0])<=180&&Math.abs(point[1])<=90)));}
-function applyHk(data:any){latestHk=data;curated=[...seed,...catalogRoutes(latestUsfs),...catalogRoutes(latestHk)];apply(latestOsm);}
+function applyHk(data:any){latestHk=data;curated=[...seed,...catalogRoutes(latestUsfs),...catalogRoutes(latestHk),...catalogRoutes(latestNzdoc)];apply(latestOsm);}
 
 let nextHkAttempt=0,hkFailures=0;
 let hkLoading=false;
@@ -81,20 +82,39 @@ export function refreshHkCatalog(force=false):void {
  void publicSnapshot('hk').then(async data=>{if(!validHk(data))throw new Error('香港步道目录格式无效');applyHk(data);await persist('hk',data);hkFailures=0;nextHkAttempt=Date.now()+6*60*60*1000;}).catch(()=>{failedRefresh('hk');hkFailures++;nextHkAttempt=Date.now()+Math.min(6*60*60*1000,15*60*1000*2**Math.min(hkFailures-1,5));}).finally(()=>{hkLoading=false;catalogRefreshState.hk=false;});
 }
 
+let nextNzdocAttempt=0,nzdocFailures=0;
+let nzdocLoading=false;
+const NZDOC_SOURCE_URL='https://services1.arcgis.com/3JjYDyG3oajxU6HO/ArcGIS/rest/services/DOC_Walking_Experiences/FeatureServer/1';
+function validNzdoc(data:any):boolean {
+ const validUrl=(value:any)=>typeof value==='string'&&value.length<=2048&&(()=>{try{const url=new URL(value);return url.protocol==='https:'&&url.hostname==='www.doc.govt.nz'&&!url.username&&!url.password&&!url.port;}catch{return false;}})();
+ return data?.schemaVersion===1&&data.license==='CC-BY-3.0-NZ'&&/^Crown Copyright: Department of Conservation Te Papa Atawhai \d{4}$/.test(data.attribution)&&data.licenseUrl==='https://www.doc.govt.nz/our-work/maps-and-data/terms-and-conditions/'&&data.sourceUrl===NZDOC_SOURCE_URL&&Number.isFinite(Date.parse(data.generatedAt))&&Array.isArray(data.routes)&&data.routes.length<=4000&&data.routes.every((r:any)=>{
+  const tags=r?.sourceTags;
+  const tagKeys=['distanceKm','difficulty','estimatedTime','hasAlerts','officialUrl'];
+  return r&&typeof r.id==='string'&&/^nzdoc-[1-9]\d*$/.test(r.id)&&typeof r.name==='string'&&r.name.trim().length>0&&r.name.length<=500&&r.region==='新西兰'&&Array.isArray(r.center)&&r.center.length===2&&r.center.every(Number.isFinite)&&Math.abs(r.center[0])<=180&&Math.abs(r.center[1])<=90&&r.sourceUrl===NZDOC_SOURCE_URL&&Number.isFinite(Date.parse(r.fetchedAt))&&tags&&typeof tags==='object'&&!Array.isArray(tags)&&Object.keys(tags).every(key=>tagKeys.includes(key))&&(tags.distanceKm===null||typeof tags.distanceKm==='number'&&Number.isFinite(tags.distanceKm)&&tags.distanceKm>0)&&['difficulty','estimatedTime','hasAlerts'].every(key=>tags[key]===null||typeof tags[key]==='string'&&tags[key].length<=500)&&(tags.officialUrl===null||validUrl(tags.officialUrl))&&Array.isArray(r.referencePaths)&&r.referencePaths.length>0&&r.referencePaths.length<=100&&r.referencePaths.every((path:any)=>Array.isArray(path)&&path.length>=2&&path.length<=151&&path.every((point:any)=>Array.isArray(point)&&point.length===2&&point.every((value:any)=>typeof value==='number'&&Number.isFinite(value))&&Math.abs(point[0])<=180&&Math.abs(point[1])<=90));
+ });
+}
+function applyNzdoc(data:any){latestNzdoc=data;curated=[...seed,...catalogRoutes(latestUsfs),...catalogRoutes(latestHk),...catalogRoutes(latestNzdoc)];apply(latestOsm);}
+export function refreshNzdocCatalog(force=false):void {
+ if(nzdocLoading||(!force&&Date.now()<nextNzdocAttempt))return;
+ nzdocLoading=true;catalogRefreshState.nzdoc=true;
+ void publicSnapshot('nzdoc').then(async data=>{if(!validNzdoc(data))throw new Error('新西兰官方目录格式无效');applyNzdoc(data);await persist('nzdoc',data);nzdocFailures=0;nextNzdocAttempt=Date.now()+6*60*60*1000;}).catch(()=>{failedRefresh('nzdoc');nzdocFailures++;nextNzdocAttempt=Date.now()+Math.min(6*60*60*1000,15*60*1000*2**Math.min(nzdocFailures-1,5));}).finally(()=>{nzdocLoading=false;catalogRefreshState.nzdoc=false;});
+}
+
 // Restore before the first remote refresh so late disk reads cannot overwrite
 // a newer successful online snapshot. All three sources restore independently.
 let catalogCacheReady:Promise<unknown>|undefined;
 function restoreCatalogs():Promise<unknown>{
- return catalogCacheReady??=Promise.all(([['osm',valid],['usfs',validUsfs],['hk',validHk]] as const).map(async([source,validator])=>{
+ return catalogCacheReady??=Promise.all(([['osm',valid],['usfs',validUsfs],['hk',validHk],['nzdoc',validNzdoc]] as const).map(async([source,validator])=>{
  const data=await readCatalogCache(source,validator);if(!data)return;
  if(source==='osm')apply(data);
  else if(source==='hk')applyHk(data);
- else{latestUsfs=data;curated=[...seed,...catalogRoutes(latestUsfs),...catalogRoutes(latestHk)];apply(latestOsm);}
+ else if(source==='nzdoc')applyNzdoc(data);
+ else{latestUsfs=data;curated=[...seed,...catalogRoutes(latestUsfs),...catalogRoutes(latestHk),...catalogRoutes(latestNzdoc)];apply(latestOsm);}
  catalogCacheState[source]={saved:true,message:'已恢复上次保存目录'};
 })).then(()=>{apply(latestOsm);});
 }
 
-export function validCatalogSource(source:CatalogSource,data:any):boolean{return source==='osm'?valid(data):source==='usfs'?validUsfs(data):validHk(data);}
+export function validCatalogSource(source:CatalogSource,data:any):boolean{return source==='osm'?valid(data):source==='usfs'?validUsfs(data):source==='hk'?validHk(data):validNzdoc(data);}
 export function rememberDiscoveredRoute(route:typeof seed[number]):void{
  if(ROUTES.some(existing=>existing.id===route.id))return;
  extras.delete(route.id);extras.set(route.id,{...route,status:'待核验',openingExpiresAt:0});

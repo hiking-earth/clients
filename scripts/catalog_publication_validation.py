@@ -14,6 +14,7 @@ DISCOVERY_IDS = {
     # number (for example 5022.010011). Preserve that source identity exactly.
     'usfs': re.compile(r'^usfs-[1-9][0-9]*(?:\.[0-9]+)?$'),
     'hk': re.compile(r'^hk-afcd-[1-9][0-9]*$'),
+    'nzdoc': re.compile(r'^nzdoc-[1-9][0-9]*$'),
 }
 PENDING_STATUS = '待核验'
 
@@ -71,12 +72,22 @@ def validate_route_catalog(source, data):
     expected_source_url = data.get('sourceUrl')
     if source != 'osm' and not isinstance(expected_source_url, str):
         raise ValueError(f'{source}: catalog source URL is required')
+    if source == 'nzdoc' and expected_source_url != 'https://services1.arcgis.com/3JjYDyG3oajxU6HO/ArcGIS/rest/services/DOC_Walking_Experiences/FeatureServer/1':
+        raise ValueError('nzdoc: catalog source URL differs from the approved DOC layer')
     expected_provenance = {
         'osm': ('ODbL-1.0', '© OpenStreetMap contributors', 'https://www.openstreetmap.org/copyright'),
         'usfs': ('USDA source terms; retain attribution and source metadata', 'USDA Forest Service', 'https://data.fs.usda.gov/geodata/edw/datasets.php?xmlKeyword=recreation'),
         'hk': ('DATA.GOV.HK-terms-1.2', '香港特别行政区政府 · 渔农自然护理署 · DATA.GOV.HK', 'https://data.gov.hk/en/terms-and-conditions'),
+        'nzdoc': ('CC-BY-3.0-NZ', None, 'https://www.doc.govt.nz/our-work/maps-and-data/terms-and-conditions/'),
     }[source]
-    if tuple(data.get(field) for field in ('license', 'attribution', 'licenseUrl')) != expected_provenance:
+    actual_provenance = tuple(data.get(field) for field in ('license', 'attribution', 'licenseUrl'))
+    provenance_matches = actual_provenance == expected_provenance
+    if source == 'nzdoc':
+        provenance_matches = (actual_provenance[0] == expected_provenance[0]
+                              and isinstance(actual_provenance[1], str)
+                              and re.fullmatch(r'Crown Copyright: Department of Conservation Te Papa Atawhai [0-9]{4}', actual_provenance[1]) is not None
+                              and actual_provenance[2] == expected_provenance[2])
+    if not provenance_matches:
         raise ValueError(f'{source}: catalog attribution or license metadata differs from the approved source policy')
     seen = set()
     for index, row in enumerate(rows):
@@ -107,8 +118,12 @@ def validate_route_catalog(source, data):
         status = row.get('status')
         if status not in (None, PENDING_STATUS):
             raise ValueError(f'{label}: discovery catalog cannot publish status {status!r}')
-        if source == 'hk':
+        if source in ('hk', 'nzdoc'):
             _reference_paths(row.get('referencePaths'), label)
+        if source == 'nzdoc':
+            official_url = row.get('sourceTags', {}).get('officialUrl') if isinstance(row.get('sourceTags'), dict) else None
+            if official_url is not None and _https_host(official_url, f'{label} official page') != 'www.doc.govt.nz':
+                raise ValueError(f'{label}: official page must link to the DOC website')
     return len(rows)
 
 

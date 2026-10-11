@@ -17,7 +17,8 @@ from catalog_publication_validation import validate_news_catalog, validate_route
 ROOT = Path(__file__).resolve().parents[1]
 PAGE_SIZE = 400
 SOURCES = {'osm': 'data/catalog/osm.json', 'usfs': 'data/catalog/usfs.json',
-           'hk': 'data/catalog/hk-afcd.json', 'news': 'data/content/official-news.json'}
+           'hk': 'data/catalog/hk-afcd.json', 'nzdoc': 'data/catalog/nzdoc.json',
+           'news': 'data/content/official-news.json'}
 
 
 def encode(value):

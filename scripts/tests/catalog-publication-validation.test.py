@@ -11,11 +11,12 @@ spec.loader.exec_module(validation)
 
 class RouteCatalogValidationTests(unittest.TestCase):
     def route(self, source='osm'):
-        prefixes = {'osm': 'osm-relation-1', 'usfs': 'usfs-1', 'hk': 'hk-afcd-1'}
+        prefixes = {'osm': 'osm-relation-1', 'usfs': 'usfs-1', 'hk': 'hk-afcd-1', 'nzdoc': 'nzdoc-1'}
         source_urls = {
             'osm': 'https://www.openstreetmap.org/relation/1',
             'usfs': 'https://apps.fs.usda.gov/arcx/service',
             'hk': 'https://portal.csdi.gov.hk/server/rest/service',
+            'nzdoc': 'https://services1.arcgis.com/3JjYDyG3oajxU6HO/ArcGIS/rest/services/DOC_Walking_Experiences/FeatureServer/1',
         }
         row = {
             'id': prefixes[source], 'name': 'Trail', 'region': 'Region',
@@ -24,15 +25,18 @@ class RouteCatalogValidationTests(unittest.TestCase):
         }
         if source == 'hk':
             row['referencePaths'] = [[[114.0, 22.0], [114.1, 22.1]]]
+        if source == 'nzdoc':
+            row.update(region='新西兰', referencePaths=[[[-176.2, -40.9], [-176.1, -40.8]]], sourceTags={'officialUrl': 'https://www.doc.govt.nz/parks-and-recreation/places-to-go/'} )
         metadata = {
             'osm': {'license':'ODbL-1.0','attribution':'© OpenStreetMap contributors','licenseUrl':'https://www.openstreetmap.org/copyright'},
             'usfs': {'sourceUrl':source_urls[source],'license':'USDA source terms; retain attribution and source metadata','attribution':'USDA Forest Service','licenseUrl':'https://data.fs.usda.gov/geodata/edw/datasets.php?xmlKeyword=recreation'},
             'hk': {'sourceUrl':source_urls[source],'license':'DATA.GOV.HK-terms-1.2','attribution':'香港特别行政区政府 · 渔农自然护理署 · DATA.GOV.HK','licenseUrl':'https://data.gov.hk/en/terms-and-conditions'},
+            'nzdoc': {'sourceUrl':source_urls[source],'license':'CC-BY-3.0-NZ','attribution':'Crown Copyright: Department of Conservation Te Papa Atawhai 2026','licenseUrl':'https://www.doc.govt.nz/our-work/maps-and-data/terms-and-conditions/'},
         }[source]
         return {'schemaVersion': 1, **metadata, 'routes': [row]}
 
     def test_accepts_each_discovery_source_without_granting_access(self):
-        for source in ('osm', 'usfs', 'hk'):
+        for source in ('osm', 'usfs', 'hk', 'nzdoc'):
             with self.subTest(source=source):
                 self.assertEqual(validation.validate_route_catalog(source, self.route(source)), 1)
 
@@ -82,6 +86,19 @@ class RouteCatalogValidationTests(unittest.TestCase):
         data['routes'][0]['referencePaths'] = [[[114.0, 22.0]]]
         with self.assertRaisesRegex(ValueError, 'at least two points'):
             validation.validate_route_catalog('hk', data)
+
+    def test_accepts_new_zealand_doc_reference_geometry_and_official_link(self):
+        self.assertEqual(validation.validate_route_catalog('nzdoc', self.route('nzdoc')), 1)
+
+    def test_rejects_new_zealand_doc_wrong_layer_license_or_official_host(self):
+        for edit in ('layer', 'license', 'official'):
+            with self.subTest(edit=edit):
+                data = self.route('nzdoc')
+                if edit == 'layer': data['sourceUrl'] = 'https://services1.arcgis.com/example/FeatureServer/1'
+                elif edit == 'license': data['license'] = 'unknown'
+                else: data['routes'][0]['sourceTags']['officialUrl'] = 'https://example.org/fake'
+                with self.assertRaises(ValueError):
+                    validation.validate_route_catalog('nzdoc', data)
 
 
 class NewsCatalogValidationTests(unittest.TestCase):

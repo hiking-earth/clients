@@ -12,7 +12,7 @@ PATHS=['shared/public-catalog','shared/data/content','shared/data/offline/hk-afc
 def git(*args,env=None):
  return subprocess.check_output(['git',*args],cwd=ROOT,env=env,text=True).strip()
 def validate():
- for source in ('osm','usfs','hk','news'):
+ for source in ('osm','usfs','hk','nzdoc','news'):
   base=ROOT/'shared/public-catalog'/source
   manifest=json.loads((base/'manifest.json').read_bytes())
   if manifest.get('schemaVersion')!=1 or manifest.get('pageSize')!=400:raise ValueError('Invalid manifest')
@@ -31,7 +31,7 @@ def validate():
   else:validate_route_catalog(source,data)
   print(source,len(rows))
 def ensure_not_older(parent):
- for source in ('osm','usfs','hk','news'):
+ for source in ('osm','usfs','hk','nzdoc','news'):
   path=f'shared/public-catalog/{source}/manifest.json'
   if not git('ls-tree','--name-only',parent,'--',path):continue
   previous=json.loads(git('show',parent+':'+path))

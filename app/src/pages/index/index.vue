@@ -86,7 +86,7 @@ import {searchPublicCatalog} from "@/services/catalog-search";
 import type {HikingRoute} from "@shared/types/route";
 import { STATUS_COLORS, isNavigable, type RouteStatus, type Season } from "@shared/types/route";
 
-const catalogSources=[{id:'osm',label:'OSM'},{id:'usfs',label:'美国国家森林'},{id:'hk',label:'香港官方步道'}] as const;
+const catalogSources=[{id:'osm',label:'OSM'},{id:'usfs',label:'美国国家森林'},{id:'hk',label:'香港官方步道'},{id:'nzdoc',label:'新西兰环保部官方步道'}] as const;
 const catalogSourceLabels=catalogSources.map(source=>source.label);
 const keyword = ref("");
 const showSources=ref(false);
