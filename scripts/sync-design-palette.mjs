@@ -32,10 +32,21 @@ ${keys.map(key => `$he-color-${key}: ${palette[key]};`).join('\n')}
 writeFileSync(path.join(root, 'shared/design/palette.css'), css);
 writeFileSync(path.join(root, 'shared/design/palette.scss'), scss);
 const webAppDirectory = path.join(root, 'web/app');
-if (existsSync(webAppDirectory)) writeFileSync(path.join(webAppDirectory, 'palette.css'), css);
+if (existsSync(webAppDirectory)) {
+  writeFileSync(path.join(webAppDirectory, 'palette.css'), css);
+  writeFileSync(path.join(webAppDirectory, 'theme-color.ts'),
+    `/* Generated from shared/design/palette.json by scripts/sync-design-palette.mjs. */\nexport const WEB_THEME_COLOR = '${palette.background}';\n`);
+}
+const webManifestPath = path.join(root, 'web/public/manifest.webmanifest');
+if (existsSync(webManifestPath)) {
+  const manifest = JSON.parse(readFileSync(webManifestPath, 'utf8'));
+  manifest.background_color = palette.background;
+  manifest.theme_color = palette.background;
+  writeFileSync(webManifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
+}
 const pagesPath = path.join(root, 'app/src/pages.json');
 const pages = JSON.parse(readFileSync(pagesPath, 'utf8'));
 pages.globalStyle = { ...pages.globalStyle, navigationBarBackgroundColor: palette.background, backgroundColor: palette.background };
 pages.tabBar = { ...pages.tabBar, color: palette.muted, selectedColor: palette.accent, backgroundColor: palette.panel };
 writeFileSync(pagesPath, `${JSON.stringify(pages, null, 2)}\n`);
-process.stdout.write(`Generated client CSS/SCSS${existsSync(webAppDirectory) ? ' and web CSS' : ''} palettes from the shared palette.\n`);
+process.stdout.write(`Generated client and web palette assets${existsSync(webManifestPath) ? ', including PWA browser chrome colors' : ''} from the shared palette.\n`);

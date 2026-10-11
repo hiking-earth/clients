@@ -20,6 +20,11 @@ test('one generated palette feeds website, mini program and shared client styles
   assert.ok(web.includes('@import "./palette.css";'));
   assert.match(web,/--lime:\s*var\(--he-color-accent\)/);
   assert.match(web,/\.app-shell[^\{]*\{[^}]*background:\s*var\(--he-color-background\)/s);
+  assert.equal(fs.readFileSync('web/app/theme-color.ts','utf8').match(/WEB_THEME_COLOR = '([^']+)'/)?.[1],p.background);
+  assert.ok(fs.readFileSync('web/app/layout.tsx','utf8').includes('themeColor: WEB_THEME_COLOR'));
+  const manifest=JSON.parse(fs.readFileSync('web/public/manifest.webmanifest','utf8'));
+  assert.equal(manifest.background_color,p.background);
+  assert.equal(manifest.theme_color,p.background);
  }
 });
 test('client page and component styles consume shared tokens instead of duplicating palette literals',()=>{
