@@ -23,17 +23,21 @@ jobs:
         id: refresh
         continue-on-error: true
         run: python scripts/refresh-asian-osm-pbf.py
+      - name: Prepare atomic OSM catalog snapshots
+        id: prepare_catalog
+        if: always() && steps.refresh.outcome != 'skipped'
+        run: python scripts/prepare-catalog-pages.py --source osm
       - name: Record bounded source refresh
         if: always()
         env:
           REFRESH_OUTCOME: ${{ steps.refresh.outcome }}
         run: echo "Regional OSM refresh step: $REFRESH_OUTCOME. Data remains pending verification; no opening status or navigation permission is inferred." >> "$GITHUB_STEP_SUMMARY"
       - name: Commit successful source updates and evidence
-        if: always()
+        if: always() && steps.prepare_catalog.outcome == 'success'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add shared/data/catalog/osm.json docs/release/osm-asia-pbf-refresh-*.json
+          git add shared/data/catalog/osm.json docs/release/osm-asia-pbf-refresh-*.json shared/public-catalog/osm app/cloudfunctions/catalog-feed/snapshots/osm app/cloudfunctions/client-api/business/catalog-feed/snapshots/osm
           if ! git diff --cached --quiet; then
             git commit -m "data: refresh bounded Asian OSM route extracts"
             git push origin "HEAD:${GITHUB_REF_NAME}"
