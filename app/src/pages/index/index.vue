@@ -1,11 +1,16 @@
 <template>
   <view class="page explore-home">
+    <view class="home-topbar">
+      <view class="home-brand"><view class="brand-mark">△</view><view><text class="brand-name">徒步地球</text><text class="brand-caption">全球徒步路线</text></view></view>
+      <view class="home-tabs"><text class="home-tab active">徒步路线</text><navigator class="home-tab" url="/pages/route/news">官方户外公告</navigator></view>
+      <button class="home-cta he-primary" @click="openCompanions">发起约伴 ›</button>
+    </view>
     <view class="earth-stage"><ExploreGlobe :routes="globeRoutes" :selected-id="selectedRoute" @select="selectGlobeRoute" /></view>
     <view class="explore-panel">
     <!-- 自定义导航头 -->
     <view class="hero">
-      <text class="hero-title">徒步地球</text>
-      <text class="hero-sub">发现下一段旅程</text>
+      <text class="hero-title">今天，走哪一条？</text>
+      <text class="hero-sub">从地球发现下一段旅程</text>
       <text class="hero-sub">本机已载入 {{ ROUTES.length }} 条路线档案 · 新收录路线开放状态待核验</text>
       <text class="hero-sub">路线数据 © OpenStreetMap contributors · ODbL</text>
       <view v-if="showSources || catalogRefreshing" class="source-status"><text v-for="source in catalogSources" :key="source.id" class="hero-sub">{{ source.label }}：{{ catalogRefreshState[source.id] ? '正在获取目录，已保存资料仍可查看' : catalogCacheState[source.id].message }}</text></view>
@@ -131,13 +136,18 @@ function goDetail(route: HikingRoute) {
   rememberDiscoveredRoute(route);const id=route.id;
   uni.navigateTo({ url: `/pages/route/detail?id=${encodeURIComponent(id)}` });
 }
+function openCompanions(){uni.switchTab({url:'/pages/companion/companion'});}
 </script>
 
 <style lang="scss" scoped>
 .page { display:flex; flex-direction:column; min-height:100vh; background:var(--he-bg, #01030a); color:var(--he-text, #f4f8f2); }
-.earth-stage{padding:12px 12px 0;box-sizing:border-box;}
+.home-topbar{display:flex;align-items:center;gap:20px;min-height:64px;margin:12px 12px 0;padding:0 14px;border:1px solid var(--he-border, #29323a);border-radius:20px;background:var(--he-panel, #050c12);box-sizing:border-box}
+.home-brand{display:flex;align-items:center;gap:10px;min-width:200px}.brand-mark{display:grid;place-items:center;width:40px;height:40px;border-radius:13px;background:var(--he-accent, #b8f36b);color:#061006;font-size:26px;font-weight:700;line-height:1}.brand-name,.brand-caption{display:block;line-height:1.2}.brand-name{font-size:16px;font-weight:700;color:var(--he-text, #f4f8f2)}.brand-caption{margin-top:4px;color:var(--he-muted, #a7b5aa);font-size:10px;letter-spacing:.12em}
+.home-tabs{display:flex;align-items:center;gap:5px;padding:4px;border-radius:14px;background:rgba(255,255,255,.05)}.home-tab{display:block;padding:10px 13px;border-radius:10px;color:var(--he-muted, #a7b5aa);font-size:13px;text-decoration:none;white-space:nowrap}.home-tab.active{background:var(--he-accent, #b8f36b);color:#061006;font-weight:700}.home-cta{margin-left:auto;flex:none;max-width:none!important;padding:9px 16px!important;border-radius:12px!important}
+.earth-stage{min-height:0;padding:12px 12px 0;box-sizing:border-box;}
 .explore-panel{display:flex;flex-direction:column;min-height:0;}
-@media(min-width:800px){.page{flex-direction:row;height:calc(100vh - 50px);min-height:0;padding:20px;gap:20px;box-sizing:border-box}.earth-stage{flex:1;min-width:0;padding:0}.explore-panel{width:360px;flex-shrink:0;background:var(--he-panel, #050c12);border:1px solid var(--he-border, #29323a);border-radius:24px;overflow:hidden}.list{min-height:0;height:0;flex:1}.hero{padding-top:24px!important}}
+@media(min-width:800px){.page{display:grid;grid-template-columns:minmax(0,1fr) 360px;grid-template-rows:64px minmax(0,1fr);height:calc(100dvh - 50px);min-height:0;padding:12px 20px 20px;gap:12px 20px;box-sizing:border-box}.home-topbar{grid-column:1/-1;grid-row:1;margin:0}.earth-stage{grid-column:1;grid-row:2;min-width:0;padding:0}.explore-panel{grid-column:2;grid-row:2;width:100%;min-height:0;background:var(--he-panel, #050c12);border:1px solid var(--he-border, #29323a);border-radius:24px;overflow:hidden}.list{min-height:0;height:0;flex:1}.hero{padding-top:24px!important}}
+@media(max-width:600px){.home-topbar{gap:8px;min-height:56px;padding:0 10px;border-radius:16px}.home-brand{gap:7px;min-width:0}.brand-mark{width:34px;height:34px;font-size:22px}.brand-name{font-size:14px}.brand-caption{font-size:8px}.home-tabs{display:none}.home-cta{padding:8px 11px!important;font-size:12px!important}.earth-stage{padding:10px 10px 0}}
 .hero { padding: 14px 16px 8px; }
 .hero-title { display: block; font-size: 28px; font-weight: 700; color: var(--he-text, #f4f8f2); }
 .hero-sub { display: block; margin-top: 4px; font-size: 12px; color: var(--he-muted, #a7b5aa); }
