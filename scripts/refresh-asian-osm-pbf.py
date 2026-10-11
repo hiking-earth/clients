@@ -18,10 +18,10 @@ IMPORTER = ROOT / 'scripts/import-osm-pbf-catalog.py'
 CATALOG = ROOT / 'shared/data/catalog/osm.json'
 MAX_SOURCE_BYTES = 700_000_000
 
-# Individual country/territory extracts keep peak scratch-space requirements
-# bounded on free hosted runners. Large extracts (India, Indonesia, Russia)
-# are omitted here and need their own capacity check before automated imports.
-SOURCES = (
+# Individual extracts keep peak scratch-space requirements bounded on free
+# hosted runners. India and Indonesia use country subregions; their full
+# extracts and Russia are too large for this monthly free-runner job.
+COUNTRIES = (
     'afghanistan', 'armenia', 'azerbaijan', 'bangladesh', 'bhutan',
     'cambodia', 'east-timor', 'gcc-states', 'iran', 'iraq',
     'israel-and-palestine', 'jordan', 'kazakhstan', 'kyrgyzstan', 'laos',
@@ -30,6 +30,13 @@ SOURCES = (
     'sri-lanka', 'syria', 'taiwan', 'tajikistan', 'thailand', 'turkmenistan',
     'uzbekistan', 'vietnam', 'yemen',
 )
+SOURCES = {slug: f'https://download.geofabrik.de/asia/{slug}-latest.osm.pbf'
+           for slug in COUNTRIES}
+for zone in ('central-zone', 'eastern-zone', 'north-eastern-zone',
+             'northern-zone', 'southern-zone', 'western-zone'):
+    SOURCES[f'india/{zone}'] = f'https://download.geofabrik.de/asia/india/{zone}-latest.osm.pbf'
+for island in ('kalimantan', 'maluku', 'nusa-tenggara', 'papua', 'sulawesi', 'sumatra'):
+    SOURCES[f'indonesia/{island}'] = f'https://download.geofabrik.de/asia/indonesia/{island}-latest.osm.pbf'
 
 
 def utc_now():
@@ -59,7 +66,7 @@ def catalog_import(source_id):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--source', action='append', choices=SOURCES,
+    parser.add_argument('--source', action='append', choices=tuple(SOURCES),
                         help='Refresh one source; repeat to select several. Defaults to all bounded sources.')
     parser.add_argument('--downloader-python', default=sys.executable)
     parser.add_argument('--importer-python', default=sys.executable)
@@ -77,9 +84,13 @@ def main():
 
     for slug in selected:
         source_id = f'asia/{slug}'
-        url = f'https://download.geofabrik.de/asia/{slug}-latest.osm.pbf'
-        pbf = output_dir / f'{slug}-latest.osm.pbf'
-        row = {'sourceId': source_id, 'sourceUrl': url, 'startedAt': utc_now()}
+        url = SOURCES[slug]
+        source_name = slug.replace('/', '-')
+        source_page_area = slug.split('/', 1)[0]
+        source_page = f'https://download.geofabrik.de/asia/{source_page_area}.html'
+        pbf = output_dir / f'{source_name}-latest.osm.pbf'
+        row = {'sourceId': source_id, 'sourceUrl': url, 'sourcePage': source_page,
+               'startedAt': utc_now()}
         print(f'\n### {source_id}', flush=True)
         try:
             run([args.downloader_python, str(DOWNLOADER), '--url', url,
