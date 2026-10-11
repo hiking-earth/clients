@@ -51,6 +51,11 @@ jobs:
         timeout-minutes: 12
         continue-on-error: true
         run: python scripts/update-nsw-npws-catalog.py
+      - name: Collect Natural England national trails
+        id: england
+        timeout-minutes: 8
+        continue-on-error: true
+        run: python scripts/update-england-national-trails.py
       - name: Collect official announcements
         id: content
         timeout-minutes: 3
@@ -67,6 +72,7 @@ jobs:
           NZDOC_OUTCOME: ${{ steps.nzdoc.outcome }}
           PARKSCANADA_OUTCOME: ${{ steps.parkscanada.outcome }}
           NSW_NPWS_OUTCOME: ${{ steps.nsw_npws.outcome }}
+          ENGLAND_OUTCOME: ${{ steps.england.outcome }}
           CONTENT_OUTCOME: ${{ steps.content.outcome }}
         run: |
           echo "### Hiking catalog collection" >> "$GITHUB_STEP_SUMMARY"
@@ -86,9 +92,10 @@ jobs:
               ('New Zealand DOC', root/'catalog/nzdoc.json', 'routes'),
               ('Parks Canada', root/'catalog/canada-parks.json', 'routes'),
               ('NSW NPWS', root/'catalog/nsw-npws.json', 'routes'),
+              ('Natural England', root/'catalog/england-trails.json', 'routes'),
               ('Official notices', root/'content/official-news.json', 'items'),
           ]
-          outcomes = dict(zip(('usfs','osm_incremental','osm_reconciliation','hk','nzdoc','parkscanada','nsw-npws','news'), (os.environ.get(key, 'unknown') for key in ('USDA_OUTCOME','OSM_INCREMENTAL_OUTCOME','OSM_RECONCILIATION_OUTCOME','HK_OUTCOME','NZDOC_OUTCOME','PARKSCANADA_OUTCOME','NSW_NPWS_OUTCOME','CONTENT_OUTCOME'))))
+          outcomes = dict(zip(('usfs','osm_incremental','osm_reconciliation','hk','nzdoc','parkscanada','nsw-npws','england','news'), (os.environ.get(key, 'unknown') for key in ('USDA_OUTCOME','OSM_INCREMENTAL_OUTCOME','OSM_RECONCILIATION_OUTCOME','HK_OUTCOME','NZDOC_OUTCOME','PARKSCANADA_OUTCOME','NSW_NPWS_OUTCOME','ENGLAND_OUTCOME','CONTENT_OUTCOME'))))
           outcomes['osm'] = outcomes['osm_reconciliation']
           snapshots = {}
           rows = ['| Source snapshot | Records | Generated |', '|---|---:|---|']
@@ -165,6 +172,10 @@ jobs:
               'nsw-npws': {
                   'mode': 'complete-source-replacement',
                   'lastAttemptSucceeded': outcomes['nsw-npws'] == 'success',
+              },
+              'england': {
+                  'mode': 'complete-source-replacement',
+                  'lastAttemptSucceeded': outcomes['england'] == 'success',
               },
           }
           for source, progress in reconciliation.items():
@@ -247,7 +258,7 @@ jobs:
             --backup-dir "$BACKUP_DIR" \
             --functions catalog-feed client-api
       - name: Report complete collection failure
-        if: ${{ !cancelled() && steps.usda.outcome == 'failure' && steps.osm_incremental.outcome == 'failure' && steps.hk.outcome == 'failure' && steps.nzdoc.outcome == 'failure' && steps.parkscanada.outcome == 'failure' && steps.nsw_npws.outcome == 'failure' && steps.content.outcome == 'failure' }}
+        if: ${{ !cancelled() && steps.usda.outcome == 'failure' && steps.osm_incremental.outcome == 'failure' && steps.hk.outcome == 'failure' && steps.nzdoc.outcome == 'failure' && steps.parkscanada.outcome == 'failure' && steps.nsw_npws.outcome == 'failure' && steps.england.outcome == 'failure' && steps.content.outcome == 'failure' }}
         run: |
           echo "All collectors failed; previous snapshots retained."
           exit 1

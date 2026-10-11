@@ -17,6 +17,7 @@ DISCOVERY_IDS = {
     'nzdoc': re.compile(r'^nzdoc-[1-9][0-9]*$'),
     'parkscanada': re.compile(r'^parkscanada-[1-9][0-9]*$'),
     'nsw-npws': re.compile(r'^nsw-npws-[1-9][0-9]*$'),
+    'england': re.compile(r'^england-trail-[1-9][0-9]*$'),
 }
 PENDING_STATUS = '待核验'
 
@@ -80,6 +81,8 @@ def validate_route_catalog(source, data):
         raise ValueError('parkscanada: catalog source URL differs from the approved Parks Canada layer')
     if source == 'nsw-npws' and expected_source_url != 'https://services7.arcgis.com/9nlQUywsHzFwAwIM/arcgis/rest/services/NPWS_Tracks/FeatureServer/0':
         raise ValueError('nsw-npws: catalog source URL differs from the approved NSW NPWS layer')
+    if source == 'england' and expected_source_url != 'https://services.arcgis.com/JJzESW51TqeY9uat/arcgis/rest/services/National_Trails_England/FeatureServer/0':
+        raise ValueError('england: catalog source URL differs from the approved Natural England layer')
     expected_provenance = {
         'osm': ('ODbL-1.0', '© OpenStreetMap contributors', 'https://www.openstreetmap.org/copyright'),
         'usfs': ('USDA source terms; retain attribution and source metadata', 'USDA Forest Service', 'https://data.fs.usda.gov/geodata/edw/datasets.php?xmlKeyword=recreation'),
@@ -87,6 +90,7 @@ def validate_route_catalog(source, data):
         'nzdoc': ('CC-BY-3.0-NZ', None, 'https://www.doc.govt.nz/our-work/maps-and-data/terms-and-conditions/'),
         'parkscanada': ('Open Government Licence - Canada', 'Contains information licensed under the Open Government Licence – Canada. Source: Parks Canada (Trails APCA).', 'https://open.canada.ca/en/open-government-licence-canada/'),
         'nsw-npws': ('Creative Commons Attribution', '© State Government of NSW and NSW Department of Climate Change, Energy, the Environment and Water 2017. Source: NSW NPWS Asset Infrastructure – Track Section.', 'https://data.nsw.gov.au/data/dataset/asset-infrastructure-track-section8bfcf'),
+        'england': ('Open Government Licence v3.0', None, 'https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/'),
     }[source]
     actual_provenance = tuple(data.get(field) for field in ('license', 'attribution', 'licenseUrl'))
     provenance_matches = actual_provenance == expected_provenance
@@ -94,6 +98,11 @@ def validate_route_catalog(source, data):
         provenance_matches = (actual_provenance[0] == expected_provenance[0]
                               and isinstance(actual_provenance[1], str)
                               and re.fullmatch(r'Crown Copyright: Department of Conservation Te Papa Atawhai [0-9]{4}', actual_provenance[1]) is not None
+                              and actual_provenance[2] == expected_provenance[2])
+    if source == 'england':
+        provenance_matches = (actual_provenance[0] == expected_provenance[0]
+                              and isinstance(actual_provenance[1], str)
+                              and re.fullmatch(r'© Natural England copyright\. Contains Ordnance Survey data © Crown copyright and database right [0-9]{4}\.', actual_provenance[1]) is not None
                               and actual_provenance[2] == expected_provenance[2])
     if not provenance_matches:
         raise ValueError(f'{source}: catalog attribution or license metadata differs from the approved source policy')
@@ -126,7 +135,7 @@ def validate_route_catalog(source, data):
         status = row.get('status')
         if status not in (None, PENDING_STATUS):
             raise ValueError(f'{label}: discovery catalog cannot publish status {status!r}')
-        if source in ('hk', 'nzdoc', 'parkscanada', 'nsw-npws'):
+        if source in ('hk', 'nzdoc', 'parkscanada', 'nsw-npws', 'england'):
             _reference_paths(row.get('referencePaths'), label)
         if source == 'nzdoc':
             official_url = row.get('sourceTags', {}).get('officialUrl') if isinstance(row.get('sourceTags'), dict) else None
