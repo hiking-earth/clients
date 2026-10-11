@@ -48,7 +48,7 @@ function draw(){
  ctx.draw();
 }
 async function measure(){await nextTick();uni.createSelectorQuery().in(instance?.proxy).select('#'+id).boundingClientRect((v:any)=>{if(v?.width){width=v.width;canvasBounds={left:v.left,top:v.top};schedule();}}).exec();}
-function resize(){const w=uni.getSystemInfoSync();height.value=w.windowWidth>=800?Math.max(360,w.windowHeight-162):340;void measure();}
+function resize(){const w=uni.getSystemInfoSync();height.value=w.windowWidth>=800?Math.max(360,w.windowHeight-162):Math.max(360,w.windowHeight);void measure();}
 // #ifdef H5
 let nativeCanvas:HTMLElement|null=null;
 const mouseBindings=[['mousedown',mouseStart],['mousemove',mouseMove],['mouseup',end],['mouseleave',cancel],['wheel',wheel]] as const;
@@ -65,5 +65,6 @@ onMounted(async()=>{resize();uni.onWindowResize(resize);
 </script>
 <style scoped>
 .globe-shell{position:relative;width:100%;overflow:hidden;background:var(--he-bg, var(--he-color-background));border-radius:24px}.earth-photo{position:absolute;transform-origin:top left;pointer-events:none;border-radius:50%;box-shadow:0 0 20px rgba(184,243,107,.24),0 15px 45px rgba(1,3,10,.38)}.globe-canvas{position:relative;width:100%;touch-action:none}.globe-heading{position:absolute;left:28px;top:28px;pointer-events:none}.eyebrow{display:block;font-size:10px;letter-spacing:3px;color:var(--he-accent, var(--he-color-accent))}.globe-title{display:block;margin-top:8px;font-size:28px;font-weight:600;color:var(--he-text, var(--he-color-text))}.globe-sub{display:block;font-size:12px;color:var(--he-muted, var(--he-color-muted));margin-top:8px}.globe-tools{position:absolute;right:18px;bottom:42px;display:flex;gap:6px}.globe-tool{width:36px;height:36px;line-height:34px;padding:0;margin:0;background:var(--he-panel, var(--he-color-panel));color:var(--he-text, var(--he-color-text));border:1px solid var(--he-border, var(--he-color-border));border-radius:10px;font-size:20px}.reset{width:52px;font-size:12px}.globe-credit{position:absolute;bottom:16px;left:20px;font-size:10px;color:var(--he-muted, var(--he-color-muted))}
-@media(max-width:600px){.globe-heading{left:20px;top:16px}.globe-title{font-size:24px}.globe-sub{font-size:11px}}
+@media(max-width:799px){.globe-heading{top:80px;left:18px}.globe-tools{top:78px;right:14px;bottom:auto}.globe-credit{bottom:calc(49dvh + 16px);left:14px}}
+@media(max-width:600px){.globe-heading{left:18px;top:80px}.globe-title{font-size:24px}.globe-sub{font-size:11px}}
 </style>
