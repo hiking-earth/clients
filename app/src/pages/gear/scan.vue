@@ -216,32 +216,32 @@ function readAsBase64(path: string): Promise<string> {
 </script>
 
 <style lang="scss" scoped>
-.page { min-height: 100vh; background: #01030a; padding: 16px; box-sizing: border-box; }
-.intro-title { display: block; font-size: 22px; font-weight: 700; color: #f4f8f2; }
-.intro-sub { display: block; margin-top: 4px; font-size: 12px; color: #a7b5aa; }
-.picker { margin-top: 12px; background: #151f24; border-radius: 8px; padding: 10px 12px; font-size: 13px; color: #a7b5aa; }
-.shot { margin-top: 12px; height: 210px; background: #050c12; border-radius: 10px; overflow: hidden; }
+.page { min-height: 100vh; background: var(--he-color-background); padding: 16px; box-sizing: border-box; }
+.intro-title { display: block; font-size: 22px; font-weight: 700; color: var(--he-color-text); }
+.intro-sub { display: block; margin-top: 4px; font-size: 12px; color: var(--he-color-muted); }
+.picker { margin-top: 12px; background: var(--he-color-surface); border-radius: 8px; padding: 10px 12px; font-size: 13px; color: var(--he-color-muted); }
+.shot { margin-top: 12px; height: 210px; background: var(--he-color-panel); border-radius: 10px; overflow: hidden; }
 .shot-img { width: 100%; height: 100%; }
 .shot-empty { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; }
 .shot-icon { font-size: 36px; }
-.shot-text { font-size: 13px; color: #a7b5aa; }
-.btn.primary { margin-top: 12px; background: #b8f36b; color: #01030a; font-weight: 600; border-radius: 499.5px; font-size: 15px; }
-.btn[disabled] { background: #151f24; color: #a7b5aa; }
+.shot-text { font-size: 13px; color: var(--he-color-muted); }
+.btn.primary { margin-top: 12px; background: var(--he-color-accent); color: var(--he-color-background); font-weight: 600; border-radius: 499.5px; font-size: 15px; }
+.btn[disabled] { background: var(--he-color-surface); color: var(--he-color-muted); }
 .sec { margin-top: 18px; }
-.sec-title { display: block; font-size: 14px; font-weight: 600; color: #f4f8f2; margin-bottom: 8px; }
+.sec-title { display: block; font-size: 14px; font-weight: 600; color: var(--he-color-text); margin-bottom: 8px; }
 .sec-title.warn { color: #ffd166; }
-.sec-title.accent { color: #b8f36b; }
-.item { display: flex; align-items: center; justify-content: space-between; background: #050c12; border-radius: 8px; padding: 10px 12px; margin-bottom: 6px; }
-.item-name { font-size: 14px; color: #f4f8f2; }
-.item-cat { font-size: 11px; color: #a7b5aa; }
+.sec-title.accent { color: var(--he-color-accent); }
+.item { display: flex; align-items: center; justify-content: space-between; background: var(--he-color-panel); border-radius: 8px; padding: 10px 12px; margin-bottom: 6px; }
+.item-name { font-size: 14px; color: var(--he-color-text); }
+.item-cat { font-size: 11px; color: var(--he-color-muted); }
 .item-why { font-size: 11px; color: #ffd166; max-width: 60%; text-align: right; }
 .usage { display: flex; gap: 6px; margin-bottom: 4px; }
-.usage-dot { color: #b8f36b; }
-.usage-text { font-size: 13px; color: #a7b5aa; line-height: 1.6; }
-.plan { display: flex; align-items: center; gap: 10px; background: #050c12; border-radius: 8px; padding: 10px 12px; margin-bottom: 6px; }
-.check { width: 20px; height: 20px; border-radius: 50%; border: 1px solid #a7b5aa; display: flex; align-items: center; justify-content: center; color: #01030a; font-size: 12px; }
-.check.on { background: #b8f36b; border-color: #b8f36b; font-weight: 700; }
-.plan-text { font-size: 14px; color: #f4f8f2; }
-.plan-text.done { color: #a7b5aa; text-decoration: line-through; }
-.notice { margin: 18px 0 32px; font-size: 10px; color: #a7b5aa; line-height: 1.7; }
+.usage-dot { color: var(--he-color-accent); }
+.usage-text { font-size: 13px; color: var(--he-color-muted); line-height: 1.6; }
+.plan { display: flex; align-items: center; gap: 10px; background: var(--he-color-panel); border-radius: 8px; padding: 10px 12px; margin-bottom: 6px; }
+.check { width: 20px; height: 20px; border-radius: 50%; border: 1px solid var(--he-color-muted); display: flex; align-items: center; justify-content: center; color: var(--he-color-background); font-size: 12px; }
+.check.on { background: var(--he-color-accent); border-color: var(--he-color-accent); font-weight: 700; }
+.plan-text { font-size: 14px; color: var(--he-color-text); }
+.plan-text.done { color: var(--he-color-muted); text-decoration: line-through; }
+.notice { margin: 18px 0 32px; font-size: 10px; color: var(--he-color-muted); line-height: 1.7; }
 </style>

@@ -306,25 +306,25 @@ onUnmounted(() => {
 </script>
 
 <style lang="scss" scoped>
-.page { display: flex; flex-direction: column; height: 100vh; background: #01030a; }
+.page { display: flex; flex-direction: column; height: 100vh; background: var(--he-color-background); }
 .panel { padding: 20px 16px 12px; }
-.stats { display: flex; background: #050c12; border-radius: 10px; padding: 14px 0; }
+.stats { display: flex; background: var(--he-color-panel); border-radius: 10px; padding: 14px 0; }
 .stat { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
-.stat-v { font-size: 17px; font-weight: 700; color: #f4f8f2; }
-.stat-k { font-size: 10px; color: #a7b5aa; }
+.stat-v { font-size: 17px; font-weight: 700; color: var(--he-color-text); }
+.stat-k { font-size: 10px; color: var(--he-color-muted); }
 .controls { display: flex; gap: 12px; margin-top: 12px; }
 .btn { flex: 1; border-radius: 499.5px; font-size: 15px; font-weight: 600; }
-.btn.start { background: #b8f36b; color: #01030a; }
-.btn.pause { background: #ffd166; color: #01030a; }
-.btn.stop { background: #ff7b72; color: #01030a; }
-.hint { display: block; margin-top: 8px; font-size: 11px; color: #a7b5aa; text-align: center; }
+.btn.start { background: var(--he-color-accent); color: var(--he-color-background); }
+.btn.pause { background: #ffd166; color: var(--he-color-background); }
+.btn.stop { background: #ff7b72; color: var(--he-color-background); }
+.hint { display: block; margin-top: 8px; font-size: 11px; color: var(--he-color-muted); text-align: center; }
 .list { flex: 1; padding: 0 16px; box-sizing: border-box; }
-.group-title { font-size: 12px; color: #a7b5aa; margin: 8px 0; }
-.card { display: flex; align-items: center; background: #050c12; border-radius: 10px; padding: 14px 12px; margin-bottom: 8px; }
+.group-title { font-size: 12px; color: var(--he-color-muted); margin: 8px 0; }
+.card { display: flex; align-items: center; background: var(--he-color-panel); border-radius: 10px; padding: 14px 12px; margin-bottom: 8px; }
 .card-l { flex: 1; display: flex; flex-direction: column; gap: 4px; }
-.card-name { font-size: 15px; font-weight: 600; color: #f4f8f2; }
-.card-meta { font-size: 11px; color: #a7b5aa; }
-.synced { font-size: 10px; color: #b8f36b; }
-.empty { color: #a7b5aa; font-size: 12px; text-align: center; padding: 24px 0; }
+.card-name { font-size: 15px; font-weight: 600; color: var(--he-color-text); }
+.card-meta { font-size: 11px; color: var(--he-color-muted); }
+.synced { font-size: 10px; color: var(--he-color-accent); }
+.empty { color: var(--he-color-muted); font-size: 12px; text-align: center; padding: 24px 0; }
 .privacy-note { display:block; margin:8px 16px; padding:10px; border-radius:8px; background:#202b37; color:#ffd166; font-size:11px; line-height:1.6; }
 </style>

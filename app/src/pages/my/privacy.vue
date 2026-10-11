@@ -53,16 +53,16 @@ function toggle(key: PrivacyConsentKey, event: Event | { detail: { value: boolea
 </script>
 
 <style lang="scss" scoped>
-.page { min-height: 100vh; background: #01030a; padding: 18px 14px 28px; box-sizing: border-box; }
+.page { min-height: 100vh; background: var(--he-color-background); padding: 18px 14px 28px; box-sizing: border-box; }
 .intro { display: flex; flex-direction: column; gap: 7px; padding: 4px 2px 14px; }
-.title { color: #f4f8f2; font-size: 21px; font-weight: 700; }
-.desc { color: #a7b5aa; font-size: 12px; line-height: 1.7; }
-.group { overflow: hidden; border-radius: 10px; background: #050c12; }
-.item { display: flex; align-items: center; gap: 10px; padding: 14px 12px; border-bottom: 0.5px solid #151f24; }
+.title { color: var(--he-color-text); font-size: 21px; font-weight: 700; }
+.desc { color: var(--he-color-muted); font-size: 12px; line-height: 1.7; }
+.group { overflow: hidden; border-radius: 10px; background: var(--he-color-panel); }
+.item { display: flex; align-items: center; gap: 10px; padding: 14px 12px; border-bottom: 0.5px solid var(--he-color-surface); }
 .item:last-child { border-bottom: 0; }
 .copy { display: flex; flex: 1; flex-direction: column; gap: 4px; }
-.name { color: #f4f8f2; font-size: 14px; font-weight: 600; }
-.detail { color: #a7b5aa; font-size: 11px; line-height: 1.6; }
-.footnote { display: flex; flex-direction: column; gap: 7px; margin-top: 14px; padding: 13px 12px; border-radius: 10px; background: #050c12; color: #a7b5aa; font-size: 11px; line-height: 1.7; }
-.foot-title { color: #b8f36b; font-size: 12.5px; font-weight: 600; }
+.name { color: var(--he-color-text); font-size: 14px; font-weight: 600; }
+.detail { color: var(--he-color-muted); font-size: 11px; line-height: 1.6; }
+.footnote { display: flex; flex-direction: column; gap: 7px; margin-top: 14px; padding: 13px 12px; border-radius: 10px; background: var(--he-color-panel); color: var(--he-color-muted); font-size: 11px; line-height: 1.7; }
+.foot-title { color: var(--he-color-accent); font-size: 12.5px; font-weight: 600; }
 </style>

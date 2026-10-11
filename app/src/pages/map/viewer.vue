@@ -15,4 +15,4 @@ onReady(()=>{
  // #endif
 });
 onUnmounted(()=>{viewer?.close();viewer=null;});
-</script><style scoped>.fallback{padding:25px;color:#f4f8f2;background:#050c12;min-height:100vh}</style>
+</script><style scoped>.fallback{padding:25px;color:var(--he-color-text);background:var(--he-color-panel);min-height:100vh}</style>

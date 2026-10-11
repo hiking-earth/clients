@@ -39,4 +39,4 @@ function updateMap(){if(!map?.getSource('local-lines'))return;const source=map.g
 watch(()=>[props.points,props.position],updateMap,{deep:true});
 // #endif
 onUnmounted(disableOnline);
-</script><style scoped>.map-shell{width:100%}.note{display:block;font-size:12px;color:#a7b5aa;padding:10px}button{font-size:14px;margin:10px 0}</style>
+</script><style scoped>.map-shell{width:100%}.note{display:block;font-size:12px;color:var(--he-color-muted);padding:10px}button{font-size:14px;margin:10px 0}</style>

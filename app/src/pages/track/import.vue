@@ -57,10 +57,10 @@ function chooseWechatFile() {
 // #endif
 </script>
 <style scoped>
-.page { padding: 16px; color: #f4f8f2; background: #01030a; min-height: 100vh; }
+.page { padding: 16px; color: var(--he-color-text); background: var(--he-color-background); min-height: 100vh; }
 .title { display: block; font-size: 18px; }
-.hint { display: block; color: #a7b5aa; margin: 12px 0; }
-.source { background: #050c12; padding: 12px; box-sizing: border-box; width: 100%; height: 225px; margin: 12px 0; }
+.hint { display: block; color: var(--he-color-muted); margin: 12px 0; }
+.source { background: var(--he-color-panel); padding: 12px; box-sizing: border-box; width: 100%; height: 225px; margin: 12px 0; }
 .error { display: block; color: #ff7b72; margin: 8px 0; }
-button { background: #b8f36b; color: #01030a; }
+button { background: var(--he-color-accent); color: var(--he-color-background); }
 </style>

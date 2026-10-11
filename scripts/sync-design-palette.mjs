@@ -19,7 +19,7 @@ for (const key of layoutKeys) {
   }
 }
 const css = `/* Generated from shared/design/palette.json by scripts/sync-design-palette.mjs. */
-:root {
+:root, page {
 ${[
   ...keys.map(key => `  --he-color-${key}: ${palette[key]};`),
   ...layoutKeys.map(key => `  --he-${key.replace(/[A-Z]/g, letter => `-${letter.toLowerCase()}`)}: ${palette[key]};`),
@@ -38,4 +38,4 @@ const pages = JSON.parse(readFileSync(pagesPath, 'utf8'));
 pages.globalStyle = { ...pages.globalStyle, navigationBarBackgroundColor: palette.background, backgroundColor: palette.background };
 pages.tabBar = { ...pages.tabBar, color: palette.muted, selectedColor: palette.accent, backgroundColor: palette.panel };
 writeFileSync(pagesPath, `${JSON.stringify(pages, null, 2)}\n`);
-process.stdout.write(`Generated client palette${existsSync(webAppDirectory) ? ' and web palette' : ''} from the shared palette.\n`);
+process.stdout.write(`Generated client CSS/SCSS${existsSync(webAppDirectory) ? ' and web CSS' : ''} palettes from the shared palette.\n`);

@@ -177,19 +177,19 @@ onUnload(unsubscribeAccount);
 </script>
 
 <style lang="scss" scoped>
-.page { display: flex; flex-direction: column; height: 100vh; background: #01030a; }
+.page { display: flex; flex-direction: column; height: 100vh; background: var(--he-color-background); }
 .head { padding: 16px 16px 8px; }
-.name { display: block; font-size: 20px; font-weight: 700; color: #f4f8f2; }
-.date { display: block; margin-top: 4px; font-size: 12px; color: #a7b5aa; }
-.grid { display: flex; margin: 8px 16px; background: #050c12; border-radius: 10px; padding: 12px 0; }
+.name { display: block; font-size: 20px; font-weight: 700; color: var(--he-color-text); }
+.date { display: block; margin-top: 4px; font-size: 12px; color: var(--he-color-muted); }
+.grid { display: flex; margin: 8px 16px; background: var(--he-color-panel); border-radius: 10px; padding: 12px 0; }
 .cell { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
-.v { font-size: 14px; font-weight: 600; color: #f4f8f2; }
-.k { font-size: 10px; color: #a7b5aa; }
+.v { font-size: 14px; font-weight: 600; color: var(--he-color-text); }
+.k { font-size: 10px; color: var(--he-color-muted); }
 .map { width: calc(100% - 32px); height: 190px; margin: 8px 16px; border-radius: 10px; }
-.map-h5-tip { margin: 8px 16px; height: 190px; display: flex; align-items: center; justify-content: center; background: #050c12; border-radius: 10px; color: #a7b5aa; font-size: 12px; text-align: center; padding: 0 24px; }
+.map-h5-tip { margin: 8px 16px; height: 190px; display: flex; align-items: center; justify-content: center; background: var(--he-color-panel); border-radius: 10px; color: var(--he-color-muted); font-size: 12px; text-align: center; padding: 0 24px; }
 .actions { margin-top: auto; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 8px; }
-.btn { border-radius: 499.5px; font-size: 14px; background: #151f24; color: #f4f8f2; }
-.btn.primary { background: #b8f36b; color: #01030a; font-weight: 600; }
+.btn { border-radius: 499.5px; font-size: 14px; background: var(--he-color-surface); color: var(--he-color-text); }
+.btn.primary { background: var(--he-color-accent); color: var(--he-color-background); font-weight: 600; }
 .btn.danger { color: #ff7b72; }
 .warning { display:block; margin:8px 16px; padding:10px; color:#ffd166; background:#3a2e17; border-radius:6px; line-height:1.6; }
 </style>

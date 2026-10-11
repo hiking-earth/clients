@@ -67,5 +67,5 @@ onMounted(() => {
 watch(() => [props.points, props.position, props.height, props.layers], draw, { deep: true });
 </script>
 <style scoped>
-.controls{display:flex;gap:8px;padding:8px}.control-button{font-size:12px;background:#29323a;color:#b8f36b}.plot{width:100%;background:#050c12;border-radius:12px;overflow:hidden}.canvas{width:100%}.legend{padding:8px 12px;font-size:11px;color:#a7b5aa}
+.controls{display:flex;gap:8px;padding:8px}.control-button{font-size:12px;background:var(--he-color-border);color:var(--he-color-accent)}.plot{width:100%;background:var(--he-color-panel);border-radius:12px;overflow:hidden}.canvas{width:100%}.legend{padding:8px 12px;font-size:11px;color:var(--he-color-muted)}
 </style>

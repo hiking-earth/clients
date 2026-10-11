@@ -410,37 +410,37 @@ function copyCode() {
 </script>
 
 <style lang="scss" scoped>
-.page { height: 100vh; background: #01030a; padding: 16px; box-sizing: border-box; }
+.page { height: 100vh; background: var(--he-color-background); padding: 16px; box-sizing: border-box; }
 .entry { display: flex; flex-direction: column; padding-top: 40px; }
-.entry-title { font-size: 24px; font-weight: 700; color: #f4f8f2; }
-.entry-sub { margin-top: 4px; font-size: 12px; color: #a7b5aa; }
+.entry-title { font-size: 24px; font-weight: 700; color: var(--he-color-text); }
+.entry-sub { margin-top: 4px; font-size: 12px; color: var(--he-color-muted); }
 .btn { margin-top: 16px; border-radius: 499.5px; font-size: 15px; }
-.btn.primary { background: #b8f36b; color: #01030a; font-weight: 600; }
-.btn.ghost { background: #151f24; color: #f4f8f2; width: 90px; margin-top: 0; }
+.btn.primary { background: var(--he-color-accent); color: var(--he-color-background); font-weight: 600; }
+.btn.ghost { background: var(--he-color-surface); color: var(--he-color-text); width: 90px; margin-top: 0; }
 .join-row { display: flex; gap: 8px; margin-top: 12px; align-items: center; }
-.input { flex: 1; background: #151f24; border-radius: 499.5px; padding: 10px 16px; font-size: 14px; color: #f4f8f2; }
-.ph { color: #a7b5aa; }
-.privacy { margin-top: 24px; font-size: 10px; color: #a7b5aa; line-height: 1.7; }
-.team-bar { display: flex; align-items: center; background: #050c12; border-radius: 10px; padding: 12px; }
+.input { flex: 1; background: var(--he-color-surface); border-radius: 499.5px; padding: 10px 16px; font-size: 14px; color: var(--he-color-text); }
+.ph { color: var(--he-color-muted); }
+.privacy { margin-top: 24px; font-size: 10px; color: var(--he-color-muted); line-height: 1.7; }
+.team-bar { display: flex; align-items: center; background: var(--he-color-panel); border-radius: 10px; padding: 12px; }
 .team-info { flex: 1; display: flex; flex-direction: column; gap: 4px; }
-.team-name { font-size: 16px; font-weight: 600; color: #f4f8f2; }
-.team-code { font-size: 12px; color: #b8f36b; }
+.team-name { font-size: 16px; font-weight: 600; color: var(--he-color-text); }
+.team-code { font-size: 12px; color: var(--he-color-accent); }
 .leave { font-size: 13px; color: #ff7b72; padding: 4px 8px; }
 .share-tip { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; padding: 10px 12px; background: rgba(255, 209, 102, 0.1); border-radius: 8px; font-size: 12px; color: #ffd166; }
-.share-tip.on { background: rgba(184, 243, 107, 0.1); color: #b8f36b; }
-.share-on { padding: 4px 12px; background: #b8f36b; color: #01030a; border-radius: 499.5px; font-size: 11px; font-weight: 600; }
-.share-on.off { background: #151f24; color: #a7b5aa; }
+.share-tip.on { background: rgba(184, 243, 107, 0.1); color: var(--he-color-accent); }
+.share-on { padding: 4px 12px; background: var(--he-color-accent); color: var(--he-color-background); border-radius: 499.5px; font-size: 11px; font-weight: 600; }
+.share-on.off { background: var(--he-color-surface); color: var(--he-color-muted); }
 .members { margin-top: 12px; flex: 1; }
-.member { display: flex; align-items: center; background: #050c12; border-radius: 10px; padding: 12px; margin-bottom: 8px; }
-.avatar { width: 36px; height: 36px; border-radius: 50%; background: #151f24; color: #b8f36b; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 600; }
+.member { display: flex; align-items: center; background: var(--he-color-panel); border-radius: 10px; padding: 12px; margin-bottom: 8px; }
+.avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--he-color-surface); color: var(--he-color-accent); display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 600; }
 .m-info { flex: 1; margin-left: 10px; display: flex; flex-direction: column; gap: 3px; }
-.m-name { font-size: 14px; font-weight: 600; color: #f4f8f2; }
-.leader, .me { margin-left: 6px; font-size: 9px; color: #01030a; background: #b8f36b; border-radius: 4px; padding: 1px 5px; }
+.m-name { font-size: 14px; font-weight: 600; color: var(--he-color-text); }
+.leader, .me { margin-left: 6px; font-size: 9px; color: var(--he-color-background); background: var(--he-color-accent); border-radius: 4px; padding: 1px 5px; }
 .me { background: #65c7ff; }
-.m-time { font-size: 10px; color: #a7b5aa; }
+.m-time { font-size: 10px; color: var(--he-color-muted); }
 .m-dist { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; }
-.m-dist-v { font-size: 15px; font-weight: 700; color: #f4f8f2; }
-.m-go { font-size: 11px; color: #b8f36b; }
-.empty { text-align: center; color: #a7b5aa; font-size: 12px; padding: 24px 0; }
-.tip { padding: 12px 0; font-size: 10px; color: #a7b5aa; text-align: center; }
+.m-dist-v { font-size: 15px; font-weight: 700; color: var(--he-color-text); }
+.m-go { font-size: 11px; color: var(--he-color-accent); }
+.empty { text-align: center; color: var(--he-color-muted); font-size: 12px; padding: 24px 0; }
+.tip { padding: 12px 0; font-size: 10px; color: var(--he-color-muted); text-align: center; }
 </style>
