@@ -326,5 +326,5 @@ onUnmounted(() => {
 .card-meta { font-size: 11px; color: var(--he-color-muted); }
 .synced { font-size: 10px; color: var(--he-color-accent); }
 .empty { color: var(--he-color-muted); font-size: 12px; text-align: center; padding: 24px 0; }
-.privacy-note { display:block; margin:8px 16px; padding:10px; border-radius:8px; background:#202b37; color:#ffd166; font-size:11px; line-height:1.6; }
+.privacy-note { display:block; margin:8px 16px; padding:10px; border-radius:8px; background:var(--he-color-surface); color:#ffd166; font-size:11px; line-height:1.6; }
 </style>
