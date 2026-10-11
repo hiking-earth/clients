@@ -15,6 +15,7 @@ from pathlib import Path
 import re
 import shutil
 import tempfile
+import threading
 import time
 from importlib.machinery import SourceFileLoader
 from urllib.parse import urlsplit
@@ -256,18 +257,36 @@ def main():
         way_reader = RouteWayReader()
         way_scan_started = time.monotonic()
         matched_ways = 0
+        progress_stop = threading.Event()
+
+        def report_way_scan_progress():
+            while not progress_stop.wait(30):
+                print(json.dumps({
+                    "phase": "resolve-way-nodes", "status": "in-progress",
+                    "matchedWays": matched_ways,
+                    "elapsedSeconds": round(time.monotonic() - way_scan_started, 1),
+                }), flush=True)
+
+        progress_thread = threading.Thread(
+            target=report_way_scan_progress, name="osm-pbf-progress", daemon=True,
+        )
+        progress_thread.start()
         print(json.dumps({
             "phase": "resolve-way-nodes", "status": "started", "candidateRelations": len(candidates),
             "referencedWays": len(ways_to_routes),
         }), flush=True)
-        for obj in processor:
-            way_reader.way(obj)
-            matched_ways += 1
-            if matched_ways % 100_000 == 0:
-                print(json.dumps({
-                    "phase": "resolve-way-nodes", "status": "progress", "matchedWays": matched_ways,
-                    "elapsedSeconds": round(time.monotonic() - way_scan_started, 1),
-                }), flush=True)
+        try:
+            for obj in processor:
+                way_reader.way(obj)
+                matched_ways += 1
+                if matched_ways % 100_000 == 0:
+                    print(json.dumps({
+                        "phase": "resolve-way-nodes", "status": "progress", "matchedWays": matched_ways,
+                        "elapsedSeconds": round(time.monotonic() - way_scan_started, 1),
+                    }), flush=True)
+        finally:
+            progress_stop.set()
+            progress_thread.join(timeout=1)
         print(json.dumps({
             "phase": "resolve-way-nodes", "status": "complete", "matchedWays": matched_ways,
             "elapsedSeconds": round(time.monotonic() - way_scan_started, 1),
