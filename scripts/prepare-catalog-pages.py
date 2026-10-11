@@ -17,6 +17,8 @@ from catalog_publication_validation import validate_news_catalog, validate_route
 
 ROOT = Path(__file__).resolve().parents[1]
 PAGE_SIZE = 400
+# Keep the last known production OSM generation available for explicit rollback.
+PROTECTED_GENERATIONS = {'osm': {'6eed0992ec765e5870be559ef92f8fe48769bfc5ea20e3256ef77f704ba55fdf'}}
 SOURCES = {'osm': 'data/catalog/osm.json', 'usfs': 'data/catalog/usfs.json',
            'hk': 'data/catalog/hk-afcd.json', 'nzdoc': 'data/catalog/nzdoc.json',
            'parkscanada': 'data/catalog/canada-parks.json',
@@ -94,6 +96,10 @@ def prepare(source_filter=None):
             validate_route_catalog(source, data)
         snapshot = hashlib.sha256(raw).hexdigest()
         folder = ROOT / 'shared/public-catalog' / source
+        protected = PROTECTED_GENERATIONS.get(source, set())
+        missing_protected = [generation for generation in protected if not (folder / generation).is_dir()]
+        if missing_protected:
+            raise ValueError(f'{source}: protected rollback generation missing: {missing_protected}')
         previous = None
         if (folder / 'manifest.json').exists():
             pointer = json.loads((folder / 'manifest.json').read_bytes())
@@ -126,7 +132,7 @@ def prepare(source_filter=None):
         if len(manifest) > 1024 * 1024:
             raise ValueError(f'{source}: manifest exceeds metadata budget')
         atomic_write(version / 'manifest.json', manifest)
-        retained = {snapshot, previous}
+        retained = {snapshot, previous, *protected}
         fallbacks = [
             ROOT / 'app/cloudfunctions/catalog-feed/snapshots' / source,
             ROOT / 'app/cloudfunctions/client-api/business/catalog-feed/snapshots' / source,
