@@ -9,6 +9,7 @@ import gzip
 import hashlib
 import json
 import os
+import argparse
 from pathlib import Path
 import shutil
 import tempfile
@@ -21,6 +22,7 @@ SOURCES = {'osm': 'data/catalog/osm.json', 'usfs': 'data/catalog/usfs.json',
            'parkscanada': 'data/catalog/canada-parks.json',
            'nsw-npws': 'data/catalog/nsw-npws.json',
            'england': 'data/catalog/england-trails.json',
+           'wales': 'data/catalog/wales-trails.json',
            'news': 'data/content/official-news.json'}
 
 
@@ -36,7 +38,7 @@ def atomic_write(path, data):
     os.replace(temporary, path)
 
 
-def prepare():
+def prepare(source_filter=None):
     # Validate the pair before changing any public pointer or fallback file.
     hk = json.loads((ROOT / 'shared/data/catalog/hk-afcd.json').read_bytes())
     try:
@@ -75,7 +77,10 @@ def prepare():
         if len(payload) > 16 * 1024 * 1024:
             raise ValueError(f'{source}: direct snapshot exceeds memory budget')
         direct[source] = payload
-    for source, relative in SOURCES.items():
+    selected = {source: relative for source, relative in SOURCES.items() if source_filter is None or source in source_filter}
+    if source_filter is not None and set(source_filter) - set(SOURCES):
+        raise ValueError('unknown catalog source requested')
+    for source, relative in selected.items():
         raw = (ROOT / 'shared' / relative).read_bytes()
         data = json.loads(raw)
         key = 'items' if source == 'news' else 'routes'
@@ -153,4 +158,7 @@ def prepare():
 
 
 if __name__ == '__main__':
-    prepare()
+    parser = argparse.ArgumentParser(description='Prepare public route catalog snapshots.')
+    parser.add_argument('--source', action='append', choices=sorted(SOURCES), help='Prepare only this source; repeat for multiple sources.')
+    args = parser.parse_args()
+    prepare(set(args.source) if args.source else None)

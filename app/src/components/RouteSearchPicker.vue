@@ -52,6 +52,7 @@ const sources: { id: CatalogSource; name: string }[] = [
   { id: 'parkscanada', name: '加拿大公园管理局' },
   { id: 'nsw-npws', name: '新南威尔士州公园步道' },
   { id: 'england', name: 'Natural England 国家步道' },
+  { id: 'wales', name: '威尔士国家步道' },
 ];
 const sourceNames = sources.map(source => source.name);
 const sourceIndex = ref(0), query = ref(''), localQuery = ref(''), onlineMatches = ref<HikingRoute[]>([]), onlineMessage = ref(''), loading = ref(false), searched = ref(false), onlineHasMore = ref(false);

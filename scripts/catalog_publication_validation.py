@@ -18,6 +18,7 @@ DISCOVERY_IDS = {
     'parkscanada': re.compile(r'^parkscanada-[1-9][0-9]*$'),
     'nsw-npws': re.compile(r'^nsw-npws-[1-9][0-9]*$'),
     'england': re.compile(r'^england-trail-[1-9][0-9]*$'),
+    'wales': re.compile(r'^wales-trail-[1-9][0-9]*$'),
 }
 PENDING_STATUS = '待核验'
 
@@ -83,6 +84,10 @@ def validate_route_catalog(source, data):
         raise ValueError('nsw-npws: catalog source URL differs from the approved NSW NPWS layer')
     if source == 'england' and expected_source_url != 'https://services.arcgis.com/JJzESW51TqeY9uat/arcgis/rest/services/National_Trails_England/FeatureServer/0':
         raise ValueError('england: catalog source URL differs from the approved Natural England layer')
+    if source == 'wales' and (not isinstance(expected_source_url, str)
+                              or not expected_source_url.startswith('https://datamap.gov.wales/geoserver/ows?')
+                              or 'NRW_NATIONAL_TRAIL' not in expected_source_url):
+        raise ValueError('wales: catalog source URL differs from the approved Natural Resources Wales WFS layer')
     expected_provenance = {
         'osm': ('ODbL-1.0', '© OpenStreetMap contributors', 'https://www.openstreetmap.org/copyright'),
         'usfs': ('USDA source terms; retain attribution and source metadata', 'USDA Forest Service', 'https://data.fs.usda.gov/geodata/edw/datasets.php?xmlKeyword=recreation'),
@@ -91,6 +96,7 @@ def validate_route_catalog(source, data):
         'parkscanada': ('Open Government Licence - Canada', 'Contains information licensed under the Open Government Licence – Canada. Source: Parks Canada (Trails APCA).', 'https://open.canada.ca/en/open-government-licence-canada/'),
         'nsw-npws': ('Creative Commons Attribution', '© State Government of NSW and NSW Department of Climate Change, Energy, the Environment and Water 2017. Source: NSW NPWS Asset Infrastructure – Track Section.', 'https://data.nsw.gov.au/data/dataset/asset-infrastructure-track-section8bfcf'),
         'england': ('Open Government Licence v3.0', None, 'https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/'),
+        'wales': ('Open Government Licence for Public Sector Information (OGL)', 'Contains Natural Resources Wales information © Natural Resources Wales and Database Right. All rights Reserved. Contains Ordnance Survey Data. Ordnance Survey Licence number AC0000849444. Crown Copyright and Database Right.', 'https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/'),
     }[source]
     actual_provenance = tuple(data.get(field) for field in ('license', 'attribution', 'licenseUrl'))
     provenance_matches = actual_provenance == expected_provenance
@@ -135,7 +141,7 @@ def validate_route_catalog(source, data):
         status = row.get('status')
         if status not in (None, PENDING_STATUS):
             raise ValueError(f'{label}: discovery catalog cannot publish status {status!r}')
-        if source in ('hk', 'nzdoc', 'parkscanada', 'nsw-npws', 'england'):
+        if source in ('hk', 'nzdoc', 'parkscanada', 'nsw-npws', 'england', 'wales'):
             _reference_paths(row.get('referencePaths'), label)
         if source == 'nzdoc':
             official_url = row.get('sourceTags', {}).get('officialUrl') if isinstance(row.get('sourceTags'), dict) else None

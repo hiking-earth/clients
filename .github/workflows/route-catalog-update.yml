@@ -56,6 +56,11 @@ jobs:
         timeout-minutes: 8
         continue-on-error: true
         run: python scripts/update-england-national-trails.py
+      - name: Collect Natural Resources Wales national trails
+        id: wales
+        timeout-minutes: 8
+        continue-on-error: true
+        run: python scripts/update-wales-national-trails.py
       - name: Collect official announcements
         id: content
         timeout-minutes: 3
@@ -73,10 +78,11 @@ jobs:
           PARKSCANADA_OUTCOME: ${{ steps.parkscanada.outcome }}
           NSW_NPWS_OUTCOME: ${{ steps.nsw_npws.outcome }}
           ENGLAND_OUTCOME: ${{ steps.england.outcome }}
+          WALES_OUTCOME: ${{ steps.wales.outcome }}
           CONTENT_OUTCOME: ${{ steps.content.outcome }}
         run: |
           echo "### Hiking catalog collection" >> "$GITHUB_STEP_SUMMARY"
-          echo "USDA step: $USDA_OUTCOME; OSM recent-change script step: $OSM_INCREMENTAL_OUTCOME; OSM worldwide full-membership sweep: $OSM_RECONCILIATION_OUTCOME; Hong Kong AFCD: $HK_OUTCOME; New Zealand DOC: $NZDOC_OUTCOME; Parks Canada: $PARKSCANADA_OUTCOME; NSW NPWS: $NSW_NPWS_OUTCOME; official notices: $CONTENT_OUTCOME" >> "$GITHUB_STEP_SUMMARY"
+          echo "USDA step: $USDA_OUTCOME; OSM recent-change script step: $OSM_INCREMENTAL_OUTCOME; OSM worldwide full-membership sweep: $OSM_RECONCILIATION_OUTCOME; Hong Kong AFCD: $HK_OUTCOME; New Zealand DOC: $NZDOC_OUTCOME; Parks Canada: $PARKSCANADA_OUTCOME; NSW NPWS: $NSW_NPWS_OUTCOME; Natural England: $ENGLAND_OUTCOME; Natural Resources Wales: $WALES_OUTCOME; official notices: $CONTENT_OUTCOME" >> "$GITHUB_STEP_SUMMARY"
           python - <<'PY'
           import datetime, hashlib, json, os
           from collections import Counter
@@ -93,9 +99,10 @@ jobs:
               ('Parks Canada', root/'catalog/canada-parks.json', 'routes'),
               ('NSW NPWS', root/'catalog/nsw-npws.json', 'routes'),
               ('Natural England', root/'catalog/england-trails.json', 'routes'),
+              ('Natural Resources Wales', root/'catalog/wales-trails.json', 'routes'),
               ('Official notices', root/'content/official-news.json', 'items'),
           ]
-          outcomes = dict(zip(('usfs','osm_incremental','osm_reconciliation','hk','nzdoc','parkscanada','nsw-npws','england','news'), (os.environ.get(key, 'unknown') for key in ('USDA_OUTCOME','OSM_INCREMENTAL_OUTCOME','OSM_RECONCILIATION_OUTCOME','HK_OUTCOME','NZDOC_OUTCOME','PARKSCANADA_OUTCOME','NSW_NPWS_OUTCOME','ENGLAND_OUTCOME','CONTENT_OUTCOME'))))
+          outcomes = dict(zip(('usfs','osm_incremental','osm_reconciliation','hk','nzdoc','parkscanada','nsw-npws','england','wales','news'), (os.environ.get(key, 'unknown') for key in ('USDA_OUTCOME','OSM_INCREMENTAL_OUTCOME','OSM_RECONCILIATION_OUTCOME','HK_OUTCOME','NZDOC_OUTCOME','PARKSCANADA_OUTCOME','NSW_NPWS_OUTCOME','ENGLAND_OUTCOME','WALES_OUTCOME','CONTENT_OUTCOME'))))
           outcomes['osm'] = outcomes['osm_reconciliation']
           snapshots = {}
           rows = ['| Source snapshot | Records | Generated |', '|---|---:|---|']
@@ -176,6 +183,10 @@ jobs:
               'england': {
                   'mode': 'complete-source-replacement',
                   'lastAttemptSucceeded': outcomes['england'] == 'success',
+              },
+              'wales': {
+                  'mode': 'complete-source-replacement',
+                  'lastAttemptSucceeded': outcomes['wales'] == 'success',
               },
           }
           for source, progress in reconciliation.items():
@@ -258,7 +269,7 @@ jobs:
             --backup-dir "$BACKUP_DIR" \
             --functions catalog-feed client-api
       - name: Report complete collection failure
-        if: ${{ !cancelled() && steps.usda.outcome == 'failure' && steps.osm_incremental.outcome == 'failure' && steps.hk.outcome == 'failure' && steps.nzdoc.outcome == 'failure' && steps.parkscanada.outcome == 'failure' && steps.nsw_npws.outcome == 'failure' && steps.england.outcome == 'failure' && steps.content.outcome == 'failure' }}
+        if: ${{ !cancelled() && steps.usda.outcome == 'failure' && steps.osm_incremental.outcome == 'failure' && steps.hk.outcome == 'failure' && steps.nzdoc.outcome == 'failure' && steps.parkscanada.outcome == 'failure' && steps.nsw_npws.outcome == 'failure' && steps.england.outcome == 'failure' && steps.wales.outcome == 'failure' && steps.content.outcome == 'failure' }}
         run: |
           echo "All collectors failed; previous snapshots retained."
           exit 1
