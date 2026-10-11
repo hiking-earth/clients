@@ -22,7 +22,7 @@ jobs:
       - name: Verify generated shared palette
         run: |
           node scripts/sync-design-palette.mjs
-          git diff --exit-code -- app/src/pages.json shared/design/palette.css
+          git diff --exit-code -- app/src/pages.json shared/design/palette.css shared/design/palette.scss
       - uses: actions/setup-node@v4
         with:
           node-version: 22

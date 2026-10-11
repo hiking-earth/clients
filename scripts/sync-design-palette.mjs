@@ -26,7 +26,11 @@ ${[
 ].join('\n')}
 }
 `;
+const scss = `// Generated from shared/design/palette.json by scripts/sync-design-palette.mjs.
+${keys.map(key => `$he-color-${key}: ${palette[key]};`).join('\n')}
+`;
 writeFileSync(path.join(root, 'shared/design/palette.css'), css);
+writeFileSync(path.join(root, 'shared/design/palette.scss'), scss);
 const webAppDirectory = path.join(root, 'web/app');
 if (existsSync(webAppDirectory)) writeFileSync(path.join(webAppDirectory, 'palette.css'), css);
 const pagesPath = path.join(root, 'app/src/pages.json');
