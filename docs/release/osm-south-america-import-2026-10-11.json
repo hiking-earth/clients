@@ -27,14 +27,15 @@
     "generatedAt": "2026-10-11T12:51:22Z"
   },
   "distribution": {
-    "snapshot": "7a7d1f766e9db000374c5e9ce45e3bfa675a33cbc0039e924ab1c41bed698832",
-    "previousSnapshot": "b21617281bf09bb06309a44b0b760f7c65d33f35d6e21ed884895d91de09ceb1",
+    "snapshot": "7d996778c541e2dd89edf4caf208ce3a4e5591b07ac6d2a1c03a06bd41c15a1e",
+    "previousSnapshot": "00183493b592e5d65e5c41d742636b5e92b4b4ffa5823822f374925861f99804",
     "productionSnapshotPreserved": "6eed0992ec765e5870be559ef92f8fe48769bfc5ea20e3256ef77f704ba55fdf",
     "pages": 383,
     "manifestCopiesIdentical": true,
     "indexHashValid": true,
     "allPageHashesMatch": true,
-    "compressedPagesByteIdenticalAcrossCopies": true
+    "compressedPagesByteIdenticalAcrossCopies": true,
+    "mergeNote": "Preserved concurrent remote OSM discovery refresh metadata and its added South America relation; the imported PBF record for that overlapping relation is newer. Merged catalog total remains 153013."
   },
   "limits": [
     "Records are OSM discovery references, not route opening/access approval.",
