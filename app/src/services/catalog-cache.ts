@@ -5,9 +5,9 @@ import {readChunkedCatalog,writeChunkedCatalog} from './catalog-file-chunks';
  * H5 and bundled desktop use one atomic IndexedDB transaction per source.
  * The previous successful slot is kept until its replacement is committed.
  */
-export type CatalogSource='osm'|'usfs'|'hk'|'nzdoc';
+export type CatalogSource='osm'|'usfs'|'hk'|'nzdoc'|'parkscanada';
 export type LocalDataSource=CatalogSource|'offline';
-const LEGACY:Record<LocalDataSource,string>={osm:'hiking-route-catalog-v1',usfs:'hiking-route-catalog-v1-usfs',hk:'hiking-route-catalog-v1-hk',nzdoc:'hiking-route-catalog-v1-nzdoc',offline:'he_offline_vectors_v1'};
+const LEGACY:Record<LocalDataSource,string>={osm:'hiking-route-catalog-v1',usfs:'hiking-route-catalog-v1-usfs',hk:'hiking-route-catalog-v1-hk',nzdoc:'hiking-route-catalog-v1-nzdoc',parkscanada:'hiking-route-catalog-v1-parkscanada',offline:'he_offline_vectors_v1'};
 const pointerKey=(source:LocalDataSource)=>`he_catalog_file_slot_v1_${source}`;
 const selectedSlots=new Map<LocalDataSource,number>();
 const filename=(source:LocalDataSource,slot:number)=>`he-catalog-${source}-${slot}.json`;

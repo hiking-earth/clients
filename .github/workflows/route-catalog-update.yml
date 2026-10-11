@@ -41,6 +41,11 @@ jobs:
         timeout-minutes: 25
         continue-on-error: true
         run: python scripts/update-nzdoc-catalog.py
+      - name: Collect Parks Canada trails
+        id: parkscanada
+        timeout-minutes: 25
+        continue-on-error: true
+        run: python scripts/update-canada-parks-catalog.py
       - name: Collect official announcements
         id: content
         timeout-minutes: 3
@@ -55,10 +60,11 @@ jobs:
           OSM_RECONCILIATION_OUTCOME: paused-public-global-sweep
           HK_OUTCOME: ${{ steps.hk.outcome }}
           NZDOC_OUTCOME: ${{ steps.nzdoc.outcome }}
+          PARKSCANADA_OUTCOME: ${{ steps.parkscanada.outcome }}
           CONTENT_OUTCOME: ${{ steps.content.outcome }}
         run: |
           echo "### Hiking catalog collection" >> "$GITHUB_STEP_SUMMARY"
-          echo "USDA step: $USDA_OUTCOME; OSM recent-change script step: $OSM_INCREMENTAL_OUTCOME; OSM worldwide full-membership sweep: $OSM_RECONCILIATION_OUTCOME; Hong Kong AFCD: $HK_OUTCOME; New Zealand DOC: $NZDOC_OUTCOME; official notices: $CONTENT_OUTCOME" >> "$GITHUB_STEP_SUMMARY"
+          echo "USDA step: $USDA_OUTCOME; OSM recent-change script step: $OSM_INCREMENTAL_OUTCOME; OSM worldwide full-membership sweep: $OSM_RECONCILIATION_OUTCOME; Hong Kong AFCD: $HK_OUTCOME; New Zealand DOC: $NZDOC_OUTCOME; Parks Canada: $PARKSCANADA_OUTCOME; official notices: $CONTENT_OUTCOME" >> "$GITHUB_STEP_SUMMARY"
           python - <<'PY'
           import datetime, hashlib, json, os
           from collections import Counter
@@ -72,9 +78,10 @@ jobs:
               ('USFS', root/'catalog/usfs.json', 'routes'),
               ('Hong Kong AFCD', root/'catalog/hk-afcd.json', 'routes'),
               ('New Zealand DOC', root/'catalog/nzdoc.json', 'routes'),
+              ('Parks Canada', root/'catalog/canada-parks.json', 'routes'),
               ('Official notices', root/'content/official-news.json', 'items'),
           ]
-          outcomes = dict(zip(('usfs','osm_incremental','osm_reconciliation','hk','nzdoc','news'), (os.environ.get(key, 'unknown') for key in ('USDA_OUTCOME','OSM_INCREMENTAL_OUTCOME','OSM_RECONCILIATION_OUTCOME','HK_OUTCOME','NZDOC_OUTCOME','CONTENT_OUTCOME'))))
+          outcomes = dict(zip(('usfs','osm_incremental','osm_reconciliation','hk','nzdoc','parkscanada','news'), (os.environ.get(key, 'unknown') for key in ('USDA_OUTCOME','OSM_INCREMENTAL_OUTCOME','OSM_RECONCILIATION_OUTCOME','HK_OUTCOME','NZDOC_OUTCOME','PARKSCANADA_OUTCOME','CONTENT_OUTCOME'))))
           outcomes['osm'] = outcomes['osm_reconciliation']
           snapshots = {}
           rows = ['| Source snapshot | Records | Generated |', '|---|---:|---|']
@@ -143,6 +150,10 @@ jobs:
               'nzdoc': {
                   'mode': 'complete-source-replacement',
                   'lastAttemptSucceeded': outcomes['nzdoc'] == 'success',
+              },
+              'parkscanada': {
+                  'mode': 'complete-source-replacement',
+                  'lastAttemptSucceeded': outcomes['parkscanada'] == 'success',
               },
           }
           for source, progress in reconciliation.items():
@@ -225,7 +236,7 @@ jobs:
             --backup-dir "$BACKUP_DIR" \
             --functions catalog-feed client-api
       - name: Report complete collection failure
-        if: ${{ !cancelled() && steps.usda.outcome == 'failure' && steps.osm_incremental.outcome == 'failure' && steps.hk.outcome == 'failure' && steps.nzdoc.outcome == 'failure' && steps.content.outcome == 'failure' }}
+        if: ${{ !cancelled() && steps.usda.outcome == 'failure' && steps.osm_incremental.outcome == 'failure' && steps.hk.outcome == 'failure' && steps.nzdoc.outcome == 'failure' && steps.parkscanada.outcome == 'failure' && steps.content.outcome == 'failure' }}
         run: |
           echo "All collectors failed; previous snapshots retained."
           exit 1

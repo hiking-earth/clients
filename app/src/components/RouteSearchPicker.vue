@@ -49,6 +49,7 @@ const sources: { id: CatalogSource; name: string }[] = [
   { id: 'usfs', name: '美国国家森林' },
   { id: 'hk', name: '香港官方步道' },
   { id: 'nzdoc', name: '新西兰环保部官方步道' },
+  { id: 'parkscanada', name: '加拿大公园管理局' },
 ];
 const sourceNames = sources.map(source => source.name);
 const sourceIndex = ref(0), query = ref(''), localQuery = ref(''), onlineMatches = ref<HikingRoute[]>([]), onlineMessage = ref(''), loading = ref(false), searched = ref(false), onlineHasMore = ref(false);

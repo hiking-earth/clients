@@ -4,7 +4,7 @@ const fs=require('fs');
 const path=require('path');
 const zlib=require('zlib');
 const BASE='https://raw.githubusercontent.com/hiking-earth/clients/main/shared/';
-const catalogs=new Set(['osm','usfs','hk','nzdoc','news']);
+const catalogs=new Set(['osm','usfs','hk','nzdoc','parkscanada','news']);
 const directPaths={release:'releases/stable.json','offline-hk':'data/offline/hk-afcd.json'};
 const PAGE_SIZE=400,MAX_RECORDS=250000,HEX=/^[a-f0-9]{64}$/;
 const manifests=new Map(),pages=new Map(),indexes=new Map(),directCache=new Map(),pending=new Map();

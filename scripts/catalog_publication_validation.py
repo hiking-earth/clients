@@ -15,6 +15,7 @@ DISCOVERY_IDS = {
     'usfs': re.compile(r'^usfs-[1-9][0-9]*(?:\.[0-9]+)?$'),
     'hk': re.compile(r'^hk-afcd-[1-9][0-9]*$'),
     'nzdoc': re.compile(r'^nzdoc-[1-9][0-9]*$'),
+    'parkscanada': re.compile(r'^parkscanada-[1-9][0-9]*$'),
 }
 PENDING_STATUS = '待核验'
 
@@ -74,11 +75,14 @@ def validate_route_catalog(source, data):
         raise ValueError(f'{source}: catalog source URL is required')
     if source == 'nzdoc' and expected_source_url != 'https://services1.arcgis.com/3JjYDyG3oajxU6HO/ArcGIS/rest/services/DOC_Walking_Experiences/FeatureServer/1':
         raise ValueError('nzdoc: catalog source URL differs from the approved DOC layer')
+    if source == 'parkscanada' and expected_source_url != 'https://services2.arcgis.com/wCOMu5IS7YdSyPNx/arcgis/rest/services/vw_Trails_Sentiers_APCA_V2_FGP/FeatureServer/0':
+        raise ValueError('parkscanada: catalog source URL differs from the approved Parks Canada layer')
     expected_provenance = {
         'osm': ('ODbL-1.0', '© OpenStreetMap contributors', 'https://www.openstreetmap.org/copyright'),
         'usfs': ('USDA source terms; retain attribution and source metadata', 'USDA Forest Service', 'https://data.fs.usda.gov/geodata/edw/datasets.php?xmlKeyword=recreation'),
         'hk': ('DATA.GOV.HK-terms-1.2', '香港特别行政区政府 · 渔农自然护理署 · DATA.GOV.HK', 'https://data.gov.hk/en/terms-and-conditions'),
         'nzdoc': ('CC-BY-3.0-NZ', None, 'https://www.doc.govt.nz/our-work/maps-and-data/terms-and-conditions/'),
+        'parkscanada': ('Open Government Licence - Canada', 'Contains information licensed under the Open Government Licence – Canada. Source: Parks Canada (Trails APCA).', 'https://open.canada.ca/en/open-government-licence-canada/'),
     }[source]
     actual_provenance = tuple(data.get(field) for field in ('license', 'attribution', 'licenseUrl'))
     provenance_matches = actual_provenance == expected_provenance
@@ -118,12 +122,18 @@ def validate_route_catalog(source, data):
         status = row.get('status')
         if status not in (None, PENDING_STATUS):
             raise ValueError(f'{label}: discovery catalog cannot publish status {status!r}')
-        if source in ('hk', 'nzdoc'):
+        if source in ('hk', 'nzdoc', 'parkscanada'):
             _reference_paths(row.get('referencePaths'), label)
         if source == 'nzdoc':
             official_url = row.get('sourceTags', {}).get('officialUrl') if isinstance(row.get('sourceTags'), dict) else None
             if official_url is not None and _https_host(official_url, f'{label} official page') != 'www.doc.govt.nz':
                 raise ValueError(f'{label}: official page must link to the DOC website')
+        if source == 'parkscanada':
+            tags = row.get('sourceTags') if isinstance(row.get('sourceTags'), dict) else {}
+            for field in ('officialUrlEn', 'officialUrlFr'):
+                value = tags.get(field)
+                if value is not None and _https_host(value, f'{label} {field}') not in ('pc.gc.ca', 'www.pc.gc.ca', 'parks.canada.ca', 'www.parks.canada.ca'):
+                    raise ValueError(f'{label}: official page must link to Parks Canada')
     return len(rows)
 
 

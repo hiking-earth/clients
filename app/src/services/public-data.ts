@@ -1,7 +1,7 @@
 import {browserReportsOffline} from './network-state';
 import {callCloud} from './cloud';
 const CATALOG_PAGE_SIZE=400;
-export async function publicSnapshot(source:'osm'|'usfs'|'hk'|'nzdoc'|'news'|'release'|'offline-hk'):Promise<any>{
+export async function publicSnapshot(source:'osm'|'usfs'|'hk'|'nzdoc'|'parkscanada'|'news'|'release'|'offline-hk'):Promise<any>{
  if(browserReportsOffline())throw new Error('当前设备离线，保留本机资料，联网后再更新');
  if(source==='release'||source==='offline-hk'){
   const result=await callCloud<{data:unknown}>('catalog-feed',{source});

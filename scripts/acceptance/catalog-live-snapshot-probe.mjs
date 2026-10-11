@@ -1,7 +1,7 @@
 import {writeFile} from 'node:fs/promises';
 
 const apiUrl=process.env.HIKING_EARTH_CLIENT_API_URL||'https://cloud1-d9g4fl3fu2491914f-1499973049.ap-shanghai.app.tcloudbase.com/client-api';
-const sources=['osm','usfs','hk','nzdoc','news'];
+const sources=['osm','usfs','hk','nzdoc','parkscanada','news'];
 const windowLimit=400;
 const report={checkedAt:new Date().toISOString(),scope:'Unauthenticated live catalog first-window probe against current public GitHub manifests; no route access or navigation claims',sources:[],passed:false};
 
