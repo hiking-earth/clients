@@ -15,7 +15,7 @@ import {globePoint} from './globe-input';
 const props=defineProps<{routes:{id:string;center:[number,number]}[];selectedId?:string}>();
 const emit=defineEmits<{(e:'select',id:string):void}>();
 const id='earth-'+Math.random().toString(36).slice(2,9),instance=getCurrentInstance();
-const resolution=uni.getSystemInfoSync().windowWidth<600?320:512;
+const resolution=uni.getSystemInfoSync().windowWidth<600?384:640;
 const textureId=id+'-photo',photoStyle=ref<Record<string,string>>({width:resolution+'px',height:resolution+'px',left:'0px',top:'0px'});
 const height=ref(400);let width=400,lon=100,lat=22,zoom=1,disposed=false,queued=false;
 let touch:{x:number;y:number}|null=null,origin:{x:number;y:number}|null=null,moved=false,pinch=0;

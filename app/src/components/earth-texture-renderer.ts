@@ -1,10 +1,11 @@
 import texture from './earth-texture.json';
-import designPalette from '../../../shared/design/palette.json';
 
 const alphabet='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 function decode(s:string){if(typeof uni!=='undefined'&&typeof uni.base64ToArrayBuffer==='function')return new Uint8Array(uni.base64ToArrayBuffer(s));const out=new Uint8Array(Math.floor(s.length*3/4));let bits=0,value=0,n=0;for(const c of s){const k=alphabet.indexOf(c);if(k<0)continue;value=(value<<6)|k;bits+=6;if(bits>=8){bits-=8;out[n++]=(value>>bits)&255;}}return out.subarray(0,n);}
 const pixels=decode(texture.indices),palette=texture.palette;
-const atmosphereColor=[1,3,5].map(offset=>Number.parseInt(designPalette.accent.slice(offset,offset+2),16));
+// UI emphasis stays in the shared lime palette; atmospheric scattering keeps
+// the blue-white hue of Earth's atmosphere instead of tinting the planet green.
+const atmosphereColor=[92,160,230];
 /** Inverse orthographic sphere sampling, using NASA's geographic satellite composite. */
 export function renderEarth(size:number,longitude:number,latitude:number){
  const data=new Uint8ClampedArray(size*size*4),half=size/2,rad=Math.PI/180,phi=latitude*rad,sp=Math.sin(phi),cp=Math.cos(phi);
@@ -14,7 +15,7 @@ export function renderEarth(size:number,longitude:number,latitude:number){
   const u=((lon/(2*Math.PI)+.5)%1+1)%1,v=.5-lat/Math.PI;
   const index=pixels[Math.min(texture.height-1,Math.floor(v*texture.height))*texture.width+Math.floor(u*texture.width)]*3;
   const ocean=palette[index]<30&&palette[index+1]<30&&palette[index+2]<45;
-  const diffuse=Math.max(0,-nx*.35+ny*.25+nz*.90),light=.32+.68*diffuse,atmosphere=Math.pow(1-nz,4)*.55,o=(y*size+x)*4;
+  const diffuse=Math.max(0,-nx*.35+ny*.25+nz*.90),light=.22+.78*diffuse,atmosphere=Math.pow(1-nz,4)*.42,o=(y*size+x)*4;
   data[o]=(ocean?14:palette[index])*light*(1-atmosphere)+atmosphereColor[0]*atmosphere;
   data[o+1]=(ocean?81:palette[index+1])*light*(1-atmosphere)+atmosphereColor[1]*atmosphere;
   data[o+2]=(ocean?131:palette[index+2])*light*(1-atmosphere)+atmosphereColor[2]*atmosphere;
