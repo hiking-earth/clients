@@ -11,7 +11,7 @@ import sys
 import urllib.parse
 import urllib.request
 import xml.etree.ElementTree as ET
-from official_content_policy import apply_metadata_policy
+from official_content_policy import apply_metadata_policy, replace_source_snapshot
 ROOT=pathlib.Path(__file__).resolve().parents[1]
 TARGET=ROOT/'shared/data/content/official-news.json'
 SOURCE_CONFIG=ROOT/'shared/data/content/official-sources.json'
@@ -42,6 +42,7 @@ def collect(source):
  tree=ET.fromstring(data)
  if tree.tag!='rss' or tree.find('channel') is None:raise ValueError('unsupported RSS structure')
  feed_items=tree.findall('./channel/item')
+ if not feed_items:raise ValueError('empty official feed; prior source items retained')
  rows=[];seen=set();now=dt.datetime.now(dt.timezone.utc).isoformat()
  for item in feed_items[:100]:
   title=' '.join((item.findtext('title') or '').split())[:300]
@@ -72,10 +73,14 @@ except BlockingIOError:
  sys.exit(0)
 old=json.loads(TARGET.read_text()) if TARGET.exists() else {'schemaVersion':1,'items':[],'sources':[]}
 items={r['id']:r for r in old.get('items',[])};states={r['id']:r for r in old.get('sources',[])};failed=0
+retired=[]
 for source in SOURCES:
  try:
   rows=collect(source)
-  for row in rows:items[row['id']]=row
+  visible,source_retired=replace_source_snapshot(list(items.values()),source['id'],rows)
+  items={row['id']:row for row in visible if isinstance(row,dict) and isinstance(row.get('id'),str)}
+  retired_at=dt.datetime.now(dt.timezone.utc).isoformat()
+  retired.extend({'record':row,'reason':'not-in-current-feed','reviewedAt':retired_at} for row in source_retired)
   states[source['id']]={**source,'lastSuccess':dt.datetime.now(dt.timezone.utc).isoformat(),'lastAttempt':dt.datetime.now(dt.timezone.utc).isoformat(),'lastError':None,'lastCollectedCount':len(rows)}
   print(source['id'],len(rows),'official items',flush=True)
  except Exception as e:
@@ -100,7 +105,7 @@ result['items']=published
 # This is a freshness policy for an index, never an automatic trail opening decision.
 prior_withheld=old.get('withheldItems',[])
 history={item.get('record',{}).get('id'):item for item in prior_withheld if isinstance(item,dict) and isinstance(item.get('record'),dict) and item['record'].get('id')}
-for item in withheld:
+for item in [*retired,*withheld]:
  if isinstance(item['record'],dict) and item['record'].get('id'):history[item['record']['id']]=item
 for row in published:history.pop(row.get('id'),None)
 result['withheldItems']=list(history.values())[-500:]

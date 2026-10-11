@@ -78,3 +78,17 @@ def apply_metadata_policy(rows, registry, now):
         else:
             published.append(row)
     return published, withheld
+
+
+def replace_source_snapshot(existing_rows, source_id, current_rows):
+    """Replace one successful source snapshot and return records it withdrew."""
+    current_ids = {row.get('id') for row in current_rows if isinstance(row, dict)}
+    retained = []
+    retired = []
+    for row in existing_rows:
+        if isinstance(row, dict) and row.get('sourceId') == source_id and row.get('id') not in current_ids:
+            retired.append(row)
+        else:
+            retained.append(row)
+    retained.extend(current_rows)
+    return retained, retired

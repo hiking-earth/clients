@@ -3,7 +3,7 @@ import pathlib
 import sys
 import unittest
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
-from official_content_policy import apply_metadata_policy
+from official_content_policy import apply_metadata_policy, replace_source_snapshot
 
 class MetadataPolicy(unittest.TestCase):
     now = dt.datetime(2026, 10, 7, tzinfo=dt.timezone.utc)
@@ -60,6 +60,17 @@ class MetadataPolicy(unittest.TestCase):
         self.assertEqual(len(rows),1)
         rows,rejected=apply_metadata_policy([self.row(body='article text')],self.sources,self.now)
         self.assertFalse(rows); self.assertEqual(rejected[0]['reason'],'unsupported-content-rights')
+    def test_successful_feed_snapshot_retires_missing_records_only_for_its_source(self):
+        prior=[self.row(id='old-a'),self.row(id='old-b',sourceId='other')]
+        current=[self.row(id='new-a')]
+        visible,retired=replace_source_snapshot(prior,'s',current)
+        self.assertEqual([row['id'] for row in visible],['old-b','new-a'])
+        self.assertEqual([row['id'] for row in retired],['old-a'])
+    def test_empty_successful_snapshot_retires_only_that_source(self):
+        prior=[self.row(id='old-a'),self.row(id='old-b',sourceId='other')]
+        visible,retired=replace_source_snapshot(prior,'s',[])
+        self.assertEqual([row['id'] for row in visible],['old-b'])
+        self.assertEqual([row['id'] for row in retired],['old-a'])
     def test_withhold_missing_attribution_future_publication_and_invalid_center(self):
         for patch, reason in [({'region':' '},'missing-attribution'),
                               ({'publishedAt':(self.now+dt.timedelta(days=1)).isoformat()},'future-publication-date'),
