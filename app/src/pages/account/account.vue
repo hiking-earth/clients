@@ -16,7 +16,7 @@
       <view class="wechat-login">
         <text class="subtitle">微信一键登录</text>
         <text class="hint">使用本小程序的微信身份创建或登录徒步地球账号，可用于网页和桌面扫码。首次微信登录会创建微信账号；现有账号不会自动合并，请继续使用原登录方式。</text>
-        <button class="primary" :disabled="busy" @click="loginWithWeChat">{{ busy ? '正在确认微信身份…' : '微信一键登录' }}</button>
+        <button class="primary he-primary" :disabled="busy" @click="loginWithWeChat">{{ busy ? '正在确认微信身份…' : '微信一键登录' }}</button>
       </view>
       <!-- #endif -->
       <view class="tabs">
@@ -27,7 +27,7 @@
       <input v-if="mode === 'recover'" v-model="code" maxlength="64" placeholder="注册时保存的恢复码" />
       <input v-model="password" password maxlength="128" :placeholder="mode === 'recover' ? '新密码（至少10个字符）' : '密码（至少10个字符）'" />
       <text v-if="mode === 'register'" class="hint">注册后会提供一次性恢复码。请妥善保存，忘记密码时可用它重置密码。</text>
-      <button class="primary" :disabled="busy || !configured" @click="submit">{{ busy ? '正在提交…' : modes.find(item => item.value === mode)?.label }}</button>
+      <button class="primary he-primary" :disabled="busy || !configured" @click="submit">{{ busy ? '正在提交…' : modes.find(item => item.value === mode)?.label }}</button>
     </view>
     <view v-else class="card">
       <text class="subtitle">{{ session.username }}</text>

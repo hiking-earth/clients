@@ -3,12 +3,12 @@
     <view class="card"><text class="title">自动同步</text><text>开启后，收藏和行程会在同一账号的各端自动同步；已完成轨迹还需在隐私设置中单独开启云端轨迹备份。自动同步默认关闭。</text>
       <view class="row"><text>当前账号自动同步</text><switch color="#b8f36b" :checked="enabled" :disabled="!signedIn" @change="toggle" /></view>
       <text v-if="!signedIn">登录统一账号后，才能在本机与其他设备之间同步资料。</text>
-      <button v-if="!signedIn" @click="openAccount">登录统一账号</button>
+      <button v-if="!signedIn" class="he-primary" @click="openAccount">登录统一账号</button>
       <text>后台同步暂停，回到前台后继续。不会自动申请定位或共享位置。</text>
       <text v-if="syncState.lastSuccess">上次同步：{{ new Date(syncState.lastSuccess).toLocaleString() }}</text>
       <text v-if="syncState.continuing">云端轨迹较多，正在分批同步；后台暂停后会在回到前台时继续。</text>
       <text v-if="syncState.error" class="error">{{ syncState.error }}</text>
-      <button :disabled="!enabled || syncState.running" @click="syncNow(true)">{{ syncState.running?'同步中…':'立即同步' }}</button>
+      <button class="he-primary" :disabled="!enabled || syncState.running" @click="syncNow(true)">{{ syncState.running?'同步中…':'立即同步' }}</button>
       <button v-if="syncState.conflict" @click="goConflict">处理收藏与行程冲突</button>
     </view>
     <view class="card"><text class="title">版本更新</text><text>当前客户端 {{ APP_VERSION }}。App启动或回到前台时自动检查，每六小时最多一次；网页随网站发布更新；微信小程序由微信在启动时检查。</text>
@@ -18,7 +18,7 @@
       <!-- #ifndef MP-WEIXIN -->
       <button :disabled="updateState.checking || updateState.installing" @click="checkForUpdate(true)">{{ updateState.checking?'检查中…':'检查版本' }}</button>
       <!-- #endif -->
-      <button v-if="updateState.available" :disabled="updateState.installing" @click="install">更新并重新打开</button>
+      <button v-if="updateState.available" class="he-primary" :disabled="updateState.installing" @click="install">更新并重新打开</button>
       <text>更新前保存当前工作。Android需通过系统安装确认；iOS通过已发布的App Store或TestFlight版本更新。</text>
     </view>
   </scroll-view>
@@ -48,5 +48,5 @@ function goConflict(){uni.navigateTo({url:'/pages/library/library'});}
 async function install(){const result=await uni.showModal({title:'更新客户端',content:'请先保存当前工作。确认后下载更新；系统可能要求安装或重启。'});if(result.confirm)await applyUpdate();}
 </script>
 <style scoped>
-.page{min-height:100vh;background:#01030a;padding:12px;box-sizing:border-box;color:#f4f8f2}.card{background:#151f24;border-radius:10px;padding:14px;margin-bottom:12px;display:flex;flex-direction:column;gap:10px}.title{font-size:18px;font-weight:700}.row{display:flex;align-items:center;justify-content:space-between}.error{color:#ffd166}button{background:#b8f36b;color:#10151c}
+.page{min-height:100vh;background:#01030a;padding:12px;box-sizing:border-box;color:#f4f8f2}.card{background:#151f24;border-radius:10px;padding:14px;margin-bottom:12px;display:flex;flex-direction:column;gap:10px}.title{font-size:18px;font-weight:700}.row{display:flex;align-items:center;justify-content:space-between}.error{color:#ffd166}
 </style>

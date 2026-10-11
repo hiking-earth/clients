@@ -16,7 +16,7 @@
     <RouteMap :layers="offlineLayer?.paths || []" :attribution="offlineLayer?.attribution || ''" :points="track.points" />
 
     <view class="actions">
-      <button class="btn primary" @click="navAlong">沿此轨迹导航</button>
+      <button class="btn primary he-primary" @click="navAlong">沿此轨迹导航</button>
       <button class="btn" @click="exportGpx">导出 GPX</button>
       <button v-if="showSyncAction" class="btn" :disabled="syncing || !storeValid" @click="sync">{{syncing?'同步中…':'云同步'}}</button>
       <button class="btn danger" :disabled="!storeValid" @click="remove">删除</button>

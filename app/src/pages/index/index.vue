@@ -18,7 +18,7 @@
     <view class="online-search">
       <text>本机搜索仅覆盖已同步目录；在线检索覆盖当前来源快照。</text>
       <picker :range="catalogSourceLabels" :value="searchSourceIndex" @change="changeSearchSource"><view>来源：{{ catalogSources[searchSourceIndex].label }}</view></picker>
-      <button size="mini" :disabled="searchLoading" @click="onlineSearch(false)">{{ searchLoading?'检索中…':'在线检索全部来源记录' }}</button>
+      <button size="mini" class="he-primary" :disabled="searchLoading" @click="onlineSearch(false)">{{ searchLoading?'检索中…':'在线检索全部来源记录' }}</button>
       <button v-if="onlineMode" size="mini" @click="leaveOnlineSearch">返回本机目录</button>
       <text v-if="searchMessage">{{ searchMessage }}</text>
     </view>

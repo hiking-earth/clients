@@ -39,7 +39,7 @@
         <RouteSearchPicker v-model="form.routeId" :disabled="submitting" placeholder="搜索或选择关联路线（可选）" />
         <view class="form-actions">
           <button class="btn ghost" @click="cancelForm()">取消</button>
-          <button class="btn primary" :disabled="submitting" @click="submit">{{ editingId ? '保存' : '发布' }}</button>
+          <button class="btn primary he-primary" :disabled="submitting" @click="submit">{{ editingId ? '保存' : '发布' }}</button>
         </view>
       </view>
     </view>

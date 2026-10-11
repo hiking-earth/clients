@@ -17,7 +17,7 @@
       </view>
     </view>
 
-    <button class="btn primary" :disabled="!imagePath || analyzing" @click="analyze">
+    <button class="btn primary he-primary" :disabled="!imagePath || analyzing" @click="analyze">
       {{ analyzing ? '识别中…' : '开始识别' }}
     </button>
 

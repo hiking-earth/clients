@@ -50,7 +50,7 @@
     </view>
 
     <view class="footer">
-      <button v-if="navigable" class="btn primary" @click="startNav">开始导航</button>
+      <button v-if="navigable" class="btn primary he-primary" @click="startNav">开始导航</button>
       <button v-else class="btn disabled" disabled>该路线不开放导航</button>
     </view>
   <button v-if="route" @click="openSocial">路线留言与日记</button>

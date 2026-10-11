@@ -2,7 +2,7 @@
  <scroll-view scroll-y class="page">
   <view class="tabs"><button v-for="mode in modes" :key="mode.key" :class="{selected:tab===mode.key}" :disabled="busy" @click="selectTab(mode.key)">{{ mode.name }}</button></view>
   <text v-if="error" class="error">{{ error }}</text>
-  <button @click="openAccount">账号与登录</button>
+  <button class="he-primary" @click="openAccount">账号与登录</button>
   <view v-if="tab==='diaries'" class="row diary-feed"><button :class="{selected:!publicFeed}" :disabled="loading||busy" @click="setDiaryFeed(false)">我的日记</button><button :class="{selected:publicFeed}" :disabled="loading||busy" @click="setDiaryFeed(true)">公开日记</button></view>
   <view v-if="tab==='diaries'&&!publicFeed||tab==='comments'" class="card">
    <text class="title">{{ tab==='diaries'?'云端日记与手动打卡':'路线留言' }}</text>
@@ -11,10 +11,10 @@
    <input :disabled="busy" v-if="tab==='diaries'" v-model="title" maxlength="100" placeholder="日记标题" />
    <textarea :disabled="busy" v-model="body" maxlength="5000" placeholder="写下内容；公开内容需审核后展示" />
    <view v-if="tab==='diaries'"><view class="row"><text>公开日记（默认仅自己）</text><switch color="#b8f36b" :disabled="busy" :checked="isPublic" @change="isPublic=eventValue($event)" /></view><view class="row"><text>手动标记已到访</text><switch color="#b8f36b" :disabled="busy" :checked="checkedIn" @change="checkedIn=eventValue($event)" /></view></view>
-   <button :disabled="busy||!routeId||!body.trim()" @click="save">{{ editing?'保存修改':'提交' }}</button>
+   <button class="he-primary" :disabled="busy||!routeId||!body.trim()" @click="save">{{ editing?'保存修改':'提交' }}</button>
    <button :disabled="busy" v-if="editing" @click="cancelEdit()">取消编辑</button>
   </view>
-  <view v-if="tab==='messages'" class="card"><text class="title">队内消息</text><text>仅当前有效队伍成员可见。后台暂停轮询，返回后继续。</text><textarea :disabled="busy" v-model="body" maxlength="1000" placeholder="给队友发送消息" /><button :disabled="busy||!body.trim()" @click="send">发送</button></view>
+  <view v-if="tab==='messages'" class="card"><text class="title">队内消息</text><text>仅当前有效队伍成员可见。后台暂停轮询，返回后继续。</text><textarea :disabled="busy" v-model="body" maxlength="1000" placeholder="给队友发送消息" /><button class="he-primary" :disabled="busy||!body.trim()" @click="send">发送</button></view>
   <view v-if="tab==='diaries'&&!publicFeed" class="card"><text>当前已加载的本人日记中，已到访 {{ footprintCount }} 条路线（手动标记）</text></view>
   <button :disabled="loading" @click="refresh">{{ loading?'加载中…':'刷新云端内容' }}</button>
   <text class="feed-note">前台第一页自动检查更新：队聊和通知每10秒，其他内容每30秒；后台暂停。加载后续页时可手动刷新回到最新内容。</text>

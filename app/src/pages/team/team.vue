@@ -4,7 +4,7 @@
     <view v-if="!team" class="entry">
       <text class="entry-title">组队会合</text>
       <text class="entry-sub">队友实时位置互见 · 双向距离 · 箭头导航会合</text>
-      <button class="btn primary" @click="createTeam">创建队伍</button>
+      <button class="btn primary he-primary" @click="createTeam">创建队伍</button>
       <view class="join-row">
         <input v-model="inviteCode" class="input" placeholder="输入 6 位邀请码" placeholder-class="ph" maxlength="6" />
         <button class="btn ghost" @click="joinTeam">加入</button>
