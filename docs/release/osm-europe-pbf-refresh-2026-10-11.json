@@ -1,0 +1,713 @@
+{
+  "schemaVersion": 1,
+  "startedAt": "2026-10-11T16:55:17Z",
+  "region": "europe",
+  "sourcePage": "https://download.geofabrik.de/europe.html",
+  "sourceLicense": "ODbL-1.0",
+  "attribution": "© OpenStreetMap contributors",
+  "sourceByteCap": 900000000,
+  "sources": [
+    {
+      "sourceId": "europe/albania",
+      "sourceUrl": "https://download.geofabrik.de/europe/albania-latest.osm.pbf",
+      "sourcePage": "https://download.geofabrik.de/europe/albania.html",
+      "sourceByteCap": 900000000,
+      "startedAt": "2026-10-11T16:55:17Z",
+      "result": "imported",
+      "import": {
+        "sourceId": "europe/albania",
+        "region": "europe",
+        "sourceUrl": "https://download.geofabrik.de/europe/albania-latest.osm.pbf",
+        "sourceTimestamp": "2026-10-08T20:21:06Z",
+        "sha256": "3bb587b59745b4f344baffbbbebdf02fea8155d6970e99a0b628af66e14883d1",
+        "bytes": 54218600,
+        "importedAt": "2026-10-11T16:55:57Z",
+        "candidateRelations": 64,
+        "importedRelations": 50,
+        "skippedIncompleteRelations": 14,
+        "skippedNestedRelations": 2
+      }
+    },
+    {
+      "sourceId": "europe/andorra",
+      "sourceUrl": "https://download.geofabrik.de/europe/andorra-latest.osm.pbf",
+      "sourcePage": "https://download.geofabrik.de/europe/andorra.html",
+      "sourceByteCap": 900000000,
+      "startedAt": "2026-10-11T16:55:58Z",
+      "result": "imported",
+      "import": {
+        "sourceId": "europe/andorra",
+        "region": "europe",
+        "sourceUrl": "https://download.geofabrik.de/europe/andorra-latest.osm.pbf",
+        "sourceTimestamp": "2026-10-08T20:21:06Z",
+        "sha256": "777b4b8ab551a12100861edebcada791d99da9de68b847afebdca218326533f1",
+        "bytes": 3488553,
+        "importedAt": "2026-10-11T16:56:17Z",
+        "candidateRelations": 25,
+        "importedRelations": 8,
+        "skippedIncompleteRelations": 17,
+        "skippedNestedRelations": 10
+      }
+    },
+    {
+      "sourceId": "europe/belarus",
+      "sourceUrl": "https://download.geofabrik.de/europe/belarus-latest.osm.pbf",
+      "sourcePage": "https://download.geofabrik.de/europe/belarus.html",
+      "sourceByteCap": 900000000,
+      "startedAt": "2026-10-11T16:56:18Z",
+      "result": "imported",
+      "import": {
+        "sourceId": "europe/belarus",
+        "region": "europe",
+        "sourceUrl": "https://download.geofabrik.de/europe/belarus-latest.osm.pbf",
+        "sourceTimestamp": "2026-10-08T20:21:06Z",
+        "sha256": "82e8156e5599a677f1b9ab68839a063f1d9be3cad4992d3646e18f660808058c",
+        "bytes": 350011648,
+        "importedAt": "2026-10-11T16:59:16Z",
+        "candidateRelations": 55,
+        "importedRelations": 39,
+        "skippedIncompleteRelations": 16,
+        "skippedNestedRelations": 2
+      }
+    },
+    {
+      "sourceId": "europe/belgium",
+      "sourceUrl": "https://download.geofabrik.de/europe/belgium-latest.osm.pbf",
+      "sourcePage": "https://download.geofabrik.de/europe/belgium.html",
+      "sourceByteCap": 900000000,
+      "startedAt": "2026-10-11T16:59:17Z",
+      "result": "imported",
+      "import": {
+        "sourceId": "europe/belgium",
+        "region": "europe",
+        "sourceUrl": "https://download.geofabrik.de/europe/belgium-latest.osm.pbf",
+        "sourceTimestamp": "2026-10-08T20:21:06Z",
+        "sha256": "d780cb2e56f2ae2f4a9d7bdaeac0734c0e1e167fca5dd256bbf07eb3c235f556",
+        "bytes": 696099443,
+        "importedAt": "2026-10-11T17:05:10Z",
+        "candidateRelations": 4092,
+        "importedRelations": 3810,
+        "skippedIncompleteRelations": 282,
+        "skippedNestedRelations": 57
+      }
+    },
+    {
+      "sourceId": "europe/bosnia-herzegovina",
+      "sourceUrl": "https://download.geofabrik.de/europe/bosnia-herzegovina-latest.osm.pbf",
+      "sourcePage": "https://download.geofabrik.de/europe/bosnia-herzegovina.html",
+      "sourceByteCap": 900000000,
+      "startedAt": "2026-10-11T17:05:11Z",
+      "result": "imported",
+      "import": {
+        "sourceId": "europe/bosnia-herzegovina",
+        "region": "europe",
+        "sourceUrl": "https://download.geofabrik.de/europe/bosnia-herzegovina-latest.osm.pbf",
+        "sourceTimestamp": "2026-10-08T20:21:06Z",
+        "sha256": "f0777342abfe3fb0db490045f6c731d700c251568507a5952f0c398f282d8ca0",
+        "bytes": 161647559,
+        "importedAt": "2026-10-11T17:06:28Z",
+        "candidateRelations": 159,
+        "importedRelations": 121,
+        "skippedIncompleteRelations": 38,
+        "skippedNestedRelations": 1
+      }
+    },
+    {
+      "sourceId": "europe/bulgaria",
+      "sourceUrl": "https://download.geofabrik.de/europe/bulgaria-latest.osm.pbf",
+      "sourcePage": "https://download.geofabrik.de/europe/bulgaria.html",
+      "sourceByteCap": 900000000,
+      "startedAt": "2026-10-11T17:06:29Z",
+      "result": "imported",
+      "import": {
+        "sourceId": "europe/bulgaria",
+        "region": "europe",
+        "sourceUrl": "https://download.geofabrik.de/europe/bulgaria-latest.osm.pbf",
+        "sourceTimestamp": "2026-10-08T20:21:06Z",
+        "sha256": "f69f313841be16c690eaed49ea9ecc50c4350c250f8d2b42a8a22a00758f6785",
+        "bytes": 174979910,
+        "importedAt": "2026-10-11T17:08:32Z",
+        "candidateRelations": 495,
+        "importedRelations": 483,
+        "skippedIncompleteRelations": 12,
+        "skippedNestedRelations": 3
+      }
+    },
+    {
+      "sourceId": "europe/croatia",
+      "sourceUrl": "https://download.geofabrik.de/europe/croatia-latest.osm.pbf",
+      "sourcePage": "https://download.geofabrik.de/europe/croatia.html",
+      "sourceByteCap": 900000000,
+      "startedAt": "2026-10-11T17:08:33Z",
+      "result": "imported",
+      "import": {
+        "sourceId": "europe/croatia",
+        "region": "europe",
+        "sourceUrl": "https://download.geofabrik.de/europe/croatia-latest.osm.pbf",
+        "sourceTimestamp": "2026-10-08T20:21:06Z",
+        "sha256": "292ab5f6b62225c3d820f651642d787b27ece6cb958c5cce1a457e1e0966af05",
+        "bytes": 200584796,
+        "importedAt": "2026-10-11T17:10:03Z",
+        "candidateRelations": 1180,
+        "importedRelations": 1106,
+        "skippedIncompleteRelations": 74,
+        "skippedNestedRelations": 13
+      }
+    },
+    {
+      "sourceId": "europe/cyprus",
+      "sourceUrl": "https://download.geofabrik.de/europe/cyprus-latest.osm.pbf",
+      "sourcePage": "https://download.geofabrik.de/europe/cyprus.html",
+      "sourceByteCap": 900000000,
+      "startedAt": "2026-10-11T17:10:05Z",
+      "result": "imported",
+      "import": {
+        "sourceId": "europe/cyprus",
+        "region": "europe",
+        "sourceUrl": "https://download.geofabrik.de/europe/cyprus-latest.osm.pbf",
+        "sourceTimestamp": "2026-10-08T20:21:06Z",
+        "sha256": "7573a6ee83218d90952e5a5bcc334d5039cbba87948d2998ac1bdd6a77d1c44d",
+        "bytes": 37633179,
+        "importedAt": "2026-10-11T17:10:33Z",
+        "candidateRelations": 180,
+        "importedRelations": 180,
+        "skippedIncompleteRelations": 0,
+        "skippedNestedRelations": 6
+      }
+    },
+    {
+      "sourceId": "europe/denmark",
+      "sourceUrl": "https://download.geofabrik.de/europe/denmark-latest.osm.pbf",
+      "sourcePage": "https://download.geofabrik.de/europe/denmark.html",
+      "sourceByteCap": 900000000,
+      "startedAt": "2026-10-11T17:10:34Z",
+      "result": "imported",
+      "import": {
+        "sourceId": "europe/denmark",
+        "region": "europe",
+        "sourceUrl": "https://download.geofabrik.de/europe/denmark-latest.osm.pbf",
+        "sourceTimestamp": "2026-10-08T20:21:06Z",
+        "sha256": "1a074ea4a57bca3386d308807ccc262cc3886cefbc30e3c622545c80244c8751",
+        "bytes": 495518574,
+        "importedAt": "2026-10-11T17:14:29Z",
+        "candidateRelations": 1596,
+        "importedRelations": 1588,
+        "skippedIncompleteRelations": 8,
+        "skippedNestedRelations": 20
+      }
+    },
+    {
+      "sourceId": "europe/estonia",
+      "sourceUrl": "https://download.geofabrik.de/europe/estonia-latest.osm.pbf",
+      "sourcePage": "https://download.geofabrik.de/europe/estonia.html",
+      "sourceByteCap": 900000000,
+      "startedAt": "2026-10-11T17:14:30Z",
+      "result": "imported",
+      "import": {
+        "sourceId": "europe/estonia",
+        "region": "europe",
+        "sourceUrl": "https://download.geofabrik.de/europe/estonia-latest.osm.pbf",
+        "sourceTimestamp": "2026-10-08T20:21:06Z",
+        "sha256": "a569eb8ddb231c39ae6ebb0d7ef40de168554ca96e9c5ba1ea1f71a8742607c8",
+        "bytes": 123326548,
+        "importedAt": "2026-10-11T17:15:43Z",
+        "candidateRelations": 383,
+        "importedRelations": 376,
+        "skippedIncompleteRelations": 7,
+        "skippedNestedRelations": 5
+      }
+    },
+    {
+      "sourceId": "europe/faroe-islands",
+      "sourceUrl": "https://download.geofabrik.de/europe/faroe-islands-latest.osm.pbf",
+      "sourcePage": "https://download.geofabrik.de/europe/faroe-islands.html",
+      "sourceByteCap": 900000000,
+      "startedAt": "2026-10-11T17:15:44Z",
+      "result": "imported",
+      "import": {
+        "sourceId": "europe/faroe-islands",
+        "region": "europe",
+        "sourceUrl": "https://download.geofabrik.de/europe/faroe-islands-latest.osm.pbf",
+        "sourceTimestamp": "2026-10-08T20:21:06Z",
+        "sha256": "73596db40d95f96fc6d8a0b03a1689de935913c211e9ce01cdbd6b755574eb71",
+        "bytes": 7735535,
+        "importedAt": "2026-10-11T17:16:06Z",
+        "candidateRelations": 1,
+        "importedRelations": 1,
+        "skippedIncompleteRelations": 0,
+        "skippedNestedRelations": 0
+      }
+    },
+    {
+      "sourceId": "europe/georgia",
+      "sourceUrl": "https://download.geofabrik.de/europe/georgia-latest.osm.pbf",
+      "sourcePage": "https://download.geofabrik.de/europe/georgia.html",
+      "sourceByteCap": 900000000,
+      "startedAt": "2026-10-11T17:16:07Z",
+      "result": "imported",
+      "import": {
+        "sourceId": "europe/georgia",
+        "region": "europe",
+        "sourceUrl": "https://download.geofabrik.de/europe/georgia-latest.osm.pbf",
+        "sourceTimestamp": "2026-10-08T20:21:06Z",
+        "sha256": "343f15121f3ee9612030490e1d991d460270bf6b462fc4b07fef58b15e723bb3",
+        "bytes": 102173914,
+        "importedAt": "2026-10-11T17:17:18Z",
+        "candidateRelations": 212,
+        "importedRelations": 212,
+        "skippedIncompleteRelations": 0,
+        "skippedNestedRelations": 4
+      }
+    },
+    {
+      "sourceId": "europe/greece",
+      "sourceUrl": "https://download.geofabrik.de/europe/greece-latest.osm.pbf",
+      "sourcePage": "https://download.geofabrik.de/europe/greece.html",
+      "sourceByteCap": 900000000,
+      "startedAt": "2026-10-11T17:17:19Z",
+      "result": "imported",
+      "import": {
+        "sourceId": "europe/greece",
+        "region": "europe",
+        "sourceUrl": "https://download.geofabrik.de/europe/greece-latest.osm.pbf",
+        "sourceTimestamp": "2026-10-08T20:21:06Z",
+        "sha256": "8cfefe639f0f1ac2e5a42e5a62e577a4858b2ab84b73ce40e607604302a5a7db",
+        "bytes": 341673677,
+        "importedAt": "2026-10-11T17:19:29Z",
+        "candidateRelations": 1279,
+        "importedRelations": 1265,
+        "skippedIncompleteRelations": 14,
+        "skippedNestedRelations": 16
+      }
+    },
+    {
+      "sourceId": "europe/guernsey-jersey",
+      "sourceUrl": "https://download.geofabrik.de/europe/guernsey-jersey-latest.osm.pbf",
+      "sourcePage": "https://download.geofabrik.de/europe/guernsey-jersey.html",
+      "sourceByteCap": 900000000,
+      "startedAt": "2026-10-11T17:19:30Z",
+      "result": "empty",
+      "reason": "no-named-hiking-relations"
+    },
+    {
+      "sourceId": "europe/hungary",
+      "sourceUrl": "https://download.geofabrik.de/europe/hungary-latest.osm.pbf",
+      "sourcePage": "https://download.geofabrik.de/europe/hungary.html",
+      "sourceByteCap": 900000000,
+      "startedAt": "2026-10-11T17:19:50Z",
+      "result": "imported",
+      "import": {
+        "sourceId": "europe/hungary",
+        "region": "europe",
+        "sourceUrl": "https://download.geofabrik.de/europe/hungary-latest.osm.pbf",
+        "sourceTimestamp": "2026-10-08T20:21:06Z",
+        "sha256": "fba25c26ff9e16723de55fe518bb63bc8803add070f03e11d2935d193236d5b9",
+        "bytes": 326665424,
+        "importedAt": "2026-10-11T17:22:24Z",
+        "candidateRelations": 3585,
+        "importedRelations": 3501,
+        "skippedIncompleteRelations": 84,
+        "skippedNestedRelations": 36
+      }
+    },
+    {
+      "sourceId": "europe/ireland-and-northern-ireland",
+      "sourceUrl": "https://download.geofabrik.de/europe/ireland-and-northern-ireland-latest.osm.pbf",
+      "sourcePage": "https://download.geofabrik.de/europe/ireland-and-northern-ireland.html",
+      "sourceByteCap": 900000000,
+      "startedAt": "2026-10-11T17:22:25Z",
+      "result": "imported",
+      "import": {
+        "sourceId": "europe/ireland-and-northern-ireland",
+        "region": "europe",
+        "sourceUrl": "https://download.geofabrik.de/europe/ireland-and-northern-ireland-latest.osm.pbf",
+        "sourceTimestamp": "2026-10-08T20:21:06Z",
+        "sha256": "27debc861b7b168891b1e7f59da29043312e175161b19d619065da67fbdf6ca4",
+        "bytes": 414899260,
+        "importedAt": "2026-10-11T17:24:56Z",
+        "candidateRelations": 879,
+        "importedRelations": 879,
+        "skippedIncompleteRelations": 0,
+        "skippedNestedRelations": 20
+      }
+    },
+    {
+      "sourceId": "europe/isle-of-man",
+      "sourceUrl": "https://download.geofabrik.de/europe/isle-of-man-latest.osm.pbf",
+      "sourcePage": "https://download.geofabrik.de/europe/isle-of-man.html",
+      "sourceByteCap": 900000000,
+      "startedAt": "2026-10-11T17:24:57Z",
+      "result": "imported",
+      "import": {
+        "sourceId": "europe/isle-of-man",
+        "region": "europe",
+        "sourceUrl": "https://download.geofabrik.de/europe/isle-of-man-latest.osm.pbf",
+        "sourceTimestamp": "2026-10-08T20:21:06Z",
+        "sha256": "a583f5ef411785aaaf7d68999ba3d1b41f24677b2cd673da5ec62e9e00779763",
+        "bytes": 6092046,
+        "importedAt": "2026-10-11T17:26:09Z",
+        "candidateRelations": 3,
+        "importedRelations": 3,
+        "skippedIncompleteRelations": 0,
+        "skippedNestedRelations": 0
+      }
+    },
+    {
+      "sourceId": "europe/kosovo",
+      "sourceUrl": "https://download.geofabrik.de/europe/kosovo-latest.osm.pbf",
+      "sourcePage": "https://download.geofabrik.de/europe/kosovo.html",
+      "sourceByteCap": 900000000,
+      "startedAt": "2026-10-11T17:26:10Z",
+      "result": "imported",
+      "import": {
+        "sourceId": "europe/kosovo",
+        "region": "europe",
+        "sourceUrl": "https://download.geofabrik.de/europe/kosovo-latest.osm.pbf",
+        "sourceTimestamp": "2026-10-08T20:21:06Z",
+        "sha256": "9738cc18d74ec58f6e02ee6ca5698d7c940ec7c0ce52ef11fd5bd2ceeee30cff",
+        "bytes": 30791134,
+        "importedAt": "2026-10-11T17:26:32Z",
+        "candidateRelations": 39,
+        "importedRelations": 27,
+        "skippedIncompleteRelations": 12,
+        "skippedNestedRelations": 2
+      }
+    },
+    {
+      "sourceId": "europe/latvia",
+      "sourceUrl": "https://download.geofabrik.de/europe/latvia-latest.osm.pbf",
+      "sourcePage": "https://download.geofabrik.de/europe/latvia.html",
+      "sourceByteCap": 900000000,
+      "startedAt": "2026-10-11T17:26:33Z",
+      "result": "imported",
+      "import": {
+        "sourceId": "europe/latvia",
+        "region": "europe",
+        "sourceUrl": "https://download.geofabrik.de/europe/latvia-latest.osm.pbf",
+        "sourceTimestamp": "2026-10-08T20:21:06Z",
+        "sha256": "8cff94ee41f9f5a0027536ceccc668ae751a6ba6f60cee89ee0589e6be7a5ba4",
+        "bytes": 140793271,
+        "importedAt": "2026-10-11T17:27:34Z",
+        "candidateRelations": 407,
+        "importedRelations": 393,
+        "skippedIncompleteRelations": 14,
+        "skippedNestedRelations": 5
+      }
+    },
+    {
+      "sourceId": "europe/liechtenstein",
+      "sourceUrl": "https://download.geofabrik.de/europe/liechtenstein-latest.osm.pbf",
+      "sourcePage": "https://download.geofabrik.de/europe/liechtenstein.html",
+      "sourceByteCap": 900000000,
+      "startedAt": "2026-10-11T17:27:35Z",
+      "result": "imported",
+      "import": {
+        "sourceId": "europe/liechtenstein",
+        "region": "europe",
+        "sourceUrl": "https://download.geofabrik.de/europe/liechtenstein-latest.osm.pbf",
+        "sourceTimestamp": "2026-10-09T20:21:04Z",
+        "sha256": "dc0bf84cdc20598f81b6bf8b6bddb8c69df6fe34e1204e995cdca4e1c34e858d",
+        "bytes": 3464717,
+        "importedAt": "2026-10-11T17:27:56Z",
+        "candidateRelations": 170,
+        "importedRelations": 132,
+        "skippedIncompleteRelations": 38,
+        "skippedNestedRelations": 2
+      }
+    },
+    {
+      "sourceId": "europe/lithuania",
+      "sourceUrl": "https://download.geofabrik.de/europe/lithuania-latest.osm.pbf",
+      "sourcePage": "https://download.geofabrik.de/europe/lithuania.html",
+      "sourceByteCap": 900000000,
+      "startedAt": "2026-10-11T17:27:57Z",
+      "result": "imported",
+      "import": {
+        "sourceId": "europe/lithuania",
+        "region": "europe",
+        "sourceUrl": "https://download.geofabrik.de/europe/lithuania-latest.osm.pbf",
+        "sourceTimestamp": "2026-10-08T20:21:06Z",
+        "sha256": "60fc446b161023d1ef2066818d063dcdfa9b22d697cc5ae6f1b0aba12f5c1773",
+        "bytes": 223101291,
+        "importedAt": "2026-10-11T17:29:47Z",
+        "candidateRelations": 307,
+        "importedRelations": 295,
+        "skippedIncompleteRelations": 12,
+        "skippedNestedRelations": 6
+      }
+    },
+    {
+      "sourceId": "europe/luxembourg",
+      "sourceUrl": "https://download.geofabrik.de/europe/luxembourg-latest.osm.pbf",
+      "sourcePage": "https://download.geofabrik.de/europe/luxembourg.html",
+      "sourceByteCap": 900000000,
+      "startedAt": "2026-10-11T17:29:48Z",
+      "result": "imported",
+      "import": {
+        "sourceId": "europe/luxembourg",
+        "region": "europe",
+        "sourceUrl": "https://download.geofabrik.de/europe/luxembourg-latest.osm.pbf",
+        "sourceTimestamp": "2026-10-08T20:21:06Z",
+        "sha256": "f2e3c3eb34b1cba48c8ce212bbf05de3c8cd029ee1b63718c9b8789339ee916b",
+        "bytes": 47674370,
+        "importedAt": "2026-10-11T17:30:50Z",
+        "candidateRelations": 454,
+        "importedRelations": 382,
+        "skippedIncompleteRelations": 72,
+        "skippedNestedRelations": 9
+      }
+    },
+    {
+      "sourceId": "europe/macedonia",
+      "sourceUrl": "https://download.geofabrik.de/europe/macedonia-latest.osm.pbf",
+      "sourcePage": "https://download.geofabrik.de/europe/macedonia.html",
+      "sourceByteCap": 900000000,
+      "startedAt": "2026-10-11T17:30:51Z",
+      "result": "imported",
+      "import": {
+        "sourceId": "europe/macedonia",
+        "region": "europe",
+        "sourceUrl": "https://download.geofabrik.de/europe/macedonia-latest.osm.pbf",
+        "sourceTimestamp": "2026-10-08T20:21:06Z",
+        "sha256": "0963720fa98ae0ecc7de54e672d4686951d21fe97abe2cb7f2996b6e141d7895",
+        "bytes": 29790645,
+        "importedAt": "2026-10-11T17:31:14Z",
+        "candidateRelations": 38,
+        "importedRelations": 26,
+        "skippedIncompleteRelations": 12,
+        "skippedNestedRelations": 2
+      }
+    },
+    {
+      "sourceId": "europe/malta",
+      "sourceUrl": "https://download.geofabrik.de/europe/malta-latest.osm.pbf",
+      "sourcePage": "https://download.geofabrik.de/europe/malta.html",
+      "sourceByteCap": 900000000,
+      "startedAt": "2026-10-11T17:31:15Z",
+      "result": "imported",
+      "import": {
+        "sourceId": "europe/malta",
+        "region": "europe",
+        "sourceUrl": "https://download.geofabrik.de/europe/malta-latest.osm.pbf",
+        "sourceTimestamp": "2026-10-08T20:21:06Z",
+        "sha256": "06c3161843f990a01d9f1ef40533efc8951f998374ae84569f2fcc87e46e6be8",
+        "bytes": 8926793,
+        "importedAt": "2026-10-11T17:31:39Z",
+        "candidateRelations": 38,
+        "importedRelations": 38,
+        "skippedIncompleteRelations": 0,
+        "skippedNestedRelations": 0
+      }
+    },
+    {
+      "sourceId": "europe/moldova",
+      "sourceUrl": "https://download.geofabrik.de/europe/moldova-latest.osm.pbf",
+      "sourcePage": "https://download.geofabrik.de/europe/moldova.html",
+      "sourceByteCap": 900000000,
+      "startedAt": "2026-10-11T17:31:40Z",
+      "result": "imported",
+      "import": {
+        "sourceId": "europe/moldova",
+        "region": "europe",
+        "sourceUrl": "https://download.geofabrik.de/europe/moldova-latest.osm.pbf",
+        "sourceTimestamp": "2026-10-08T20:21:06Z",
+        "sha256": "d6f58a369c917116a3d8744916b4cf98e08b8c6b1897b541d3313873de92348b",
+        "bytes": 101272695,
+        "importedAt": "2026-10-11T17:32:29Z",
+        "candidateRelations": 1,
+        "importedRelations": 1,
+        "skippedIncompleteRelations": 0,
+        "skippedNestedRelations": 0
+      }
+    },
+    {
+      "sourceId": "europe/monaco",
+      "sourceUrl": "https://download.geofabrik.de/europe/monaco-latest.osm.pbf",
+      "sourcePage": "https://download.geofabrik.de/europe/monaco.html",
+      "sourceByteCap": 900000000,
+      "startedAt": "2026-10-11T17:32:30Z",
+      "result": "imported",
+      "import": {
+        "sourceId": "europe/monaco",
+        "region": "europe",
+        "sourceUrl": "https://download.geofabrik.de/europe/monaco-latest.osm.pbf",
+        "sourceTimestamp": "2026-10-08T20:21:06Z",
+        "sha256": "91d6f25d8b70418c349adf65344170092e58968551e5c8de94d662f04ae87444",
+        "bytes": 691626,
+        "importedAt": "2026-10-11T17:32:46Z",
+        "candidateRelations": 3,
+        "importedRelations": 1,
+        "skippedIncompleteRelations": 2,
+        "skippedNestedRelations": 0
+      }
+    },
+    {
+      "sourceId": "europe/montenegro",
+      "sourceUrl": "https://download.geofabrik.de/europe/montenegro-latest.osm.pbf",
+      "sourcePage": "https://download.geofabrik.de/europe/montenegro.html",
+      "sourceByteCap": 900000000,
+      "startedAt": "2026-10-11T17:32:47Z",
+      "result": "imported",
+      "import": {
+        "sourceId": "europe/montenegro",
+        "region": "europe",
+        "sourceUrl": "https://download.geofabrik.de/europe/montenegro-latest.osm.pbf",
+        "sourceTimestamp": "2026-10-08T20:21:06Z",
+        "sha256": "4022a61fef82f08e43b1765d92fff4954af3f28171c69312af9a80321fcfe1f7",
+        "bytes": 34526434,
+        "importedAt": "2026-10-11T17:33:13Z",
+        "candidateRelations": 163,
+        "importedRelations": 150,
+        "skippedIncompleteRelations": 13,
+        "skippedNestedRelations": 1
+      }
+    },
+    {
+      "sourceId": "europe/romania",
+      "sourceUrl": "https://download.geofabrik.de/europe/romania-latest.osm.pbf",
+      "sourcePage": "https://download.geofabrik.de/europe/romania.html",
+      "sourceByteCap": 900000000,
+      "startedAt": "2026-10-11T17:33:14Z",
+      "result": "imported",
+      "import": {
+        "sourceId": "europe/romania",
+        "region": "europe",
+        "sourceUrl": "https://download.geofabrik.de/europe/romania-latest.osm.pbf",
+        "sourceTimestamp": "2026-10-08T20:21:06Z",
+        "sha256": "9f0b1b62f00495380016bbcb89c2d0b7943f621a199a34f0182b5dae48974f2e",
+        "bytes": 329923584,
+        "importedAt": "2026-10-11T17:35:28Z",
+        "candidateRelations": 1618,
+        "importedRelations": 1586,
+        "skippedIncompleteRelations": 32,
+        "skippedNestedRelations": 20
+      }
+    },
+    {
+      "sourceId": "europe/serbia",
+      "sourceUrl": "https://download.geofabrik.de/europe/serbia-latest.osm.pbf",
+      "sourcePage": "https://download.geofabrik.de/europe/serbia.html",
+      "sourceByteCap": 900000000,
+      "startedAt": "2026-10-11T17:35:29Z",
+      "result": "imported",
+      "import": {
+        "sourceId": "europe/serbia",
+        "region": "europe",
+        "sourceUrl": "https://download.geofabrik.de/europe/serbia-latest.osm.pbf",
+        "sourceTimestamp": "2026-10-08T20:21:06Z",
+        "sha256": "1079028b9e8933b83b99198027dc4c8fe3e68027f2b12d19be11ce1ad6421f3b",
+        "bytes": 240649015,
+        "importedAt": "2026-10-11T17:36:56Z",
+        "candidateRelations": 594,
+        "importedRelations": 563,
+        "skippedIncompleteRelations": 31,
+        "skippedNestedRelations": 3
+      }
+    },
+    {
+      "sourceId": "europe/slovakia",
+      "sourceUrl": "https://download.geofabrik.de/europe/slovakia-latest.osm.pbf",
+      "sourcePage": "https://download.geofabrik.de/europe/slovakia.html",
+      "sourceByteCap": 900000000,
+      "startedAt": "2026-10-11T17:36:57Z",
+      "result": "imported",
+      "import": {
+        "sourceId": "europe/slovakia",
+        "region": "europe",
+        "sourceUrl": "https://download.geofabrik.de/europe/slovakia-latest.osm.pbf",
+        "sourceTimestamp": "2026-10-09T20:21:04Z",
+        "sha256": "67757de4dc54593194fe05ab1dedb3c9e90a25e68f4a8550204f5bd0dd803ada",
+        "bytes": 345657871,
+        "importedAt": "2026-10-11T17:39:57Z",
+        "candidateRelations": 1069,
+        "importedRelations": 834,
+        "skippedIncompleteRelations": 235,
+        "skippedNestedRelations": 39
+      }
+    },
+    {
+      "sourceId": "europe/turkey",
+      "sourceUrl": "https://download.geofabrik.de/europe/turkey-latest.osm.pbf",
+      "sourcePage": "https://download.geofabrik.de/europe/turkey.html",
+      "sourceByteCap": 900000000,
+      "startedAt": "2026-10-11T17:39:58Z",
+      "result": "imported",
+      "import": {
+        "sourceId": "europe/turkey",
+        "region": "europe",
+        "sourceUrl": "https://download.geofabrik.de/europe/turkey-latest.osm.pbf",
+        "sourceTimestamp": "2026-10-08T20:21:06Z",
+        "sha256": "727109826ac538f992c6dc4195dc11ad3178de44652096872eebb4e33c0921b7",
+        "bytes": 649790615,
+        "importedAt": "2026-10-11T17:43:52Z",
+        "candidateRelations": 117,
+        "importedRelations": 113,
+        "skippedIncompleteRelations": 4,
+        "skippedNestedRelations": 4
+      }
+    },
+    {
+      "sourceId": "europe/ukraine",
+      "sourceUrl": "https://download.geofabrik.de/europe/ukraine-latest.osm.pbf",
+      "sourcePage": "https://download.geofabrik.de/europe/ukraine.html",
+      "sourceByteCap": 900000000,
+      "startedAt": "2026-10-11T17:43:54Z",
+      "result": "imported",
+      "import": {
+        "sourceId": "europe/ukraine",
+        "region": "europe",
+        "sourceUrl": "https://download.geofabrik.de/europe/ukraine-latest.osm.pbf",
+        "sourceTimestamp": "2026-10-08T20:21:06Z",
+        "sha256": "4bbaf327716569b6d5bc461dc09dbe6fdf1581db6c48a85148c571c1122fe04f",
+        "bytes": 879691516,
+        "importedAt": "2026-10-11T17:49:28Z",
+        "candidateRelations": 506,
+        "importedRelations": 478,
+        "skippedIncompleteRelations": 28,
+        "skippedNestedRelations": 4
+      }
+    }
+  ],
+  "completedAt": "2026-10-11T17:49:29Z",
+  "failureCount": 0,
+  "successCount": 32,
+  "runs": [
+    {
+      "startedAt": "2026-10-11T16:55:17Z",
+      "completedAt": "2026-10-11T17:49:29Z",
+      "successCount": 32,
+      "failureCount": 0
+    }
+  ],
+  "accessVerified": false,
+  "note": "Discovery references only. Route opening, legal access, current conditions, and navigable geometry require separate evidence and review.",
+  "catalogDelta": {
+    "beforeCount": 155320,
+    "afterCount": 166739,
+    "addedIds": 11419,
+    "removedIds": 0,
+    "updatedIds": 7148,
+    "beforeSha256": "127ba40f6ed07768cb20198a909237c687f4731c98d68acd1b05b900ab1dc503",
+    "afterSha256": "87bbfa15be9ba6ab42031129227c31817e783b6175ff5935db39b78eac0eae64"
+  },
+  "catalogSnapshot": {
+    "snapshot": "87bbfa15be9ba6ab42031129227c31817e783b6175ff5935db39b78eac0eae64",
+    "previousSnapshot": "127ba40f6ed07768cb20198a909237c687f4731c98d68acd1b05b900ab1dc503",
+    "protectedRollback": "6eed0992ec765e5870be559ef92f8fe48769bfc5ea20e3256ef77f704ba55fdf",
+    "recordCount": 166739,
+    "pages": 417,
+    "manifestSha256": "78d82f2cd09268e4fb9ac8719ad83c991b9d65a86703bca7cbba8ebd790c9896",
+    "indexHash": "c3e5439b8d23a2121ef6ed776c43dd2e3e12f20aa05ce987227710607b840c4a",
+    "localCopiesVerified": [
+      "shared/public-catalog/osm",
+      "app/cloudfunctions/catalog-feed/snapshots/osm",
+      "app/cloudfunctions/client-api/business/catalog-feed/snapshots/osm",
+      "web/public/route-catalog/osm"
+    ],
+    "deployed": false
+  },
+  "candidateRelations": 19712,
+  "importedRelations": 18641,
+  "skippedIncompleteRelations": 1071,
+  "skippedNestedRelations": 292
+}
