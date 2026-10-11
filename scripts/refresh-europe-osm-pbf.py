@@ -21,7 +21,7 @@ MAX_SOURCE_BYTES = 900_000_000
 
 # Direct, non-aggregate country/territory extracts only. The overlapping Alps,
 # DACH, Britain-and-Ireland, Great Britain and UK aggregates are excluded.
-# Czechia, the Netherlands and Poland exceed the free-runner per-file limit.
+# Large Czech, Dutch and Polish country extracts use their official children.
 COUNTRIES = (
     'albania', 'andorra', 'belarus', 'belgium', 'bosnia-herzegovina',
     'bulgaria', 'croatia', 'cyprus', 'denmark', 'estonia', 'faroe-islands',
@@ -33,6 +33,28 @@ COUNTRIES = (
 )
 SOURCES = {slug: f'https://download.geofabrik.de/europe/{slug}-latest.osm.pbf'
            for slug in COUNTRIES}
+SUBREGIONS = {
+    'czech-republic': (
+        'jihocesky', 'jihomoravsky', 'karlovarsky', 'kralovehradecky',
+        'liberecky', 'moravskoslezky', 'olomoucky', 'pardubicky',
+        'plzensky', 'praha', 'stredocesky', 'ustecky', 'vysocina', 'zlinsky',
+    ),
+    'netherlands': (
+        'drenthe', 'flevoland', 'friesland', 'gelderland', 'groningen',
+        'limburg', 'noord-brabant', 'noord-holland', 'overijssel', 'utrecht',
+        'zeeland', 'zuid-holland',
+    ),
+    'poland': (
+        'dolnoslaskie', 'kujawsko-pomorskie', 'lodzkie', 'lubelskie',
+        'lubuskie', 'malopolskie', 'mazowieckie', 'opolskie', 'podkarpackie',
+        'podlaskie', 'pomorskie', 'slaskie', 'swietokrzyskie',
+        'warminsko-mazurskie', 'wielkopolskie', 'zachodniopomorskie',
+    ),
+}
+for country, regions in SUBREGIONS.items():
+    for region in regions:
+        key = f'{country}/{region}'
+        SOURCES[key] = f'https://download.geofabrik.de/europe/{key}-latest.osm.pbf'
 
 
 def utc_now():
@@ -71,6 +93,8 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--source', action='append', choices=tuple(SOURCES),
                         help='Refresh one source; repeat to select several. Defaults to all bounded sources.')
+    parser.add_argument('--source-set', choices=('all', 'subregions', *SUBREGIONS), default='all',
+                        help='Refresh all sources, one country subdivision set, or all subdivisions.')
     parser.add_argument('--downloader-python', default=sys.executable)
     parser.add_argument('--importer-python', default=sys.executable)
     parser.add_argument('--output-dir', type=Path,
@@ -78,7 +102,16 @@ def main():
     args = parser.parse_args()
     output_dir = args.output_dir.expanduser().resolve()
     output_dir.mkdir(parents=True, exist_ok=True)
-    selected = args.source or list(SOURCES)
+    if args.source and args.source_set != 'all':
+        parser.error('--source and --source-set cannot be combined')
+    if args.source:
+        selected = args.source
+    elif args.source_set == 'all':
+        selected = list(SOURCES)
+    elif args.source_set == 'subregions':
+        selected = [source for source in SOURCES if '/' in source]
+    else:
+        selected = [source for source in SOURCES if source.startswith(args.source_set + '/')]
     before_catalog = catalog_state()
     report_path = ROOT / 'docs/release' / f'osm-europe-pbf-refresh-{dt.datetime.now(dt.timezone.utc):%Y-%m-%d}.json'
     old_sources, old_runs = [], []
@@ -89,8 +122,9 @@ def main():
                 old_sources = previous.get('sources', [])
                 old_runs = previous.get('runs', [])
                 if previous.get('startedAt'):
-                    old_runs.append({key: previous.get(key) for key in
-                                     ('startedAt', 'completedAt', 'successCount', 'failureCount')})
+                    if not any(run.get('startedAt') == previous.get('startedAt') for run in old_runs):
+                        old_runs.append(previous.get('lastRun') or {key: previous.get(key) for key in
+                                         ('startedAt', 'completedAt', 'successCount', 'failureCount')})
         except (OSError, json.JSONDecodeError):
             old_sources, old_runs = [], []
     report = {'schemaVersion': 1, 'startedAt': utc_now(), 'region': 'europe',
@@ -101,7 +135,8 @@ def main():
 
     for slug in selected:
         source_id, url = f'europe/{slug}', SOURCES[slug]
-        pbf = output_dir / f'{slug}-latest.osm.pbf'
+        source_name = slug.replace('/', '-')
+        pbf = output_dir / f'{source_name}-latest.osm.pbf'
         row = {'sourceId': source_id, 'sourceUrl': url,
                'sourcePage': f'https://download.geofabrik.de/europe/{slug}.html',
                'sourceByteCap': MAX_SOURCE_BYTES, 'startedAt': utc_now()}
@@ -142,8 +177,6 @@ def main():
     report['completedAt'] = utc_now()
     report['failureCount'] = failures
     report['successCount'] = len(selected) - failures
-    report['runs'] = old_runs + [{key: report.get(key) for key in
-                                  ('startedAt', 'completedAt', 'successCount', 'failureCount')}]
     report['sources'] = old_sources + report['sources']
     after_catalog = catalog_state()
     before_routes = before_catalog['routes']
@@ -158,6 +191,20 @@ def main():
         'beforeSha256': before_catalog['sha256'],
         'afterSha256': after_catalog['sha256'],
     }
+    current_run = {
+        'startedAt': report['startedAt'],
+        'completedAt': report['completedAt'],
+        'selectedSourceIds': [f'europe/{slug}' for slug in selected],
+        'successCount': report['successCount'],
+        'failureCount': failures,
+        'catalogDelta': report['catalogDelta'],
+    }
+    report['runs'] = old_runs + [current_run]
+    report['lastRun'] = current_run
+    report['aggregateSourceCounts'] = {}
+    for source in report['sources']:
+        result = source.get('result', 'unknown')
+        report['aggregateSourceCounts'][result] = report['aggregateSourceCounts'].get(result, 0) + 1
     report['accessVerified'] = False
     report['note'] = ('Discovery references only. Route opening, legal access, current conditions, '
                       'and navigable geometry require separate evidence and review.')
