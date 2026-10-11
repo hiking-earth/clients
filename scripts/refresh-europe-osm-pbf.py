@@ -21,7 +21,10 @@ MAX_SOURCE_BYTES = 900_000_000
 
 # Direct, non-aggregate country/territory extracts only. The overlapping Alps,
 # DACH, Britain-and-Ireland, Great Britain and UK aggregates are excluded.
-# Large Czech, Dutch and Polish country extracts use their official children.
+# Large country extracts use their official non-overlapping children. French
+# overseas territories are intentionally handled as separate global regions.
+# Germany/nordrhein-westfalen was measured at 914,531,009 bytes and is excluded
+# from the 900,000,000-byte free-runner limit.
 COUNTRIES = (
     'albania', 'andorra', 'belarus', 'belgium', 'bosnia-herzegovina',
     'bulgaria', 'croatia', 'cyprus', 'denmark', 'estonia', 'faroe-islands',
@@ -34,6 +37,32 @@ COUNTRIES = (
 SOURCES = {slug: f'https://download.geofabrik.de/europe/{slug}-latest.osm.pbf'
            for slug in COUNTRIES}
 SUBREGIONS = {
+    'germany': (
+        'baden-wuerttemberg', 'bayern', 'berlin', 'brandenburg', 'bremen',
+        'hamburg', 'hessen', 'mecklenburg-vorpommern', 'niedersachsen',
+        'rheinland-pfalz', 'saarland', 'sachsen', 'sachsen-anhalt',
+        'schleswig-holstein', 'thueringen',
+    ),
+    'france': (
+        'alsace', 'aquitaine', 'auvergne', 'basse-normandie', 'bourgogne',
+        'bretagne', 'centre', 'champagne-ardenne', 'corse', 'franche-comte',
+        'haute-normandie', 'ile-de-france', 'languedoc-roussillon', 'limousin',
+        'lorraine', 'midi-pyrenees', 'nord-pas-de-calais', 'pays-de-la-loire',
+        'picardie', 'poitou-charentes', 'provence-alpes-cote-d-azur',
+        'rhone-alpes',
+    ),
+    'spain': (
+        'andalucia', 'aragon', 'asturias', 'cantabria', 'castilla-la-mancha',
+        'castilla-y-leon', 'cataluna', 'ceuta', 'extremadura', 'galicia',
+        'islas-baleares', 'la-rioja', 'madrid', 'melilla', 'murcia',
+        'navarra', 'pais-vasco', 'valencia',
+    ),
+    'russia': (
+        'central-fed-district', 'crimean-fed-district', 'far-eastern-fed-district',
+        'kaliningrad', 'north-caucasus-fed-district',
+        'northwestern-fed-district', 'siberian-fed-district', 'south-fed-district',
+        'ural-fed-district', 'volga-fed-district',
+    ),
     'czech-republic': (
         'jihocesky', 'jihomoravsky', 'karlovarsky', 'kralovehradecky',
         'liberecky', 'moravskoslezky', 'olomoucky', 'pardubicky',
@@ -54,7 +83,8 @@ SUBREGIONS = {
 for country, regions in SUBREGIONS.items():
     for region in regions:
         key = f'{country}/{region}'
-        SOURCES[key] = f'https://download.geofabrik.de/europe/{key}-latest.osm.pbf'
+        base = f'europe/{country}' if country != 'russia' else 'russia'
+        SOURCES[key] = f'https://download.geofabrik.de/{base}/{region}-latest.osm.pbf'
 
 
 def utc_now():
@@ -138,7 +168,7 @@ def main():
         source_name = slug.replace('/', '-')
         pbf = output_dir / f'{source_name}-latest.osm.pbf'
         row = {'sourceId': source_id, 'sourceUrl': url,
-               'sourcePage': f'https://download.geofabrik.de/europe/{slug}.html',
+               'sourcePage': url.replace('-latest.osm.pbf', '.html'),
                'sourceByteCap': MAX_SOURCE_BYTES, 'startedAt': utc_now()}
         print(f'\n### {source_id}', flush=True)
         try:
@@ -205,6 +235,14 @@ def main():
     for source in report['sources']:
         result = source.get('result', 'unknown')
         report['aggregateSourceCounts'][result] = report['aggregateSourceCounts'].get(result, 0) + 1
+    latest_by_source = {}
+    for source in report['sources']:
+        latest_by_source[source.get('sourceId', '')] = source
+    report['aggregateLatestSourceCounts'] = {}
+    for source in latest_by_source.values():
+        result = source.get('result', 'unknown')
+        report['aggregateLatestSourceCounts'][result] = report['aggregateLatestSourceCounts'].get(result, 0) + 1
+    report['uniqueSourceCount'] = len(latest_by_source)
     report['accessVerified'] = False
     report['note'] = ('Discovery references only. Route opening, legal access, current conditions, '
                       'and navigable geometry require separate evidence and review.')
