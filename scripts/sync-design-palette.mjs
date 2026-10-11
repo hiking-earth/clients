@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -17,10 +17,11 @@ ${keys.map(key => `  --he-color-${key}: ${palette[key]};`).join('\n')}
 }
 `;
 writeFileSync(path.join(root, 'shared/design/palette.css'), css);
-writeFileSync(path.join(root, 'web/app/palette.css'), css);
+const webAppDirectory = path.join(root, 'web/app');
+if (existsSync(webAppDirectory)) writeFileSync(path.join(webAppDirectory, 'palette.css'), css);
 const pagesPath = path.join(root, 'app/src/pages.json');
 const pages = JSON.parse(readFileSync(pagesPath, 'utf8'));
 pages.globalStyle = { ...pages.globalStyle, navigationBarBackgroundColor: palette.background, backgroundColor: palette.background };
 pages.tabBar = { ...pages.tabBar, color: palette.muted, selectedColor: palette.accent, backgroundColor: palette.panel };
 writeFileSync(pagesPath, `${JSON.stringify(pages, null, 2)}\n`);
-process.stdout.write('Generated app and web palette styles from the shared palette.\n');
+process.stdout.write(`Generated client palette${existsSync(webAppDirectory) ? ' and web palette' : ''} from the shared palette.\n`);

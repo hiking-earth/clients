@@ -19,6 +19,10 @@ jobs:
         platform: [h5, mp-weixin]
     steps:
       - uses: actions/checkout@v4
+      - name: Verify generated shared palette
+        run: |
+          node scripts/sync-design-palette.mjs
+          git diff --exit-code -- app/src/pages.json shared/design/palette.css
       - uses: actions/setup-node@v4
         with:
           node-version: 22
