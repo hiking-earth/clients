@@ -11,6 +11,12 @@ for (const key of keys) {
     throw new Error(`Invalid shared palette value: ${key}`);
   }
 }
+const overlayKeys = ['overlay', 'overlayBorder'];
+for (const key of overlayKeys) {
+  if (typeof palette[key] !== 'string' || !/^rgba\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*,\s*(?:0|1|0?\.\d+)\s*\)$/i.test(palette[key])) {
+    throw new Error(`Invalid shared overlay value: ${key}`);
+  }
+}
 const layoutKeys = ['homeTopbarHeight', 'homeTopbarRadius', 'homeBrandMarkSize', 'homePanelWidth',
   'homeMobileTopbarHeight', 'homeMobileTopbarRadius', 'homeMobileBrandMarkSize'];
 for (const key of layoutKeys) {
@@ -22,6 +28,7 @@ const css = `/* Generated from shared/design/palette.json by scripts/sync-design
 :root, page {
 ${[
   ...keys.map(key => `  --he-color-${key}: ${palette[key]};`),
+  ...overlayKeys.map(key => `  --he-${key.replace(/[A-Z]/g, letter => `-${letter.toLowerCase()}`)}: ${palette[key]};`),
   ...layoutKeys.map(key => `  --he-${key.replace(/[A-Z]/g, letter => `-${letter.toLowerCase()}`)}: ${palette[key]};`),
 ].join('\n')}
 }
