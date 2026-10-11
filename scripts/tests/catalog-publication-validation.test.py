@@ -11,7 +11,7 @@ spec.loader.exec_module(validation)
 
 class RouteCatalogValidationTests(unittest.TestCase):
     def route(self, source='osm'):
-        prefixes = {'osm': 'osm-relation-1', 'usfs': 'usfs-1', 'hk': 'hk-afcd-1', 'nzdoc': 'nzdoc-1', 'parkscanada': 'parkscanada-1', 'nsw-npws': 'nsw-npws-1', 'england': 'england-trail-1', 'wales': 'wales-trail-1'}
+        prefixes = {'osm': 'osm-relation-1', 'usfs': 'usfs-1', 'hk': 'hk-afcd-1', 'nzdoc': 'nzdoc-1', 'parkscanada': 'parkscanada-1', 'nsw-npws': 'nsw-npws-1', 'england': 'england-trail-1', 'wales': 'wales-trail-1', 'scotland-argyll': 'scotland-argyll-1'}
         source_urls = {
             'osm': 'https://www.openstreetmap.org/relation/1',
             'usfs': 'https://apps.fs.usda.gov/arcx/service',
@@ -21,6 +21,7 @@ class RouteCatalogValidationTests(unittest.TestCase):
             'nsw-npws': 'https://services7.arcgis.com/9nlQUywsHzFwAwIM/arcgis/rest/services/NPWS_Tracks/FeatureServer/0',
             'england': 'https://services.arcgis.com/JJzESW51TqeY9uat/arcgis/rest/services/National_Trails_England/FeatureServer/0',
             'wales': 'https://datamap.gov.wales/geoserver/ows?outputFormat=application%2Fjson&request=GetFeature&service=WFS&srsName=EPSG%3A4326&typename=inspire-nrw%3ANRW_NATIONAL_TRAIL&version=1.0.0',
+            'scotland-argyll': 'https://arcgis.argyll-bute.gov.uk/arcgis/rest/services/Open_Data/MapServer/27',
         }
         row = {
             'id': prefixes[source], 'name': 'Trail', 'region': 'Region',
@@ -39,6 +40,8 @@ class RouteCatalogValidationTests(unittest.TestCase):
             row.update(region='英国·英格兰', referencePaths=[[[-2.0, 53.0], [-2.1, 53.1]]], sourceTags={'distanceKm': 10.0})
         if source == 'wales':
             row.update(region='英国·威尔士', referencePaths=[[[-4.8, 51.8], [-4.7, 51.9]]], sourceTags={'sourceStatus': 'Walked Line (10k)'})
+        if source == 'scotland-argyll':
+            row.update(region='英国·苏格兰·阿盖尔-比特', referencePaths=[[[-5.1, 55.8], [-5.0, 55.9]]], sourceTags={'pathNumber':'C240','grade':'Moderate','distanceKm':1.2,'walkLength':'1 mile / 1.6 km / allow 1 hr'})
         metadata = {
             'osm': {'license':'ODbL-1.0','attribution':'© OpenStreetMap contributors','licenseUrl':'https://www.openstreetmap.org/copyright'},
             'usfs': {'sourceUrl':source_urls[source],'license':'USDA source terms; retain attribution and source metadata','attribution':'USDA Forest Service','licenseUrl':'https://data.fs.usda.gov/geodata/edw/datasets.php?xmlKeyword=recreation'},
@@ -48,11 +51,12 @@ class RouteCatalogValidationTests(unittest.TestCase):
             'nsw-npws': {'sourceUrl':source_urls[source],'license':'Creative Commons Attribution','attribution':'© State Government of NSW and NSW Department of Climate Change, Energy, the Environment and Water 2017. Source: NSW NPWS Asset Infrastructure – Track Section.','licenseUrl':'https://data.nsw.gov.au/data/dataset/asset-infrastructure-track-section8bfcf'},
             'england': {'sourceUrl':source_urls[source],'license':'Open Government Licence v3.0','attribution':'© Natural England copyright. Contains Ordnance Survey data © Crown copyright and database right 2026.','licenseUrl':'https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/'},
             'wales': {'sourceUrl':source_urls[source],'license':'Open Government Licence for Public Sector Information (OGL)','attribution':'Contains Natural Resources Wales information © Natural Resources Wales and Database Right. All rights Reserved. Contains Ordnance Survey Data. Ordnance Survey Licence number AC0000849444. Crown Copyright and Database Right.','licenseUrl':'https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/'},
+            'scotland-argyll': {'sourceUrl':source_urls[source],'license':'Open Government Licence v3.0','attribution':'Contains spatial data licensed under Open Government Licence v3.0 from Argyll and Bute Council. Source: Adopted Core Paths.','licenseUrl':'https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/'},
         }[source]
         return {'schemaVersion': 1, **metadata, 'routes': [row]}
 
     def test_accepts_each_discovery_source_without_granting_access(self):
-        for source in ('osm', 'usfs', 'hk', 'nzdoc', 'parkscanada', 'nsw-npws', 'england', 'wales'):
+        for source in ('osm', 'usfs', 'hk', 'nzdoc', 'parkscanada', 'nsw-npws', 'england', 'wales', 'scotland-argyll'):
             with self.subTest(source=source):
                 self.assertEqual(validation.validate_route_catalog(source, self.route(source)), 1)
 

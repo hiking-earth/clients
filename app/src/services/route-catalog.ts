@@ -12,11 +12,12 @@ let latestParksCanada:any={routes:[],attribution:'Contains information licensed 
 let latestNswNpws:any={routes:[],attribution:'© State Government of NSW and NSW Department of Climate Change, Energy, the Environment and Water 2017.'};
 let latestEngland:any={routes:[],attribution:'© Natural England copyright. Contains Ordnance Survey data.'};
 let latestWales:any={routes:[],attribution:'Contains Natural Resources Wales information © Natural Resources Wales and Database Right.'};
+let latestScotlandArgyll:any={routes:[],attribution:'Contains spatial data licensed under Open Government Licence v3.0 from Argyll and Bute Council. Source: Adopted Core Paths.'};
 const extras=new Map<string,typeof seed[number]>();
-let curated=[...seed,...catalogRoutes(latestUsfs),...catalogRoutes(latestHk),...catalogRoutes(latestNzdoc),...catalogRoutes(latestParksCanada),...catalogRoutes(latestNswNpws),...catalogRoutes(latestEngland),...catalogRoutes(latestWales)];
+let curated=[...seed,...catalogRoutes(latestUsfs),...catalogRoutes(latestHk),...catalogRoutes(latestNzdoc),...catalogRoutes(latestParksCanada),...catalogRoutes(latestNswNpws),...catalogRoutes(latestEngland),...catalogRoutes(latestWales),...catalogRoutes(latestScotlandArgyll)];
 try{const value=uni.getStorageSync('he_selected_catalog_routes_v1');if(Array.isArray(value)&&value.length<=200)for(const route of value){if(route&&typeof route.id==='string'&&['name','region','summary','distance','ascent','duration','difficulty','bestSeason','image','imageCredit'].every(key=>typeof route[key]==='string')&&Array.isArray(route.center)&&route.center.length===2&&route.center.every(Number.isFinite)&&Math.abs(route.center[0])<=180&&Math.abs(route.center[1])<=90&&route.archive&&typeof route.archive.source?.label==='string'&&typeof route.archive.checkedAt==='string'&&typeof route.archive.riskNotice==='string'&&Array.isArray(route.archive.highlights)&&route.archive.highlights.every((value:any)=>typeof value==='string')&&Array.isArray(route.path)&&Array.isArray(route.scenery)&&route.scenery.every((value:any)=>typeof value==='string')&&Array.isArray(route.bestSeasons))extras.set(route.id,{...route,status:'待核验',openingExpiresAt:0,trackMode:'不展示轨迹',path:[]});}}catch{}
 let latestOsm: any = {routes:[],attribution:'© OpenStreetMap contributors · ODbL-1.0'};
-export const catalogCacheState=reactive<Record<CatalogSource,{saved:boolean;message:string}>>({osm:{saved:false,message:'未同步'},usfs:{saved:false,message:'未同步'},hk:{saved:false,message:'未同步'},nzdoc:{saved:false,message:'未同步'},parkscanada:{saved:false,message:'未同步'},'nsw-npws':{saved:false,message:'未同步'},england:{saved:false,message:'未同步'},wales:{saved:false,message:'未同步'}});
+export const catalogCacheState=reactive<Record<CatalogSource,{saved:boolean;message:string}>>({osm:{saved:false,message:'未同步'},usfs:{saved:false,message:'未同步'},hk:{saved:false,message:'未同步'},nzdoc:{saved:false,message:'未同步'},parkscanada:{saved:false,message:'未同步'},'nsw-npws':{saved:false,message:'未同步'},england:{saved:false,message:'未同步'},wales:{saved:false,message:'未同步'},'scotland-argyll':{saved:false,message:'未同步'}});
 async function persist(source:CatalogSource,data:any){
  try{await writeCatalogCache(source,data);catalogCacheState[source]={saved:true,message:`已保存${data.routes.length}条${data.complete===false?`，来源共${data.sourceTotal}条，其余可在线检索`:''}，可离线查看`};}
  catch{catalogCacheState[source]={saved:false,message:'本次资料仅在内存中，离线保存失败，请检查设备空间'};}
@@ -26,7 +27,7 @@ function failedRefresh(source:CatalogSource){
  catalogCacheState[source]={saved,message:saved?'目录更新失败，保留本机资料；稍后自动重试':'目录更新失败，暂无本机缓存；稍后自动重试'};
 }
 export const ROUTES=reactive([...bundled]);
-export const catalogRefreshState=reactive<Record<CatalogSource,boolean>>({osm:false,usfs:false,hk:false,nzdoc:false,parkscanada:false,'nsw-npws':false,england:false,wales:false});
+export const catalogRefreshState=reactive<Record<CatalogSource,boolean>>({osm:false,usfs:false,hk:false,nzdoc:false,parkscanada:false,'nsw-npws':false,england:false,wales:false,'scotland-argyll':false});
 let inflight=false;
 let nextOsmAttempt=0;let osmFailures=0;
 const listeners=new Set<()=>void>();
@@ -49,7 +50,7 @@ export function refreshRouteCatalog(force=false): void {
   void restoreCatalogs().then(()=>refreshAll(force));
 }
 function refreshAll(force=false):void {
-  refreshUsfsCatalog(force);refreshHkCatalog(force);refreshNzdocCatalog(force);refreshParksCanadaCatalog(force);refreshNswNpwsCatalog(force);refreshEnglandCatalog(force);refreshWalesCatalog(force);
+  refreshUsfsCatalog(force);refreshHkCatalog(force);refreshNzdocCatalog(force);refreshParksCanadaCatalog(force);refreshNswNpwsCatalog(force);refreshEnglandCatalog(force);refreshWalesCatalog(force);refreshScotlandArgyllCatalog(force);
   if(inflight || (!force && Date.now()<nextOsmAttempt))return;
   inflight=true;catalogRefreshState.osm=true;
   void publicSnapshot('osm').then(async data=>{if(!valid(data))throw new Error('OSM目录格式无效');apply(data);await persist('osm',data);osmFailures=0;nextOsmAttempt=Date.now()+6*60*60*1000;}).catch(()=>{failedRefresh('osm');osmFailures++;nextOsmAttempt=Date.now()+Math.min(6*60*60*1000,15*60*1000*2**Math.min(osmFailures-1,5));}).finally(()=>{inflight=false;catalogRefreshState.osm=false;});
@@ -63,7 +64,7 @@ export function refreshUsfsCatalog(force=false): void {
   void publicSnapshot('usfs').then(async data=>{
     if(!validUsfs(data))throw new Error('USFS目录格式无效');
     await persist('usfs',data);
-    latestUsfs=data;curated=[...seed,...catalogRoutes(latestUsfs),...catalogRoutes(latestHk),...catalogRoutes(latestNzdoc),...catalogRoutes(latestParksCanada),...catalogRoutes(latestNswNpws),...catalogRoutes(latestEngland),...catalogRoutes(latestWales)];apply(latestOsm);usfsFailures=0;nextUsfsAttempt=Date.now()+6*60*60*1000;
+    latestUsfs=data;curated=[...seed,...catalogRoutes(latestUsfs),...catalogRoutes(latestHk),...catalogRoutes(latestNzdoc),...catalogRoutes(latestParksCanada),...catalogRoutes(latestNswNpws),...catalogRoutes(latestEngland),...catalogRoutes(latestWales),...catalogRoutes(latestScotlandArgyll)];apply(latestOsm);usfsFailures=0;nextUsfsAttempt=Date.now()+6*60*60*1000;
   }).catch(()=>{failedRefresh('usfs');usfsFailures++;nextUsfsAttempt=Date.now()+Math.min(6*60*60*1000,15*60*1000*2**Math.min(usfsFailures-1,5));}).finally(()=>{usfsLoading=false;catalogRefreshState.usfs=false;});
 }
 
@@ -76,7 +77,7 @@ function validUsfs(data:any): boolean {
 
 
 function validHk(data:any):boolean {return data?.schemaVersion===1&&data.license==='DATA.GOV.HK-terms-1.2'&&Number.isFinite(Date.parse(data.generatedAt))&&Array.isArray(data.routes)&&data.routes.length<=2000&&data.routes.every((r:any)=>r&&typeof r.id==='string'&&/^hk-afcd-\d+$/.test(r.id)&&typeof r.name==='string'&&Array.isArray(r.center)&&r.center.length===2&&r.center.every(Number.isFinite)&&Math.abs(r.center[0])<=180&&Math.abs(r.center[1])<=90&&r.sourceUrl==='https://portal.csdi.gov.hk/server/rest/services/common/afcd_rcd_1665568199103_4360/FeatureServer/0'&&r.sourceTags&&Array.isArray(r.referencePaths)&&r.referencePaths.length<=100&&r.referencePaths.every((path:any)=>Array.isArray(path)&&path.length<=151&&path.every((point:any)=>Array.isArray(point)&&point.length===2&&point.every(Number.isFinite)&&Math.abs(point[0])<=180&&Math.abs(point[1])<=90)));}
-function applyHk(data:any){latestHk=data;curated=[...seed,...catalogRoutes(latestUsfs),...catalogRoutes(latestHk),...catalogRoutes(latestNzdoc),...catalogRoutes(latestParksCanada),...catalogRoutes(latestNswNpws),...catalogRoutes(latestEngland),...catalogRoutes(latestWales)];apply(latestOsm);}
+function applyHk(data:any){latestHk=data;curated=[...seed,...catalogRoutes(latestUsfs),...catalogRoutes(latestHk),...catalogRoutes(latestNzdoc),...catalogRoutes(latestParksCanada),...catalogRoutes(latestNswNpws),...catalogRoutes(latestEngland),...catalogRoutes(latestWales),...catalogRoutes(latestScotlandArgyll)];apply(latestOsm);}
 
 let nextHkAttempt=0,hkFailures=0;
 let hkLoading=false;
@@ -97,7 +98,7 @@ function validNzdoc(data:any):boolean {
   return r&&typeof r.id==='string'&&/^nzdoc-[1-9]\d*$/.test(r.id)&&typeof r.name==='string'&&r.name.trim().length>0&&r.name.length<=500&&r.region==='新西兰'&&Array.isArray(r.center)&&r.center.length===2&&r.center.every(Number.isFinite)&&Math.abs(r.center[0])<=180&&Math.abs(r.center[1])<=90&&r.sourceUrl===NZDOC_SOURCE_URL&&Number.isFinite(Date.parse(r.fetchedAt))&&tags&&typeof tags==='object'&&!Array.isArray(tags)&&Object.keys(tags).every(key=>tagKeys.includes(key))&&(tags.distanceKm===null||typeof tags.distanceKm==='number'&&Number.isFinite(tags.distanceKm)&&tags.distanceKm>0)&&['difficulty','estimatedTime','hasAlerts'].every(key=>tags[key]===null||typeof tags[key]==='string'&&tags[key].length<=500)&&(tags.officialUrl===null||validUrl(tags.officialUrl))&&Array.isArray(r.referencePaths)&&r.referencePaths.length>0&&r.referencePaths.length<=100&&r.referencePaths.every((path:any)=>Array.isArray(path)&&path.length>=2&&path.length<=151&&path.every((point:any)=>Array.isArray(point)&&point.length===2&&point.every((value:any)=>typeof value==='number'&&Number.isFinite(value))&&Math.abs(point[0])<=180&&Math.abs(point[1])<=90));
  });
 }
-function applyNzdoc(data:any){latestNzdoc=data;curated=[...seed,...catalogRoutes(latestUsfs),...catalogRoutes(latestHk),...catalogRoutes(latestNzdoc),...catalogRoutes(latestParksCanada),...catalogRoutes(latestNswNpws),...catalogRoutes(latestEngland),...catalogRoutes(latestWales)];apply(latestOsm);}
+function applyNzdoc(data:any){latestNzdoc=data;curated=[...seed,...catalogRoutes(latestUsfs),...catalogRoutes(latestHk),...catalogRoutes(latestNzdoc),...catalogRoutes(latestParksCanada),...catalogRoutes(latestNswNpws),...catalogRoutes(latestEngland),...catalogRoutes(latestWales),...catalogRoutes(latestScotlandArgyll)];apply(latestOsm);}
 export function refreshNzdocCatalog(force=false):void {
  if(nzdocLoading||(!force&&Date.now()<nextNzdocAttempt))return;
  nzdocLoading=true;catalogRefreshState.nzdoc=true;
@@ -118,7 +119,7 @@ function validParksCanada(data:any):boolean {
   return r&&typeof r.id==='string'&&/^parkscanada-[1-9]\d*$/.test(r.id)&&typeof r.name==='string'&&r.name.trim().length>0&&r.name.length<=500&&r.region==='加拿大'&&Array.isArray(r.center)&&r.center.length===2&&r.center.every((v:any)=>typeof v==='number'&&Number.isFinite(v))&&Math.abs(r.center[0])<=180&&Math.abs(r.center[1])<=90&&r.sourceUrl===PARKSCANADA_SOURCE_URL&&Number.isFinite(Date.parse(r.fetchedAt))&&tags&&typeof tags==='object'&&!Array.isArray(tags)&&Object.keys(tags).every(key=>tagKeys.includes(key))&&(tags.distanceKm===null||typeof tags.distanceKm==='number'&&Number.isFinite(tags.distanceKm)&&tags.distanceKm>0)&&['nameFrench','alternateName','trailSystem'].every(key=>tags[key]===null||typeof tags[key]==='string'&&tags[key].length<=500)&&['officialUrlEn','officialUrlFr'].every(key=>tags[key]===null||validParksCanadaUrl(tags[key]))&&Array.isArray(r.referencePaths)&&r.referencePaths.length>0&&r.referencePaths.length<=100&&r.referencePaths.every((path:any)=>Array.isArray(path)&&path.length>=2&&path.length<=151&&path.every((point:any)=>Array.isArray(point)&&point.length===2&&point.every((v:any)=>typeof v==='number'&&Number.isFinite(v))&&Math.abs(point[0])<=180&&Math.abs(point[1])<=90));
  });
 }
-function applyParksCanada(data:any){latestParksCanada=data;curated=[...seed,...catalogRoutes(latestUsfs),...catalogRoutes(latestHk),...catalogRoutes(latestNzdoc),...catalogRoutes(latestParksCanada),...catalogRoutes(latestNswNpws),...catalogRoutes(latestEngland),...catalogRoutes(latestWales)];apply(latestOsm);}
+function applyParksCanada(data:any){latestParksCanada=data;curated=[...seed,...catalogRoutes(latestUsfs),...catalogRoutes(latestHk),...catalogRoutes(latestNzdoc),...catalogRoutes(latestParksCanada),...catalogRoutes(latestNswNpws),...catalogRoutes(latestEngland),...catalogRoutes(latestWales),...catalogRoutes(latestScotlandArgyll)];apply(latestOsm);}
 export function refreshParksCanadaCatalog(force=false):void {
  if(parksCanadaLoading||(!force&&Date.now()<nextParksCanadaAttempt))return;
  parksCanadaLoading=true;catalogRefreshState.parkscanada=true;
@@ -136,7 +137,7 @@ function validNswNpws(data:any):boolean {
   return r&&typeof r.id==='string'&&/^nsw-npws-[1-9]\d*$/.test(r.id)&&typeof r.name==='string'&&r.name.trim().length>0&&r.name.length<=500&&r.region==='澳大利亚·新南威尔士州'&&Array.isArray(r.center)&&r.center.length===2&&r.center.every((v:any)=>typeof v==='number'&&Number.isFinite(v))&&Math.abs(r.center[0])<=180&&Math.abs(r.center[1])<=90&&r.sourceUrl===NSW_NPWS_SOURCE_URL&&Number.isFinite(Date.parse(r.fetchedAt))&&tags&&typeof tags==='object'&&!Array.isArray(tags)&&Object.keys(tags).every(key=>tagKeys.includes(key))&&(tags.distanceKm===null||typeof tags.distanceKm==='number'&&Number.isFinite(tags.distanceKm)&&tags.distanceKm>0)&&['assetClass','branch','sourceVersionDate'].every(key=>tags[key]===null||typeof tags[key]==='string'&&tags[key].length<=300)&&Array.isArray(r.referencePaths)&&r.referencePaths.length>0&&r.referencePaths.length<=100&&r.referencePaths.every((path:any)=>Array.isArray(path)&&path.length>=2&&path.length<=151&&path.every((point:any)=>Array.isArray(point)&&point.length===2&&point.every((v:any)=>typeof v==='number'&&Number.isFinite(v))&&Math.abs(point[0])<=180&&Math.abs(point[1])<=90));
  });
 }
-function applyNswNpws(data:any){latestNswNpws=data;curated=[...seed,...catalogRoutes(latestUsfs),...catalogRoutes(latestHk),...catalogRoutes(latestNzdoc),...catalogRoutes(latestParksCanada),...catalogRoutes(latestNswNpws),...catalogRoutes(latestEngland),...catalogRoutes(latestWales)];apply(latestOsm);}
+function applyNswNpws(data:any){latestNswNpws=data;curated=[...seed,...catalogRoutes(latestUsfs),...catalogRoutes(latestHk),...catalogRoutes(latestNzdoc),...catalogRoutes(latestParksCanada),...catalogRoutes(latestNswNpws),...catalogRoutes(latestEngland),...catalogRoutes(latestWales),...catalogRoutes(latestScotlandArgyll)];apply(latestOsm);}
 export function refreshNswNpwsCatalog(force=false):void {
  if(nswNpwsLoading||(!force&&Date.now()<nextNswNpwsAttempt))return;
  nswNpwsLoading=true;catalogRefreshState['nsw-npws']=true;
@@ -154,7 +155,7 @@ function validEngland(data:any):boolean {
   return r&&typeof r.id==='string'&&/^england-trail-[1-9]\d*$/.test(r.id)&&typeof r.name==='string'&&r.name.trim().length>0&&r.name.length<=120&&r.region==='英国·英格兰'&&Array.isArray(r.center)&&r.center.length===2&&r.center.every((v:any)=>typeof v==='number'&&Number.isFinite(v))&&Math.abs(r.center[0])<=180&&Math.abs(r.center[1])<=90&&r.sourceUrl===ENGLAND_SOURCE_URL&&Number.isFinite(Date.parse(r.fetchedAt))&&tags&&typeof tags==='object'&&!Array.isArray(tags)&&Object.keys(tags).every(key=>tagKeys.includes(key))&&(tags.distanceKm===null||typeof tags.distanceKm==='number'&&Number.isFinite(tags.distanceKm)&&tags.distanceKm>0)&&['start','end','openedDate','sourceUpdatedAt'].every(key=>tags[key]===null||typeof tags[key]==='string'&&tags[key].length<=120)&&Array.isArray(r.referencePaths)&&r.referencePaths.length>0&&r.referencePaths.length<=100&&r.referencePaths.every((path:any)=>Array.isArray(path)&&path.length>=2&&path.length<=151&&path.every((point:any)=>Array.isArray(point)&&point.length===2&&point.every((v:any)=>typeof v==='number'&&Number.isFinite(v))&&Math.abs(point[0])<=180&&Math.abs(point[1])<=90));
  });
 }
-function applyEngland(data:any){latestEngland=data;curated=[...seed,...catalogRoutes(latestUsfs),...catalogRoutes(latestHk),...catalogRoutes(latestNzdoc),...catalogRoutes(latestParksCanada),...catalogRoutes(latestNswNpws),...catalogRoutes(latestEngland),...catalogRoutes(latestWales)];apply(latestOsm);}
+function applyEngland(data:any){latestEngland=data;curated=[...seed,...catalogRoutes(latestUsfs),...catalogRoutes(latestHk),...catalogRoutes(latestNzdoc),...catalogRoutes(latestParksCanada),...catalogRoutes(latestNswNpws),...catalogRoutes(latestEngland),...catalogRoutes(latestWales),...catalogRoutes(latestScotlandArgyll)];apply(latestOsm);}
 export function refreshEnglandCatalog(force=false):void {
  if(englandLoading||(!force&&Date.now()<nextEnglandAttempt))return;
  englandLoading=true;catalogRefreshState.england=true;
@@ -172,18 +173,35 @@ function validWales(data:any):boolean {
   return r&&typeof r.id==='string'&&/^wales-trail-[1-9]\d*$/.test(r.id)&&typeof r.name==='string'&&r.name.trim().length>0&&r.name.length<=160&&r.region==='英国·威尔士'&&Array.isArray(r.center)&&r.center.length===2&&r.center.every((v:any)=>typeof v==='number'&&Number.isFinite(v))&&Math.abs(r.center[0])<=180&&Math.abs(r.center[1])<=90&&r.sourceUrl===WALES_SOURCE_URL&&Number.isFinite(Date.parse(r.fetchedAt))&&tags&&typeof tags==='object'&&!Array.isArray(tags)&&Object.keys(tags).every(key=>key==='sourceStatus')&&(tags.sourceStatus===null||typeof tags.sourceStatus==='string'&&tags.sourceStatus.length<=200)&&Array.isArray(r.referencePaths)&&r.referencePaths.length>0&&r.referencePaths.length<=100&&r.referencePaths.every((path:any)=>Array.isArray(path)&&path.length>=2&&path.length<=151&&path.every((point:any)=>Array.isArray(point)&&point.length===2&&point.every((v:any)=>typeof v==='number'&&Number.isFinite(v))&&Math.abs(point[0])<=180&&Math.abs(point[1])<=90));
  });
 }
-function applyWales(data:any){latestWales=data;curated=[...seed,...catalogRoutes(latestUsfs),...catalogRoutes(latestHk),...catalogRoutes(latestNzdoc),...catalogRoutes(latestParksCanada),...catalogRoutes(latestNswNpws),...catalogRoutes(latestEngland),...catalogRoutes(latestWales)];apply(latestOsm);}
+function applyWales(data:any){latestWales=data;curated=[...seed,...catalogRoutes(latestUsfs),...catalogRoutes(latestHk),...catalogRoutes(latestNzdoc),...catalogRoutes(latestParksCanada),...catalogRoutes(latestNswNpws),...catalogRoutes(latestEngland),...catalogRoutes(latestWales),...catalogRoutes(latestScotlandArgyll)];apply(latestOsm);}
 export function refreshWalesCatalog(force=false):void {
  if(walesLoading||(!force&&Date.now()<nextWalesAttempt))return;
  walesLoading=true;catalogRefreshState.wales=true;
  void publicSnapshot('wales').then(async data=>{if(!validWales(data))throw new Error('威尔士国家步道目录格式无效');applyWales(data);await persist('wales',data);walesFailures=0;nextWalesAttempt=Date.now()+6*60*60*1000;}).catch(()=>{failedRefresh('wales');walesFailures++;nextWalesAttempt=Date.now()+Math.min(6*60*60*1000,15*60*1000*2**Math.min(walesFailures-1,5));}).finally(()=>{walesLoading=false;catalogRefreshState.wales=false;});
 }
 
+let nextScotlandArgyllAttempt=0,scotlandArgyllFailures=0,scotlandArgyllLoading=false;
+const SCOTLAND_ARGYLL_SOURCE_URL='https://arcgis.argyll-bute.gov.uk/arcgis/rest/services/Open_Data/MapServer/27';
+const SCOTLAND_ARGYLL_ATTRIBUTION='Contains spatial data licensed under Open Government Licence v3.0 from Argyll and Bute Council. Source: Adopted Core Paths.';
+const SCOTLAND_ARGYLL_LICENSE_URL='https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/';
+function validScotlandArgyll(data:any):boolean {
+ return data?.schemaVersion===1&&data.license==='Open Government Licence v3.0'&&data.attribution===SCOTLAND_ARGYLL_ATTRIBUTION&&data.licenseUrl===SCOTLAND_ARGYLL_LICENSE_URL&&data.sourceUrl===SCOTLAND_ARGYLL_SOURCE_URL&&Number.isFinite(Date.parse(data.generatedAt))&&Array.isArray(data.routes)&&data.routes.length>0&&data.routes.length<=5000&&data.routes.every((r:any)=>{
+  const tags=r?.sourceTags,tagKeys=['pathNumber','grade','leaflet','distanceKm','walkLength','localInfo','additionalInfo','pathInfo','publicNote','publicRoad'];
+  return r&&typeof r.id==='string'&&/^scotland-argyll-[1-9]\d*$/.test(r.id)&&typeof r.name==='string'&&r.name.trim().length>0&&r.name.length<=500&&r.region==='英国·苏格兰·阿盖尔-比特'&&Array.isArray(r.center)&&r.center.length===2&&r.center.every((v:any)=>typeof v==='number'&&Number.isFinite(v))&&Math.abs(r.center[0])<=180&&Math.abs(r.center[1])<=90&&r.sourceUrl===SCOTLAND_ARGYLL_SOURCE_URL&&Number.isFinite(Date.parse(r.fetchedAt))&&tags&&typeof tags==='object'&&!Array.isArray(tags)&&Object.keys(tags).every(key=>tagKeys.includes(key))&&(tags.distanceKm===null||typeof tags.distanceKm==='number'&&Number.isFinite(tags.distanceKm)&&tags.distanceKm>0)&&tagKeys.filter(key=>key!=='distanceKm').every(key=>tags[key]===null||typeof tags[key]==='string'&&tags[key].length<=500)&&Array.isArray(r.referencePaths)&&r.referencePaths.length>0&&r.referencePaths.length<=100&&r.referencePaths.every((path:any)=>Array.isArray(path)&&path.length>=2&&path.length<=151&&path.every((point:any)=>Array.isArray(point)&&point.length===2&&point.every((v:any)=>typeof v==='number'&&Number.isFinite(v))&&Math.abs(point[0])<=180&&Math.abs(point[1])<=90));
+ });
+}
+function applyScotlandArgyll(data:any){latestScotlandArgyll=data;curated=[...seed,...catalogRoutes(latestUsfs),...catalogRoutes(latestHk),...catalogRoutes(latestNzdoc),...catalogRoutes(latestParksCanada),...catalogRoutes(latestNswNpws),...catalogRoutes(latestEngland),...catalogRoutes(latestWales),...catalogRoutes(latestScotlandArgyll)];apply(latestOsm);}
+export function refreshScotlandArgyllCatalog(force=false):void {
+ if(scotlandArgyllLoading||(!force&&Date.now()<nextScotlandArgyllAttempt))return;
+ scotlandArgyllLoading=true;catalogRefreshState['scotland-argyll']=true;
+ void publicSnapshot('scotland-argyll').then(async data=>{if(!validScotlandArgyll(data))throw new Error('苏格兰阿盖尔-比特核心步道目录格式无效');applyScotlandArgyll(data);await persist('scotland-argyll',data);scotlandArgyllFailures=0;nextScotlandArgyllAttempt=Date.now()+6*60*60*1000;}).catch(()=>{failedRefresh('scotland-argyll');scotlandArgyllFailures++;nextScotlandArgyllAttempt=Date.now()+Math.min(6*60*60*1000,15*60*1000*2**Math.min(scotlandArgyllFailures-1,5));}).finally(()=>{scotlandArgyllLoading=false;catalogRefreshState['scotland-argyll']=false;});
+}
+
 // Restore before the first remote refresh so late disk reads cannot overwrite
-// a newer successful online snapshot. All three sources restore independently.
+// a newer successful online snapshot. Sources restore independently.
 let catalogCacheReady:Promise<unknown>|undefined;
 function restoreCatalogs():Promise<unknown>{
- return catalogCacheReady??=Promise.all(([['osm',valid],['usfs',validUsfs],['hk',validHk],['nzdoc',validNzdoc],['parkscanada',validParksCanada],['nsw-npws',validNswNpws],['england',validEngland],['wales',validWales]] as const).map(async([source,validator])=>{
+ return catalogCacheReady??=Promise.all(([['osm',valid],['usfs',validUsfs],['hk',validHk],['nzdoc',validNzdoc],['parkscanada',validParksCanada],['nsw-npws',validNswNpws],['england',validEngland],['wales',validWales],['scotland-argyll',validScotlandArgyll]] as const).map(async([source,validator])=>{
  const data=await readCatalogCache(source,validator);if(!data)return;
  if(source==='osm')apply(data);
  else if(source==='hk')applyHk(data);
@@ -192,12 +210,13 @@ function restoreCatalogs():Promise<unknown>{
  else if(source==='nsw-npws')applyNswNpws(data);
  else if(source==='england')applyEngland(data);
  else if(source==='wales')applyWales(data);
- else{latestUsfs=data;curated=[...seed,...catalogRoutes(latestUsfs),...catalogRoutes(latestHk),...catalogRoutes(latestNzdoc),...catalogRoutes(latestParksCanada),...catalogRoutes(latestNswNpws),...catalogRoutes(latestEngland),...catalogRoutes(latestWales)];apply(latestOsm);}
+ else if(source==='scotland-argyll')applyScotlandArgyll(data);
+ else{latestUsfs=data;curated=[...seed,...catalogRoutes(latestUsfs),...catalogRoutes(latestHk),...catalogRoutes(latestNzdoc),...catalogRoutes(latestParksCanada),...catalogRoutes(latestNswNpws),...catalogRoutes(latestEngland),...catalogRoutes(latestWales),...catalogRoutes(latestScotlandArgyll)];apply(latestOsm);}
  catalogCacheState[source]={saved:true,message:'已恢复上次保存目录'};
 })).then(()=>{apply(latestOsm);});
 }
 
-export function validCatalogSource(source:CatalogSource,data:any):boolean{return source==='osm'?valid(data):source==='usfs'?validUsfs(data):source==='hk'?validHk(data):source==='nzdoc'?validNzdoc(data):source==='parkscanada'?validParksCanada(data):source==='nsw-npws'?validNswNpws(data):source==='england'?validEngland(data):validWales(data);}
+export function validCatalogSource(source:CatalogSource,data:any):boolean{return source==='osm'?valid(data):source==='usfs'?validUsfs(data):source==='hk'?validHk(data):source==='nzdoc'?validNzdoc(data):source==='parkscanada'?validParksCanada(data):source==='nsw-npws'?validNswNpws(data):source==='england'?validEngland(data):source==='wales'?validWales(data):validScotlandArgyll(data);}
 export function rememberDiscoveredRoute(route:typeof seed[number]):void{
  if(ROUTES.some(existing=>existing.id===route.id))return;
  extras.delete(route.id);extras.set(route.id,{...route,status:'待核验',openingExpiresAt:0});
