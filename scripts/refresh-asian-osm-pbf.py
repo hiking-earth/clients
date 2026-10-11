@@ -16,7 +16,7 @@ ROOT = Path(__file__).resolve().parents[1]
 DOWNLOADER = ROOT / 'scripts/download-geofabrik-pbf.py'
 IMPORTER = ROOT / 'scripts/import-osm-pbf-catalog.py'
 CATALOG = ROOT / 'shared/data/catalog/osm.json'
-MAX_SOURCE_BYTES = 700_000_000
+MAX_SOURCE_BYTES = 900_000_000
 
 # Individual extracts keep peak scratch-space requirements bounded on free
 # hosted runners. India and Indonesia use country subregions; their full
@@ -35,7 +35,7 @@ SOURCES = {slug: f'https://download.geofabrik.de/asia/{slug}-latest.osm.pbf'
 for zone in ('central-zone', 'eastern-zone', 'north-eastern-zone',
              'northern-zone', 'southern-zone', 'western-zone'):
     SOURCES[f'india/{zone}'] = f'https://download.geofabrik.de/asia/india/{zone}-latest.osm.pbf'
-for island in ('kalimantan', 'maluku', 'nusa-tenggara', 'papua', 'sulawesi', 'sumatra'):
+for island in ('java', 'kalimantan', 'maluku', 'nusa-tenggara', 'papua', 'sulawesi', 'sumatra'):
     SOURCES[f'indonesia/{island}'] = f'https://download.geofabrik.de/asia/indonesia/{island}-latest.osm.pbf'
 
 
@@ -55,7 +55,8 @@ def run(command):
         print(line, end='', flush=True)
     return_code = process.wait()
     if return_code:
-        raise RuntimeError(f"command exited {return_code}: {Path(command[1]).name}")
+        tail = ''.join(output)[-2000:]
+        raise RuntimeError(f"command exited {return_code}: {Path(command[1]).name}\n{tail}")
     return ''.join(output)
 
 
@@ -76,6 +77,21 @@ def main():
     output_dir = args.output_dir.expanduser().resolve()
     output_dir.mkdir(parents=True, exist_ok=True)
     selected = args.source or list(SOURCES)
+    report_path = ROOT / 'docs/release' / f'osm-asia-pbf-refresh-{dt.datetime.now(dt.timezone.utc):%Y-%m-%d}.json'
+    prior_sources = []
+    prior_runs = []
+    if report_path.is_file():
+        try:
+            previous = json.loads(report_path.read_text(encoding='utf-8'))
+            if previous.get('schemaVersion') == 1 and previous.get('region') == 'asia':
+                prior_sources = previous.get('sources', [])
+                prior_runs = previous.get('runs', [])
+                if previous.get('startedAt'):
+                    prior_runs.append({key: previous.get(key) for key in (
+                        'startedAt', 'completedAt', 'successCount', 'failureCount')})
+        except (OSError, json.JSONDecodeError):
+            prior_sources = []
+            prior_runs = []
     report = {'schemaVersion': 1, 'startedAt': utc_now(), 'region': 'asia',
               'sourcePage': 'https://download.geofabrik.de/asia.html',
               'sourceLicense': 'ODbL-1.0', 'attribution': '© OpenStreetMap contributors',
@@ -90,7 +106,7 @@ def main():
         source_page = f'https://download.geofabrik.de/asia/{source_page_area}.html'
         pbf = output_dir / f'{source_name}-latest.osm.pbf'
         row = {'sourceId': source_id, 'sourceUrl': url, 'sourcePage': source_page,
-               'startedAt': utc_now()}
+               'sourceByteCap': MAX_SOURCE_BYTES, 'startedAt': utc_now()}
         print(f'\n### {source_id}', flush=True)
         try:
             run([args.downloader_python, str(DOWNLOADER), '--url', url,
@@ -115,6 +131,14 @@ def main():
                 candidate = Path(str(pbf) + suffix) if suffix else pbf
                 candidate.unlink(missing_ok=True)
         except Exception as error:
+            if 'No named hiking/foot route relations with direct way members were found' in str(error):
+                row.update({'result': 'empty', 'reason': 'no-named-hiking-relations'})
+                print(f'{source_id} has no named hiking relations; no route record is expected', flush=True)
+                for suffix in ('', '.download.json', '.lock'):
+                    candidate = Path(str(pbf) + suffix) if suffix else pbf
+                    candidate.unlink(missing_ok=True)
+                report['sources'].append(row)
+                continue
             failures += 1
             row.update({'result': 'failed', 'error': str(error),
                         'checkpointPreserved': pbf.with_name(pbf.name + '.download.json').exists()})
@@ -124,10 +148,12 @@ def main():
     report['completedAt'] = utc_now()
     report['failureCount'] = failures
     report['successCount'] = len(selected) - failures
+    report['runs'] = prior_runs + [{key: report.get(key) for key in (
+        'startedAt', 'completedAt', 'successCount', 'failureCount')}]
+    report['sources'] = prior_sources + report['sources']
     report['accessVerified'] = False
     report['note'] = ('Discovery references only. Route opening, legal access, current conditions, '
                       'and navigable geometry require separate evidence and review.')
-    report_path = ROOT / 'docs/release' / f'osm-asia-pbf-refresh-{dt.datetime.now(dt.timezone.utc):%Y-%m-%d}.json'
     report_path.parent.mkdir(parents=True, exist_ok=True)
     report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
     print(f'\nReport: {report_path}', flush=True)

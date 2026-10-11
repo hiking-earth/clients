@@ -46,12 +46,12 @@
     "after": 153353,
     "netNewRecords": 340,
     "asiaRegionRecords": 340,
-    "generatedAt": "2026-10-11T14:06:21Z",
-    "sha256": "e961ce95be02f034dddeb38ff78b2078a35007f0234ab535d813dcacb3c5217a"
+    "generatedAt": "2026-10-11T15:06:56Z",
+    "sha256": "75b879656bfe380864373454f14717b6cef333bcbd7cbdcbef03965a79eda0fb"
   },
   "distribution": {
-    "snapshot": "e961ce95be02f034dddeb38ff78b2078a35007f0234ab535d813dcacb3c5217a",
-    "previousSnapshot": "7d996778c541e2dd89edf4caf208ce3a4e5591b07ac6d2a1c03a06bd41c15a1e",
+    "snapshot": "75b879656bfe380864373454f14717b6cef333bcbd7cbdcbef03965a79eda0fb",
+    "previousSnapshot": "3a45f9d00787e6c8ead1cdd780d53d0ed76768a57cb7ff9a5d64674b6f554e06",
     "total": 153353,
     "pages": 384,
     "copies": [
@@ -71,5 +71,16 @@
     "productTestsRun": false,
     "clientBuildRun": false,
     "deviceAcceptanceRun": false
+  },
+  "subregionalRefresh": {
+    "report": "osm-asia-pbf-refresh-2026-10-11.json",
+    "sourceCount": 13,
+    "failedSources": 0,
+    "candidateRelations": 1363,
+    "importedRelations": 1355,
+    "skippedIncompleteRelations": 8,
+    "skippedNestedRelations": 9,
+    "netNewCatalogRecords": 0,
+    "note": "All 1,355 imported India-zone and Indonesia-subregion relations already existed in the OSM catalog; the 3 verified Indonesian extracts with no named hiking relations are recorded as empty, not failed. These refreshes provenance and source coverage without increasing the total."
   }
 }
