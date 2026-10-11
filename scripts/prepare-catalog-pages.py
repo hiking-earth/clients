@@ -19,6 +19,7 @@ PAGE_SIZE = 400
 SOURCES = {'osm': 'data/catalog/osm.json', 'usfs': 'data/catalog/usfs.json',
            'hk': 'data/catalog/hk-afcd.json', 'nzdoc': 'data/catalog/nzdoc.json',
            'parkscanada': 'data/catalog/canada-parks.json',
+           'nsw-npws': 'data/catalog/nsw-npws.json',
            'news': 'data/content/official-news.json'}
 
 
