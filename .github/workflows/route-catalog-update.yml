@@ -11,7 +11,7 @@ concurrency:
 jobs:
   collect:
     runs-on: ubuntu-latest
-    # The 15 sequential source-specific timeouts total 191 minutes; the job cap leaves 19 minutes for validation/publication/deploy.
+    # The 15 sequential source-specific timeouts total 191 minutes; the job cap leaves 49 minutes for validation/publication/deploy.
     timeout-minutes: 240
     steps:
       - uses: actions/checkout@v4
