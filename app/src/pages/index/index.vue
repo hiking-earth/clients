@@ -11,7 +11,7 @@
     <view class="hero">
       <text class="hero-title">今天，走哪一条？</text>
       <text class="hero-sub">从地球发现下一段旅程</text>
-      <text class="hero-sub">本机已载入 {{ ROUTES.length }} 条路线档案 · 新收录路线开放状态待核验</text>
+      <text class="hero-sub">本机目录含 {{ ROUTES.length }} 条路线发现档案 · “待核验”不代表已开放或可导航</text>
       <text class="hero-sub">路线数据 © OpenStreetMap contributors · ODbL</text>
       <view v-if="showSources || catalogRefreshing" class="source-status"><text v-for="source in catalogSources" :key="source.id" class="hero-sub">{{ source.label }}：{{ catalogRefreshState[source.id] ? '正在获取目录，已保存资料仍可查看' : catalogCacheState[source.id].message }}</text></view>
       <button size="mini" class="quiet" @click="showSources=!showSources">{{showSources?'收起同步状态':'目录同步状态'}}</button>
@@ -91,7 +91,7 @@ import {searchPublicCatalog} from "@/services/catalog-search";
 import type {HikingRoute} from "@shared/types/route";
 import { STATUS_COLORS, isNavigable, type RouteStatus, type Season } from "@shared/types/route";
 
-const catalogSources=[{id:'osm',label:'OSM'},{id:'usfs',label:'美国国家森林'},{id:'hk',label:'香港官方步道'},{id:'nzdoc',label:'新西兰环保部官方步道'},{id:'parkscanada',label:'加拿大公园管理局'},{id:'nsw-npws',label:'新南威尔士州公园步道'},{id:'england',label:'英格兰国家步道'},{id:'wales',label:'威尔士国家步道'},{id:'scotland-argyll',label:'苏格兰阿盖尔-比特核心步道'}] as const;
+const catalogSources=[{id:'osm',label:'OSM'},{id:'usfs',label:'美国国家森林'},{id:'hk',label:'香港官方步道'},{id:'nzdoc',label:'新西兰环保部官方步道'},{id:'parkscanada',label:'加拿大公园管理局'},{id:'nsw-npws',label:'新南威尔士州公园步道'},{id:'england',label:'英格兰国家步道'},{id:'wales',label:'威尔士国家步道'},{id:'scotland-argyll',label:'苏格兰阿盖尔-比特核心步道'},{id:'ni-midulster',label:'北爱尔兰·米德阿尔斯特公共通行权'},{id:'norfolk-prow',label:'英格兰诺福克公共通行权'},{id:'cambridgeshire-prow',label:'英格兰剑桥郡公共通行权'},{id:'nps-public-trails',label:'美国国家公园步道（NPS）'},{id:'victoria-recreation-tracks',label:'澳大利亚·维多利亚州官方步道'}] as const;
 const catalogSourceLabels=catalogSources.map(source=>source.label);
 const keyword = ref("");
 const showSources=ref(false);
@@ -140,10 +140,10 @@ function openCompanions(){uni.switchTab({url:'/pages/companion/companion'});}
 </script>
 
 <style lang="scss" scoped>
-.page { display:flex; flex-direction:column; min-height:100vh; background:var(--he-bg, var(--he-color-background)); color:var(--he-text, var(--he-color-text)); }
+.page { display:flex; flex-direction:column; min-height:100vh; background-color:var(--he-bg, var(--he-color-background)); background-image:radial-gradient(ellipse at 48% 48%,rgba(25,65,112,.3) 0,rgba(6,19,43,.2) 30%,transparent 60%),radial-gradient(ellipse at 18% 14%,rgba(63,73,136,.2),transparent 32%),radial-gradient(circle,rgba(255,255,255,.92) 0 1px,transparent 1.5px),radial-gradient(circle,rgba(170,204,255,.75) 0 1px,transparent 1.7px),radial-gradient(circle,rgba(255,240,201,.55) 0 1.2px,transparent 1.8px),linear-gradient(145deg,#010208 0%,#04091b 45%,#000106 100%);background-size:auto,auto,137px 149px,211px 197px,293px 257px,auto;background-position:center,center,17px 31px,79px 113px,151px 47px,center;background-repeat:no-repeat,no-repeat,repeat,repeat,repeat,no-repeat;color:var(--he-text, var(--he-color-text)); }
 .home-topbar{display:flex;align-items:center;gap:20px;min-height:var(--he-home-topbar-height, 66px);margin:12px 12px 0;padding:0 14px;border:1px solid var(--he-overlay-border, rgba(255,255,255,.12));border-radius:var(--he-home-topbar-radius, 20px);background:var(--he-overlay, rgba(5,12,18,.84));box-sizing:border-box}
-.home-brand{display:flex;align-items:center;gap:10px;min-width:200px}.brand-mark{display:grid;place-items:center;width:var(--he-home-brand-mark-size, 40px);height:var(--he-home-brand-mark-size, 40px);border-radius:13px;background:var(--he-accent, var(--he-color-accent));color:#061006;font-size:26px;font-weight:700;line-height:1}.brand-name,.brand-caption{display:block;line-height:1.2}.brand-name{font-size:16px;font-weight:700;color:var(--he-text, var(--he-color-text))}.brand-caption{margin-top:4px;color:var(--he-muted, var(--he-color-muted));font-size:10px;letter-spacing:.12em}
-.home-tabs{display:flex;align-items:center;gap:5px;padding:4px;border-radius:14px;background:rgba(255,255,255,.05)}.home-tab{display:block;padding:10px 13px;border-radius:10px;color:var(--he-muted, var(--he-color-muted));font-size:13px;text-decoration:none;white-space:nowrap}.home-tab.active{background:var(--he-accent, var(--he-color-accent));color:#061006;font-weight:700}.home-cta{margin-left:auto;flex:none;max-width:none!important;padding:9px 16px!important;border-radius:12px!important}
+.home-brand{display:flex;align-items:center;gap:10px;min-width:200px}.brand-mark{display:grid;place-items:center;width:var(--he-home-brand-mark-size, 40px);height:var(--he-home-brand-mark-size, 40px);border-radius:13px;background:var(--he-accent, var(--he-color-accent));color:var(--he-color-on-accent);font-size:26px;font-weight:700;line-height:1}.brand-name,.brand-caption{display:block;line-height:1.2}.brand-name{font-size:16px;font-weight:700;color:var(--he-text, var(--he-color-text))}.brand-caption{margin-top:4px;color:var(--he-muted, var(--he-color-muted));font-size:10px;letter-spacing:.12em}
+.home-tabs{display:flex;align-items:center;gap:5px;padding:4px;border-radius:14px;background:rgba(255,255,255,.05)}.home-tab{display:block;padding:10px 13px;border-radius:10px;color:var(--he-muted, var(--he-color-muted));font-size:13px;text-decoration:none;white-space:nowrap}.home-tab.active{background:var(--he-accent, var(--he-color-accent));color:var(--he-color-on-accent);font-weight:700}.home-cta{margin-left:auto;flex:none;max-width:none!important;padding:9px 16px!important;border-radius:12px!important}
 .earth-stage{min-height:0;padding:12px 12px 0;box-sizing:border-box;}
 .explore-panel{display:flex;flex-direction:column;min-height:0;}
 @media(min-width:800px){.page{display:grid;grid-template-columns:minmax(0,1fr) var(--he-home-panel-width, 374px);grid-template-rows:var(--he-home-topbar-height, 66px) minmax(0,1fr);height:calc(100dvh - 50px);min-height:0;padding:12px 20px 20px;gap:12px 20px;box-sizing:border-box}.home-topbar{grid-column:1/-1;grid-row:1;margin:0}.earth-stage{grid-column:1;grid-row:2;min-width:0;padding:0}.explore-panel{grid-column:2;grid-row:2;width:100%;min-height:0;background:var(--he-overlay, rgba(5,12,18,.84));border:1px solid var(--he-overlay-border, rgba(255,255,255,.12));border-radius:24px;overflow:hidden;backdrop-filter:blur(12px)}.list{min-height:0;height:0;flex:1}.hero{padding-top:24px!important}}
@@ -159,7 +159,7 @@ function openCompanions(){uni.switchTab({url:'/pages/companion/companion'});}
 .chips { white-space: nowrap; padding: 4px 0; }
 .chips-inner { display: inline-flex; gap: 8px; padding: 0 16px; }
 .chip { padding: 5px 12px; font-size: 12px; color: var(--he-muted, var(--he-color-muted)); background: var(--he-surface, var(--he-color-surface)); border-radius: 499.5px; }
-.chip.on { color: var(--he-bg, var(--he-color-background)); background: var(--he-accent, var(--he-color-accent)); font-weight: 600; }
+.chip.on { color: var(--he-color-on-accent); background: var(--he-accent, var(--he-color-accent)); font-weight: 600; }
 .list { height:420px; flex: none; padding: 4px 16px 0; box-sizing: border-box; }
 .card { background: var(--he-panel, var(--he-color-panel)); border-radius: 10px; padding: 12px; margin-bottom: 12px; }
 .card-head { display: flex; align-items: center; gap: 6px; }

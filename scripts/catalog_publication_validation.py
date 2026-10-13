@@ -3,7 +3,7 @@
 This validates source records and provenance only. It never grants trail access,
 turns a discovery row into a navigable route, or substitutes for human review.
 """
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 import re
 from urllib.parse import urlparse
 
@@ -20,8 +20,40 @@ DISCOVERY_IDS = {
     'england': re.compile(r'^england-trail-[1-9][0-9]*$'),
     'wales': re.compile(r'^wales-trail-[1-9][0-9]*$'),
     'scotland-argyll': re.compile(r'^scotland-argyll-[1-9][0-9]*$'),
+    'ni-midulster': re.compile(r'^ni-midulster-[1-9][0-9]*$'),
+    'norfolk-prow': re.compile(r'^norfolk-prow-[1-9][0-9]*$'),
+    'cambridgeshire-prow': re.compile(r'^cambridgeshire-prow-[1-9][0-9]*$'),
+    'nps-public-trails': re.compile(r'^nps-trail-[1-9][0-9]*$'),
+    'victoria-recreation-tracks': re.compile(r'^vic-recreation-track-[A-Za-z0-9._-]{1,80}$'),
 }
 PENDING_STATUS = '待核验'
+APPROVED_SOURCE_ENDPOINTS = {
+    'usfs': 'https://apps.fs.usda.gov/arcx/rest/services/EDW/EDW_TrailNFSPublishWithDataStatus_01/MapServer/0',
+    'hk': 'https://portal.csdi.gov.hk/server/rest/services/common/afcd_rcd_1665568199103_4360/FeatureServer/0',
+    'nps-public-trails': 'https://mapservices.nps.gov/arcgis/rest/services/NationalDatasets/NPS_Public_Trails/FeatureServer/0',
+    'victoria-recreation-tracks': 'https://opendata.maps.vic.gov.au/geoserver/wfs',
+}
+OSM_REFRESH_COUNT_REGIONS = frozenset({
+    'asia', 'china', 'europe', 'north-america', 'japan', 'oceania',
+    'south-america', 'africa', 'south-asia', 'hong-kong', 'macao',
+})
+
+
+def _validate_osm_refresh_counts(data):
+    """Keep incremental result counts distinct from total route coverage."""
+    legacy = data.get('coverage')
+    current = data.get('lastRefreshCounts')
+    for field, counts in (('coverage', legacy), ('lastRefreshCounts', current)):
+        if counts is None:
+            continue
+        if not isinstance(counts, dict):
+            raise ValueError(f'osm: {field} must be a region-to-count object')
+        for region, count in counts.items():
+            if (region not in OSM_REFRESH_COUNT_REGIONS
+                    or isinstance(count, bool) or not isinstance(count, int) or count < 0):
+                raise ValueError(f'osm: invalid {field} entry for {region!r}')
+    if isinstance(legacy, dict) and isinstance(current, dict) and legacy != current:
+        raise ValueError('osm: legacy coverage and lastRefreshCounts must match during compatibility period')
 
 
 def _https_host(value, label):
@@ -42,6 +74,7 @@ def _timestamp(value, label):
         raise ValueError(f'{label}: invalid ISO-8601 timestamp') from error
     if parsed.tzinfo is None or parsed.utcoffset() is None:
         raise ValueError(f'{label}: timestamp must include a timezone')
+    return parsed
 
 
 def _center(value, label):
@@ -64,8 +97,8 @@ def _reference_paths(value, label):
             _center(point, f'{label}: reference path {path_index} point {point_index}')
 
 
-def validate_route_catalog(source, data):
-    """Validate one OSM, USFS, or Hong Kong discovery catalog."""
+def validate_route_catalog(source, data, now=None):
+    """Validate one approved OSM or government trail-discovery catalog."""
     if source not in DISCOVERY_IDS:
         raise ValueError(f'unsupported discovery source: {source}')
     if not isinstance(data, dict) or data.get('schemaVersion') != 1:
@@ -77,6 +110,9 @@ def validate_route_catalog(source, data):
     expected_source_url = data.get('sourceUrl')
     if source != 'osm' and not isinstance(expected_source_url, str):
         raise ValueError(f'{source}: catalog source URL is required')
+    approved_endpoint = APPROVED_SOURCE_ENDPOINTS.get(source)
+    if approved_endpoint and expected_source_url != approved_endpoint:
+        raise ValueError(f'{source}: catalog source URL differs from the approved source endpoint')
     if source == 'nzdoc' and expected_source_url != 'https://services1.arcgis.com/3JjYDyG3oajxU6HO/ArcGIS/rest/services/DOC_Walking_Experiences/FeatureServer/1':
         raise ValueError('nzdoc: catalog source URL differs from the approved DOC layer')
     if source == 'parkscanada' and expected_source_url != 'https://services2.arcgis.com/wCOMu5IS7YdSyPNx/arcgis/rest/services/vw_Trails_Sentiers_APCA_V2_FGP/FeatureServer/0':
@@ -91,6 +127,14 @@ def validate_route_catalog(source, data):
         raise ValueError('wales: catalog source URL differs from the approved Natural Resources Wales WFS layer')
     if source == 'scotland-argyll' and expected_source_url != 'https://arcgis.argyll-bute.gov.uk/arcgis/rest/services/Open_Data/MapServer/27':
         raise ValueError('scotland-argyll: catalog source URL differs from the approved council layer')
+    if source == 'ni-midulster' and expected_source_url != 'https://services1.arcgis.com/IBPnlgK2X1Ngocds/arcgis/rest/services/PROW/FeatureServer/0':
+        raise ValueError('ni-midulster: catalog source URL differs from the approved Mid Ulster public-rights-of-way layer')
+    if source == 'norfolk-prow' and expected_source_url != 'https://maps.norfolk.gov.uk/arcgis/rest/services/layers_ext/highways/MapServer/2':
+        raise ValueError('norfolk-prow: catalog source URL differs from the approved Norfolk County Council layer')
+    if source == 'cambridgeshire-prow' and expected_source_url != 'https://maps.cambridgeshire.gov.uk/GetOWS.ashx?SERVICE=WFS&VERSION=2.0.0&MAPSOURCE=CCC%2FINSPIRE&REQUEST=GetFeature&TYPENAME=public_rights_of_way&OUTPUTFORMAT=GEOJSON&SRSNAME=EPSG%3A4326':
+        raise ValueError('cambridgeshire-prow: catalog source URL differs from the approved county WFS layer')
+    if source == 'nps-public-trails' and expected_source_url != APPROVED_SOURCE_ENDPOINTS[source]:
+        raise ValueError('nps-public-trails: catalog source URL differs from the approved NPS layer')
     expected_provenance = {
         'osm': ('ODbL-1.0', '© OpenStreetMap contributors', 'https://www.openstreetmap.org/copyright'),
         'usfs': ('USDA source terms; retain attribution and source metadata', 'USDA Forest Service', 'https://data.fs.usda.gov/geodata/edw/datasets.php?xmlKeyword=recreation'),
@@ -101,6 +145,11 @@ def validate_route_catalog(source, data):
         'england': ('Open Government Licence v3.0', None, 'https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/'),
         'wales': ('Open Government Licence for Public Sector Information (OGL)', 'Contains Natural Resources Wales information © Natural Resources Wales and Database Right. All rights Reserved. Contains Ordnance Survey Data. Ordnance Survey Licence number AC0000849444. Crown Copyright and Database Right.', 'https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/'),
         'scotland-argyll': ('Open Government Licence v3.0', 'Contains spatial data licensed under Open Government Licence v3.0 from Argyll and Bute Council. Source: Adopted Core Paths.', 'https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/'),
+        'ni-midulster': ('Open Government Licence v3.0', 'Contains information licensed under the Open Government Licence v3.0 from OpenDataNI and Mid Ulster District Council. Source: Public Rights of Way.', 'https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/'),
+        'norfolk-prow': ('Open Government Licence v3.0; data.gov.uk lists Creative Commons Attribution', 'Contains Norfolk County Council Public Rights of Way data. © Norfolk County Council and © Crown copyright and database rights 2019 Ordnance Survey 100019340. Licensed under Open Government Licence v3.0; source metadata also lists Creative Commons Attribution.', 'https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/'),
+        'cambridgeshire-prow': ('Open Government Licence v3.0', 'Contains information licensed under the Open Government Licence v3.0 from Cambridgeshire County Council. Source: Public Rights of Way.', 'https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/'),
+        'nps-public-trails': ('U.S. federal public-distribution dataset; no named layer-specific license', 'U.S. National Park Service, Public Trails dataset. NPS public-distribution data; no named layer-specific license. See source and NPS data disclaimer.', 'https://www.nps.gov/subjects/gisandmapping/data-disclaimers.htm'),
+        'victoria-recreation-tracks': ('Creative Commons Attribution 4.0 International', 'Contains Victorian Government data from Recreation Tracks, Department of Energy, Environment and Climate Action. Licensed under CC BY 4.0.', 'https://creativecommons.org/licenses/by/4.0/'),
     }[source]
     actual_provenance = tuple(data.get(field) for field in ('license', 'attribution', 'licenseUrl'))
     provenance_matches = actual_provenance == expected_provenance
@@ -116,6 +165,46 @@ def validate_route_catalog(source, data):
                               and actual_provenance[2] == expected_provenance[2])
     if not provenance_matches:
         raise ValueError(f'{source}: catalog attribution or license metadata differs from the approved source policy')
+    if source == 'nps-public-trails':
+        source_total = data.get('sourceFeatureCount')
+        catalog_total = data.get('catalogRouteCount')
+        withheld = data.get('withheldRecords')
+        reasons = data.get('withheldReasons')
+        if (isinstance(source_total, bool) or not isinstance(source_total, int) or source_total > 50000
+                or isinstance(catalog_total, bool) or not isinstance(catalog_total, int) or catalog_total != len(rows)
+                or isinstance(withheld, bool) or not isinstance(withheld, int) or withheld < 0):
+            raise ValueError('nps-public-trails: source and withheld record counts are invalid')
+        if source_total != catalog_total + withheld:
+            raise ValueError('nps-public-trails: source and catalog counts do not reconcile')
+        if (not isinstance(reasons, dict)
+                or any(not isinstance(key, str) or isinstance(value, bool) or not isinstance(value, int) or value < 0 for key, value in reasons.items())
+                or sum(reasons.values()) != withheld):
+            raise ValueError('nps-public-trails: withheld record reasons do not reconcile')
+        policy = data.get('routeStatusPolicy')
+        if not isinstance(policy, str) or len(policy) > 1200:
+            raise ValueError('nps-public-trails: route disclaimer is missing or too long')
+    if source == 'victoria-recreation-tracks':
+        source_total, catalog_total = data.get('sourceFeatureCount'), data.get('catalogRouteCount')
+        withheld, excluded, reasons = data.get('withheldRecords'), data.get('excludedNonWalkingRecords'), data.get('withheldReasons')
+        if (isinstance(source_total, bool) or not isinstance(source_total, int) or not 0 < source_total <= 2000
+                or isinstance(catalog_total, bool) or not isinstance(catalog_total, int) or catalog_total != len(rows)
+                or isinstance(withheld, bool) or not isinstance(withheld, int) or withheld < 0
+                or isinstance(excluded, bool) or not isinstance(excluded, int) or excluded < 0
+                or source_total != catalog_total + withheld):
+            raise ValueError('victoria-recreation-tracks: source counts do not reconcile')
+        if (not isinstance(reasons, dict)
+                or any(not isinstance(key, str) or isinstance(value, bool) or not isinstance(value, int) or value < 0 for key, value in reasons.items())
+                or sum(reasons.values()) != withheld):
+            raise ValueError('victoria-recreation-tracks: withheld reasons do not reconcile')
+        policy = data.get('routeStatusPolicy')
+        if not isinstance(policy, str) or len(policy) > 1200:
+            raise ValueError('victoria-recreation-tracks: route disclaimer is missing or too long')
+    if source == 'osm':
+        _validate_osm_refresh_counts(data)
+    now = now or datetime.now(timezone.utc)
+    generated_at = _timestamp(data.get('generatedAt'), f'{source} catalog')
+    if generated_at > now + timedelta(minutes=5):
+        raise ValueError(f'{source}: catalog generatedAt is in the future')
     seen = set()
     for index, row in enumerate(rows):
         label = f'{source} route[{index}]'
@@ -139,14 +228,71 @@ def validate_route_catalog(source, data):
                 raise ValueError(f'{label}: relation URL does not match its source ID')
         elif row_source != expected_source_url:
             raise ValueError(f'{label}: record source URL differs from catalog provenance')
-        _timestamp(row.get('fetchedAt'), label)
+        fetched = _timestamp(row.get('fetchedAt'), label)
+        if fetched > now + timedelta(minutes=5):
+            raise ValueError(f'{label}: fetchedAt is in the future')
+        if 'pbfSources' in row:
+            pbf_sources = row['pbfSources']
+            if (not isinstance(pbf_sources, list)
+                    or any(not isinstance(source_id, str)
+                           or re.fullmatch(r'[a-z0-9][a-z0-9/_-]{0,99}', source_id) is None
+                           for source_id in pbf_sources)
+                    or len(set(pbf_sources)) != len(pbf_sources)):
+                raise ValueError(f'{label}: invalid PBF source provenance')
         # These files are discovery feeds. An access/open status must come from
         # the separately reviewed official route-status workflow.
         status = row.get('status')
         if status not in (None, PENDING_STATUS):
             raise ValueError(f'{label}: discovery catalog cannot publish status {status!r}')
-        if source in ('hk', 'nzdoc', 'parkscanada', 'nsw-npws', 'england', 'wales', 'scotland-argyll'):
+        if source in ('hk', 'nzdoc', 'parkscanada', 'nsw-npws', 'england', 'wales', 'scotland-argyll', 'ni-midulster', 'norfolk-prow', 'cambridgeshire-prow', 'nps-public-trails', 'victoria-recreation-tracks'):
             _reference_paths(row.get('referencePaths'), label)
+        if source == 'nps-public-trails':
+            tags = row.get('sourceTags')
+            allowed = {'featureId', 'sourceStatus', 'surface', 'trailType', 'trailClass', 'trailUse', 'sourceEditedAt', 'sourceDate'}
+            paths = row.get('referencePaths')
+            if (not row['region'].startswith('美国·') or not isinstance(tags, dict) or set(tags) != allowed
+                    or any(value is not None and (not isinstance(value, str) or len(value) > 300) for value in tags.values())
+                    or not isinstance(tags.get('trailUse'), str)
+                    or not any(term in tags['trailUse'].lower() for term in ('hiker', 'pedestrian'))
+                    or len(paths) > 100 or any(len(path) > 151 for path in paths)):
+                raise ValueError(f'{label}: NPS source fields or reference geometry are invalid')
+        if source == 'victoria-recreation-tracks':
+            tags = row.get('sourceTags')
+            allowed = {'assetClass','maintainedBy','walkingActivity','walkingComment','walkingGrade','walkingDistance',
+                       'walkingDistanceUnit','walkingDuration','walkingDurationUnit','closureStatus','closureReason','sourceEditedAt'}
+            if (row.get('region') != '澳大利亚·维多利亚州' or status != PENDING_STATUS
+                    or not isinstance(tags, dict) or set(tags) != allowed or tags.get('walkingActivity') != 'Y'
+                    or any(value is not None and (not isinstance(value, str) or len(value) > 300) for value in tags.values())
+                    or len(row.get('referencePaths', [])) > 100
+                    or any(len(path) > 151 for path in row.get('referencePaths', []))):
+                raise ValueError(f'{label}: invalid Victorian walking source metadata or geometry budget')
+        if source == 'cambridgeshire-prow':
+            lon, lat = row['center']
+            paths = row['referencePaths']
+            if (not -1 <= lon <= 1 or not 51 <= lat <= 53.5
+                    or any(not -1 <= point[0] <= 1 or not 51 <= point[1] <= 53.5
+                           for path in paths for point in path)):
+                raise ValueError(f'{label}: geometry does not fall within the Cambridgeshire source area')
+        if source == 'norfolk-prow':
+            tags = row.get('sourceTags')
+            allowed = {'sourceId', 'pathClass', 'primaryRight', 'parish', 'linkCode', 'section', 'administrativeUnit'}
+            if (not isinstance(tags, dict) or set(tags) != allowed
+                    or any(value is not None and (not isinstance(value, str) or len(value) > 300) for value in tags.values())
+                    or len(row.get('referencePaths', [])) > 100
+                    or any(len(path) > 151 for path in row.get('referencePaths', []))):
+                raise ValueError(f'{label}: invalid Norfolk route source fields or geometry budget')
+        if source == 'cambridgeshire-prow':
+            tags = row.get('sourceTags')
+            allowed = {'sourceStatus', 'parish', 'pathNumber', 'parishNumber', 'district', 'lengthKm'}
+            if (not isinstance(tags, dict) or set(tags) != allowed
+                    or any(value is not None and (not isinstance(value, str) or len(value) > 300)
+                           for key, value in tags.items() if key != 'lengthKm')
+                    or tags.get('lengthKm') is not None
+                    and (isinstance(tags['lengthKm'], bool) or not isinstance(tags['lengthKm'], (int, float))
+                         or not 0 <= tags['lengthKm'] <= 1000)
+                    or len(row.get('referencePaths', [])) > 100
+                    or any(len(path) > 151 for path in row.get('referencePaths', []))):
+                raise ValueError(f'{label}: invalid Cambridgeshire route source fields or geometry budget')
         if source == 'nzdoc':
             official_url = row.get('sourceTags', {}).get('officialUrl') if isinstance(row.get('sourceTags'), dict) else None
             if official_url is not None and _https_host(official_url, f'{label} official page') != 'www.doc.govt.nz':
@@ -168,7 +314,11 @@ def validate_news_catalog(data, now=None):
     sources = data.get('sources')
     if not isinstance(rows, list) or not isinstance(sources, list):
         raise ValueError('news: items and sources must be lists')
-    today = (now or datetime.now(timezone.utc)).date()
+    current_time = now or datetime.now(timezone.utc)
+    generated_at = _timestamp(data.get('generatedAt'), 'news catalog')
+    if generated_at > current_time + timedelta(minutes=5):
+        raise ValueError('news: catalog generatedAt is in the future')
+    today = current_time.date()
     source_by_id = {}
     for source in sources:
         if not isinstance(source, dict) or not isinstance(source.get('id'), str):
@@ -199,20 +349,19 @@ def validate_news_catalog(data, now=None):
             raise ValueError(f'{label}: unknown source ID')
         source, allowed_hosts = source_pair
         acceptance = source.get('feedAcceptance')
-        if acceptance is not None and acceptance != 'accepted':
+        if acceptance != 'accepted':
             raise ValueError(f'{label}: source {row["sourceId"]} feed has not been accepted')
-        if acceptance == 'accepted':
-            try:
-                raw_verified_date = source['feedVerifiedAt']
-                verified_date = date.fromisoformat(raw_verified_date)
-                if not isinstance(raw_verified_date, str) or verified_date.isoformat() != raw_verified_date:
-                    raise ValueError('non-canonical date')
-            except (KeyError, TypeError, ValueError) as error:
-                raise ValueError(f'{label}: source {row["sourceId"]} has invalid feed verification date') from error
-            if verified_date > today:
-                raise ValueError(f'{label}: source {row["sourceId"]} feed verification date is in the future')
-            if (today - verified_date).days > 90:
-                raise ValueError(f'{label}: source {row["sourceId"]} feed verification has expired')
+        try:
+            raw_verified_date = source['feedVerifiedAt']
+            verified_date = date.fromisoformat(raw_verified_date)
+            if not isinstance(raw_verified_date, str) or verified_date.isoformat() != raw_verified_date:
+                raise ValueError('non-canonical date')
+        except (KeyError, TypeError, ValueError) as error:
+            raise ValueError(f'{label}: source {row["sourceId"]} has invalid feed verification date') from error
+        if verified_date > today:
+            raise ValueError(f'{label}: source {row["sourceId"]} feed verification date is in the future')
+        if (today - verified_date).days > 90:
+            raise ValueError(f'{label}: source {row["sourceId"]} feed verification has expired')
         article_host = _https_host(row.get('url'), label)
         if article_host not in allowed_hosts:
             raise ValueError(f'{label}: article host is not allowed for source {row["sourceId"]}')

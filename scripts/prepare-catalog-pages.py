@@ -23,6 +23,11 @@ SOURCES = {'osm': 'data/catalog/osm.json', 'usfs': 'data/catalog/usfs.json',
            'hk': 'data/catalog/hk-afcd.json', 'nzdoc': 'data/catalog/nzdoc.json',
            'parkscanada': 'data/catalog/canada-parks.json',
            'scotland-argyll': 'data/catalog/scotland-argyll-corepaths.json',
+           'ni-midulster': 'data/catalog/ni-midulster-prow.json',
+           'norfolk-prow': 'data/catalog/norfolk-prow.json',
+           'cambridgeshire-prow': 'data/catalog/cambridgeshire-prow.json',
+           'nps-public-trails': 'data/catalog/nps-public-trails.json',
+           'victoria-recreation-tracks': 'data/catalog/victoria-recreation-tracks.json',
            'nsw-npws': 'data/catalog/nsw-npws.json',
            'england': 'data/catalog/england-trails.json',
            'wales': 'data/catalog/wales-trails.json',
@@ -42,47 +47,50 @@ def atomic_write(path, data):
 
 
 def prepare(source_filter=None):
-    # Validate the pair before changing any public pointer or fallback file.
-    hk = json.loads((ROOT / 'shared/data/catalog/hk-afcd.json').read_bytes())
-    try:
-        offline_bytes = (ROOT / 'shared/data/offline/hk-afcd.json').read_bytes()
-        offline = json.loads(offline_bytes)
-    except (OSError, ValueError):
-        offline_bytes = b''
-        offline = {}
-    if not isinstance(offline, dict):offline = {}
-    expected_hash = hk.get('offlineSha256')
-    if expected_hash is not None and (expected_hash != hashlib.sha256(offline_bytes).hexdigest()
-                                    or offline.get('sourceGeneratedAt') != hk.get('generatedAt')):
-        repaired = afcd_offline_bytes(hk)
-        if hashlib.sha256(repaired).hexdigest() != expected_hash:
-            raise ValueError('Hong Kong offline reconstruction hash mismatch; publication stopped')
-        atomic_write(ROOT / 'shared/data/offline/hk-afcd.json', repaired)
-        offline = json.loads(repaired)
-        print('Recovered Hong Kong offline reference from authoritative catalog')
-    expected = {row['id']: row.get('referencePaths') for row in hk['routes']}
-    actual = {}
-    for feature in offline.get('geometry', {}).get('features', []):
-        identity = feature.get('properties', {}).get('sourceId')
-        if identity in actual:
-            raise ValueError('Duplicate Hong Kong offline source ID')
-        actual[identity] = feature.get('geometry', {}).get('coordinates')
-    if expected != actual:
-        repaired = afcd_offline_bytes(hk)
-        if expected_hash is not None and hashlib.sha256(repaired).hexdigest() != expected_hash:
-            raise ValueError('Hong Kong offline reconstruction hash mismatch; publication stopped')
-        atomic_write(ROOT / 'shared/data/offline/hk-afcd.json', repaired)
-        print('Recovered Hong Kong reference geometry from authoritative catalog')
-    pending = []
-    direct = {}
-    for source, relative in {'release': 'releases/stable.json', 'offline-hk': 'data/offline/hk-afcd.json'}.items():
-        payload = (ROOT / 'shared' / relative).read_bytes()
-        if len(payload) > 16 * 1024 * 1024:
-            raise ValueError(f'{source}: direct snapshot exceeds memory budget')
-        direct[source] = payload
     selected = {source: relative for source, relative in SOURCES.items() if source_filter is None or source in source_filter}
     if source_filter is not None and set(source_filter) - set(SOURCES):
         raise ValueError('unknown catalog source requested')
+    # A scoped source refresh must not repair or rewrite unrelated sources.
+    if source_filter is None or 'hk' in source_filter:
+        # Validate the pair before changing any public pointer or fallback file.
+        hk = json.loads((ROOT / 'shared/data/catalog/hk-afcd.json').read_bytes())
+        try:
+            offline_bytes = (ROOT / 'shared/data/offline/hk-afcd.json').read_bytes()
+            offline = json.loads(offline_bytes)
+        except (OSError, ValueError):
+            offline_bytes = b''
+            offline = {}
+        if not isinstance(offline, dict):offline = {}
+        expected_hash = hk.get('offlineSha256')
+        if expected_hash is not None and (expected_hash != hashlib.sha256(offline_bytes).hexdigest()
+                                        or offline.get('sourceGeneratedAt') != hk.get('generatedAt')):
+            repaired = afcd_offline_bytes(hk)
+            if hashlib.sha256(repaired).hexdigest() != expected_hash:
+                raise ValueError('Hong Kong offline reconstruction hash mismatch; publication stopped')
+            atomic_write(ROOT / 'shared/data/offline/hk-afcd.json', repaired)
+            offline = json.loads(repaired)
+            print('Recovered Hong Kong offline reference from authoritative catalog')
+        expected = {row['id']: row.get('referencePaths') for row in hk['routes']}
+        actual = {}
+        for feature in offline.get('geometry', {}).get('features', []):
+            identity = feature.get('properties', {}).get('sourceId')
+            if identity in actual:
+                raise ValueError('Duplicate Hong Kong offline source ID')
+            actual[identity] = feature.get('geometry', {}).get('coordinates')
+        if expected != actual:
+            repaired = afcd_offline_bytes(hk)
+            if expected_hash is not None and hashlib.sha256(repaired).hexdigest() != expected_hash:
+                raise ValueError('Hong Kong offline reconstruction hash mismatch; publication stopped')
+            atomic_write(ROOT / 'shared/data/offline/hk-afcd.json', repaired)
+            print('Recovered Hong Kong reference geometry from authoritative catalog')
+    pending = []
+    direct = {}
+    if source_filter is None:
+        for source, relative in {'release': 'releases/stable.json', 'offline-hk': 'data/offline/hk-afcd.json'}.items():
+            payload = (ROOT / 'shared' / relative).read_bytes()
+            if len(payload) > 16 * 1024 * 1024:
+                raise ValueError(f'{source}: direct snapshot exceeds memory budget')
+            direct[source] = payload
     for source, relative in selected.items():
         raw = (ROOT / 'shared' / relative).read_bytes()
         data = json.loads(raw)
