@@ -72,6 +72,9 @@ def main() -> int:
             print(f"Collector has no stable step ID: {name}", file=sys.stderr)
             return 1
         collector_ids.add(id_match.group(1))
+    if len(collector_ids) != len(collectors):
+        print("Collector step IDs must be unique.", file=sys.stderr)
+        return 1
     if collector_ids != EXPECTED_COLLECTOR_IDS:
         print(
             "Collector step IDs changed without updating the budget and source-status contract: "
