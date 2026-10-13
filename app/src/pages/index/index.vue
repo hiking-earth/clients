@@ -13,7 +13,7 @@
       <text class="hero-sub">从地球发现下一段旅程</text>
       <text class="hero-sub">本机目录含 {{ ROUTES.length }} 条路线发现档案 · “待核验”不代表已开放或可导航</text>
       <text class="hero-sub">路线数据 © OpenStreetMap contributors · ODbL</text>
-      <view v-if="showSources || catalogRefreshing" class="source-status"><text v-for="source in catalogSources" :key="source.id" class="hero-sub">{{ source.label }}：{{ catalogRefreshState[source.id] ? '正在获取目录，已保存资料仍可查看' : catalogCacheState[source.id].message }}</text></view>
+      <view v-if="showSources || catalogRefreshing" class="source-status"><text v-for="source in catalogSources" :key="source.id" class="hero-sub">{{ source.label }}：{{ source.id==='usgs-trails' ? '按需在线检索，不下载完整目录' : catalogRefreshState[source.id] ? '正在获取目录，已保存资料仍可查看' : catalogCacheState[source.id].message }}</text></view>
       <button size="mini" class="quiet" @click="showSources=!showSources">{{showSources?'收起同步状态':'目录同步状态'}}</button>
       <button size="mini" :disabled="catalogRefreshing" @click="refreshRouteCatalog(true)">{{catalogRefreshing ? '正在刷新目录…' : '刷新路线目录'}}</button>
       <view class="search-box">
@@ -91,7 +91,7 @@ import {searchPublicCatalog} from "@/services/catalog-search";
 import type {HikingRoute} from "@shared/types/route";
 import { STATUS_COLORS, isNavigable, type RouteStatus, type Season } from "@shared/types/route";
 
-const catalogSources=[{id:'osm',label:'OSM'},{id:'usfs',label:'美国国家森林'},{id:'hk',label:'香港官方步道'},{id:'nzdoc',label:'新西兰环保部官方步道'},{id:'parkscanada',label:'加拿大公园管理局'},{id:'nsw-npws',label:'新南威尔士州公园步道'},{id:'england',label:'英格兰国家步道'},{id:'wales',label:'威尔士国家步道'},{id:'scotland-argyll',label:'苏格兰阿盖尔-比特核心步道'},{id:'ni-midulster',label:'北爱尔兰·米德阿尔斯特公共通行权'},{id:'norfolk-prow',label:'英格兰诺福克公共通行权'},{id:'cambridgeshire-prow',label:'英格兰剑桥郡公共通行权'},{id:'nps-public-trails',label:'美国国家公园步道（NPS）'},{id:'victoria-recreation-tracks',label:'澳大利亚·维多利亚州官方步道'}] as const;
+const catalogSources=[{id:'osm',label:'OSM'},{id:'usfs',label:'美国国家森林'},{id:'hk',label:'香港官方步道'},{id:'nzdoc',label:'新西兰环保部官方步道'},{id:'parkscanada',label:'加拿大公园管理局'},{id:'nsw-npws',label:'新南威尔士州公园步道'},{id:'england',label:'英格兰国家步道'},{id:'wales',label:'威尔士国家步道'},{id:'scotland-argyll',label:'苏格兰阿盖尔-比特核心步道'},{id:'ni-midulster',label:'北爱尔兰·米德阿尔斯特公共通行权'},{id:'norfolk-prow',label:'英格兰诺福克公共通行权'},{id:'cambridgeshire-prow',label:'英格兰剑桥郡公共通行权'},{id:'nps-public-trails',label:'美国国家公园步道（NPS）'},{id:'usgs-trails',label:'美国全国步道汇总（USGS）'},{id:'victoria-recreation-tracks',label:'澳大利亚·维多利亚州官方步道'}] as const;
 const catalogSourceLabels=catalogSources.map(source=>source.label);
 const keyword = ref("");
 const showSources=ref(false);
