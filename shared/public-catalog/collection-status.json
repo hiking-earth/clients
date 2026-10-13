@@ -1,13 +1,19 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-10-13T00:39:26.739541+00:00",
-  "runId": "38328045238",
-  "sourceCommit": "ad55483a3d365cb89f1227ac5a99d06642f2ee2a",
+  "checkedAt": "2026-10-13T10:57:38.517268+00:00",
+  "runId": "38386401215",
+  "sourceCommit": "97339ddd1cfc07cab9d0a282a575c737fe4263d1",
   "outcomes": {
     "usfs": "success",
     "osm_incremental": "partial",
     "osm_reconciliation": "paused-public-global-sweep",
     "hk": "success",
+    "nzdoc": "success",
+    "parkscanada": "success",
+    "nsw-npws": "success",
+    "england": "success",
+    "wales": "success",
+    "scotland-argyll": "success",
     "news": "success",
     "osm": "paused-public-global-sweep",
     "osm_incremental_step": "success"
@@ -18,8 +24,8 @@
       "status": "available",
       "records": 100,
       "lastCollectedCount": 100,
-      "lastAttempt": "2026-10-13T00:39:22.656268+00:00",
-      "lastSuccess": "2026-10-13T00:39:22.656266+00:00",
+      "lastAttempt": "2026-10-13T10:57:34.819945+00:00",
+      "lastSuccess": "2026-10-13T10:57:34.819943+00:00",
       "feedAcceptance": "accepted",
       "feedVerifiedAt": "2026-10-10",
       "feedVerificationStatus": "current",
@@ -30,8 +36,8 @@
       "status": "available",
       "records": 1,
       "lastCollectedCount": 1,
-      "lastAttempt": "2026-10-13T00:39:22.683702+00:00",
-      "lastSuccess": "2026-10-13T00:39:22.683699+00:00",
+      "lastAttempt": "2026-10-13T10:57:34.844894+00:00",
+      "lastSuccess": "2026-10-13T10:57:34.844892+00:00",
       "feedAcceptance": "accepted",
       "feedVerifiedAt": "2026-10-10",
       "feedVerificationStatus": "current",
@@ -42,8 +48,8 @@
       "status": "available",
       "records": 100,
       "lastCollectedCount": 100,
-      "lastAttempt": "2026-10-13T00:39:22.736360+00:00",
-      "lastSuccess": "2026-10-13T00:39:22.736358+00:00",
+      "lastAttempt": "2026-10-13T10:57:34.910705+00:00",
+      "lastSuccess": "2026-10-13T10:57:34.910703+00:00",
       "feedAcceptance": "accepted",
       "feedVerifiedAt": "2026-10-07",
       "feedVerificationStatus": "current",
@@ -54,8 +60,8 @@
       "status": "available",
       "records": 0,
       "lastCollectedCount": 0,
-      "lastAttempt": "2026-10-13T00:39:24.584185+00:00",
-      "lastSuccess": "2026-10-13T00:39:24.584182+00:00",
+      "lastAttempt": "2026-10-13T10:57:36.071222+00:00",
+      "lastSuccess": "2026-10-13T10:57:36.071220+00:00",
       "feedAcceptance": "accepted",
       "feedVerifiedAt": "2026-10-07",
       "feedVerificationStatus": "current",
@@ -85,42 +91,67 @@
           "error": "HTTP 504: Gateway Timeout"
         },
         "south-asia": {
-          "status": "success",
-          "records": 0,
-          "cursor": "2026-10-13T00:25:18Z"
+          "status": "failed",
+          "error": "HTTP 504: Gateway Timeout"
         },
         "europe": {
           "status": "failed",
-          "error": "runtime error: Query timed out in \"query\" at line 1 after 50 seconds."
+          "error": "The read operation timed out"
         },
         "north-america": {
           "status": "failed",
-          "error": "runtime error: Query timed out in \"query\" at line 1 after 47 seconds."
+          "error": "HTTP 504: Gateway Timeout"
         },
         "oceania": {
-          "status": "failed",
-          "error": "HTTP 504: Gateway Timeout"
+          "status": "success",
+          "records": 4,
+          "cursor": "2026-10-13T10:44:16Z"
         },
         "south-america": {
           "status": "failed",
           "error": "HTTP 504: Gateway Timeout"
         },
         "africa": {
-          "status": "failed",
-          "error": "HTTP 504: Gateway Timeout"
+          "status": "success",
+          "records": 2,
+          "cursor": "2026-10-13T10:44:16Z"
         }
       }
     },
     "usfs": {
       "supported": true,
-      "cycleStartedAt": "2026-10-11T05:41:44.690459+00:00",
+      "cycleStartedAt": "2026-10-13T10:53:23.585555+00:00",
       "lastCompletedAt": "2026-10-13T00:36:12.112683+00:00",
       "lastRemovedFromDiscovery": 36362,
-      "nextObjectId": null,
-      "currentCycleComplete": true,
+      "nextObjectId": 9854790,
+      "currentCycleComplete": false,
       "lastAttemptSucceeded": true
     },
     "hk": {
+      "mode": "complete-source-replacement",
+      "lastAttemptSucceeded": true
+    },
+    "nzdoc": {
+      "mode": "complete-source-replacement",
+      "lastAttemptSucceeded": true
+    },
+    "parkscanada": {
+      "mode": "complete-source-replacement",
+      "lastAttemptSucceeded": true
+    },
+    "nsw-npws": {
+      "mode": "complete-source-replacement",
+      "lastAttemptSucceeded": true
+    },
+    "england": {
+      "mode": "complete-source-replacement",
+      "lastAttemptSucceeded": true
+    },
+    "wales": {
+      "mode": "complete-source-replacement",
+      "lastAttemptSucceeded": true
+    },
+    "scotland-argyll": {
       "mode": "complete-source-replacement",
       "lastAttemptSucceeded": true
     }
@@ -128,23 +159,53 @@
   "snapshots": {
     "OSM": {
       "records": 178722,
-      "generatedAt": "2026-10-13T00:36:17Z",
-      "sha256": "3987fa984d81e75e73e767682fe746a263b48d15b1c76d5666b2a6271f186674"
+      "generatedAt": "2026-10-13T10:53:50Z",
+      "sha256": "bd30a0ff15ae0783824529e3e864e5acc764c11cff7f659efa192a4a709366f9"
     },
     "USFS": {
       "records": 13729,
-      "generatedAt": "2026-10-13T00:36:12.112683+00:00",
-      "sha256": "ec756b7c6e65de36c073b9c5d7e3e8eb8bf3a47110861d0209a5eb2854700434"
+      "generatedAt": "2026-10-13T10:53:23.585555+00:00",
+      "sha256": "841076e9c7b883644dfa00ead6e07226c9d662349f77a1ec44cbc9ca042537e3"
     },
     "Hong Kong AFCD": {
       "records": 167,
-      "generatedAt": "2026-10-13T00:39:22.030201+00:00",
-      "sha256": "e8e488bba8d71a84e3c764340f90fe9a4aa5851a7fb964820e42f19ae3706cf8"
+      "generatedAt": "2026-10-13T10:56:30.516931+00:00",
+      "sha256": "64ceb187b114c6a8fd7905f6e84dbdb768fbb083770a1feb072ae284c5c62c04"
+    },
+    "New Zealand DOC": {
+      "records": 1349,
+      "generatedAt": "2026-10-13T10:56:31.145349+00:00",
+      "sha256": "2aab5cdbd9a5f5cc5befa9ed6220a91a93a2ed423982a7701d580a043bda8939"
+    },
+    "Parks Canada": {
+      "records": 1349,
+      "generatedAt": "2026-10-13T10:56:42.612992+00:00",
+      "sha256": "04e0bee44eead8bbc5a5b73aa4915bd6db1446c2e18364c0fe87ab9161c0874b"
+    },
+    "NSW NPWS": {
+      "records": 4582,
+      "generatedAt": "2026-10-13T10:56:48.174500+00:00",
+      "sha256": "2c5c2e31f56ebc8a7b853430beb1c8b21ef6f624369be879a6d240881cc9bfc4"
+    },
+    "Natural England": {
+      "records": 14,
+      "generatedAt": "2026-10-13T10:57:05.816102+00:00",
+      "sha256": "618d3075c543a06c0a0d237de2a1ad4dbad9660bedc7c204fbf3e0bbd6ca6af1"
+    },
+    "Natural Resources Wales": {
+      "records": 3,
+      "generatedAt": "2026-10-13T10:57:08.907883+00:00",
+      "sha256": "947ef0afa68cc569d6ecc492022a28d62362045fa2fa8ba40c0de3d80b0aeff6"
+    },
+    "Argyll and Bute": {
+      "records": 964,
+      "generatedAt": "2026-10-13T10:57:10.301702+00:00",
+      "sha256": "dbfa4e09edc1f87305bddf4329792803de0af4cf866da0738da997a52cbd9acb"
     },
     "Official notices": {
       "records": 201,
-      "generatedAt": "2026-10-13T00:39:24.584217+00:00",
-      "sha256": "640dde804fbe12ccf59a902b4fcc01da62c08ebc0bb67d2ffb25eb74cd878b09"
+      "generatedAt": "2026-10-13T10:57:36.071249+00:00",
+      "sha256": "c35b70bb037f1b552e1bbdbf541600bca165e28968aed3ed554b60dcce1620be"
     }
   },
   "accessVerified": false
