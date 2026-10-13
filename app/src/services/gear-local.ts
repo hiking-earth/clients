@@ -6,14 +6,7 @@ import * as coco from '@tensorflow-models/coco-ssd';
 import {initializeGearBackend} from './gear-backend';
 // #endif
 export type LocalGearResult={items:{name:string;category:string}[];missing:{name:string;reason:string}[];usage:string[];plan:{name:string}[]};
-const labels:Record<string,[string,string]>={
- backpack:['背包','背包'],handbag:['手提包（请确认用途）','其他'],suitcase:['行李箱（请确认用途）','其他'],
- bottle:['瓶状物（请确认用途）','饮食'],cup:['杯子','饮食'],bowl:['碗','饮食'],knife:['刀具','其他'],fork:['叉子','饮食'],spoon:['勺子','饮食'],
- 'cell phone':['手机','导航'],umbrella:['雨伞','其他'],
- skis:['滑雪板候选','其他'],snowboard:['单板滑雪板候选','其他'],surfboard:['冲浪板候选','其他'],
- skateboard:['滑板候选','其他'],'tennis racket':['球拍候选','其他'],'baseball bat':['球棒候选','其他'],
- 'baseball glove':['手套候选','其他'],'sports ball':['球类装备候选','其他'],frisbee:['飞盘候选','其他'],kite:['风筝候选','其他']
-};
+const labels:Record<string,[string,string]>={backpack:['背包','背包'],handbag:['手提包','其他'],suitcase:['行李箱','其他'],bottle:['瓶状物（请确认用途）','饮食'],cup:['杯子','饮食'],bowl:['碗','饮食'],knife:['刀具','其他'],fork:['叉子','饮食'],spoon:['勺子','饮食'],'cell phone':['手机','导航'],umbrella:['雨伞','其他']};
 // #ifdef H5
 let model:Promise<coco.ObjectDetection>|undefined;
 let tail:Promise<void>=Promise.resolve();
