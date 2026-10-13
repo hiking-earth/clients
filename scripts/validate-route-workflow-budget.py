@@ -6,7 +6,7 @@ import re
 import sys
 
 
-WORKFLOW = Path(".github/workflows/route-catalog-update.yml")
+WORKFLOW = Path("workflow-source/.github/workflows/route-catalog-update.yml")
 MINIMUM_PUBLISH_WINDOW_MINUTES = 30
 
 
@@ -22,9 +22,9 @@ def main() -> int:
         return 1
 
     job_limit = int(job_limit_match.group(1))
-    section = source_window_match.group(0)
     step_blocks = re.findall(
-        r"(?ms)^      - name: ([^\n]+)\n(.*?)(?=^      - name:|\Z)", section
+        r"(?ms)^      - name: ([^\n]+)\n(.*?)(?=^      - name:|\Z)",
+        source_window_match.group(0),
     )
     collectors = [(name, body) for name, body in step_blocks if name.startswith("Collect ")]
     if not collectors:
@@ -46,17 +46,13 @@ def main() -> int:
     remaining = job_limit - total
     if remaining < MINIMUM_PUBLISH_WINDOW_MINUTES:
         print(
-            f"Collector budget is {total} minutes with a {job_limit}-minute job cap; "
-            f"only {remaining} minutes remain, below the {MINIMUM_PUBLISH_WINDOW_MINUTES}-minute "
-            "validation/publication reserve.",
+            f"Collector budget is {total}/{job_limit} minutes; only {remaining} minutes remain, "
+            f"below the {MINIMUM_PUBLISH_WINDOW_MINUTES}-minute validation/publication reserve.",
             file=sys.stderr,
         )
         return 1
 
-    print(
-        f"Route collector budget: {total}/{job_limit} minutes; "
-        f"{remaining} minutes remain for validation and publication."
-    )
+    print(f"Route collector budget: {total}/{job_limit} minutes; {remaining} minutes remain.")
     return 0
 
 

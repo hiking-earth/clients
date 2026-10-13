@@ -19,11 +19,20 @@ jobs:
           # Scheduled workflows live on main; collectors and validation live here.
           # Publication promotes only validated public data, never client releases.
           ref: codex/mobile-privacy-controls
+      - uses: actions/checkout@v4
+        with:
+          # Validate the workflow that started this run, not the collector branch's copy.
+          ref: ${{ github.sha }}
+          path: workflow-source
+          sparse-checkout: |
+            .github/workflows/route-catalog-update.yml
+            scripts/validate-route-workflow-budget.py
+          sparse-checkout-cone-mode: false
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
       - name: Enforce route collector time budget
-        run: python scripts/validate-route-workflow-budget.py
+        run: python workflow-source/scripts/validate-route-workflow-budget.py
       - name: Merge production OSM discoveries and PBF refresh evidence
         run: python scripts/merge-production-osm-catalog.py --production-ref origin/main
       - name: Collect USDA source records
