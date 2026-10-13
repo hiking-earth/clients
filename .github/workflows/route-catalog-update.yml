@@ -333,7 +333,7 @@ jobs:
         if: ${{ !cancelled() && steps.outcomes.outcome == 'success' && steps.prepare_catalog.outcome == 'success' }}
         run: |
           git add shared/data/catalog/ shared/data/content/ shared/data/offline/ shared/public-catalog/ app/cloudfunctions/catalog-feed/snapshots/ app/cloudfunctions/client-api/business/catalog-feed/snapshots/ 'docs/release/osm-*-pbf-refresh-*.json'
-          if git diff --cached --quiet -- shared/data/catalog/ shared/data/content/ shared/data/offline/ shared/public-catalog/ app/cloudfunctions/catalog-feed/snapshots/ app/cloudfunctions/client-api/business/catalog-feed/snapshots/; then
+          if git diff --cached --quiet -- shared/data/catalog/ shared/data/content/ shared/data/offline/ shared/public-catalog/ app/cloudfunctions/catalog-feed/snapshots/ app/cloudfunctions/client-api/business/catalog-feed/snapshots/ 'docs/release/osm-*-pbf-refresh-*.json'; then
             echo "catalog_changed=false" >> "$GITHUB_OUTPUT"
           else
             echo "catalog_changed=true" >> "$GITHUB_OUTPUT"
