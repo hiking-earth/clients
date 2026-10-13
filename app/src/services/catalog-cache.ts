@@ -5,9 +5,9 @@ import {readChunkedCatalog,writeChunkedCatalog} from './catalog-file-chunks';
  * H5 and bundled desktop use one atomic IndexedDB transaction per source.
  * The previous successful slot is kept until its replacement is committed.
  */
-export type CatalogSource='osm'|'usfs'|'hk'|'nzdoc'|'parkscanada'|'nsw-npws'|'england'|'wales'|'scotland-argyll';
+export type CatalogSource='osm'|'usfs'|'hk'|'nzdoc'|'parkscanada'|'nsw-npws'|'england'|'wales'|'scotland-argyll'|'ni-midulster'|'norfolk-prow'|'cambridgeshire-prow'|'nps-public-trails'|'victoria-recreation-tracks';
 export type LocalDataSource=CatalogSource|'offline';
-const LEGACY:Record<LocalDataSource,string>={osm:'hiking-route-catalog-v1',usfs:'hiking-route-catalog-v1-usfs',hk:'hiking-route-catalog-v1-hk',nzdoc:'hiking-route-catalog-v1-nzdoc',parkscanada:'hiking-route-catalog-v1-parkscanada','nsw-npws':'hiking-route-catalog-v1-nsw-npws',england:'hiking-route-catalog-v1-england',wales:'hiking-route-catalog-v1-wales','scotland-argyll':'hiking-route-catalog-v1-scotland-argyll',offline:'he_offline_vectors_v1'};
+const LEGACY:Record<LocalDataSource,string>={osm:'hiking-route-catalog-v1',usfs:'hiking-route-catalog-v1-usfs',hk:'hiking-route-catalog-v1-hk',nzdoc:'hiking-route-catalog-v1-nzdoc',parkscanada:'hiking-route-catalog-v1-parkscanada','nsw-npws':'hiking-route-catalog-v1-nsw-npws',england:'hiking-route-catalog-v1-england',wales:'hiking-route-catalog-v1-wales','scotland-argyll':'hiking-route-catalog-v1-scotland-argyll','ni-midulster':'hiking-route-catalog-v1-ni-midulster','norfolk-prow':'hiking-route-catalog-v1-norfolk-prow','cambridgeshire-prow':'hiking-route-catalog-v1-cambridgeshire-prow','nps-public-trails':'hiking-route-catalog-v1-nps-public-trails','victoria-recreation-tracks':'hiking-route-catalog-v1-victoria-recreation-tracks',offline:'he_offline_vectors_v1'};
 const pointerKey=(source:LocalDataSource)=>`he_catalog_file_slot_v1_${source}`;
 const selectedSlots=new Map<LocalDataSource,number>();
 const filename=(source:LocalDataSource,slot:number)=>`he-catalog-${source}-${slot}.json`;

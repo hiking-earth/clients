@@ -36,15 +36,14 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref, watch } from 'vue';
 import { ROUTES, rememberDiscoveredRoute } from '@/services/route-catalog';
-import { searchPublicCatalog } from '@/services/catalog-search';
-import type { CatalogSource } from '@/services/catalog-cache';
+import { searchPublicCatalog, type PublicCatalogSource } from '@/services/catalog-search';
 import type { HikingRoute } from '@shared/types/route';
 
 const props = withDefaults(defineProps<{ modelValue?: string; placeholder?: string; disabled?: boolean }>(), {
   modelValue: '', placeholder: '关联路线（可选）', disabled: false,
 });
 const emit = defineEmits<{ (event: 'update:modelValue', value: string): void; (event: 'selected', value: HikingRoute | null): void }>();
-const sources: { id: CatalogSource; name: string }[] = [
+const sources: { id: PublicCatalogSource; name: string }[] = [
   { id: 'osm', name: 'OpenStreetMap' },
   { id: 'usfs', name: '美国国家森林' },
   { id: 'hk', name: '香港官方步道' },
@@ -54,6 +53,11 @@ const sources: { id: CatalogSource; name: string }[] = [
   { id: 'england', name: 'Natural England 国家步道' },
   { id: 'wales', name: '威尔士国家步道' },
   { id: 'scotland-argyll', name: '苏格兰阿盖尔-比特核心步道' },
+  { id: 'ni-midulster', name: '北爱尔兰米德阿尔斯特公共通行权' },
+  { id: 'norfolk-prow', name: '英格兰诺福克公共通行权' },
+  { id: 'cambridgeshire-prow', name: '英格兰剑桥郡公共通行权' },
+  { id: 'nps-public-trails', name: '美国国家公园步道（NPS）' },
+  { id: 'victoria-recreation-tracks', name: '澳大利亚·维多利亚州官方步道' },
 ];
 const sourceNames = sources.map(source => source.name);
 const sourceIndex = ref(0), query = ref(''), localQuery = ref(''), onlineMatches = ref<HikingRoute[]>([]), onlineMessage = ref(''), loading = ref(false), searched = ref(false), onlineHasMore = ref(false);
@@ -115,5 +119,5 @@ onBeforeUnmount(() => { generation++; if (localTimer) clearTimeout(localTimer); 
 </script>
 
 <style scoped>
-.route-picker{margin:10px 0;padding:12px;background:var(--he-color-surface);border-radius:10px}.selected{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.selected-name{font-weight:600;color:var(--he-color-text)}.selected-region,.selected-placeholder,.label,.message,.notice{color:var(--he-color-muted);font-size:12px}.selected button{margin-left:auto}.search{height:40px;margin-top:8px;padding:0 10px;background:var(--he-color-panel);border-radius:7px;color:var(--he-color-text)}.results{height:240px;margin-top:8px}.label{display:block;padding:8px 0}.result{padding:10px 8px;border-top:1px solid var(--he-color-border)}.result-name{display:block;color:var(--he-color-text)}.result-meta{display:block;margin-top:3px;color:var(--he-color-muted);font-size:11px}.online-tools{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0}.source{color:var(--he-color-accent);font-size:13px}.online-tools button{margin:0}.message,.notice{display:block;line-height:1.6;padding:6px 0}.notice{color:#b3a982}
+.route-picker{margin:10px 0;padding:12px;background:var(--he-color-surface);border-radius:10px}.selected{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.selected-name{font-weight:600;color:var(--he-color-text)}.selected-region,.selected-placeholder,.label,.message,.notice{color:var(--he-color-muted);font-size:12px}.selected button{margin-left:auto}.search{height:40px;margin-top:8px;padding:0 10px;background:var(--he-color-panel);border-radius:7px;color:var(--he-color-text)}.results{height:240px;margin-top:8px}.label{display:block;padding:8px 0}.result{padding:10px 8px;border-top:1px solid var(--he-color-border)}.result-name{display:block;color:var(--he-color-text)}.result-meta{display:block;margin-top:3px;color:var(--he-color-muted);font-size:11px}.online-tools{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0}.source{color:var(--he-color-accent);font-size:13px}.online-tools button{margin:0}.message,.notice{display:block;line-height:1.6;padding:6px 0}.notice{color:var(--he-color-warning)}
 </style>
