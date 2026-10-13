@@ -11,7 +11,7 @@ concurrency:
 jobs:
   collect:
     runs-on: ubuntu-latest
-    # The 15 sequential source-specific timeouts total 191 minutes; the job cap leaves 49 minutes for validation/publication/deploy.
+    # The 16 sequential source-specific timeouts total 201 minutes; reserve 39 minutes for validation/publication/deploy.
     timeout-minutes: 240
     steps:
       - uses: actions/checkout@v4
@@ -35,6 +35,26 @@ jobs:
         run: python workflow-source/scripts/validate-route-workflow-budget.py
       - name: Merge production OSM discoveries and PBF refresh evidence
         run: python scripts/merge-production-osm-catalog.py --production-ref origin/main
+      - name: Restore the last complete USGS snapshot for unchanged runs
+        run: python scripts/restore-usgs-trails-catalog.py
+      - name: Check whether the USGS aggregate refresh is due
+        id: usgs_due
+        run: |
+          python - <<'PY'
+          import datetime, json, os
+          from pathlib import Path
+          path = Path('shared/data/catalog/usgs-trails.json')
+          due = True
+          if path.exists():
+              generated = json.loads(path.read_text()).get('generatedAt')
+              stamp = datetime.datetime.fromisoformat(generated.replace('Z', '+00:00'))
+              if stamp.tzinfo is None or stamp.utcoffset() is None:
+                  raise ValueError('USGS catalog timestamp must include timezone')
+              due = datetime.datetime.now(datetime.timezone.utc) - stamp.astimezone(datetime.timezone.utc) >= datetime.timedelta(days=30)
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
+              output.write(f"due={'true' if due else 'false'}\n")
+          print('USGS source refresh is due.' if due else 'USGS refresh is not due; restored published snapshot will be retained.')
+          PY
       - name: Collect USDA source records
         id: usda
         timeout-minutes: 10
@@ -65,6 +85,12 @@ jobs:
         timeout-minutes: 25
         continue-on-error: true
         run: python scripts/update-nps-public-trails-catalog.py
+      - name: Collect USGS public-domain hiking trail references
+        id: usgs_trails
+        if: ${{ github.event_name == 'workflow_dispatch' || steps.usgs_due.outputs.due == 'true' }}
+        timeout-minutes: 10
+        continue-on-error: true
+        run: python scripts/update-usgs-trails-catalog.py
       - name: Collect Victorian Government walking-track references
         id: victoria_recreation_tracks
         timeout-minutes: 8
@@ -121,6 +147,7 @@ jobs:
           NZDOC_OUTCOME: ${{ steps.nzdoc.outcome }}
           PARKSCANADA_OUTCOME: ${{ steps.parkscanada.outcome }}
           NPS_PUBLIC_TRAILS_OUTCOME: ${{ steps.nps_public_trails.outcome }}
+          USGS_TRAILS_OUTCOME: ${{ steps.usgs_trails.outcome }}
           VICTORIA_RECREATION_TRACKS_OUTCOME: ${{ steps.victoria_recreation_tracks.outcome }}
           NSW_NPWS_OUTCOME: ${{ steps.nsw_npws.outcome }}
           ENGLAND_OUTCOME: ${{ steps.england.outcome }}
@@ -132,7 +159,7 @@ jobs:
           CONTENT_OUTCOME: ${{ steps.content.outcome }}
         run: |
           echo "### Hiking catalog collection" >> "$GITHUB_STEP_SUMMARY"
-          echo "USDA step: $USDA_OUTCOME; OSM recent-change script step: $OSM_INCREMENTAL_OUTCOME; OSM worldwide full-membership sweep: $OSM_RECONCILIATION_OUTCOME; Hong Kong AFCD: $HK_OUTCOME; New Zealand DOC: $NZDOC_OUTCOME; Parks Canada: $PARKSCANADA_OUTCOME; NPS public trails: $NPS_PUBLIC_TRAILS_OUTCOME; Victoria recreation tracks: $VICTORIA_RECREATION_TRACKS_OUTCOME; NSW NPWS: $NSW_NPWS_OUTCOME; Natural England: $ENGLAND_OUTCOME; Natural Resources Wales: $WALES_OUTCOME; Argyll and Bute core paths: $SCOTLAND_ARGYLL_OUTCOME; Mid Ulster public rights of way: $NI_MIDULSTER_OUTCOME; Norfolk public rights of way: $NORFOLK_PROW_OUTCOME; Cambridgeshire public rights of way: $CAMBRIDGESHIRE_PROW_OUTCOME; official notices: $CONTENT_OUTCOME" >> "$GITHUB_STEP_SUMMARY"
+          echo "USDA step: $USDA_OUTCOME; OSM recent-change script step: $OSM_INCREMENTAL_OUTCOME; OSM worldwide full-membership sweep: $OSM_RECONCILIATION_OUTCOME; Hong Kong AFCD: $HK_OUTCOME; New Zealand DOC: $NZDOC_OUTCOME; Parks Canada: $PARKSCANADA_OUTCOME; NPS public trails: $NPS_PUBLIC_TRAILS_OUTCOME; USGS public trails: $USGS_TRAILS_OUTCOME; Victoria recreation tracks: $VICTORIA_RECREATION_TRACKS_OUTCOME; NSW NPWS: $NSW_NPWS_OUTCOME; Natural England: $ENGLAND_OUTCOME; Natural Resources Wales: $WALES_OUTCOME; Argyll and Bute core paths: $SCOTLAND_ARGYLL_OUTCOME; Mid Ulster public rights of way: $NI_MIDULSTER_OUTCOME; Norfolk public rights of way: $NORFOLK_PROW_OUTCOME; Cambridgeshire public rights of way: $CAMBRIDGESHIRE_PROW_OUTCOME; official notices: $CONTENT_OUTCOME" >> "$GITHUB_STEP_SUMMARY"
           python - <<'PY'
           import datetime, hashlib, json, os
           from collections import Counter
@@ -148,6 +175,7 @@ jobs:
               ('New Zealand DOC', root/'catalog/nzdoc.json', 'routes'),
               ('Parks Canada', root/'catalog/canada-parks.json', 'routes'),
               ('NPS public trails', root/'catalog/nps-public-trails.json', 'routes'),
+              ('USGS public trails', root/'catalog/usgs-trails.json', 'routes'),
               ('Victoria recreation tracks', root/'catalog/victoria-recreation-tracks.json', 'routes'),
               ('NSW NPWS', root/'catalog/nsw-npws.json', 'routes'),
               ('Natural England', root/'catalog/england-trails.json', 'routes'),
@@ -161,10 +189,16 @@ jobs:
           outcomes = dict(zip(('usfs','osm_incremental','osm_reconciliation','hk','nzdoc','parkscanada','nsw-npws','england','wales','scotland-argyll','ni-midulster','norfolk-prow','cambridgeshire-prow','news'), (os.environ.get(key, 'unknown') for key in ('USDA_OUTCOME','OSM_INCREMENTAL_OUTCOME','OSM_RECONCILIATION_OUTCOME','HK_OUTCOME','NZDOC_OUTCOME','PARKSCANADA_OUTCOME','NSW_NPWS_OUTCOME','ENGLAND_OUTCOME','WALES_OUTCOME','SCOTLAND_ARGYLL_OUTCOME','NI_MIDULSTER_OUTCOME','NORFOLK_PROW_OUTCOME','CAMBRIDGESHIRE_PROW_OUTCOME','CONTENT_OUTCOME'))))
           outcomes['osm'] = outcomes['osm_reconciliation']
           outcomes['nps-public-trails'] = os.environ.get('NPS_PUBLIC_TRAILS_OUTCOME', 'unknown')
+          usgs_outcome = os.environ.get('USGS_TRAILS_OUTCOME', 'unknown')
+          outcomes['usgs-trails'] = 'not-due' if usgs_outcome == 'skipped' else usgs_outcome
           outcomes['victoria-recreation-tracks'] = os.environ.get('VICTORIA_RECREATION_TRACKS_OUTCOME', 'unknown')
           snapshots = {}
           rows = ['| Source snapshot | Records | Generated |', '|---|---:|---|']
           for label, path, key in sources:
+              if label == 'USGS public trails' and not path.exists():
+                  snapshots[label] = {'records': 0, 'generatedAt': None, 'sha256': None}
+                  rows.append(f"| {label} | not yet published | — |")
+                  continue
               raw = path.read_bytes()
               data = json.loads(raw)
               snapshots[label] = {'records': len(data.get(key, [])), 'generatedAt': data.get('generatedAt'), 'sha256': hashlib.sha256(raw).hexdigest()}
@@ -241,6 +275,11 @@ jobs:
               'nps-public-trails': {
                   'mode': 'complete-source-replacement',
                   'lastAttemptSucceeded': outcomes['nps-public-trails'] == 'success',
+              },
+              'usgs-trails': {
+                  'mode': 'complete-source-replacement',
+                  'lastAttemptSucceeded': outcomes['usgs-trails'] in ('success', 'not-due'),
+                  'lastAttemptOutcome': outcomes['usgs-trails'],
               },
               'victoria-recreation-tracks': {
                   'mode': 'complete-source-replacement',
@@ -386,16 +425,16 @@ jobs:
           outcomes = status.get('outcomes', {})
           sources = (
               'usfs', 'osm_incremental', 'hk', 'nzdoc', 'parkscanada',
-              'nps-public-trails', 'victoria-recreation-tracks', 'nsw-npws',
+              'nps-public-trails', 'usgs-trails', 'victoria-recreation-tracks', 'nsw-npws',
               'england', 'wales', 'scotland-argyll', 'ni-midulster',
               'norfolk-prow', 'cambridgeshire-prow', 'news',
           )
           incomplete = {source: outcomes.get(source, 'unknown') for source in sources
-                        if outcomes.get(source) != 'success'}
+                        if outcomes.get(source) not in ('success', 'not-due')}
           if incomplete:
               print('Some sources failed or partially refreshed; successful validated sources were published and failed sources retained their prior snapshots:')
               for source, result in incomplete.items():
                   print(f'- {source}: {result}')
               raise SystemExit(1)
-          print('All configured source collectors completed successfully.')
+          print('All due source collectors completed successfully.')
           PY
