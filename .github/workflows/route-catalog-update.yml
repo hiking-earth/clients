@@ -213,8 +213,36 @@ jobs:
             --env "$CLOUDBASE_ENV_ID" \
             --backup-dir "$BACKUP_DIR" \
             --functions catalog-feed client-api
-      - name: Report complete collection failure
-        if: ${{ !cancelled() && steps.usda.outcome == 'failure' && steps.osm_incremental.outcome == 'failure' && steps.hk.outcome == 'failure' && steps.content.outcome == 'failure' }}
+      - name: Report incomplete collection sources
+        if: ${{ !cancelled() && steps.outcomes.outcome == 'success' }}
         run: |
-          echo "All collectors failed; previous snapshots retained."
-          exit 1
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          status_path = Path('shared/public-catalog/collection-status.json')
+          try:
+              status = json.loads(status_path.read_text())
+          except (OSError, json.JSONDecodeError) as error:
+              print(f'Cannot verify collection status at {status_path}: {error}')
+              raise SystemExit(1)
+
+          outcomes = status.get('outcomes')
+          if not isinstance(outcomes, dict):
+              print('Collection status is missing the source outcomes object.')
+              raise SystemExit(1)
+
+          expected_sources = ('usfs', 'osm_incremental', 'hk', 'news')
+          incomplete = {
+              source: outcomes.get(source, 'unknown')
+              for source in expected_sources
+              if outcomes.get(source) != 'success'
+          }
+          if incomplete:
+              print('Some sources failed or only partially refreshed. Successful validated snapshots were published; failed sources retain their prior data:')
+              for source, result in incomplete.items():
+                  print(f'- {source}: {result}')
+              raise SystemExit(1)
+
+          print('All scheduled source collectors completed successfully.')
+          PY
