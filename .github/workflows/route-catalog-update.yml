@@ -11,6 +11,7 @@ concurrency:
 jobs:
   collect:
     runs-on: ubuntu-latest
+    # The 15 sequential source-specific timeouts total 191 minutes; the job cap leaves 19 minutes for validation/publication/deploy.
     timeout-minutes: 210
     steps:
       - uses: actions/checkout@v4
@@ -21,6 +22,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Merge production OSM discoveries and PBF refresh evidence
+        run: python scripts/merge-production-osm-catalog.py --production-ref origin/main
       - name: Collect USDA source records
         id: usda
         timeout-minutes: 10
@@ -46,6 +49,16 @@ jobs:
         timeout-minutes: 25
         continue-on-error: true
         run: python scripts/update-canada-parks-catalog.py
+      - name: Collect NPS public hiking and pedestrian trail references
+        id: nps_public_trails
+        timeout-minutes: 25
+        continue-on-error: true
+        run: python scripts/update-nps-public-trails-catalog.py
+      - name: Collect Victorian Government walking-track references
+        id: victoria_recreation_tracks
+        timeout-minutes: 8
+        continue-on-error: true
+        run: python scripts/update-victoria-recreation-tracks.py
       - name: Collect NSW NPWS walking tracks
         id: nsw_npws
         timeout-minutes: 12
@@ -66,6 +79,21 @@ jobs:
         timeout-minutes: 12
         continue-on-error: true
         run: python scripts/update-scotland-argyll-corepaths.py
+      - name: Collect Mid Ulster public rights of way
+        id: ni_midulster
+        timeout-minutes: 5
+        continue-on-error: true
+        run: python scripts/update-ni-midulster-prow.py
+      - name: Collect Norfolk public rights of way
+        id: norfolk_prow
+        timeout-minutes: 10
+        continue-on-error: true
+        run: python scripts/update-norfolk-prow.py
+      - name: Collect Cambridgeshire public rights of way
+        id: cambridgeshire_prow
+        timeout-minutes: 5
+        continue-on-error: true
+        run: python scripts/update-cambridgeshire-prow.py
       - name: Collect official announcements
         id: content
         timeout-minutes: 3
@@ -81,21 +109,26 @@ jobs:
           HK_OUTCOME: ${{ steps.hk.outcome }}
           NZDOC_OUTCOME: ${{ steps.nzdoc.outcome }}
           PARKSCANADA_OUTCOME: ${{ steps.parkscanada.outcome }}
+          NPS_PUBLIC_TRAILS_OUTCOME: ${{ steps.nps_public_trails.outcome }}
+          VICTORIA_RECREATION_TRACKS_OUTCOME: ${{ steps.victoria_recreation_tracks.outcome }}
           NSW_NPWS_OUTCOME: ${{ steps.nsw_npws.outcome }}
           ENGLAND_OUTCOME: ${{ steps.england.outcome }}
           WALES_OUTCOME: ${{ steps.wales.outcome }}
           SCOTLAND_ARGYLL_OUTCOME: ${{ steps.scotland_argyll.outcome }}
+          NI_MIDULSTER_OUTCOME: ${{ steps.ni_midulster.outcome }}
+          NORFOLK_PROW_OUTCOME: ${{ steps.norfolk_prow.outcome }}
+          CAMBRIDGESHIRE_PROW_OUTCOME: ${{ steps.cambridgeshire_prow.outcome }}
           CONTENT_OUTCOME: ${{ steps.content.outcome }}
         run: |
           echo "### Hiking catalog collection" >> "$GITHUB_STEP_SUMMARY"
-          echo "USDA step: $USDA_OUTCOME; OSM recent-change script step: $OSM_INCREMENTAL_OUTCOME; OSM worldwide full-membership sweep: $OSM_RECONCILIATION_OUTCOME; Hong Kong AFCD: $HK_OUTCOME; New Zealand DOC: $NZDOC_OUTCOME; Parks Canada: $PARKSCANADA_OUTCOME; NSW NPWS: $NSW_NPWS_OUTCOME; Natural England: $ENGLAND_OUTCOME; Natural Resources Wales: $WALES_OUTCOME; Argyll and Bute core paths: $SCOTLAND_ARGYLL_OUTCOME; official notices: $CONTENT_OUTCOME" >> "$GITHUB_STEP_SUMMARY"
+          echo "USDA step: $USDA_OUTCOME; OSM recent-change script step: $OSM_INCREMENTAL_OUTCOME; OSM worldwide full-membership sweep: $OSM_RECONCILIATION_OUTCOME; Hong Kong AFCD: $HK_OUTCOME; New Zealand DOC: $NZDOC_OUTCOME; Parks Canada: $PARKSCANADA_OUTCOME; NPS public trails: $NPS_PUBLIC_TRAILS_OUTCOME; Victoria recreation tracks: $VICTORIA_RECREATION_TRACKS_OUTCOME; NSW NPWS: $NSW_NPWS_OUTCOME; Natural England: $ENGLAND_OUTCOME; Natural Resources Wales: $WALES_OUTCOME; Argyll and Bute core paths: $SCOTLAND_ARGYLL_OUTCOME; Mid Ulster public rights of way: $NI_MIDULSTER_OUTCOME; Norfolk public rights of way: $NORFOLK_PROW_OUTCOME; Cambridgeshire public rights of way: $CAMBRIDGESHIRE_PROW_OUTCOME; official notices: $CONTENT_OUTCOME" >> "$GITHUB_STEP_SUMMARY"
           python - <<'PY'
           import datetime, hashlib, json, os
           from collections import Counter
           from pathlib import Path
           import sys
           sys.path.insert(0, str(Path('scripts').resolve()))
-          from catalog_collection_status import news_source_status
+          from catalog_collection_status import news_source_status, pbf_catalog_coverage, pbf_refresh_status, pbf_route_provenance_status
           root = Path('shared/data')
           sources = [
               ('OSM', root/'catalog/osm.json', 'routes'),
@@ -103,14 +136,21 @@ jobs:
               ('Hong Kong AFCD', root/'catalog/hk-afcd.json', 'routes'),
               ('New Zealand DOC', root/'catalog/nzdoc.json', 'routes'),
               ('Parks Canada', root/'catalog/canada-parks.json', 'routes'),
+              ('NPS public trails', root/'catalog/nps-public-trails.json', 'routes'),
+              ('Victoria recreation tracks', root/'catalog/victoria-recreation-tracks.json', 'routes'),
               ('NSW NPWS', root/'catalog/nsw-npws.json', 'routes'),
               ('Natural England', root/'catalog/england-trails.json', 'routes'),
               ('Natural Resources Wales', root/'catalog/wales-trails.json', 'routes'),
               ('Argyll and Bute', root/'catalog/scotland-argyll-corepaths.json', 'routes'),
+              ('Mid Ulster Public Rights of Way', root/'catalog/ni-midulster-prow.json', 'routes'),
+              ('Norfolk Public Rights of Way', root/'catalog/norfolk-prow.json', 'routes'),
+              ('Cambridgeshire Public Rights of Way', root/'catalog/cambridgeshire-prow.json', 'routes'),
               ('Official notices', root/'content/official-news.json', 'items'),
           ]
-          outcomes = dict(zip(('usfs','osm_incremental','osm_reconciliation','hk','nzdoc','parkscanada','nsw-npws','england','wales','scotland-argyll','news'), (os.environ.get(key, 'unknown') for key in ('USDA_OUTCOME','OSM_INCREMENTAL_OUTCOME','OSM_RECONCILIATION_OUTCOME','HK_OUTCOME','NZDOC_OUTCOME','PARKSCANADA_OUTCOME','NSW_NPWS_OUTCOME','ENGLAND_OUTCOME','WALES_OUTCOME','SCOTLAND_ARGYLL_OUTCOME','CONTENT_OUTCOME'))))
+          outcomes = dict(zip(('usfs','osm_incremental','osm_reconciliation','hk','nzdoc','parkscanada','nsw-npws','england','wales','scotland-argyll','ni-midulster','norfolk-prow','cambridgeshire-prow','news'), (os.environ.get(key, 'unknown') for key in ('USDA_OUTCOME','OSM_INCREMENTAL_OUTCOME','OSM_RECONCILIATION_OUTCOME','HK_OUTCOME','NZDOC_OUTCOME','PARKSCANADA_OUTCOME','NSW_NPWS_OUTCOME','ENGLAND_OUTCOME','WALES_OUTCOME','SCOTLAND_ARGYLL_OUTCOME','NI_MIDULSTER_OUTCOME','NORFOLK_PROW_OUTCOME','CAMBRIDGESHIRE_PROW_OUTCOME','CONTENT_OUTCOME'))))
           outcomes['osm'] = outcomes['osm_reconciliation']
+          outcomes['nps-public-trails'] = os.environ.get('NPS_PUBLIC_TRAILS_OUTCOME', 'unknown')
+          outcomes['victoria-recreation-tracks'] = os.environ.get('VICTORIA_RECREATION_TRACKS_OUTCOME', 'unknown')
           snapshots = {}
           rows = ['| Source snapshot | Records | Generated |', '|---|---:|---|']
           for label, path, key in sources:
@@ -122,7 +162,11 @@ jobs:
           backfill = osm.get('backfill', {})
           membership = osm.get('backfillState', {})
           region_names = ('china','japan','south-asia','europe','north-america','oceania','south-america','africa')
-          coverage = osm.get('coverage', {}) if isinstance(osm.get('coverage'), dict) else {}
+          refresh_counts = osm.get('lastRefreshCounts', {})
+          if not isinstance(refresh_counts, dict):
+              refresh_counts = osm.get('coverage', {})
+          if not isinstance(refresh_counts, dict):
+              refresh_counts = {}
           source_cursors = osm.get('sourceCursors', {}) if isinstance(osm.get('sourceCursors'), dict) else {}
           failures = osm.get('failures', []) if isinstance(osm.get('failures'), list) else []
           failed_regions = {item.get('region'): str(item.get('error', 'source request failed'))[:500] for item in failures if isinstance(item, dict) and isinstance(item.get('region'), str)}
@@ -131,8 +175,8 @@ jobs:
               for region in region_names:
                   if region in failed_regions:
                       region_attempts[region] = {'status': 'failed', 'error': failed_regions[region]}
-                  elif region in coverage:
-                      region_attempts[region] = {'status': 'success', 'records': coverage[region], 'cursor': source_cursors.get(region)}
+                  elif region in refresh_counts:
+                      region_attempts[region] = {'status': 'success', 'records': refresh_counts[region], 'cursor': source_cursors.get(region)}
                   else:
                       region_attempts[region] = {'status': 'not-reported'}
               refreshed = sum(1 for item in region_attempts.values() if item['status'] == 'success')
@@ -183,6 +227,14 @@ jobs:
                   'mode': 'complete-source-replacement',
                   'lastAttemptSucceeded': outcomes['parkscanada'] == 'success',
               },
+              'nps-public-trails': {
+                  'mode': 'complete-source-replacement',
+                  'lastAttemptSucceeded': outcomes['nps-public-trails'] == 'success',
+              },
+              'victoria-recreation-tracks': {
+                  'mode': 'complete-source-replacement',
+                  'lastAttemptSucceeded': outcomes['victoria-recreation-tracks'] == 'success',
+              },
               'nsw-npws': {
                   'mode': 'complete-source-replacement',
                   'lastAttemptSucceeded': outcomes['nsw-npws'] == 'success',
@@ -199,9 +251,43 @@ jobs:
                   'mode': 'complete-source-replacement',
                   'lastAttemptSucceeded': outcomes['scotland-argyll'] == 'success',
               },
+              'ni-midulster': {
+                  'mode': 'complete-source-replacement',
+                  'lastAttemptSucceeded': outcomes['ni-midulster'] == 'success',
+              },
+              'norfolk-prow': {
+                  'mode': 'complete-source-replacement',
+                  'lastAttemptSucceeded': outcomes['norfolk-prow'] == 'success',
+              },
+              'cambridgeshire-prow': {
+                  'mode': 'complete-source-replacement',
+                  'lastAttemptSucceeded': outcomes['cambridgeshire-prow'] == 'success',
+              },
           }
           for source, progress in reconciliation.items():
               rows.append(f"| Membership reconciliation: {source} | last removed {progress.get('lastRemovedFromDiscovery', 'not recorded')} | complete {progress.get('currentCycleComplete', 'not applicable')}; attempt {outcomes[source]} |")
+          pbf_refreshes = []
+          for region in ('africa', 'asia', 'europe', 'south-america', 'oceania', 'north-america', 'china', 'japan'):
+              reports = sorted(Path('docs/release').glob(f'osm-{region}-pbf-refresh-*.json'))
+              if not reports:
+                  pbf_refreshes.append({'region': region, 'status': 'not-recorded', 'accessVerified': False, 'navigableGeometryAdded': False})
+                  rows.append(f'| Geofabrik PBF refresh: {region} | no report | source coverage not established |')
+                  continue
+              report_path = reports[-1]
+              try:
+                  summary = pbf_refresh_status(json.loads(report_path.read_text()))
+                  summary['report'] = str(report_path)
+                  summary['status'] = 'partial' if int(summary.get('lastRunFailureCount') or 0) else 'success'
+              except (OSError, ValueError, json.JSONDecodeError, TypeError):
+                  summary = {'region': region, 'report': str(report_path), 'status': 'invalid-report', 'accessVerified': False, 'navigableGeometryAdded': False}
+              pbf_refreshes.append(summary)
+              rows.append(f"| Geofabrik PBF refresh: {region} | {summary.get('latestSourceCount', 0)} source snapshots; last run {summary.get('lastRunSuccessCount', 'unknown')} succeeded / {summary.get('lastRunFailureCount', 'unknown')} failed | {summary.get('lastCompletedAt', 'not recorded')} | access verified: false |")
+          pbf_coverage = pbf_catalog_coverage(osm)
+          for item in pbf_coverage:
+              schedule = 'scheduled monthly' if item['scheduledRefresh'] else 'no scheduled PBF refresh'
+              rows.append(f"| Geofabrik PBF catalog: {item['region']} | {item['sourceCount']} sources; newest source {item.get('newestSourceTimestamp', 'unknown')} | {schedule}; discovery only |")
+          provenance = pbf_route_provenance_status(osm)
+          rows.append(f"| OSM route source provenance | {provenance['routesWithPbfSource']} / {provenance['totalRoutes']} routes have PBF source attribution; {provenance['legacyOrUnattributedRoutes']} legacy/unattributed; {provenance['invalidProvenanceRoutes']} invalid | global withdrawal safe: {provenance['safeForGlobalWithdrawal']} |")
           regions = Counter(route.get('region', 'unknown') for route in osm.get('routes', []))
           rows.append('| OSM records by region | ' + '; '.join(f'{name}: {count}' for name, count in sorted(regions.items())) + ' | source tags only |')
           rows.append(f"| OSM grid backfill | {backfill.get('completedTiles', 0)} complete / {backfill.get('pendingTiles', 0)} pending | cycle {backfill.get('cycle', 0)} |")
@@ -219,7 +305,7 @@ jobs:
               source_status = news_source_status(source, state, news_counts[source['id']])
               news_sources.append(source_status)
               rows.append(f"| Official notices: {source['id']} | {news_counts[source['id']]} | {source_status['status']}; feed verification {source_status['feedVerificationStatus']}; last success {state.get('lastSuccess', 'none')} |")
-          status = {'schemaVersion': 1, 'checkedAt': datetime.datetime.now(datetime.timezone.utc).isoformat(), 'runId': os.environ['GITHUB_RUN_ID'], 'sourceCommit': os.environ['GITHUB_SHA'], 'outcomes': outcomes, 'newsSources': news_sources, 'reconciliation': reconciliation, 'snapshots': snapshots, 'accessVerified': False}
+          status = {'schemaVersion': 1, 'checkedAt': datetime.datetime.now(datetime.timezone.utc).isoformat(), 'runId': os.environ['GITHUB_RUN_ID'], 'sourceCommit': os.environ['GITHUB_SHA'], 'outcomes': outcomes, 'newsSources': news_sources, 'reconciliation': reconciliation, 'pbfExtractRefreshes': pbf_refreshes, 'pbfCatalogCoverage': pbf_coverage, 'pbfRouteProvenance': provenance, 'snapshots': snapshots, 'accessVerified': False}
           status_path = Path('shared/public-catalog/collection-status.json')
           status_path.parent.mkdir(parents=True, exist_ok=True)
           status_path.write_text(json.dumps(status, ensure_ascii=False, indent=2) + '\n')
@@ -235,7 +321,7 @@ jobs:
         id: publish
         if: ${{ !cancelled() && steps.outcomes.outcome == 'success' && steps.prepare_catalog.outcome == 'success' }}
         run: |
-          git add shared/data/catalog/ shared/data/content/ shared/data/offline/ shared/public-catalog/ app/cloudfunctions/catalog-feed/snapshots/ app/cloudfunctions/client-api/business/catalog-feed/snapshots/
+          git add shared/data/catalog/ shared/data/content/ shared/data/offline/ shared/public-catalog/ app/cloudfunctions/catalog-feed/snapshots/ app/cloudfunctions/client-api/business/catalog-feed/snapshots/ 'docs/release/osm-*-pbf-refresh-*.json'
           if git diff --cached --quiet -- shared/data/catalog/ shared/data/content/ shared/data/offline/ shared/public-catalog/ app/cloudfunctions/catalog-feed/snapshots/ app/cloudfunctions/client-api/business/catalog-feed/snapshots/; then
             echo "catalog_changed=false" >> "$GITHUB_OUTPUT"
           else
@@ -285,33 +371,20 @@ jobs:
           python - <<'PY'
           import json
           from pathlib import Path
-
-          status_path = Path('shared/public-catalog/collection-status.json')
-          try:
-              status = json.loads(status_path.read_text())
-          except (OSError, json.JSONDecodeError) as error:
-              print(f'Cannot verify collection status at {status_path}: {error}')
-              raise SystemExit(1)
-
-          outcomes = status.get('outcomes')
-          if not isinstance(outcomes, dict):
-              print('Collection status is missing the source outcomes object.')
-              raise SystemExit(1)
-
-          expected_sources = (
+          status = json.loads(Path('shared/public-catalog/collection-status.json').read_text())
+          outcomes = status.get('outcomes', {})
+          sources = (
               'usfs', 'osm_incremental', 'hk', 'nzdoc', 'parkscanada',
-              'nsw-npws', 'england', 'wales', 'scotland-argyll', 'news',
+              'nps-public-trails', 'victoria-recreation-tracks', 'nsw-npws',
+              'england', 'wales', 'scotland-argyll', 'ni-midulster',
+              'norfolk-prow', 'cambridgeshire-prow', 'news',
           )
-          incomplete = {
-              source: outcomes.get(source, 'unknown')
-              for source in expected_sources
-              if outcomes.get(source) != 'success'
-          }
+          incomplete = {source: outcomes.get(source, 'unknown') for source in sources
+                        if outcomes.get(source) != 'success'}
           if incomplete:
-              print('Some sources failed or only partially refreshed. Successful validated snapshots were published; failed sources retain their prior data:')
+              print('Some sources failed or partially refreshed; successful validated sources were published and failed sources retained their prior snapshots:')
               for source, result in incomplete.items():
                   print(f'- {source}: {result}')
               raise SystemExit(1)
-
-          print('All scheduled source collectors completed successfully.')
+          print('All configured source collectors completed successfully.')
           PY
