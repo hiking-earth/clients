@@ -22,6 +22,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Enforce route collector time budget
+        run: python scripts/validate-route-workflow-budget.py
       - name: Merge production OSM discoveries and PBF refresh evidence
         run: python scripts/merge-production-osm-catalog.py --production-ref origin/main
       - name: Collect USDA source records
