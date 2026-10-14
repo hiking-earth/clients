@@ -57,6 +57,7 @@ const sources: { id: PublicCatalogSource; name: string }[] = [
   { id: 'norfolk-prow', name: '英格兰诺福克公共通行权' },
   { id: 'cambridgeshire-prow', name: '英格兰剑桥郡公共通行权' },
   { id: 'nps-public-trails', name: '美国国家公园步道（NPS）' },
+  { id: 'usgs-trails', name: '美国全国步道汇总（USGS）' },
   { id: 'victoria-recreation-tracks', name: '澳大利亚·维多利亚州官方步道' },
 ];
 const sourceNames = sources.map(source => source.name);

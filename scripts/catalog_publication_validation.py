@@ -24,6 +24,7 @@ DISCOVERY_IDS = {
     'norfolk-prow': re.compile(r'^norfolk-prow-[1-9][0-9]*$'),
     'cambridgeshire-prow': re.compile(r'^cambridgeshire-prow-[1-9][0-9]*$'),
     'nps-public-trails': re.compile(r'^nps-trail-[1-9][0-9]*$'),
+    'usgs-trails': re.compile(r'^usgs-trail-[A-Za-z0-9._-]{1,120}$'),
     'victoria-recreation-tracks': re.compile(r'^vic-recreation-track-[A-Za-z0-9._-]{1,80}$'),
 }
 PENDING_STATUS = '待核验'
@@ -31,6 +32,7 @@ APPROVED_SOURCE_ENDPOINTS = {
     'usfs': 'https://apps.fs.usda.gov/arcx/rest/services/EDW/EDW_TrailNFSPublishWithDataStatus_01/MapServer/0',
     'hk': 'https://portal.csdi.gov.hk/server/rest/services/common/afcd_rcd_1665568199103_4360/FeatureServer/0',
     'nps-public-trails': 'https://mapservices.nps.gov/arcgis/rest/services/NationalDatasets/NPS_Public_Trails/FeatureServer/0',
+    'usgs-trails': 'https://partnerships.nationalmap.gov/arcgis/rest/services/USGSTrails/MapServer/0',
     'victoria-recreation-tracks': 'https://opendata.maps.vic.gov.au/geoserver/wfs',
 }
 OSM_REFRESH_COUNT_REGIONS = frozenset({
@@ -149,6 +151,7 @@ def validate_route_catalog(source, data, now=None):
         'norfolk-prow': ('Open Government Licence v3.0; data.gov.uk lists Creative Commons Attribution', 'Contains Norfolk County Council Public Rights of Way data. © Norfolk County Council and © Crown copyright and database rights 2019 Ordnance Survey 100019340. Licensed under Open Government Licence v3.0; source metadata also lists Creative Commons Attribution.', 'https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/'),
         'cambridgeshire-prow': ('Open Government Licence v3.0', 'Contains information licensed under the Open Government Licence v3.0 from Cambridgeshire County Council. Source: Public Rights of Way.', 'https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/'),
         'nps-public-trails': ('U.S. federal public-distribution dataset; no named layer-specific license', 'U.S. National Park Service, Public Trails dataset. NPS public-distribution data; no named layer-specific license. See source and NPS data disclaimer.', 'https://www.nps.gov/subjects/gisandmapping/data-disclaimers.htm'),
+        'usgs-trails': ('USGS public-domain aggregate; source originator retained', 'U.S. Geological Survey National Digital Trails. USGS public-domain aggregate; the original source originator is retained for each record.', 'https://www.usgs.gov/national-digital-trails/how-access-or-view-usgs-trails-dataset'),
         'victoria-recreation-tracks': ('Creative Commons Attribution 4.0 International', 'Contains Victorian Government data from Recreation Tracks, Department of Energy, Environment and Climate Action. Licensed under CC BY 4.0.', 'https://creativecommons.org/licenses/by/4.0/'),
     }[source]
     actual_provenance = tuple(data.get(field) for field in ('license', 'attribution', 'licenseUrl'))
@@ -183,6 +186,21 @@ def validate_route_catalog(source, data, now=None):
         policy = data.get('routeStatusPolicy')
         if not isinstance(policy, str) or len(policy) > 1200:
             raise ValueError('nps-public-trails: route disclaimer is missing or too long')
+    if source == 'usgs-trails':
+        source_total, catalog_total = data.get('sourceFeatureCount'), data.get('catalogRouteCount')
+        withheld, reasons = data.get('withheldRecords'), data.get('withheldReasons')
+        if (isinstance(source_total, bool) or not isinstance(source_total, int) or not 0 < source_total <= 150000
+                or isinstance(catalog_total, bool) or not isinstance(catalog_total, int) or catalog_total != len(rows)
+                or isinstance(withheld, bool) or not isinstance(withheld, int) or withheld < 0
+                or source_total != catalog_total + withheld):
+            raise ValueError('usgs-trails: source and catalog counts do not reconcile')
+        if (not isinstance(reasons, dict)
+                or any(not isinstance(key, str) or isinstance(value, bool) or not isinstance(value, int) or value < 0 for key, value in reasons.items())
+                or sum(reasons.values()) != withheld):
+            raise ValueError('usgs-trails: withheld record reasons do not reconcile')
+        policy = data.get('routeStatusPolicy')
+        if not isinstance(policy, str) or len(policy) > 1200:
+            raise ValueError('usgs-trails: route disclaimer is missing or too long')
     if source == 'victoria-recreation-tracks':
         source_total, catalog_total = data.get('sourceFeatureCount'), data.get('catalogRouteCount')
         withheld, excluded, reasons = data.get('withheldRecords'), data.get('excludedNonWalkingRecords'), data.get('withheldReasons')
@@ -244,7 +262,7 @@ def validate_route_catalog(source, data, now=None):
         status = row.get('status')
         if status not in (None, PENDING_STATUS):
             raise ValueError(f'{label}: discovery catalog cannot publish status {status!r}')
-        if source in ('hk', 'nzdoc', 'parkscanada', 'nsw-npws', 'england', 'wales', 'scotland-argyll', 'ni-midulster', 'norfolk-prow', 'cambridgeshire-prow', 'nps-public-trails', 'victoria-recreation-tracks'):
+        if source in ('hk', 'nzdoc', 'parkscanada', 'nsw-npws', 'england', 'wales', 'scotland-argyll', 'ni-midulster', 'norfolk-prow', 'cambridgeshire-prow', 'nps-public-trails', 'usgs-trails', 'victoria-recreation-tracks'):
             _reference_paths(row.get('referencePaths'), label)
         if source == 'nps-public-trails':
             tags = row.get('sourceTags')
@@ -256,6 +274,20 @@ def validate_route_catalog(source, data, now=None):
                     or not any(term in tags['trailUse'].lower() for term in ('hiker', 'pedestrian'))
                     or len(paths) > 100 or any(len(path) > 151 for path in paths)):
                 raise ValueError(f'{label}: NPS source fields or reference geometry are invalid')
+        if source == 'usgs-trails':
+            tags = row.get('sourceTags')
+            allowed = {'sourceOriginator', 'sourceObjectId', 'sourcePermanentIdentifier', 'trailType', 'hikerPedestrian', 'nationalTrailDesignation', 'lengthMiles',
+                       'seasonOpen', 'sourcePublishedAt', 'sourceEditedAt', 'routeType'}
+            paths = row.get('referencePaths')
+            if (not row['region'].startswith('美国·') or status != PENDING_STATUS
+                    or not isinstance(tags, dict) or set(tags) != allowed
+                    or tags.get('hikerPedestrian') != 'Y' or tags.get('trailType') != 'Terra Trail'
+                    or not isinstance(tags.get('sourceObjectId'), str) or not tags['sourceObjectId'].isdigit()
+                    or identity != f"usgs-trail-{tags['sourceObjectId']}"
+                    or any(value is not None and (not isinstance(value, str) or len(value) > 300) for value in tags.values())
+                    or tags.get('sourceOriginator') is not None and not tags['sourceOriginator'].strip()
+                    or len(paths) > 50 or any(len(path) > 151 for path in paths)):
+                raise ValueError(f'{label}: USGS source fields or reference geometry are invalid')
         if source == 'victoria-recreation-tracks':
             tags = row.get('sourceTags')
             allowed = {'assetClass','maintainedBy','walkingActivity','walkingComment','walkingGrade','walkingDistance',

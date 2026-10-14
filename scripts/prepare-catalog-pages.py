@@ -27,6 +27,7 @@ SOURCES = {'osm': 'data/catalog/osm.json', 'usfs': 'data/catalog/usfs.json',
            'norfolk-prow': 'data/catalog/norfolk-prow.json',
            'cambridgeshire-prow': 'data/catalog/cambridgeshire-prow.json',
            'nps-public-trails': 'data/catalog/nps-public-trails.json',
+           'usgs-trails': 'data/catalog/usgs-trails.json',
            'victoria-recreation-tracks': 'data/catalog/victoria-recreation-tracks.json',
            'nsw-npws': 'data/catalog/nsw-npws.json',
            'england': 'data/catalog/england-trails.json',
@@ -92,7 +93,11 @@ def prepare(source_filter=None):
                 raise ValueError(f'{source}: direct snapshot exceeds memory budget')
             direct[source] = payload
     for source, relative in selected.items():
-        raw = (ROOT / 'shared' / relative).read_bytes()
+        source_path = ROOT / 'shared' / relative
+        if source == 'usgs-trails' and not source_path.exists():
+            print('usgs-trails: no complete snapshot is available yet; preserving all other sources')
+            continue
+        raw = source_path.read_bytes()
         data = json.loads(raw)
         key = 'items' if source == 'news' else 'routes'
         rows = data[key]
@@ -126,7 +131,7 @@ def prepare(source_filter=None):
             if len(compressed) > 2 * 1024 * 1024:
                 raise ValueError(f'{source}: compressed page exceeds download budget')
             atomic_write(version / f'page-{page:05d}.json.gz', compressed)
-        index = encode([[str(row.get('name', '')), str(row.get('region', '')), page, offset] for page in range(len(hashes)) for offset, row in enumerate(rows[page * PAGE_SIZE:(page + 1) * PAGE_SIZE])])
+        index = encode([[str(row.get('name', '')), str(row.get('region', '')) + ((' ' + str(row.get('sourceTags', {}).get('sourceOriginator'))) if source == 'usgs-trails' and row.get('sourceTags', {}).get('sourceOriginator') else ''), page, offset] for page in range(len(hashes)) for offset, row in enumerate(rows[page * PAGE_SIZE:(page + 1) * PAGE_SIZE])])
         if len(index) > 32 * 1024 * 1024:
             raise ValueError(f'{source}: search index exceeds memory budget')
         packed_index = gzip.compress(index, mtime=0)
