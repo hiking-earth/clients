@@ -1,16 +1,16 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-10-15T17:03:05.457301+00:00",
-  "runId": "38773209323",
-  "sourceCommit": "4ef2ee7a9d2312268e07d0bc4da0fafe338f837b",
+  "checkedAt": "2026-10-15T21:31:03.575274+00:00",
+  "runId": "38809055657",
+  "sourceCommit": "83c7a1ba3d914eb13b13fc74fcab91b50909a726",
   "outcomes": {
     "usfs": "success",
-    "osm_incremental": "partial",
+    "osm_incremental": "failure",
     "osm_reconciliation": "paused-public-global-sweep",
     "hk": "success",
     "news": "success",
     "osm": "paused-public-global-sweep",
-    "osm_incremental_step": "success"
+    "osm_incremental_step": "failure"
   },
   "newsSources": [
     {
@@ -18,8 +18,8 @@
       "status": "available",
       "records": 100,
       "lastCollectedCount": 100,
-      "lastAttempt": "2026-10-15T17:03:01.746122+00:00",
-      "lastSuccess": "2026-10-15T17:03:01.746119+00:00",
+      "lastAttempt": "2026-10-15T21:31:00.629082+00:00",
+      "lastSuccess": "2026-10-15T21:31:00.629080+00:00",
       "feedAcceptance": "accepted",
       "feedVerifiedAt": "2026-10-10",
       "feedVerificationStatus": "current",
@@ -30,8 +30,8 @@
       "status": "available",
       "records": 1,
       "lastCollectedCount": 1,
-      "lastAttempt": "2026-10-15T17:03:01.792627+00:00",
-      "lastSuccess": "2026-10-15T17:03:01.792625+00:00",
+      "lastAttempt": "2026-10-15T21:31:00.656843+00:00",
+      "lastSuccess": "2026-10-15T21:31:00.656838+00:00",
       "feedAcceptance": "accepted",
       "feedVerifiedAt": "2026-10-10",
       "feedVerificationStatus": "current",
@@ -42,8 +42,8 @@
       "status": "available",
       "records": 100,
       "lastCollectedCount": 100,
-      "lastAttempt": "2026-10-15T17:03:01.879655+00:00",
-      "lastSuccess": "2026-10-15T17:03:01.879653+00:00",
+      "lastAttempt": "2026-10-15T21:31:00.706817+00:00",
+      "lastSuccess": "2026-10-15T21:31:00.706814+00:00",
       "feedAcceptance": "accepted",
       "feedVerifiedAt": "2026-10-07",
       "feedVerificationStatus": "current",
@@ -54,8 +54,8 @@
       "status": "available",
       "records": 0,
       "lastCollectedCount": 0,
-      "lastAttempt": "2026-10-15T17:03:03.452101+00:00",
-      "lastSuccess": "2026-10-15T17:03:03.452099+00:00",
+      "lastAttempt": "2026-10-15T21:31:01.372264+00:00",
+      "lastSuccess": "2026-10-15T21:31:01.372262+00:00",
       "feedAcceptance": "accepted",
       "feedVerifiedAt": "2026-10-07",
       "feedVerificationStatus": "current",
@@ -74,43 +74,31 @@
       "pauseReason": "Public Overpass documentation discourages stitching bounding boxes to scrape worldwide data; use regional extracts or an owner-approved sustainable service.",
       "lastAttemptSucceeded": null,
       "incrementalAttemptSucceeded": false,
-      "incrementalOutcome": "partial",
+      "incrementalOutcome": "failure",
       "incrementalRegions": {
         "china": {
-          "status": "success",
-          "records": 0,
-          "cursor": "2026-10-15T16:46:36Z"
+          "status": "step-failure"
         },
         "japan": {
-          "status": "failed",
-          "error": "HTTP 502: Bad Gateway"
+          "status": "step-failure"
         },
         "south-asia": {
-          "status": "success",
-          "records": 1,
-          "cursor": "2026-10-15T16:47:36Z"
+          "status": "step-failure"
         },
         "europe": {
-          "status": "failed",
-          "error": "HTTP 502: Bad Gateway"
+          "status": "step-failure"
         },
         "north-america": {
-          "status": "failed",
-          "error": "The read operation timed out"
+          "status": "step-failure"
         },
         "oceania": {
-          "status": "failed",
-          "error": "HTTP 504: Gateway Timeout"
+          "status": "step-failure"
         },
         "south-america": {
-          "status": "success",
-          "records": 0,
-          "cursor": "2026-10-15T16:49:41Z"
+          "status": "step-failure"
         },
         "africa": {
-          "status": "success",
-          "records": 1,
-          "cursor": "2026-10-15T16:50:45Z"
+          "status": "step-failure"
         }
       }
     },
@@ -119,7 +107,7 @@
       "cycleStartedAt": "2026-10-15T04:33:25.844770+00:00",
       "lastCompletedAt": "2026-10-14T21:38:26.950226+00:00",
       "lastRemovedFromDiscovery": 0,
-      "nextObjectId": 10019622,
+      "nextObjectId": 10015616,
       "currentCycleComplete": false,
       "lastAttemptSucceeded": true
     },
@@ -132,22 +120,22 @@
     "OSM": {
       "records": 178728,
       "generatedAt": "2026-10-15T16:57:20Z",
-      "sha256": "769cf5dbdd1706d4fad88dfe12a89e87bfd0c97c5bb37f4b2754b40a2c5b1728"
+      "sha256": "6db9e5c06c33f46bedeb13359c005160dae15338a48be3f480fd5703082797e8"
     },
     "USFS": {
-      "records": 9014,
-      "generatedAt": "2026-10-15T16:57:05.279498+00:00",
-      "sha256": "613fd0612a0382aba2b5203e03142996910fad6e99c16d1897cda1f544175399"
+      "records": 11508,
+      "generatedAt": "2026-10-15T21:20:14.213816+00:00",
+      "sha256": "d1fc7bfe63456ce14fbaa6cdbd3f5e1914e536d2eb3f439ae3e2884b5b513853"
     },
     "Hong Kong AFCD": {
       "records": 167,
-      "generatedAt": "2026-10-15T17:03:01.207248+00:00",
-      "sha256": "75300d09a2468bc3eef3d29a38df3e11fdba8b8f273521c86f4577dcdbe3855b"
+      "generatedAt": "2026-10-15T21:30:59.856525+00:00",
+      "sha256": "3edbfd1f06a8324f90d61aaee80a2180bbb67bf50b267e1f6c7df8c307e75873"
     },
     "Official notices": {
       "records": 201,
-      "generatedAt": "2026-10-15T17:03:03.452130+00:00",
-      "sha256": "db3f3c78c057e1d2d09f6f495766042d3e0a4d69a447321b7a3eb1bf4825b9d1"
+      "generatedAt": "2026-10-15T21:31:01.372292+00:00",
+      "sha256": "74d3b7d859529a752fd00275a8358105e7ee84c90ab056290e7af5e7c79f7a47"
     }
   },
   "accessVerified": false
