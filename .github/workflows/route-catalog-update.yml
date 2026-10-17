@@ -11,8 +11,9 @@ concurrency:
 jobs:
   collect:
     runs-on: ubuntu-latest
-    # The 15 sequential source-specific timeouts total 191 minutes; the job cap leaves 19 minutes for validation/publication/deploy.
-    timeout-minutes: 210
+    # Source collectors allow 234 minutes; merge/install/reporting and publication add bounded steps below.
+    # The 360-minute GitHub Actions ceiling leaves 34 minutes after all explicit step limits.
+    timeout-minutes: 360
     steps:
       - uses: actions/checkout@v4
         with:
@@ -22,7 +23,14 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Install EPSG conversion dependency for SwissTLM3D
+        timeout-minutes: 5
+        run: python -m pip install --disable-pip-version-check pyproj==3.8.0
+      - name: Verify route workflow Python entrypoints and imports
+        timeout-minutes: 1
+        run: python scripts/check-route-workflow-entrypoints.py
       - name: Merge production OSM discoveries and PBF refresh evidence
+        timeout-minutes: 10
         run: python scripts/merge-production-osm-catalog.py --production-ref origin/main
       - name: Collect USDA source records
         id: usda
@@ -59,6 +67,16 @@ jobs:
         timeout-minutes: 8
         continue-on-error: true
         run: python scripts/update-victoria-recreation-tracks.py
+      - name: Collect Queensland QPWS walking-track references
+        id: queensland_qpws_trails
+        timeout-minutes: 20
+        continue-on-error: true
+        run: python scripts/update-queensland-qpws-trails.py
+      - name: Collect named SwissTLM3D hiking references
+        id: swisstopo_wanderwege
+        timeout-minutes: 15
+        continue-on-error: true
+        run: python scripts/update-swisstopo-wanderwege.py
       - name: Collect NSW NPWS walking tracks
         id: nsw_npws
         timeout-minutes: 12
@@ -74,6 +92,11 @@ jobs:
         timeout-minutes: 8
         continue-on-error: true
         run: python scripts/update-wales-national-trails.py
+      - name: Collect Japan Ministry of the Environment Tokai Nature Trail GPX
+        id: japan_tokai
+        timeout-minutes: 8
+        continue-on-error: true
+        run: python scripts/update-japan-tokai-trails.py
       - name: Collect Argyll and Bute adopted core paths
         id: scotland_argyll
         timeout-minutes: 12
@@ -102,6 +125,7 @@ jobs:
       - name: Record collection outcomes
         id: outcomes
         if: always()
+        timeout-minutes: 5
         env:
           USDA_OUTCOME: ${{ steps.usda.outcome }}
           OSM_INCREMENTAL_OUTCOME: ${{ steps.osm_incremental.outcome }}
@@ -111,9 +135,12 @@ jobs:
           PARKSCANADA_OUTCOME: ${{ steps.parkscanada.outcome }}
           NPS_PUBLIC_TRAILS_OUTCOME: ${{ steps.nps_public_trails.outcome }}
           VICTORIA_RECREATION_TRACKS_OUTCOME: ${{ steps.victoria_recreation_tracks.outcome }}
+          QUEENSLAND_QPWS_TRAILS_OUTCOME: ${{ steps.queensland_qpws_trails.outcome }}
+          SWISSTOPO_WANDERWEGE_OUTCOME: ${{ steps.swisstopo_wanderwege.outcome }}
           NSW_NPWS_OUTCOME: ${{ steps.nsw_npws.outcome }}
           ENGLAND_OUTCOME: ${{ steps.england.outcome }}
           WALES_OUTCOME: ${{ steps.wales.outcome }}
+          JAPAN_TOKAI_OUTCOME: ${{ steps.japan_tokai.outcome }}
           SCOTLAND_ARGYLL_OUTCOME: ${{ steps.scotland_argyll.outcome }}
           NI_MIDULSTER_OUTCOME: ${{ steps.ni_midulster.outcome }}
           NORFOLK_PROW_OUTCOME: ${{ steps.norfolk_prow.outcome }}
@@ -121,7 +148,7 @@ jobs:
           CONTENT_OUTCOME: ${{ steps.content.outcome }}
         run: |
           echo "### Hiking catalog collection" >> "$GITHUB_STEP_SUMMARY"
-          echo "USDA step: $USDA_OUTCOME; OSM recent-change script step: $OSM_INCREMENTAL_OUTCOME; OSM worldwide full-membership sweep: $OSM_RECONCILIATION_OUTCOME; Hong Kong AFCD: $HK_OUTCOME; New Zealand DOC: $NZDOC_OUTCOME; Parks Canada: $PARKSCANADA_OUTCOME; NPS public trails: $NPS_PUBLIC_TRAILS_OUTCOME; Victoria recreation tracks: $VICTORIA_RECREATION_TRACKS_OUTCOME; NSW NPWS: $NSW_NPWS_OUTCOME; Natural England: $ENGLAND_OUTCOME; Natural Resources Wales: $WALES_OUTCOME; Argyll and Bute core paths: $SCOTLAND_ARGYLL_OUTCOME; Mid Ulster public rights of way: $NI_MIDULSTER_OUTCOME; Norfolk public rights of way: $NORFOLK_PROW_OUTCOME; Cambridgeshire public rights of way: $CAMBRIDGESHIRE_PROW_OUTCOME; official notices: $CONTENT_OUTCOME" >> "$GITHUB_STEP_SUMMARY"
+          echo "USDA step: $USDA_OUTCOME; OSM recent-change script step: $OSM_INCREMENTAL_OUTCOME; OSM worldwide full-membership sweep: $OSM_RECONCILIATION_OUTCOME; Hong Kong AFCD: $HK_OUTCOME; New Zealand DOC: $NZDOC_OUTCOME; Parks Canada: $PARKSCANADA_OUTCOME; NPS public trails: $NPS_PUBLIC_TRAILS_OUTCOME; Victoria recreation tracks: $VICTORIA_RECREATION_TRACKS_OUTCOME; NSW NPWS: $NSW_NPWS_OUTCOME; Natural England: $ENGLAND_OUTCOME; Natural Resources Wales: $WALES_OUTCOME; Japan MOE Tokai trail: $JAPAN_TOKAI_OUTCOME; Argyll and Bute core paths: $SCOTLAND_ARGYLL_OUTCOME; Mid Ulster public rights of way: $NI_MIDULSTER_OUTCOME; Norfolk public rights of way: $NORFOLK_PROW_OUTCOME; Cambridgeshire public rights of way: $CAMBRIDGESHIRE_PROW_OUTCOME; SwissTLM3D named references: $SWISSTOPO_WANDERWEGE_OUTCOME; official notices: $CONTENT_OUTCOME" >> "$GITHUB_STEP_SUMMARY"
           python - <<'PY'
           import datetime, hashlib, json, os
           from collections import Counter
@@ -129,28 +156,20 @@ jobs:
           import sys
           sys.path.insert(0, str(Path('scripts').resolve()))
           from catalog_collection_status import news_source_status, pbf_catalog_coverage, pbf_refresh_status, pbf_route_provenance_status
+          from catalog_sources import PUBLIC_CATALOG_FILES, PUBLIC_CATALOG_LABELS
           root = Path('shared/data')
           sources = [
-              ('OSM', root/'catalog/osm.json', 'routes'),
-              ('USFS', root/'catalog/usfs.json', 'routes'),
-              ('Hong Kong AFCD', root/'catalog/hk-afcd.json', 'routes'),
-              ('New Zealand DOC', root/'catalog/nzdoc.json', 'routes'),
-              ('Parks Canada', root/'catalog/canada-parks.json', 'routes'),
-              ('NPS public trails', root/'catalog/nps-public-trails.json', 'routes'),
-              ('Victoria recreation tracks', root/'catalog/victoria-recreation-tracks.json', 'routes'),
-              ('NSW NPWS', root/'catalog/nsw-npws.json', 'routes'),
-              ('Natural England', root/'catalog/england-trails.json', 'routes'),
-              ('Natural Resources Wales', root/'catalog/wales-trails.json', 'routes'),
-              ('Argyll and Bute', root/'catalog/scotland-argyll-corepaths.json', 'routes'),
-              ('Mid Ulster Public Rights of Way', root/'catalog/ni-midulster-prow.json', 'routes'),
-              ('Norfolk Public Rights of Way', root/'catalog/norfolk-prow.json', 'routes'),
-              ('Cambridgeshire Public Rights of Way', root/'catalog/cambridgeshire-prow.json', 'routes'),
-              ('Official notices', root/'content/official-news.json', 'items'),
+              (PUBLIC_CATALOG_LABELS.get(source, source),
+               root / relative_path.removeprefix('data/'),
+               'items' if source == 'news' else 'routes')
+              for source, relative_path in PUBLIC_CATALOG_FILES.items()
           ]
-          outcomes = dict(zip(('usfs','osm_incremental','osm_reconciliation','hk','nzdoc','parkscanada','nsw-npws','england','wales','scotland-argyll','ni-midulster','norfolk-prow','cambridgeshire-prow','news'), (os.environ.get(key, 'unknown') for key in ('USDA_OUTCOME','OSM_INCREMENTAL_OUTCOME','OSM_RECONCILIATION_OUTCOME','HK_OUTCOME','NZDOC_OUTCOME','PARKSCANADA_OUTCOME','NSW_NPWS_OUTCOME','ENGLAND_OUTCOME','WALES_OUTCOME','SCOTLAND_ARGYLL_OUTCOME','NI_MIDULSTER_OUTCOME','NORFOLK_PROW_OUTCOME','CAMBRIDGESHIRE_PROW_OUTCOME','CONTENT_OUTCOME'))))
+          outcomes = dict(zip(('usfs','osm_incremental','osm_reconciliation','hk','nzdoc','parkscanada','nsw-npws','england','wales','japan-tokai','scotland-argyll','ni-midulster','norfolk-prow','cambridgeshire-prow','news'), (os.environ.get(key, 'unknown') for key in ('USDA_OUTCOME','OSM_INCREMENTAL_OUTCOME','OSM_RECONCILIATION_OUTCOME','HK_OUTCOME','NZDOC_OUTCOME','PARKSCANADA_OUTCOME','NSW_NPWS_OUTCOME','ENGLAND_OUTCOME','WALES_OUTCOME','JAPAN_TOKAI_OUTCOME','SCOTLAND_ARGYLL_OUTCOME','NI_MIDULSTER_OUTCOME','NORFOLK_PROW_OUTCOME','CAMBRIDGESHIRE_PROW_OUTCOME','CONTENT_OUTCOME'))))
           outcomes['osm'] = outcomes['osm_reconciliation']
           outcomes['nps-public-trails'] = os.environ.get('NPS_PUBLIC_TRAILS_OUTCOME', 'unknown')
           outcomes['victoria-recreation-tracks'] = os.environ.get('VICTORIA_RECREATION_TRACKS_OUTCOME', 'unknown')
+          outcomes['queensland-qpws-trails'] = os.environ.get('QUEENSLAND_QPWS_TRAILS_OUTCOME', 'unknown')
+          outcomes['swisstopo-wanderwege'] = os.environ.get('SWISSTOPO_WANDERWEGE_OUTCOME', 'unknown')
           snapshots = {}
           rows = ['| Source snapshot | Records | Generated |', '|---|---:|---|']
           for label, path, key in sources:
@@ -235,6 +254,14 @@ jobs:
                   'mode': 'complete-source-replacement',
                   'lastAttemptSucceeded': outcomes['victoria-recreation-tracks'] == 'success',
               },
+              'queensland-qpws-trails': {
+                  'mode': 'complete-source-replacement',
+                  'lastAttemptSucceeded': outcomes['queensland-qpws-trails'] == 'success',
+              },
+              'swisstopo-wanderwege': {
+                  'mode': 'complete-source-replacement',
+                  'lastAttemptSucceeded': outcomes['swisstopo-wanderwege'] == 'success',
+              },
               'nsw-npws': {
                   'mode': 'complete-source-replacement',
                   'lastAttemptSucceeded': outcomes['nsw-npws'] == 'success',
@@ -246,6 +273,10 @@ jobs:
               'wales': {
                   'mode': 'complete-source-replacement',
                   'lastAttemptSucceeded': outcomes['wales'] == 'success',
+              },
+              'japan-tokai': {
+                  'mode': 'complete-source-replacement',
+                  'lastAttemptSucceeded': outcomes['japan-tokai'] == 'success',
               },
               'scotland-argyll': {
                   'mode': 'complete-source-replacement',
@@ -316,10 +347,12 @@ jobs:
       - name: Prepare immutable compressed catalog pages
         id: prepare_catalog
         if: ${{ !cancelled() && steps.outcomes.outcome == 'success' }}
+        timeout-minutes: 10
         run: python scripts/prepare-catalog-pages.py
       - name: Publish changed snapshot
         id: publish
         if: ${{ !cancelled() && steps.outcomes.outcome == 'success' && steps.prepare_catalog.outcome == 'success' }}
+        timeout-minutes: 10
         run: |
           git add shared/data/catalog/ shared/data/content/ shared/data/offline/ shared/public-catalog/ app/cloudfunctions/catalog-feed/snapshots/ app/cloudfunctions/client-api/business/catalog-feed/snapshots/ 'docs/release/osm-*-pbf-refresh-*.json'
           if git diff --cached --quiet -- shared/data/catalog/ shared/data/content/ shared/data/offline/ shared/public-catalog/ app/cloudfunctions/catalog-feed/snapshots/ app/cloudfunctions/client-api/business/catalog-feed/snapshots/; then
@@ -334,9 +367,14 @@ jobs:
           # Preserve source/doc commits added while the collectors were running.
           # A concurrent data conflict stops publication rather than overwriting it.
           git pull --rebase origin codex/mobile-privacy-controls
+          expected_commit=$(git rev-parse HEAD)
           git push
+          remote_commit=$(git ls-remote origin refs/heads/codex/mobile-privacy-controls | cut -f1)
+          test "$remote_commit" = "$expected_commit" || { echo "Catalog branch readback mismatch: expected $expected_commit, received $remote_commit" >&2; exit 1; }
+          echo "Verified catalog source commit on origin: $remote_commit"
       - name: Publish validated pages to production read branch
         if: ${{ !cancelled() && steps.publish.outcome == 'success' }}
+        timeout-minutes: 10
         run: python scripts/publish-public-catalog.py
       - name: Set up Node.js for CloudBase CLI
         if: ${{ !cancelled() && steps.publish.outcome == 'success' && steps.publish.outputs.catalog_changed == 'true' && vars.HIKING_CATALOG_AUTODEPLOY == 'true' }}
@@ -345,6 +383,7 @@ jobs:
           node-version: '20.19.0'
       - name: Deploy changed catalog snapshots to CloudBase
         if: ${{ !cancelled() && steps.publish.outcome == 'success' && steps.publish.outputs.catalog_changed == 'true' && vars.HIKING_CATALOG_AUTODEPLOY == 'true' }}
+        timeout-minutes: 40
         env:
           TENCENT_SECRET_ID: ${{ secrets.TENCENT_SECRET_ID }}
           TENCENT_SECRET_KEY: ${{ secrets.TENCENT_SECRET_KEY }}
@@ -367,24 +406,24 @@ jobs:
             --functions catalog-feed client-api
       - name: Report incomplete collection sources
         if: ${{ !cancelled() && steps.outcomes.outcome == 'success' }}
+        timeout-minutes: 2
         run: |
           python - <<'PY'
           import json
           from pathlib import Path
+          import sys
+          sys.path.insert(0, str(Path('scripts').resolve()))
+          from catalog_sources import PUBLIC_CATALOG_FILES, PUBLIC_CATALOG_LABELS
           status = json.loads(Path('shared/public-catalog/collection-status.json').read_text())
           outcomes = status.get('outcomes', {})
-          sources = (
-              'usfs', 'osm_incremental', 'hk', 'nzdoc', 'parkscanada',
-              'nps-public-trails', 'victoria-recreation-tracks', 'nsw-npws',
-              'england', 'wales', 'scotland-argyll', 'ni-midulster',
-              'norfolk-prow', 'cambridgeshire-prow', 'news',
-          )
-          incomplete = {source: outcomes.get(source, 'unknown') for source in sources
-                        if outcomes.get(source) != 'success'}
+          sources = {source: 'osm_incremental' if source == 'osm' else source
+                     for source in PUBLIC_CATALOG_FILES}
+          incomplete = {source: outcomes.get(outcome, 'unknown') for source, outcome in sources.items()
+                        if outcomes.get(outcome) != 'success'}
           if incomplete:
               print('Some sources failed or partially refreshed; successful validated sources were published and failed sources retained their prior snapshots:')
               for source, result in incomplete.items():
-                  print(f'- {source}: {result}')
+                  print(f'- {PUBLIC_CATALOG_LABELS.get(source, source)}: {result}')
               raise SystemExit(1)
           print('All configured source collectors completed successfully.')
           PY

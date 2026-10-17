@@ -14,24 +14,13 @@ from pathlib import Path
 import shutil
 import tempfile
 from catalog_publication_validation import validate_news_catalog, validate_route_catalog
+from catalog_sources import PUBLIC_CATALOG_FILES
 
 ROOT = Path(__file__).resolve().parents[1]
 PAGE_SIZE = 400
 # Keep the last known production OSM generation available for explicit rollback.
 PROTECTED_GENERATIONS = {'osm': {'6eed0992ec765e5870be559ef92f8fe48769bfc5ea20e3256ef77f704ba55fdf'}}
-SOURCES = {'osm': 'data/catalog/osm.json', 'usfs': 'data/catalog/usfs.json',
-           'hk': 'data/catalog/hk-afcd.json', 'nzdoc': 'data/catalog/nzdoc.json',
-           'parkscanada': 'data/catalog/canada-parks.json',
-           'scotland-argyll': 'data/catalog/scotland-argyll-corepaths.json',
-           'ni-midulster': 'data/catalog/ni-midulster-prow.json',
-           'norfolk-prow': 'data/catalog/norfolk-prow.json',
-           'cambridgeshire-prow': 'data/catalog/cambridgeshire-prow.json',
-           'nps-public-trails': 'data/catalog/nps-public-trails.json',
-           'victoria-recreation-tracks': 'data/catalog/victoria-recreation-tracks.json',
-           'nsw-npws': 'data/catalog/nsw-npws.json',
-           'england': 'data/catalog/england-trails.json',
-           'wales': 'data/catalog/wales-trails.json',
-           'news': 'data/content/official-news.json'}
+SOURCES = PUBLIC_CATALOG_FILES
 
 
 def encode(value):

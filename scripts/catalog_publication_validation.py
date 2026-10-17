@@ -19,19 +19,26 @@ DISCOVERY_IDS = {
     'nsw-npws': re.compile(r'^nsw-npws-[1-9][0-9]*$'),
     'england': re.compile(r'^england-trail-[1-9][0-9]*$'),
     'wales': re.compile(r'^wales-trail-[1-9][0-9]*$'),
+    'japan-tokai': re.compile(r'^japan-tokai-trail-[1-9][0-9]*$'),
     'scotland-argyll': re.compile(r'^scotland-argyll-[1-9][0-9]*$'),
     'ni-midulster': re.compile(r'^ni-midulster-[1-9][0-9]*$'),
     'norfolk-prow': re.compile(r'^norfolk-prow-[1-9][0-9]*$'),
     'cambridgeshire-prow': re.compile(r'^cambridgeshire-prow-[1-9][0-9]*$'),
     'nps-public-trails': re.compile(r'^nps-trail-[1-9][0-9]*$'),
+    'usgs-trails': re.compile(r'^usgs-trail-[1-9][0-9]*$'),
     'victoria-recreation-tracks': re.compile(r'^vic-recreation-track-[A-Za-z0-9._-]{1,80}$'),
+    'queensland-qpws-trails': re.compile(r'^queensland-qpws-[1-9][0-9]*$'),
+    'swisstopo-wanderwege': re.compile(r'^swiss-trail-[a-f0-9]{24}$'),
 }
 PENDING_STATUS = '待核验'
 APPROVED_SOURCE_ENDPOINTS = {
     'usfs': 'https://apps.fs.usda.gov/arcx/rest/services/EDW/EDW_TrailNFSPublishWithDataStatus_01/MapServer/0',
     'hk': 'https://portal.csdi.gov.hk/server/rest/services/common/afcd_rcd_1665568199103_4360/FeatureServer/0',
     'nps-public-trails': 'https://mapservices.nps.gov/arcgis/rest/services/NationalDatasets/NPS_Public_Trails/FeatureServer/0',
+    'usgs-trails': 'https://partnerships.nationalmap.gov/arcgis/rest/services/USGSTrails/MapServer/0',
     'victoria-recreation-tracks': 'https://opendata.maps.vic.gov.au/geoserver/wfs',
+    'queensland-qpws-trails': 'https://spatial-gis.information.qld.gov.au/arcgis/rest/services/Environment/ParksTerrestrialProtectedAreas/MapServer/5',
+    'swisstopo-wanderwege': 'https://data.geo.admin.ch/ch.swisstopo.swisstlm3d-wanderwege/swisstlm3d-wanderwege/swisstlm3d-wanderwege_2056_5728.gpkg.zip',
 }
 OSM_REFRESH_COUNT_REGIONS = frozenset({
     'asia', 'china', 'europe', 'north-america', 'japan', 'oceania',
@@ -106,6 +113,11 @@ def validate_route_catalog(source, data, now=None):
     rows = data.get('routes')
     if not isinstance(rows, list):
         raise ValueError(f'{source}: routes must be a list')
+    swiss_segment_ids = set()
+    swiss_segment_total = 0
+    japan_track_total = 0
+    japan_segment_total = 0
+    japan_point_total = 0
     expected_host = 'www.openstreetmap.org' if source == 'osm' else _https_host(data.get('sourceUrl'), f'{source} catalog source')
     expected_source_url = data.get('sourceUrl')
     if source != 'osm' and not isinstance(expected_source_url, str):
@@ -125,6 +137,8 @@ def validate_route_catalog(source, data, now=None):
                               or not expected_source_url.startswith('https://datamap.gov.wales/geoserver/ows?')
                               or 'NRW_NATIONAL_TRAIL' not in expected_source_url):
         raise ValueError('wales: catalog source URL differs from the approved Natural Resources Wales WFS layer')
+    if source == 'japan-tokai' and expected_source_url != 'https://www.env.go.jp/nature/long-trail.html':
+        raise ValueError('japan-tokai: catalog source URL differs from the approved Japan Ministry of the Environment page')
     if source == 'scotland-argyll' and expected_source_url != 'https://arcgis.argyll-bute.gov.uk/arcgis/rest/services/Open_Data/MapServer/27':
         raise ValueError('scotland-argyll: catalog source URL differs from the approved council layer')
     if source == 'ni-midulster' and expected_source_url != 'https://services1.arcgis.com/IBPnlgK2X1Ngocds/arcgis/rest/services/PROW/FeatureServer/0':
@@ -144,12 +158,16 @@ def validate_route_catalog(source, data, now=None):
         'nsw-npws': ('Creative Commons Attribution', '© State Government of NSW and NSW Department of Climate Change, Energy, the Environment and Water 2017. Source: NSW NPWS Asset Infrastructure – Track Section.', 'https://data.nsw.gov.au/data/dataset/asset-infrastructure-track-section8bfcf'),
         'england': ('Open Government Licence v3.0', None, 'https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/'),
         'wales': ('Open Government Licence for Public Sector Information (OGL)', 'Contains Natural Resources Wales information © Natural Resources Wales and Database Right. All rights Reserved. Contains Ordnance Survey Data. Ordnance Survey Licence number AC0000849444. Crown Copyright and Database Right.', 'https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/'),
+        'japan-tokai': ('日本政府公共数据利用规则 PDL1.0', '出典：環境省「東海自然歩道GPSデータ」；環境省ウェブサイト内容使用条件 PDL1.0。线路参考由徒步地球抽稀整理；原始数据由相关都府县协作提供。', 'https://www.env.go.jp/mail.html'),
         'scotland-argyll': ('Open Government Licence v3.0', 'Contains spatial data licensed under Open Government Licence v3.0 from Argyll and Bute Council. Source: Adopted Core Paths.', 'https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/'),
         'ni-midulster': ('Open Government Licence v3.0', 'Contains information licensed under the Open Government Licence v3.0 from OpenDataNI and Mid Ulster District Council. Source: Public Rights of Way.', 'https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/'),
         'norfolk-prow': ('Open Government Licence v3.0; data.gov.uk lists Creative Commons Attribution', 'Contains Norfolk County Council Public Rights of Way data. © Norfolk County Council and © Crown copyright and database rights 2019 Ordnance Survey 100019340. Licensed under Open Government Licence v3.0; source metadata also lists Creative Commons Attribution.', 'https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/'),
         'cambridgeshire-prow': ('Open Government Licence v3.0', 'Contains information licensed under the Open Government Licence v3.0 from Cambridgeshire County Council. Source: Public Rights of Way.', 'https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/'),
         'nps-public-trails': ('U.S. federal public-distribution dataset; no named layer-specific license', 'U.S. National Park Service, Public Trails dataset. NPS public-distribution data; no named layer-specific license. See source and NPS data disclaimer.', 'https://www.nps.gov/subjects/gisandmapping/data-disclaimers.htm'),
+        'usgs-trails': ('USGS public-domain aggregate; source originator retained', 'U.S. Geological Survey National Digital Trails. USGS public-domain aggregate; the original source originator is retained for each record.', 'https://www.usgs.gov/national-digital-trails/how-access-or-view-usgs-trails-dataset'),
         'victoria-recreation-tracks': ('Creative Commons Attribution 4.0 International', 'Contains Victorian Government data from Recreation Tracks, Department of Energy, Environment and Climate Action. Licensed under CC BY 4.0.', 'https://creativecommons.org/licenses/by/4.0/'),
+        'queensland-qpws-trails': ('Creative Commons Attribution 4.0 International', 'Contains Queensland Government data from Queensland Parks and Wildlife Service (QPWS) Estate access. © The State of Queensland (Department of Environment and Science) 2020. Licensed under CC BY 4.0.', 'https://creativecommons.org/licenses/by/4.0/'),
+        'swisstopo-wanderwege': ('swisstopo Open Government Data (OGD): free reuse, redistribution, adaptation and commercial use with source attribution; fair-use limits apply to services.', 'Federal Office of Topography swisstopo (SwissTLM3D hiking trails).', 'https://www.swisstopo.admin.ch/de/nutzungsbedingungen-kostenlose-geodaten-und-geodienste'),
     }[source]
     actual_provenance = tuple(data.get(field) for field in ('license', 'attribution', 'licenseUrl'))
     provenance_matches = actual_provenance == expected_provenance
@@ -183,6 +201,21 @@ def validate_route_catalog(source, data, now=None):
         policy = data.get('routeStatusPolicy')
         if not isinstance(policy, str) or len(policy) > 1200:
             raise ValueError('nps-public-trails: route disclaimer is missing or too long')
+    if source == 'usgs-trails':
+        source_total, catalog_total = data.get('sourceFeatureCount'), data.get('catalogRouteCount')
+        withheld, reasons = data.get('withheldRecords'), data.get('withheldReasons')
+        if (isinstance(source_total, bool) or not isinstance(source_total, int) or not 0 < source_total <= 150000
+                or isinstance(catalog_total, bool) or not isinstance(catalog_total, int) or catalog_total != len(rows)
+                or isinstance(withheld, bool) or not isinstance(withheld, int) or withheld < 0
+                or source_total != catalog_total + withheld):
+            raise ValueError('usgs-trails: source and withheld record counts do not reconcile')
+        if (not isinstance(reasons, dict)
+                or any(not isinstance(key, str) or isinstance(value, bool) or not isinstance(value, int) or value < 0 for key, value in reasons.items())
+                or sum(reasons.values()) != withheld):
+            raise ValueError('usgs-trails: withheld record reasons do not reconcile')
+        policy = data.get('routeStatusPolicy')
+        if not isinstance(policy, str) or len(policy) > 1200:
+            raise ValueError('usgs-trails: route disclaimer is missing or too long')
     if source == 'victoria-recreation-tracks':
         source_total, catalog_total = data.get('sourceFeatureCount'), data.get('catalogRouteCount')
         withheld, excluded, reasons = data.get('withheldRecords'), data.get('excludedNonWalkingRecords'), data.get('withheldReasons')
@@ -199,6 +232,52 @@ def validate_route_catalog(source, data, now=None):
         policy = data.get('routeStatusPolicy')
         if not isinstance(policy, str) or len(policy) > 1200:
             raise ValueError('victoria-recreation-tracks: route disclaimer is missing or too long')
+    if source == 'queensland-qpws-trails':
+        source_total, catalog_total = data.get('sourceFeatureCount'), data.get('catalogRouteCount')
+        withheld, reasons = data.get('withheldRecords'), data.get('withheldReasons')
+        if (isinstance(source_total, bool) or not isinstance(source_total, int) or not 0 < source_total <= 10000
+                or isinstance(catalog_total, bool) or not isinstance(catalog_total, int) or catalog_total != len(rows)
+                or isinstance(withheld, bool) or not isinstance(withheld, int) or withheld < 0
+                or source_total != catalog_total + withheld):
+            raise ValueError('queensland-qpws-trails: source counts do not reconcile')
+        if (not isinstance(reasons, dict)
+                or any(not isinstance(key, str) or isinstance(value, bool) or not isinstance(value, int) or value < 0 for key, value in reasons.items())
+                or sum(reasons.values()) != withheld):
+            raise ValueError('queensland-qpws-trails: withheld reasons do not reconcile')
+        policy = data.get('routeStatusPolicy')
+        if not isinstance(policy, str) or len(policy) > 1200:
+            raise ValueError('queensland-qpws-trails: route disclaimer is missing or too long')
+    if source == 'swisstopo-wanderwege':
+        if data.get('datasetUrl') != 'https://opendata.swiss/en/dataset/swisstlm3d-wanderwege':
+            raise ValueError('swisstopo-wanderwege: dataset page differs from the approved official source')
+        source_total = data.get('sourceFeatureCount')
+        named_total = data.get('namedSourceFeatureCount')
+        catalog_segments = data.get('catalogSourceFeatureCount')
+        aggregated = data.get('aggregatedSourceFeatureCount')
+        catalog_total = data.get('catalogRouteCount')
+        withheld, reasons = data.get('withheldRecords'), data.get('withheldReasons')
+        if (isinstance(source_total, bool) or not isinstance(source_total, int) or not 0 < source_total <= 500000
+                or isinstance(named_total, bool) or not isinstance(named_total, int) or not 0 <= named_total <= 20000
+                or named_total > source_total
+                or isinstance(catalog_segments, bool) or not isinstance(catalog_segments, int) or catalog_segments < 0
+                or isinstance(aggregated, bool) or not isinstance(aggregated, int) or aggregated < 0
+                or isinstance(catalog_total, bool) or not isinstance(catalog_total, int) or catalog_total != len(rows)
+                or isinstance(withheld, bool) or not isinstance(withheld, int) or withheld < 0
+                or catalog_segments != catalog_total + aggregated
+                or source_total != catalog_segments + withheld
+                or not isinstance(data.get('sourceModifiedAt'), str) or not data['sourceModifiedAt'].strip()
+                or not isinstance(data.get('sourceETag'), str) or not data['sourceETag'].strip()):
+            raise ValueError('swisstopo-wanderwege: source, aggregation and withheld counts do not reconcile')
+        if (not isinstance(reasons, dict)
+                or any(not isinstance(key, str) or isinstance(value, bool) or not isinstance(value, int) or value < 0 for key, value in reasons.items())
+                or sum(reasons.values()) != withheld
+                or reasons.get('unnamed-walking-network-segment') != source_total - named_total):
+            raise ValueError('swisstopo-wanderwege: withheld reasons do not reconcile')
+        if withheld - reasons['unnamed-walking-network-segment'] != named_total - catalog_segments:
+            raise ValueError('swisstopo-wanderwege: named source records do not reconcile')
+        policy = data.get('routeStatusPolicy')
+        if not isinstance(policy, str) or len(policy) > 1200:
+            raise ValueError('swisstopo-wanderwege: route disclaimer is missing or too long')
     if source == 'osm':
         _validate_osm_refresh_counts(data)
     now = now or datetime.now(timezone.utc)
@@ -244,8 +323,62 @@ def validate_route_catalog(source, data, now=None):
         status = row.get('status')
         if status not in (None, PENDING_STATUS):
             raise ValueError(f'{label}: discovery catalog cannot publish status {status!r}')
-        if source in ('hk', 'nzdoc', 'parkscanada', 'nsw-npws', 'england', 'wales', 'scotland-argyll', 'ni-midulster', 'norfolk-prow', 'cambridgeshire-prow', 'nps-public-trails', 'victoria-recreation-tracks'):
+        if source in ('hk', 'nzdoc', 'parkscanada', 'nsw-npws', 'england', 'wales', 'scotland-argyll', 'ni-midulster', 'norfolk-prow', 'cambridgeshire-prow', 'nps-public-trails', 'usgs-trails', 'victoria-recreation-tracks', 'queensland-qpws-trails', 'swisstopo-wanderwege'):
             _reference_paths(row.get('referencePaths'), label)
+        if source == 'japan-tokai':
+            tags = row.get('sourceTags')
+            paths = row.get('referencePaths')
+            allowed_groups = {'main', 'supplement-1', 'supplement-2', 'supplementary-sections'}
+            if (row.get('region') != '日本·东海自然步道' or status != PENDING_STATUS
+                    or not isinstance(tags, dict)
+                    or set(tags) != {'geometryGroup', 'sourceTrackCount', 'sourceSegmentCount', 'sourcePointCount', 'sourcePublishedAt'}
+                    or tags.get('geometryGroup') not in allowed_groups
+                    or any(isinstance(tags.get(key), bool) or not isinstance(tags.get(key), int) or tags[key] < 1
+                           for key in ('sourceTrackCount', 'sourceSegmentCount', 'sourcePointCount'))
+                    or tags.get('sourcePublishedAt') != data.get('sourcePublishedAt')
+                    or not isinstance(data.get('sourceFileUrl'), str)
+                    or not re.fullmatch(r'https://www\.env\.go\.jp/content/[0-9]+\.zip', data['sourceFileUrl'])
+                    or data.get('publicDataLicenseUrl') != 'https://www.digital.go.jp/resources/open_data/public_data_license_v1.0'
+                    or tags.get('sourceSegmentCount') != len(paths)
+                    or not isinstance(data.get('routeStatusPolicy'), str) or len(data['routeStatusPolicy']) > 1200
+                    or not isinstance(paths, list) or not paths or len(paths) > 150
+                    or sum(len(path) for path in paths if isinstance(path, list)) > 15000
+                    or any(not isinstance(path, list) or len(path) < 2 or len(path) > 150 for path in paths)):
+                raise ValueError(f'{label}: invalid Japan MOE source, provenance, or geometry budget')
+            if (tags['geometryGroup'] == 'main' and (identity != 'japan-tokai-trail-1' or tags['sourceTrackCount'] != 1)
+                    or tags['geometryGroup'] == 'supplement-1' and (identity != 'japan-tokai-trail-2' or tags['sourceTrackCount'] != 1)
+                    or tags['geometryGroup'] == 'supplement-2' and (identity != 'japan-tokai-trail-3' or tags['sourceTrackCount'] != 1)
+                    or tags['geometryGroup'] == 'supplementary-sections' and identity != 'japan-tokai-trail-4'):
+                raise ValueError(f'{label}: Japan MOE route grouping does not match its stable source ID')
+            for path_index, path in enumerate(paths):
+                for point_index, point in enumerate(path):
+                    _center(point, f'{label}: reference path {path_index} point {point_index}')
+            japan_track_total += tags['sourceTrackCount']
+            japan_segment_total += tags['sourceSegmentCount']
+            japan_point_total += tags['sourcePointCount']
+        if source == 'swisstopo-wanderwege':
+            tags = row.get('sourceTags')
+            allowed_types = {'Wanderweg', 'Bergwanderweg', 'Alpinwanderweg'}
+            if (row.get('region') != '瑞士·瑞士TLM3D徒步网络' or status != PENDING_STATUS
+                    or not isinstance(tags, dict) or set(tags) != {'trailTypes', 'sourceSegmentCount', 'sourceSegmentIds'}
+                    or not isinstance(tags.get('trailTypes'), list) or not tags['trailTypes']
+                    or not set(tags['trailTypes']) <= allowed_types
+                    or tags['trailTypes'] != sorted(set(tags['trailTypes']))
+                    or isinstance(tags.get('sourceSegmentCount'), bool) or not isinstance(tags.get('sourceSegmentCount'), int)
+                    or tags['sourceSegmentCount'] < 1 or tags['sourceSegmentCount'] > 100
+                    or not isinstance(tags.get('sourceSegmentIds'), list)
+                    or len(tags['sourceSegmentIds']) != tags['sourceSegmentCount']
+                    or any(isinstance(value, bool) or not isinstance(value, int) or value <= 0 for value in tags['sourceSegmentIds'])
+                    or len(set(tags['sourceSegmentIds'])) != len(tags['sourceSegmentIds'])
+                    or len(row.get('referencePaths', [])) > 150
+                    or any(len(path) > 151 for path in row.get('referencePaths', []))
+                    or sum(len(path) for path in row.get('referencePaths', [])) > 15000):
+                raise ValueError(f'{label}: invalid Swiss hiking provenance or reference geometry')
+            expected_id = 'swiss-trail-' + __import__('hashlib').sha256(row['name'].casefold().encode('utf-8')).hexdigest()[:24]
+            if identity != expected_id:
+                raise ValueError(f'{label}: Swiss grouped route ID does not match its source name')
+            swiss_segment_total += tags['sourceSegmentCount']
+            swiss_segment_ids.update(tags['sourceSegmentIds'])
         if source == 'nps-public-trails':
             tags = row.get('sourceTags')
             allowed = {'featureId', 'sourceStatus', 'surface', 'trailType', 'trailClass', 'trailUse', 'sourceEditedAt', 'sourceDate'}
@@ -256,6 +389,21 @@ def validate_route_catalog(source, data, now=None):
                     or not any(term in tags['trailUse'].lower() for term in ('hiker', 'pedestrian'))
                     or len(paths) > 100 or any(len(path) > 151 for path in paths)):
                 raise ValueError(f'{label}: NPS source fields or reference geometry are invalid')
+        if source == 'usgs-trails':
+            tags = row.get('sourceTags')
+            allowed = {'sourceOriginator', 'sourceObjectId', 'sourcePermanentIdentifier', 'trailType',
+                       'hikerPedestrian', 'nationalTrailDesignation', 'lengthMiles', 'seasonOpen',
+                       'sourcePublishedAt', 'sourceEditedAt', 'routeType'}
+            paths = row.get('referencePaths')
+            if (not row['region'].startswith('美国·') or status != PENDING_STATUS
+                    or not isinstance(tags, dict) or set(tags) != allowed
+                    or tags.get('trailType') != 'Terra Trail' or tags.get('hikerPedestrian') != 'Y'
+                    or tags.get('sourceObjectId') != identity.removeprefix('usgs-trail-')
+                    or not isinstance(tags.get('sourceOriginator'), str) or not tags['sourceOriginator'].strip()
+                    or row['region'] != f"美国·{tags['sourceOriginator']}"
+                    or any(value is not None and (not isinstance(value, str) or len(value) > 300) for value in tags.values())
+                    or len(paths) > 50 or any(len(path) > 151 for path in paths)):
+                raise ValueError(f'{label}: USGS source fields or reference geometry are invalid')
         if source == 'victoria-recreation-tracks':
             tags = row.get('sourceTags')
             allowed = {'assetClass','maintainedBy','walkingActivity','walkingComment','walkingGrade','walkingDistance',
@@ -266,6 +414,19 @@ def validate_route_catalog(source, data, now=None):
                     or len(row.get('referencePaths', [])) > 100
                     or any(len(path) > 151 for path in row.get('referencePaths', []))):
                 raise ValueError(f'{label}: invalid Victorian walking source metadata or geometry budget')
+        if source == 'queensland-qpws-trails':
+            tags = row.get('sourceTags')
+            allowed = {'sourceSubcategory','sourceAssetType','sourceAssetGroup','sourceStatus','accessRestriction',
+                       'pedestrianAccess','greatWalk','trailClass','maintainedByQpws','sourceOwner','sourceVetting',
+                       'wheelchairAccess','sourceComment','sourceLengthMeters','sourceId'}
+            if (row.get('region') != '澳大利亚·昆士兰州' or status != PENDING_STATUS
+                    or not isinstance(tags, dict) or set(tags) != allowed
+                    or tags.get('sourceSubcategory') != 'Tracks and Trails'
+                    or tags.get('sourceId') != identity.removeprefix('queensland-qpws-')
+                    or any(value is not None and (not isinstance(value, str) or len(value) > 300) for value in tags.values())
+                    or len(row.get('referencePaths', [])) > 100
+                    or any(len(path) > 151 for path in row.get('referencePaths', []))):
+                raise ValueError(f'{label}: invalid Queensland walking source metadata or geometry budget')
         if source == 'cambridgeshire-prow':
             lon, lat = row['center']
             paths = row['referencePaths']
@@ -303,6 +464,16 @@ def validate_route_catalog(source, data, now=None):
                 value = tags.get(field)
                 if value is not None and _https_host(value, f'{label} {field}') not in ('pc.gc.ca', 'www.pc.gc.ca', 'parks.canada.ca', 'www.parks.canada.ca'):
                     raise ValueError(f'{label}: official page must link to Parks Canada')
+    if source == 'japan-tokai':
+        if (japan_track_total != data.get('sourceTrackCount')
+                or japan_segment_total != data.get('sourceSegmentCount')
+                or japan_point_total != data.get('sourcePointCount')
+                or not isinstance(data.get('sourcePublishedAt'), str)
+                or re.fullmatch(r'[0-9]{4}-[0-9]{2}-[0-9]{2}', data['sourcePublishedAt']) is None):
+            raise ValueError('japan-tokai: source track, segment, or point counts do not reconcile')
+    if source == 'swisstopo-wanderwege':
+        if swiss_segment_total != data.get('catalogSourceFeatureCount') or len(swiss_segment_ids) != swiss_segment_total:
+            raise ValueError('swisstopo-wanderwege: named segment IDs do not reconcile or are duplicated')
     return len(rows)
 
 
@@ -318,6 +489,8 @@ def validate_news_catalog(data, now=None):
     generated_at = _timestamp(data.get('generatedAt'), 'news catalog')
     if generated_at > current_time + timedelta(minutes=5):
         raise ValueError('news: catalog generatedAt is in the future')
+    if current_time - generated_at > timedelta(days=90):
+        raise ValueError('news: catalog snapshot freshness has expired')
     today = current_time.date()
     source_by_id = {}
     for source in sources:
@@ -367,6 +540,10 @@ def validate_news_catalog(data, now=None):
             raise ValueError(f'{label}: article host is not allowed for source {row["sourceId"]}')
         if _https_host(row.get('sourceUrl'), label) != _https_host(source.get('url'), f'news source {row["sourceId"]}'):
             raise ValueError(f'{label}: feed URL does not match its source definition')
-        _timestamp(row.get('publishedAt'), label)
-        _timestamp(row.get('fetchedAt'), label)
+        published_at = _timestamp(row.get('publishedAt'), label)
+        fetched_at = _timestamp(row.get('fetchedAt'), label)
+        if current_time - published_at > timedelta(days=90):
+            raise ValueError(f'{label}: publication has expired')
+        if current_time - fetched_at > timedelta(days=90):
+            raise ValueError(f'{label}: metadata freshness has expired')
     return len(rows)
