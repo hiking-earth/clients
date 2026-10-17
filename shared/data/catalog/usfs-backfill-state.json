@@ -1,10 +1,10 @@
 {
-  "nextObjectId": 10106041,
-  "completedCycles": 8,
+  "nextObjectId": null,
+  "completedCycles": 9,
   "schemaVersion": 1,
-  "updatedAt": "2026-10-16T21:04:07.632731+00:00",
+  "updatedAt": "2026-10-17T04:20:56.447529+00:00",
   "reconciliationVersion": 2,
   "cycleStartedAt": "2026-10-16T11:18:24.230913+00:00",
-  "lastCompletedAt": "2026-10-16T04:26:56.011261+00:00",
-  "lastRemovedFromDiscovery": 0
+  "lastCompletedAt": "2026-10-17T04:20:56.447529+00:00",
+  "lastRemovedFromDiscovery": 2493
 }
