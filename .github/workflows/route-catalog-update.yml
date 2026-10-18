@@ -150,7 +150,7 @@ jobs:
           echo "### Hiking catalog collection" >> "$GITHUB_STEP_SUMMARY"
           echo "USDA step: $USDA_OUTCOME; OSM recent-change script step: $OSM_INCREMENTAL_OUTCOME; OSM worldwide full-membership sweep: $OSM_RECONCILIATION_OUTCOME; Hong Kong AFCD: $HK_OUTCOME; New Zealand DOC: $NZDOC_OUTCOME; Parks Canada: $PARKSCANADA_OUTCOME; NPS public trails: $NPS_PUBLIC_TRAILS_OUTCOME; Victoria recreation tracks: $VICTORIA_RECREATION_TRACKS_OUTCOME; NSW NPWS: $NSW_NPWS_OUTCOME; Natural England: $ENGLAND_OUTCOME; Natural Resources Wales: $WALES_OUTCOME; Japan MOE Tokai trail: $JAPAN_TOKAI_OUTCOME; Argyll and Bute core paths: $SCOTLAND_ARGYLL_OUTCOME; Mid Ulster public rights of way: $NI_MIDULSTER_OUTCOME; Norfolk public rights of way: $NORFOLK_PROW_OUTCOME; Cambridgeshire public rights of way: $CAMBRIDGESHIRE_PROW_OUTCOME; SwissTLM3D named references: $SWISSTOPO_WANDERWEGE_OUTCOME; official notices: $CONTENT_OUTCOME" >> "$GITHUB_STEP_SUMMARY"
           python - <<'PY'
-          import datetime, hashlib, json, os
+          import datetime, hashlib, json, os, subprocess
           from collections import Counter
           from pathlib import Path
           import sys
@@ -336,7 +336,8 @@ jobs:
               source_status = news_source_status(source, state, news_counts[source['id']])
               news_sources.append(source_status)
               rows.append(f"| Official notices: {source['id']} | {news_counts[source['id']]} | {source_status['status']}; feed verification {source_status['feedVerificationStatus']}; last success {state.get('lastSuccess', 'none')} |")
-          status = {'schemaVersion': 1, 'checkedAt': datetime.datetime.now(datetime.timezone.utc).isoformat(), 'runId': os.environ['GITHUB_RUN_ID'], 'sourceCommit': os.environ['GITHUB_SHA'], 'outcomes': outcomes, 'newsSources': news_sources, 'reconciliation': reconciliation, 'pbfExtractRefreshes': pbf_refreshes, 'pbfCatalogCoverage': pbf_coverage, 'pbfRouteProvenance': provenance, 'snapshots': snapshots, 'accessVerified': False}
+          source_commit = subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip()
+          status = {'schemaVersion': 1, 'checkedAt': datetime.datetime.now(datetime.timezone.utc).isoformat(), 'runId': os.environ['GITHUB_RUN_ID'], 'sourceCommit': source_commit, 'workflowCommit': os.environ['GITHUB_SHA'], 'outcomes': outcomes, 'newsSources': news_sources, 'reconciliation': reconciliation, 'pbfExtractRefreshes': pbf_refreshes, 'pbfCatalogCoverage': pbf_coverage, 'pbfRouteProvenance': provenance, 'snapshots': snapshots, 'accessVerified': False}
           status_path = Path('shared/public-catalog/collection-status.json')
           status_path.parent.mkdir(parents=True, exist_ok=True)
           status_path.write_text(json.dumps(status, ensure_ascii=False, indent=2) + '\n')
