@@ -43,4 +43,27 @@ class PublicationTests(unittest.TestCase):
     return json.dumps({'metadata':{'generatedAt':'2026-10-07T17:00:00Z'}})
    with patch.object(m,'ROOT',root),patch.object(m,'git',fake):
     with self.assertRaisesRegex(ValueError,'needs timezone'):m.ensure_not_older('parent')
+ def test_equal_timestamp_with_different_snapshot_stops_publication(self):
+  import json
+  with tempfile.TemporaryDirectory() as folder:
+   root=pathlib.Path(folder);target=root/'shared/public-catalog/news/manifest.json';target.parent.mkdir(parents=True)
+   generated='2026-10-08T17:00:00Z'
+   target.write_text(json.dumps({'snapshot':'new-candidate','metadata':{'generatedAt':generated}}))
+   def fake(*args,**kwargs):
+    if args[0]=='ls-tree':return args[-1] if '/news/' in args[-1] else ''
+    return json.dumps({'snapshot':'production','metadata':{'generatedAt':generated}})
+   with patch.object(m,'ROOT',root),patch.object(m,'git',fake):
+    with self.assertRaisesRegex(ValueError,'same timestamp but different content'):
+     m.ensure_not_older('parent')
+ def test_equal_timestamp_and_same_snapshot_is_idempotent(self):
+  import json
+  with tempfile.TemporaryDirectory() as folder:
+   root=pathlib.Path(folder);target=root/'shared/public-catalog/news/manifest.json';target.parent.mkdir(parents=True)
+   generated='2026-10-08T17:00:00Z'
+   target.write_text(json.dumps({'snapshot':'same','metadata':{'generatedAt':generated}}))
+   def fake(*args,**kwargs):
+    if args[0]=='ls-tree':return args[-1] if '/news/' in args[-1] else ''
+    return json.dumps({'snapshot':'same','metadata':{'generatedAt':generated}})
+   with patch.object(m,'ROOT',root),patch.object(m,'git',fake):
+    m.ensure_not_older('parent')
 if __name__=='__main__':unittest.main()

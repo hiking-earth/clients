@@ -18,6 +18,7 @@ Candidate source changes only. This worktree is based on `codex/mobile-privacy-c
 - `scripts/update-official-content.py`: bounded metadata-only collection, source selection, safe transport, feed/source outcomes, and atomic snapshot write.
 - `scripts/official_feed_xml.py` and `scripts/official_feed_transport.py`: DTD rejection and same-host HTTPS redirect policy.
 - `scripts/check-route-workflow-entrypoints.py`: recognizes workflow-declared external packages installed before the checker.
+- `scripts/publish-public-catalog.py`: fails closed if production and candidate snapshots have the same generation time but different source hashes; equal time plus identical hash remains idempotent.
 - `shared/data/content/official-sources.json`: snapshots the currently configured fields of the already accepted feeds.
 - Related policy, transport, XML, publication, collection-status, and workflow-checker regression cases were run as focused checks for this candidate. They do not replace the later full frozen test/build matrix.
 
