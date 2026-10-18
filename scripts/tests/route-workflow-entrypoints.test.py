@@ -17,6 +17,11 @@ SPEC.loader.exec_module(CHECKER)
 
 class WorkflowEntrypointTests(unittest.TestCase):
     def _run(self, files, workflow):
+        files = dict(files)
+        files.setdefault(
+            'scripts/check-route-workflow-entrypoints.py',
+            (ROOT / 'check-route-workflow-entrypoints.py').read_text(encoding='utf-8'),
+        )
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             (root / '.github/workflows').mkdir(parents=True)
@@ -52,6 +57,29 @@ class WorkflowEntrypointTests(unittest.TestCase):
         result, output = self._run(files, 'run: python scripts/collector.py\n')
         self.assertEqual(result, 0)
         self.assertIn('static imports', output)
+
+    def test_accepts_external_import_installed_before_checker(self):
+        files = {'scripts/collector.py': 'import hiking_geo_projection\n'}
+        workflow = (
+            'run: python -m pip install --disable-pip-version-check '
+            'hiking-geo-projection==1.2.3\n'
+            'run: python scripts/check-route-workflow-entrypoints.py\n'
+            'run: python scripts/collector.py\n'
+        )
+        result, output = self._run(files, workflow)
+        self.assertEqual(result, 0, output)
+        self.assertIn('static imports', output)
+
+    def test_rejects_external_import_not_installed_before_checker(self):
+        files = {'scripts/collector.py': 'import hiking_geo_projection\n'}
+        workflow = (
+            'run: python scripts/check-route-workflow-entrypoints.py\n'
+            'run: python -m pip install hiking-geo-projection==1.2.3\n'
+            'run: python scripts/collector.py\n'
+        )
+        result, output = self._run(files, workflow)
+        self.assertEqual(result, 1)
+        self.assertIn('hiking_geo_projection', output)
 
     def test_detects_missing_import_in_inline_python_block(self):
         files = {'scripts/collector.py': 'pass\n'}
