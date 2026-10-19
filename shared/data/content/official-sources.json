@@ -33,9 +33,9 @@
         "format": "rss",
         "reuse": "metadata-links-only",
         "evidenceUrl": "https://www.nps.gov/grca/planyourvisit/rss-feed-info.htm",
-        "licenseEvidenceUrl": "https://data.gov.hk/en/terms-and-conditions"
+        "licenseEvidenceUrl": "https://www.nps.gov/aboutus/disclaimer.htm"
       },
-      "licenseEvidenceUrl": "https://data.gov.hk/en/terms-and-conditions"
+      "licenseEvidenceUrl": "https://www.nps.gov/aboutus/disclaimer.htm"
     },
     {
       "id": "nps-grand-canyon-backcountry",
@@ -69,9 +69,9 @@
         "format": "rss",
         "reuse": "metadata-links-only",
         "evidenceUrl": "https://www.nps.gov/grca/planyourvisit/rss-feed-info.htm",
-        "licenseEvidenceUrl": "https://data.gov.hk/en/terms-and-conditions"
+        "licenseEvidenceUrl": "https://www.nps.gov/aboutus/disclaimer.htm"
       },
-      "licenseEvidenceUrl": "https://data.gov.hk/en/terms-and-conditions"
+      "licenseEvidenceUrl": "https://www.nps.gov/aboutus/disclaimer.htm"
     },
     {
       "id": "nps-yellowstone-news",
@@ -97,9 +97,9 @@
         "format": "rss",
         "reuse": "metadata-links-only",
         "evidenceUrl": "https://www.nps.gov/yell/learn/news/index.htm",
-        "licenseEvidenceUrl": "https://data.gov.hk/en/terms-and-conditions"
+        "licenseEvidenceUrl": "https://www.nps.gov/aboutus/disclaimer.htm"
       },
-      "licenseEvidenceUrl": "https://data.gov.hk/en/terms-and-conditions"
+      "licenseEvidenceUrl": "https://www.nps.gov/aboutus/disclaimer.htm"
     },
     {
       "id": "hk-government-outdoor-news",
