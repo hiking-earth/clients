@@ -3,6 +3,7 @@ import datetime as dt
 from urllib.parse import urlsplit
 
 MAX_METADATA_AGE = dt.timedelta(days=90)
+MAX_PUBLICATION_AGE = dt.timedelta(days=90)
 MAX_FEED_VERIFICATION_AGE = dt.timedelta(days=90)
 
 
@@ -58,6 +59,7 @@ def review_metadata(row, sources, now):
     if fetched > now + dt.timedelta(minutes=5): return 'future-freshness-date'
     if now - fetched > MAX_METADATA_AGE: return 'metadata-freshness-expired'
     if published > now + dt.timedelta(minutes=5): return 'future-publication-date'
+    if now - published > MAX_PUBLICATION_AGE: return 'publication-expired'
     if 'center' in row:
         center = row['center']
         if (not isinstance(center, list) or len(center) != 2

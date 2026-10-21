@@ -58,6 +58,8 @@ class MetadataPolicy(unittest.TestCase):
     def test_expiry_boundary_and_unapproved_body(self):
         rows,_=apply_metadata_policy([self.row(fetchedAt=(self.now-dt.timedelta(days=90)).isoformat())],self.sources,self.now)
         self.assertEqual(len(rows),1)
+        rows,rejected=apply_metadata_policy([self.row(publishedAt=(self.now-dt.timedelta(days=91)).isoformat())],self.sources,self.now)
+        self.assertFalse(rows); self.assertEqual(rejected[0]['reason'],'publication-expired')
         rows,rejected=apply_metadata_policy([self.row(body='article text')],self.sources,self.now)
         self.assertFalse(rows); self.assertEqual(rejected[0]['reason'],'unsupported-content-rights')
     def test_successful_feed_snapshot_retires_missing_records_only_for_its_source(self):
