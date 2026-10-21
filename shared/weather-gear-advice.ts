@@ -19,14 +19,21 @@ const numberBefore = (value: unknown, unit: RegExp, min: number, max: number): n
   return Number.isFinite(parsed) && parsed >= min && parsed <= max ? parsed : null;
 };
 
+/** The provider may return the next forecast slot up to two hours ahead. */
+export function isCurrentForecastTime(value: unknown, now = Date.now()): boolean {
+  const timestamp = typeof value === 'string' ? Date.parse(value) : NaN;
+  return Number.isFinite(timestamp)
+    && timestamp >= now - 60 * 60 * 1000
+    && timestamp <= now + 2 * 60 * 60 * 1000;
+}
+
 /**
  * Adds conservative packing hints only when the coordinate forecast is recent
  * and its units match the service contract. It never infers route access or
  * replaces local warnings and current conditions.
  */
 export function weatherGearAdvice(weather?: RouteWeatherValues | null, now = Date.now()): WeatherGearAdvice {
-  const timestamp = typeof weather?.observedAt === 'string' ? Date.parse(weather.observedAt) : NaN;
-  if (!Number.isFinite(timestamp) || Math.abs(timestamp - now) > 60 * 60 * 1000) {
+  if (!isCurrentForecastTime(weather?.observedAt, now)) {
     return { available: false, items: [], notices: [] };
   }
 
