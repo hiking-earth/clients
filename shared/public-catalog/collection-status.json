@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-10-21T11:46:47.997742+00:00",
-  "runId": "39594021523",
-  "sourceCommit": "df920d058ab2b1c94116aac642ff9b139ddaac95",
+  "checkedAt": "2026-10-21T17:15:32.083928+00:00",
+  "runId": "39641045948",
+  "sourceCommit": "924ecd156e9ecf799fdf12e58178f81356cf50ab",
   "outcomes": {
     "usfs": "success",
     "osm_incremental": "partial",
@@ -18,8 +18,8 @@
       "status": "available",
       "records": 13,
       "lastCollectedCount": 100,
-      "lastAttempt": "2026-10-21T11:46:44.024472+00:00",
-      "lastSuccess": "2026-10-21T11:46:44.024471+00:00",
+      "lastAttempt": "2026-10-21T17:15:25.405577+00:00",
+      "lastSuccess": "2026-10-21T17:15:25.405575+00:00",
       "feedAcceptance": "accepted",
       "feedVerifiedAt": "2026-10-10",
       "feedVerificationStatus": "current",
@@ -30,8 +30,8 @@
       "status": "available",
       "records": 0,
       "lastCollectedCount": 1,
-      "lastAttempt": "2026-10-21T11:46:44.062084+00:00",
-      "lastSuccess": "2026-10-21T11:46:44.062082+00:00",
+      "lastAttempt": "2026-10-21T17:15:25.418583+00:00",
+      "lastSuccess": "2026-10-21T17:15:25.418581+00:00",
       "feedAcceptance": "accepted",
       "feedVerifiedAt": "2026-10-10",
       "feedVerificationStatus": "current",
@@ -42,8 +42,8 @@
       "status": "available",
       "records": 8,
       "lastCollectedCount": 100,
-      "lastAttempt": "2026-10-21T11:46:44.134718+00:00",
-      "lastSuccess": "2026-10-21T11:46:44.134717+00:00",
+      "lastAttempt": "2026-10-21T17:15:25.473636+00:00",
+      "lastSuccess": "2026-10-21T17:15:25.473634+00:00",
       "feedAcceptance": "accepted",
       "feedVerifiedAt": "2026-10-07",
       "feedVerificationStatus": "current",
@@ -52,12 +52,36 @@
     {
       "id": "hk-government-outdoor-news",
       "status": "available",
-      "records": 0,
-      "lastCollectedCount": 0,
-      "lastAttempt": "2026-10-21T11:46:46.218694+00:00",
-      "lastSuccess": "2026-10-21T11:46:46.218693+00:00",
+      "records": 3,
+      "lastCollectedCount": 3,
+      "lastAttempt": "2026-10-21T17:15:27.240479+00:00",
+      "lastSuccess": "2026-10-21T17:15:27.240477+00:00",
       "feedAcceptance": "accepted",
       "feedVerifiedAt": "2026-10-07",
+      "feedVerificationStatus": "current",
+      "feedVerified": true
+    },
+    {
+      "id": "nsw-npws-park-alerts",
+      "status": "available",
+      "records": 99,
+      "lastCollectedCount": 100,
+      "lastAttempt": "2026-10-21T17:15:28.901982+00:00",
+      "lastSuccess": "2026-10-21T17:15:28.901980+00:00",
+      "feedAcceptance": "accepted",
+      "feedVerifiedAt": "2026-10-16",
+      "feedVerificationStatus": "current",
+      "feedVerified": true
+    },
+    {
+      "id": "qld-qpws-park-alerts",
+      "status": "available",
+      "records": 100,
+      "lastCollectedCount": 100,
+      "lastAttempt": "2026-10-21T17:15:29.308812+00:00",
+      "lastSuccess": "2026-10-21T17:15:29.308810+00:00",
+      "feedAcceptance": "accepted",
+      "feedVerifiedAt": "2026-10-16",
       "feedVerificationStatus": "current",
       "feedVerified": true
     }
@@ -78,20 +102,21 @@
       "incrementalRegions": {
         "china": {
           "status": "success",
-          "records": 29,
-          "cursor": "2026-10-21T11:33:12Z"
+          "records": 5,
+          "cursor": "2026-10-21T16:57:33Z"
         },
         "japan": {
           "status": "failed",
           "error": "HTTP 502: Bad Gateway"
         },
         "south-asia": {
-          "status": "failed",
-          "error": "HTTP 502: Bad Gateway"
+          "status": "success",
+          "records": 0,
+          "cursor": "2026-10-21T16:59:34Z"
         },
         "europe": {
           "status": "failed",
-          "error": "HTTP 502: Bad Gateway"
+          "error": "The read operation timed out"
         },
         "north-america": {
           "status": "failed",
@@ -100,15 +125,17 @@
         "oceania": {
           "status": "success",
           "records": 0,
-          "cursor": "2026-10-21T11:35:13Z"
+          "cursor": "2026-10-21T17:01:35Z"
         },
         "south-america": {
-          "status": "failed",
-          "error": "HTTP 502: Bad Gateway"
+          "status": "success",
+          "records": 0,
+          "cursor": "2026-10-21T17:02:36Z"
         },
         "africa": {
-          "status": "failed",
-          "error": "HTTP 502: Bad Gateway"
+          "status": "success",
+          "records": 2,
+          "cursor": "2026-10-21T17:03:34Z"
         }
       }
     },
@@ -117,7 +144,7 @@
       "cycleStartedAt": "2026-10-21T11:26:27.115281+00:00",
       "lastCompletedAt": "2026-10-17T04:20:56.447529+00:00",
       "lastRemovedFromDiscovery": 2493,
-      "nextObjectId": 10369307,
+      "nextObjectId": 10365307,
       "currentCycleComplete": false,
       "lastAttemptSucceeded": true
     },
@@ -129,23 +156,23 @@
   "snapshots": {
     "OSM": {
       "records": 178739,
-      "generatedAt": "2026-10-21T11:43:32Z",
-      "sha256": "64cc92af2a485e0caea16ce8032a16f38c1f40b86868b5f149ea7710c97aa3ef"
+      "generatedAt": "2026-10-21T17:08:34Z",
+      "sha256": "87a489e65a129d842c0b0668d63a0756c5527184c1629f5524abca05b087b2c5"
     },
     "USFS": {
-      "records": 9020,
-      "generatedAt": "2026-10-21T11:43:18.198653+00:00",
-      "sha256": "1a757644ecff81b71668420929953b6e6b81cbdc93630b85d25f039632320e7d"
+      "records": 9047,
+      "generatedAt": "2026-10-21T17:08:17.607710+00:00",
+      "sha256": "1c4c88c72d84f9951d456b7628e1a4d3dea5d27a891f32bd529db5dfa9e0ee77"
     },
     "Hong Kong AFCD": {
       "records": 167,
-      "generatedAt": "2026-10-21T11:46:43.577906+00:00",
-      "sha256": "deb2544b40ee71249a7072e5e3450bf7976436470b62312d168446f9336106f9"
+      "generatedAt": "2026-10-21T17:15:24.819809+00:00",
+      "sha256": "64aee32634aa4be3be528c21a827f57da2b7939c177236a5edfb6bfb8c94519c"
     },
     "Official notices": {
-      "records": 21,
-      "generatedAt": "2026-10-21T11:46:46.218720+00:00",
-      "sha256": "ae929828f99ed432a4ad95ac59922888ae0d0b2cd85fd9be9ffa11b780014246"
+      "records": 223,
+      "generatedAt": "2026-10-21T17:15:29.308862+00:00",
+      "sha256": "d6b3ea4cdcfb344023445b0bf7ac7264a04335e00bceb6bb85e0489deff2dd5b"
     }
   },
   "accessVerified": false
