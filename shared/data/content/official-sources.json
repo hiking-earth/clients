@@ -18,7 +18,24 @@
       "evidenceUrl": "https://www.nps.gov/grca/planyourvisit/rss-feed-info.htm",
       "verifiedLinkAt": "2026-10-10",
       "feedAcceptance": "accepted",
-      "feedVerifiedAt": "2026-10-10"
+      "feedVerifiedAt": "2026-10-10",
+      "feedReview": {
+        "label": "美国国家公园管理局 · 大峡谷",
+        "region": "美国 · 大峡谷",
+        "center": [
+          -112.113,
+          36.106
+        ],
+        "url": "https://www.nps.gov/feeds/getNewsRSS.htm?id=grca",
+        "articleHosts": [
+          "www.nps.gov"
+        ],
+        "format": "rss",
+        "reuse": "metadata-links-only",
+        "evidenceUrl": "https://www.nps.gov/grca/planyourvisit/rss-feed-info.htm",
+        "licenseEvidenceUrl": "https://www.nps.gov/aboutus/disclaimer.htm"
+      },
+      "licenseEvidenceUrl": "https://www.nps.gov/aboutus/disclaimer.htm"
     },
     {
       "id": "nps-grand-canyon-backcountry",
@@ -37,7 +54,24 @@
       "evidenceUrl": "https://www.nps.gov/grca/planyourvisit/rss-feed-info.htm",
       "verifiedLinkAt": "2026-10-10",
       "feedAcceptance": "accepted",
-      "feedVerifiedAt": "2026-10-10"
+      "feedVerifiedAt": "2026-10-10",
+      "feedReview": {
+        "label": "美国国家公园管理局 · 大峡谷步道公告",
+        "region": "美国 · 大峡谷",
+        "center": [
+          -112.113,
+          36.106
+        ],
+        "url": "https://www.nps.gov/grca/planyourvisit/upload/grca-backcountry.xml",
+        "articleHosts": [
+          "www.nps.gov"
+        ],
+        "format": "rss",
+        "reuse": "metadata-links-only",
+        "evidenceUrl": "https://www.nps.gov/grca/planyourvisit/rss-feed-info.htm",
+        "licenseEvidenceUrl": "https://www.nps.gov/aboutus/disclaimer.htm"
+      },
+      "licenseEvidenceUrl": "https://www.nps.gov/aboutus/disclaimer.htm"
     },
     {
       "id": "nps-yellowstone-news",
@@ -52,7 +86,20 @@
       "evidenceUrl": "https://www.nps.gov/yell/learn/news/index.htm",
       "verifiedLinkAt": "2026-10-07",
       "feedAcceptance": "accepted",
-      "feedVerifiedAt": "2026-10-07"
+      "feedVerifiedAt": "2026-10-07",
+      "feedReview": {
+        "label": "美国国家公园管理局 · 黄石",
+        "region": "美国 · 黄石",
+        "url": "https://www.nps.gov/feeds/getNewsRSS.htm?id=yell",
+        "articleHosts": [
+          "www.nps.gov"
+        ],
+        "format": "rss",
+        "reuse": "metadata-links-only",
+        "evidenceUrl": "https://www.nps.gov/yell/learn/news/index.htm",
+        "licenseEvidenceUrl": "https://www.nps.gov/aboutus/disclaimer.htm"
+      },
+      "licenseEvidenceUrl": "https://www.nps.gov/aboutus/disclaimer.htm"
     },
     {
       "id": "hk-government-outdoor-news",
@@ -76,7 +123,29 @@
       "evidenceUrl": "https://data.gov.hk/en-data/dataset/hk-isd-gnmis-gnmis/resource/68cd851b-703d-41cc-9da2-e63f8afb8fc0",
       "verifiedLinkAt": "2026-10-07",
       "feedAcceptance": "accepted",
-      "feedVerifiedAt": "2026-10-07"
+      "feedVerifiedAt": "2026-10-07",
+      "feedReview": {
+        "label": "香港特区政府新闻公报 · 户外相关标题筛选",
+        "region": "中国 · 香港",
+        "url": "https://www.info.gov.hk/gia/rss/general_zh.xml",
+        "articleHosts": [
+          "www.info.gov.hk"
+        ],
+        "format": "rss",
+        "reuse": "metadata-links-only",
+        "evidenceUrl": "https://data.gov.hk/en-data/dataset/hk-isd-gnmis-gnmis/resource/68cd851b-703d-41cc-9da2-e63f8afb8fc0",
+        "licenseEvidenceUrl": "https://data.gov.hk/en/terms-and-conditions",
+        "titleKeywords": [
+          "郊野",
+          "行山",
+          "遠足",
+          "步道",
+          "露營",
+          "地質公園",
+          "登山"
+        ]
+      },
+      "licenseEvidenceUrl": "https://data.gov.hk/en/terms-and-conditions"
     }
   ]
 }

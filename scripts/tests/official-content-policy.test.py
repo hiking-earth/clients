@@ -1,14 +1,25 @@
 import datetime as dt
+import json
 import pathlib
 import sys
 import unittest
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
-from official_content_policy import apply_metadata_policy, replace_source_snapshot
+from official_content_policy import (apply_metadata_policy, feed_acceptance_error, feed_review_matches, feed_review_snapshot,
+                                     replace_source_snapshot, review_and_replace_source_snapshot, has_schema_version_1,
+                                     validate_official_source_registry)
 
 class MetadataPolicy(unittest.TestCase):
+    def test_registry_schema_requires_exact_integer_version(self):
+        self.assertTrue(has_schema_version_1({'schemaVersion': 1}))
+        for value in [True, 1.0, '1', None]:
+            with self.subTest(value=value):
+                self.assertFalse(has_schema_version_1({'schemaVersion': value}))
     now = dt.datetime(2026, 10, 7, tzinfo=dt.timezone.utc)
     sources = [{'id': 's', 'reuse': 'metadata-links-only', 'url': 'https://official.example/rss',
-                'articleHosts': ['official.example']}]
+                'articleHosts': ['official.example'], 'format': 'rss',
+                'evidenceUrl': 'https://official.example/feed-policy',
+                'feedAcceptance': 'accepted', 'feedVerifiedAt': '2026-10-07'}]
+    sources[0]['feedReview'] = feed_review_snapshot(sources[0])
     def row(self, **patch):
         return {'id':'a','sourceId':'s','verified':True,'sourceUrl':self.sources[0]['url'],
                 'url':'https://official.example/a','title':'Notice','region':'Region','sourceLabel':'Official',
@@ -42,7 +53,9 @@ class MetadataPolicy(unittest.TestCase):
                  ({'feedVerifiedAt':'2026-10-08'}, 'source-feed-verification-future'),
                  ({'feedVerifiedAt':'2026-07-08'}, 'source-feed-verification-expired')]
         for patch, reason in cases:
-            source = {**self.sources[0], 'feedAcceptance':'accepted', **patch}
+            source = {key: value for key, value in self.sources[0].items()
+                      if key not in ('feedVerifiedAt', 'feedReview')}
+            source.update({'feedAcceptance':'accepted', **patch})
             rows, rejected = apply_metadata_policy([self.row()], [source], self.now)
             self.assertFalse(rows)
             self.assertEqual(rejected[0]['reason'], reason)
@@ -50,6 +63,18 @@ class MetadataPolicy(unittest.TestCase):
         rows, rejected = apply_metadata_policy([self.row()], [source], self.now)
         self.assertEqual(len(rows), 1)
         self.assertEqual(rejected, [])
+    def test_feed_review_is_bound_to_the_current_source_configuration(self):
+        source = {**self.sources[0], 'feedAcceptance':'accepted', 'feedVerifiedAt':'2026-10-07'}
+        source['feedReview'] = feed_review_snapshot(source)
+        for patch, reason in [({'url':'https://official.example/new-rss'}, 'source-feed-configuration-changed'),
+                              ({'articleHosts':['news.official.example']}, 'source-feed-configuration-changed'),
+                              ({'licenseEvidenceUrl':'https://official.example/terms-v2'}, 'source-feed-configuration-changed'),
+                              ({'reuse':'full-content'}, 'source-not-approved'),
+                              ({'region':'Different region'}, 'source-feed-configuration-changed')]:
+            changed = {**source, **patch}
+            rows, rejected = apply_metadata_policy([self.row()], [changed], self.now)
+            self.assertFalse(rows)
+            self.assertEqual(rejected[0]['reason'], reason)
     def test_invalid_source_and_date(self):
         for row in [None, self.row(sourceId=[]), self.row(fetchedAt='bad'), self.row(fetchedAt='2026-10-07T00:00:00'),
                     self.row(publishedAt='bad'), self.row(publishedAt='2026-10-07T00:00:00')]:
@@ -73,10 +98,58 @@ class MetadataPolicy(unittest.TestCase):
         visible,retired=replace_source_snapshot(prior,'s',[])
         self.assertEqual([row['id'] for row in visible],['old-b'])
         self.assertEqual([row['id'] for row in retired],['old-a'])
+    def test_expired_publication_is_retired_before_page_preparation(self):
+        expired=self.row(id='expired',publishedAt=(self.now-dt.timedelta(days=91)).isoformat())
+        other=self.row(id='other-source',sourceId='other')
+        visible,retired,rejected,expired_ids,expired_rows=review_and_replace_source_snapshot(
+            [expired,other],'s',[expired],{'s':self.sources[0]},self.now)
+        self.assertEqual([row['id'] for row in visible],['other-source'])
+        self.assertEqual([row['id'] for row in retired],['expired'])
+        self.assertEqual(expired_ids,{'expired'})
+        self.assertEqual([row['id'] for row in expired_rows],['expired'])
+        self.assertEqual(rejected,[])
+    def test_fully_rejected_feed_keeps_prior_source_snapshot(self):
+        prior=self.row(id='known-good')
+        malformed=self.row(id='known-good',sourceUrl='https://wrong.example/rss')
+        with self.assertRaisesRegex(ValueError,'prior source snapshot retained'):
+            review_and_replace_source_snapshot([prior],'s',[malformed],{'s':self.sources[0]},self.now)
     def test_withhold_missing_attribution_future_publication_and_invalid_center(self):
         for patch, reason in [({'region':' '},'missing-attribution'),
                               ({'publishedAt':(self.now+dt.timedelta(days=1)).isoformat()},'future-publication-date'),
                               ({'center':[181,0]},'invalid-center')]:
             rows,rejected=apply_metadata_policy([self.row(**patch)],self.sources,self.now)
             self.assertFalse(rows); self.assertEqual(rejected[0]['reason'],reason)
+class OfficialSourceCaps(unittest.TestCase):
+    def test_registry_structure_and_field_budgets(self):
+        config_path=pathlib.Path(__file__).resolve().parents[2]/'shared/data/content/official-sources.json'
+        config=json.loads(config_path.read_text(encoding='utf-8'))
+        sources, default_cap=validate_official_source_registry(config)
+        self.assertTrue(sources)
+        self.assertEqual(default_cap, 100)
+        now=dt.datetime.now(dt.timezone.utc)
+        for source in sources:
+            with self.subTest(source=source['id']):
+                self.assertTrue(feed_review_matches(source))
+                self.assertIsNone(feed_acceptance_error(source, now))
+        for mutate, error in (
+                (lambda value: value['sources'][0].update(id='x'*65), 'source ID'),
+                (lambda value: value['sources'][0].update(label='x'*257), 'attribution'),
+                (lambda value: value['sources'][0].update(articleHosts=['a.example']*33), 'source hosts'),
+                (lambda value: value['sources'][0].update(url='https://other.example/rss'), 'source URL'),
+                (lambda value: value['sources'][0].update(titleKeywords=['x'*121]), 'title filter')):
+            changed=json.loads(json.dumps(config))
+            mutate(changed)
+            with self.subTest(error=error), self.assertRaisesRegex(ValueError, error):
+                validate_official_source_registry(changed)
+
+    def test_each_configured_feed_is_capped_at_one_hundred_items(self):
+        config_path=pathlib.Path(__file__).resolve().parents[2]/'shared/data/content/official-sources.json'
+        config=json.loads(config_path.read_text(encoding='utf-8'))
+        self.assertTrue(config['sources'])
+        per_feed_cap=config.get('maxItemsPerFeed',100)
+        self.assertGreaterEqual(per_feed_cap,1)
+        self.assertLessEqual(per_feed_cap,100)
+        for source in config['sources']:
+            with self.subTest(source=source['id']):
+                self.assertLessEqual(source.get('maxItems',per_feed_cap),per_feed_cap)
 if __name__ == '__main__': unittest.main()

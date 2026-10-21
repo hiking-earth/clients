@@ -69,7 +69,14 @@ def ensure_not_older(parent):
    result=datetime.fromisoformat(value['metadata']['generatedAt'].replace('Z','+00:00'))
    if result.tzinfo is None:raise ValueError('Publication timestamp needs timezone')
    return result
-  if timestamp(incoming)<timestamp(previous):raise ValueError(f'{source}: production snapshot is newer; publication stopped')
+  previous_time=timestamp(previous)
+  incoming_time=timestamp(incoming)
+  if incoming_time<previous_time:raise ValueError(f'{source}: production snapshot is newer; publication stopped')
+  # Timestamps can have coarse precision or be copied from an upstream feed.
+  # If equal timestamps point at different source snapshots, their ordering is
+  # unknowable; stop instead of replacing production data nondeterministically.
+  if incoming_time==previous_time and incoming.get('snapshot')!=previous.get('snapshot'):
+   raise ValueError(f'{source}: production snapshot has the same timestamp but different content; publication stopped')
 def publish():
  validate()
  git('fetch','origin','main')

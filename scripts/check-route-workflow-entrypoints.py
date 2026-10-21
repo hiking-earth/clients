@@ -4,6 +4,7 @@ import ast
 from pathlib import Path
 import importlib.util
 import re
+import shlex
 import sys
 import textwrap
 
@@ -12,11 +13,44 @@ ROOT = Path(__file__).resolve().parents[1]
 WORKFLOW = ROOT / '.github/workflows/route-catalog-update.yml'
 SCRIPT_COMMAND = re.compile(
     r'(?m)^\s*(?:run:\s*)?python3?\s+'
-    r'(?P<path>scripts/[A-Za-z0-9_.-]+\.py)(?=\s|$)'
+    r'(?P<path>scripts/[A-Za-z0-9_./-]+\.py)(?=\s|$)'
 )
 INLINE_PYTHON = re.compile(
     r"(?m)^\s*python3?\s+-\s+<<(?P<quote>['\"]?)(?P<tag>[A-Za-z_][A-Za-z0-9_]*)\1\s*$"
 )
+PIP_INSTALL = re.compile(
+    r'^\s*(?:run:\s*)?(?:python(?:3(?:\.\d+)?)?\s+-m\s+)?'
+    r'pip\s+install\b(?P<args>.*)$'
+)
+PIP_DISTRIBUTION = re.compile(r'^(?P<name>[A-Za-z0-9][A-Za-z0-9._-]*)')
+WORKFLOW_CHECK_COMMAND = re.compile(
+    r'(?m)^\s*(?:run:\s*)?python3?\s+'
+    r'scripts/check-route-workflow-entrypoints\.py(?:\s|$)'
+)
+
+
+def workflow_installed_imports(text):
+    """Return import names for pip packages installed before this checker runs."""
+    check = WORKFLOW_CHECK_COMMAND.search(text)
+    before_check = text[:check.start()] if check else ''
+    installed = set()
+    for line in before_check.splitlines():
+        match = PIP_INSTALL.search(line)
+        if not match:
+            continue
+        try:
+            arguments = shlex.split(match.group('args'))
+        except ValueError:
+            continue
+        for argument in arguments:
+            if argument.startswith('-'):
+                continue
+            requirement = PIP_DISTRIBUTION.match(argument)
+            if requirement:
+                # For route collectors we only allow a declared package when
+                # its import uses the normalized distribution name.
+                installed.add(re.sub(r'[-.]+', '_', requirement.group('name')).lower())
+    return installed
 
 
 def inline_python_sources(text):
@@ -49,6 +83,7 @@ def main():
         return 1
 
     sys.path.insert(0, str(ROOT))
+    workflow_imports = workflow_installed_imports(text)
     missing = []
     missing_imports = []
     parsed = set()
@@ -89,6 +124,8 @@ def main():
                 continue
             top_level = module.split('.', 1)[0]
             if top_level in sys.stdlib_module_names:
+                continue
+            if top_level.lower() in workflow_imports:
                 continue
             try:
                 available = importlib.util.find_spec(module) is not None

@@ -14,8 +14,8 @@ class RouteCatalogValidationTests(unittest.TestCase):
         prefixes = {'osm': 'osm-relation-1', 'usfs': 'usfs-1', 'hk': 'hk-afcd-1', 'nzdoc': 'nzdoc-1', 'parkscanada': 'parkscanada-1', 'nsw-npws': 'nsw-npws-1', 'england': 'england-trail-1', 'wales': 'wales-trail-1', 'scotland-argyll': 'scotland-argyll-1'}
         source_urls = {
             'osm': 'https://www.openstreetmap.org/relation/1',
-            'usfs': 'https://apps.fs.usda.gov/arcx/service',
-            'hk': 'https://portal.csdi.gov.hk/server/rest/service',
+            'usfs': 'https://apps.fs.usda.gov/arcx/rest/services/EDW/EDW_TrailNFSPublishWithDataStatus_01/MapServer/0',
+            'hk': 'https://portal.csdi.gov.hk/server/rest/services/common/afcd_rcd_1665568199103_4360/FeatureServer/0',
             'nzdoc': 'https://services1.arcgis.com/3JjYDyG3oajxU6HO/ArcGIS/rest/services/DOC_Walking_Experiences/FeatureServer/1',
             'parkscanada': 'https://services2.arcgis.com/wCOMu5IS7YdSyPNx/arcgis/rest/services/vw_Trails_Sentiers_APCA_V2_FGP/FeatureServer/0',
             'nsw-npws': 'https://services7.arcgis.com/9nlQUywsHzFwAwIM/arcgis/rest/services/NPWS_Tracks/FeatureServer/0',
@@ -53,7 +53,7 @@ class RouteCatalogValidationTests(unittest.TestCase):
             'wales': {'sourceUrl':source_urls[source],'license':'Open Government Licence for Public Sector Information (OGL)','attribution':'Contains Natural Resources Wales information © Natural Resources Wales and Database Right. All rights Reserved. Contains Ordnance Survey Data. Ordnance Survey Licence number AC0000849444. Crown Copyright and Database Right.','licenseUrl':'https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/'},
             'scotland-argyll': {'sourceUrl':source_urls[source],'license':'Open Government Licence v3.0','attribution':'Contains spatial data licensed under Open Government Licence v3.0 from Argyll and Bute Council. Source: Adopted Core Paths.','licenseUrl':'https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/'},
         }[source]
-        return {'schemaVersion': 1, **metadata, 'routes': [row]}
+        return {'schemaVersion': 1, 'generatedAt': '2026-10-07T00:00:00Z', **metadata, 'routes': [row]}
 
     def test_accepts_each_discovery_source_without_granting_access(self):
         for source in ('osm', 'usfs', 'hk', 'nzdoc', 'parkscanada', 'nsw-npws', 'england', 'wales', 'scotland-argyll'):
@@ -142,10 +142,11 @@ class NewsCatalogValidationTests(unittest.TestCase):
     def catalog(self):
         source = {
             'id': 'official', 'url': 'https://feed.example.gov/rss',
-            'articleHosts': ['news.example.gov'],
+            'articleHosts': ['news.example.gov', 'feed.example.gov'],
+            'feedAcceptance': 'accepted', 'feedVerifiedAt': '2026-10-07',
         }
         return {
-            'schemaVersion': 1, 'sources': [source],
+            'schemaVersion': 1, 'generatedAt': '2026-10-07T00:00:00Z', 'sources': [source],
             'items': [{
                 'id': 'item-1', 'title': 'Notice', 'region': 'Region',
                 'sourceId': 'official', 'sourceLabel': 'Official source',
@@ -205,7 +206,9 @@ class NewsCatalogValidationTests(unittest.TestCase):
                                 ('2026-07-08', 'has expired')]:
             data = self.catalog()
             data['sources'][0].update(feedAcceptance='accepted')
-            if verified is not None:
+            if verified is None:
+                data['sources'][0].pop('feedVerifiedAt', None)
+            else:
                 data['sources'][0]['feedVerifiedAt'] = verified
             with self.assertRaisesRegex(ValueError, error):
                 validation.validate_news_catalog(data, now=validation.datetime(2026, 10, 7, tzinfo=validation.timezone.utc))
