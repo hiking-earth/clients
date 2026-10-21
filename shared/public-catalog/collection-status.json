@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-10-21T17:15:32.083928+00:00",
-  "runId": "39641045948",
-  "sourceCommit": "924ecd156e9ecf799fdf12e58178f81356cf50ab",
+  "checkedAt": "2026-10-21T21:44:16.555654+00:00",
+  "runId": "39680487156",
+  "sourceCommit": "ea24678bdbefcd9d65c7f874080499b8aa57e8c7",
   "outcomes": {
     "usfs": "success",
     "osm_incremental": "partial",
@@ -16,10 +16,10 @@
     {
       "id": "nps-grand-canyon-news",
       "status": "available",
-      "records": 13,
+      "records": 14,
       "lastCollectedCount": 100,
-      "lastAttempt": "2026-10-21T17:15:25.405577+00:00",
-      "lastSuccess": "2026-10-21T17:15:25.405575+00:00",
+      "lastAttempt": "2026-10-21T21:44:08.681336+00:00",
+      "lastSuccess": "2026-10-21T21:44:08.681334+00:00",
       "feedAcceptance": "accepted",
       "feedVerifiedAt": "2026-10-10",
       "feedVerificationStatus": "current",
@@ -30,8 +30,8 @@
       "status": "available",
       "records": 0,
       "lastCollectedCount": 1,
-      "lastAttempt": "2026-10-21T17:15:25.418583+00:00",
-      "lastSuccess": "2026-10-21T17:15:25.418581+00:00",
+      "lastAttempt": "2026-10-21T21:44:08.694562+00:00",
+      "lastSuccess": "2026-10-21T21:44:08.694560+00:00",
       "feedAcceptance": "accepted",
       "feedVerifiedAt": "2026-10-10",
       "feedVerificationStatus": "current",
@@ -42,8 +42,8 @@
       "status": "available",
       "records": 8,
       "lastCollectedCount": 100,
-      "lastAttempt": "2026-10-21T17:15:25.473636+00:00",
-      "lastSuccess": "2026-10-21T17:15:25.473634+00:00",
+      "lastAttempt": "2026-10-21T21:44:09.447262+00:00",
+      "lastSuccess": "2026-10-21T21:44:09.447260+00:00",
       "feedAcceptance": "accepted",
       "feedVerifiedAt": "2026-10-07",
       "feedVerificationStatus": "current",
@@ -54,8 +54,8 @@
       "status": "available",
       "records": 3,
       "lastCollectedCount": 3,
-      "lastAttempt": "2026-10-21T17:15:27.240479+00:00",
-      "lastSuccess": "2026-10-21T17:15:27.240477+00:00",
+      "lastAttempt": "2026-10-21T21:44:10.758570+00:00",
+      "lastSuccess": "2026-10-21T21:44:10.758568+00:00",
       "feedAcceptance": "accepted",
       "feedVerifiedAt": "2026-10-07",
       "feedVerificationStatus": "current",
@@ -66,8 +66,8 @@
       "status": "available",
       "records": 99,
       "lastCollectedCount": 100,
-      "lastAttempt": "2026-10-21T17:15:28.901982+00:00",
-      "lastSuccess": "2026-10-21T17:15:28.901980+00:00",
+      "lastAttempt": "2026-10-21T21:44:12.735841+00:00",
+      "lastSuccess": "2026-10-21T21:44:12.735839+00:00",
       "feedAcceptance": "accepted",
       "feedVerifiedAt": "2026-10-16",
       "feedVerificationStatus": "current",
@@ -78,8 +78,8 @@
       "status": "available",
       "records": 100,
       "lastCollectedCount": 100,
-      "lastAttempt": "2026-10-21T17:15:29.308812+00:00",
-      "lastSuccess": "2026-10-21T17:15:29.308810+00:00",
+      "lastAttempt": "2026-10-21T21:44:13.806856+00:00",
+      "lastSuccess": "2026-10-21T21:44:13.806854+00:00",
       "feedAcceptance": "accepted",
       "feedVerifiedAt": "2026-10-16",
       "feedVerificationStatus": "current",
@@ -102,8 +102,8 @@
       "incrementalRegions": {
         "china": {
           "status": "success",
-          "records": 5,
-          "cursor": "2026-10-21T16:57:33Z"
+          "records": 1,
+          "cursor": "2026-10-21T21:27:59Z"
         },
         "japan": {
           "status": "failed",
@@ -112,11 +112,11 @@
         "south-asia": {
           "status": "success",
           "records": 0,
-          "cursor": "2026-10-21T16:59:34Z"
+          "cursor": "2026-10-21T21:29:01Z"
         },
         "europe": {
           "status": "failed",
-          "error": "The read operation timed out"
+          "error": "HTTP 502: Bad Gateway"
         },
         "north-america": {
           "status": "failed",
@@ -125,27 +125,27 @@
         "oceania": {
           "status": "success",
           "records": 0,
-          "cursor": "2026-10-21T17:01:35Z"
+          "cursor": "2026-10-21T21:31:05Z"
         },
         "south-america": {
           "status": "success",
           "records": 0,
-          "cursor": "2026-10-21T17:02:36Z"
+          "cursor": "2026-10-21T21:31:05Z"
         },
         "africa": {
           "status": "success",
           "records": 2,
-          "cursor": "2026-10-21T17:03:34Z"
+          "cursor": "2026-10-21T21:32:06Z"
         }
       }
     },
     "usfs": {
       "supported": true,
       "cycleStartedAt": "2026-10-21T11:26:27.115281+00:00",
-      "lastCompletedAt": "2026-10-17T04:20:56.447529+00:00",
-      "lastRemovedFromDiscovery": 2493,
-      "nextObjectId": 10365307,
-      "currentCycleComplete": false,
+      "lastCompletedAt": "2026-10-21T21:39:11.767392+00:00",
+      "lastRemovedFromDiscovery": 28,
+      "nextObjectId": null,
+      "currentCycleComplete": true,
       "lastAttemptSucceeded": true
     },
     "hk": {
@@ -156,23 +156,23 @@
   "snapshots": {
     "OSM": {
       "records": 178739,
-      "generatedAt": "2026-10-21T17:08:34Z",
-      "sha256": "87a489e65a129d842c0b0668d63a0756c5527184c1629f5524abca05b087b2c5"
+      "generatedAt": "2026-10-21T21:39:16Z",
+      "sha256": "0b48d50c2bcfbb6c24a0255762f42cb5ba93cbd03d76679ea4029891b228b0a8"
     },
     "USFS": {
-      "records": 9047,
-      "generatedAt": "2026-10-21T17:08:17.607710+00:00",
-      "sha256": "1c4c88c72d84f9951d456b7628e1a4d3dea5d27a891f32bd529db5dfa9e0ee77"
+      "records": 9019,
+      "generatedAt": "2026-10-21T21:39:11.767392+00:00",
+      "sha256": "1988e301dc6bc4fdbb36b7131d1460e503305871f963aaa7e437876c6bd8a582"
     },
     "Hong Kong AFCD": {
       "records": 167,
-      "generatedAt": "2026-10-21T17:15:24.819809+00:00",
-      "sha256": "64aee32634aa4be3be528c21a827f57da2b7939c177236a5edfb6bfb8c94519c"
+      "generatedAt": "2026-10-21T21:44:07.149045+00:00",
+      "sha256": "da2978c53318ba01880033c66e56cb80ad00a17e61f1135f914ee456d608e4f1"
     },
     "Official notices": {
-      "records": 223,
-      "generatedAt": "2026-10-21T17:15:29.308862+00:00",
-      "sha256": "d6b3ea4cdcfb344023445b0bf7ac7264a04335e00bceb6bb85e0489deff2dd5b"
+      "records": 224,
+      "generatedAt": "2026-10-21T21:44:13.806885+00:00",
+      "sha256": "a7575c869bbd0ed808d61d45da838abbc9c932d2698dd5ccb7b670fb773dda2e"
     }
   },
   "accessVerified": false
