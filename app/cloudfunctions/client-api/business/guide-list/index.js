@@ -8,7 +8,8 @@ function safeLink(value) {
   try { const url = new URL(value); return url.protocol === "https:" && !url.username && !url.password && (!url.port || url.port === "443"); } catch { return false; }
 }
 exports.main = async () => {
-  const res = await db.collection("guide_items").where({ published: true, rightsConfirmed: true }).orderBy("_id", "asc").limit(100).get();
-  const items = res.data.filter(i => typeof i._id === "string" && typeof i.title === "string" && i.title.trim() && i.title.length <= 200 && categories.has(i.category) && typeof i.summary === "string" && i.summary.length <= 2000 && safeLink(i.link) && safeLink(i.sourceUrl) && typeof i.rightsNote === "string" && i.rightsNote.trim().length > 0 && i.rightsNote.length <= 1000).map(i => ({id:i._id,title:i.title,category:i.category,summary:i.summary,image:"",link:i.link,priceHint:typeof i.priceHint === "string" && i.priceHint.length <= 100 ? i.priceHint : ""}));
+  const res = await db.collection("guide_items").where({ published: true, rightsConfirmed: true }).orderBy("updatedAt", "desc").limit(200).get();
+  const now = Date.now();
+  const items = res.data.filter(i => typeof i._id === "string" && typeof i.title === "string" && i.title.trim() && i.title.length <= 200 && categories.has(i.category) && typeof i.summary === "string" && i.summary.length <= 2000 && safeLink(i.link) && safeLink(i.sourceUrl) && typeof i.rightsNote === "string" && i.rightsNote.trim().length > 0 && i.rightsNote.length <= 1000 && Number.isSafeInteger(i.expiresAt) && i.expiresAt > now).slice(0, 100).map(i => ({id:i._id,title:i.title,category:i.category,summary:i.summary,image:"",link:i.link,sourcePlatform:["taobao","jd","pdd","xianyu","other"].includes(i.sourcePlatform)?i.sourcePlatform:"unknown",expiresAt:i.expiresAt,priceHint:typeof i.priceHint === "string" && i.priceHint.length <= 100 ? i.priceHint : ""}));
   return { items };
 };

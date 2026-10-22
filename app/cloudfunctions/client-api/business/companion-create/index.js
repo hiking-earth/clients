@@ -4,7 +4,7 @@ cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database({throwOnNotFound:false});
 const crypto=require("crypto");
 
-exports.main = async (event) => {
+exports.main = async (event, context={}) => {
   const OPENID = require('../../identity').currentIdentity();
   if (!OPENID) return { errMsg: "请先在微信小程序登录" };
   const { title = "", content = "", departDate = "", maxMembers = 4, routeId = "", nickname = "山友" } = event;
@@ -21,11 +21,15 @@ exports.main = async (event) => {
   if(typeof routeId!=='string'||routeId.length>120)return {errMsg:'路线标识无效'};
   if(Date.parse(departDate+'T23:59:59+08:00')<Date.now())return {errMsg:'请选择尚未结束的出发日期'};
   if(routeId){const route=(await db.collection('route_reviews').doc(crypto.createHash('sha256').update(routeId).digest('hex')).get()).data;if(!route||route.status!=='开放中'||!Number.isFinite(route.expiresAt)||route.expiresAt<=Date.now())return {errMsg:'关联路线须先完成有效官方开放核验，或取消关联并说明待核验路线'};}
-  // Unified accounts do not have a WeChat OpenID. Queue for authorized
-  // review instead of pretending that WeChat-only checks succeeded.
-  const reviewPending = OPENID.startsWith("account:");
+  // Only use an OpenID recovered from the verified account record. Accounts
+  // without a linked mini-program identity are queued for authorized review.
+  const wechatOpenId = context.verifiedWechatOpenId;
+  let reviewPending = typeof wechatOpenId !== 'string' || !wechatOpenId;
   if (!reviewPending) try {
-    await cloud.openapi.security.msgSecCheck({ content: `${title}\n${content}` });
+    const check = await cloud.openapi.security.msgSecCheck({ openid: wechatOpenId, scene: 3, version: 2, content: `${title}\n${content}` });
+    if (!check || check.errCode !== 0) return { errMsg: "内容未通过安全审核，请修改后再发" };
+    if(check.result?.suggest==='review')reviewPending=true;
+    else if(check.result?.suggest!=='pass')return {errMsg:"内容未通过安全审核，请修改后再发"};
   } catch (e) {
     return { errMsg: "内容未通过安全审核，请修改后再发" };
   }

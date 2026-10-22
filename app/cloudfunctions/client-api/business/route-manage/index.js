@@ -1,22 +1,28 @@
 const cloud=require('wx-server-sdk');const crypto=require('crypto');cloud.init({env:cloud.DYNAMIC_CURRENT_ENV});const db=cloud.database({throwOnNotFound:false});
 const statuses=['开放中','即将开放','临时关闭','永久关闭','待核验'];
+function publicReview(row,now=Date.now()){const {reviewedBy,...review}=row;const current=Number.isFinite(review.expiresAt)&&review.expiresAt>now;return {...review,status:current?review.status:'待核验',track:current&&review.status==='开放中'?review.track||null:null};}
 exports.main=async event=>{
  const OPENID = require('../../identity').optionalIdentity();
+ if(event.action==='access-candidates'){
+  if(!require('../owner-admin').isOwnerAdmin(OPENID))return {errMsg:'需要管理员权限'};
+  return require('../route-access-audit').list(event.page===undefined?0:event.page,event.snapshot);
+ }
  if(event.action==='list'){
   if(typeof event.routeId==='string'&&event.routeId.trim()&&event.routeId.length<=128){
    const id=crypto.createHash('sha256').update(event.routeId).digest('hex');
    const row=(await db.collection('route_reviews').doc(id).get()).data;
-   return {items:row?[(({reviewedBy,...publicRow})=>publicRow)(row)]:[],hasMore:false};
+   return {items:row?[publicReview(row)]:[],hasMore:false};
   }
   const page=Number.isInteger(event.page)&&event.page>=0&&event.page<1000?event.page:0;
   const rows=(await db.collection('route_reviews').orderBy('updatedAt','desc').skip(page*10).limit(10).get()).data;
-  return {items:rows.map(({reviewedBy,...row})=>row),hasMore:rows.length===10};
+  return {items:rows.map(row=>publicReview(row)),hasMore:rows.length===10};
  }
- const admins=new Set(String(process.env.HIKING_ADMIN_IDENTITIES||'').split(',').map(x=>x.trim()).filter(Boolean));
- if(!OPENID||!admins.has(OPENID))return {errMsg:'需要管理员权限'};
+ const adminAccess=require('../owner-admin');
+ if(event.action==='capabilities')return {canReview:adminAccess.isOwnerAdmin(OPENID),ownerConfigured:adminAccess.ownerAdminConfigured()};
+ if(!adminAccess.isOwnerAdmin(OPENID))return {errMsg:'需要管理员权限'};
  if(event.action!=='save'||typeof event.routeId!=='string'||!event.routeId.trim()||event.routeId.length>128||!statuses.includes(event.status))return {errMsg:'路线审核格式无效'};
  let source;try{source=new URL(event.sourceUrl);}catch{return {errMsg:'需提供官方资料链接'};}
- const defaultDomains='nps.gov,hiking.gov.hk,afcd.gov.hk,info.gov.hk,portal.csdi.gov.hk,dengfeng.gov.cn,dpm.org.cn,lmsk.cn,bmy.com.cn,shaolin.org.cn';
+ const defaultDomains='nps.gov,usgs.gov,usda.gov,parks.canada.ca,open.canada.ca,data.canada.ca,gc.ca,doc.govt.nz,govt.nz,gov.uk,gov.wales,naturalresources.wales,gov.au,gov.jp,go.jp,admin.ch,opendata.swiss,hiking.gov.hk,afcd.gov.hk,info.gov.hk,portal.csdi.gov.hk,data.gov.hk,dengfeng.gov.cn,dpm.org.cn,lmsk.cn,bmy.com.cn,shaolin.org.cn,datos.gob.es,sigred.oapn.es,centrodedescargas.cnig.es,www.ign.es,www.scne.es,partnerships.nationalmap.gov';
  const allowed=String(process.env.HIKING_OFFICIAL_DOMAINS||defaultDomains).split(',').map(x=>x.trim().toLowerCase()).filter(Boolean);
  if(source.protocol!=='https:'||source.username||source.password||source.port||!allowed.some(domain=>source.hostname===domain||source.hostname.endsWith('.'+domain)))return {errMsg:'该来源域名尚未配置为官方资料源'};
  if(typeof event.summary!=='string'||event.summary.length>3000||typeof event.riskNotice!=='string'||event.riskNotice.length>3000)return {errMsg:'资料内容格式无效'};
