@@ -22,5 +22,9 @@ with os.fdopen(fd,'w') as f:json.dump(config,f,ensure_ascii=False)
 r=subprocess.run([a.hbuilder,'pack','--config',str(output),'--project',config['project'],'--platform','ios','--safemode','true'],capture_output=True,text=True)
 log=output.with_suffix('.log');fd=os.open(log,os.O_WRONLY|os.O_CREAT|os.O_EXCL,0o600)
 with os.fdopen(fd,'w') as f:f.write(r.stdout+'\n'+r.stderr)
-if r.returncode or any(x in r.stdout+r.stderr for x in ['编译失败','打包失败','Cannot find module','当前命令执行错误','未检测到已打开的HBuilderX']):raise SystemExit('iOS build failed; private diagnostics retained')
+output_text=(r.stdout+'\n'+r.stderr).casefold()
+failure_markers=['编译失败','打包失败','cannot find module','当前命令执行错误',
+                 '未检测到已打开的hbuilderx','user not login','用户未登录','请先登录']
+if r.returncode or any(marker.casefold() in output_text for marker in failure_markers):
+ raise SystemExit('iOS build failed; private diagnostics retained')
 print('iOS build command completed; verify IPA, entitlements and device distribution before release.')
