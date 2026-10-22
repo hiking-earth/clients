@@ -4,7 +4,7 @@
  */
 import type { TrackRecord } from "@shared/types/track";
 import { validTrackPoint } from "@shared/types/track";
-import { accountSession } from "@/services/account";
+import { accountSession } from "@/services/account-core";
 import { hasPrivacyConsent } from "@/services/privacy";
 import { callCloud } from "@/services/cloud";
 
