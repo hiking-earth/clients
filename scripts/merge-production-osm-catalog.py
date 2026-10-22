@@ -17,7 +17,7 @@ import tempfile
 
 ROOT = Path(__file__).resolve().parents[1]
 CATALOG = ROOT / 'shared/data/catalog/osm.json'
-PBF_REPORT = re.compile(r'^docs/release/osm-(africa|asia|europe|south-america|oceania|north-america|china|japan)-pbf-refresh-(\d{4}-\d{2}-\d{2})\.json$')
+PBF_REPORT = re.compile(r'^docs/release/osm-(africa|asia|europe|south-america|oceania|north-america|central-america|antarctica|china|japan)-pbf-refresh-(\d{4}-\d{2}-\d{2})\.json$')
 
 
 def parse_time(value, label):

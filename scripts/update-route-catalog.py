@@ -121,6 +121,16 @@ def classify_region(region,lon,lat):
     if region=='japan' and lon<=135 and lat>=41:return 'china'
     return region
 
+def named_relation_center(tags,center,relation_id):
+    name=tags.get('name')
+    if not isinstance(name,str) or not name.strip():return None
+    lon,lat=center.get('lon'),center.get('lat')
+    if not all(isinstance(value,(int,float)) and not isinstance(value,bool) and math.isfinite(value) for value in (lon,lat)):
+        raise ValueError(f'Named OSM relation {relation_id} has no valid center; region snapshot and cursor retained')
+    if abs(lon)>180 or abs(lat)>90:
+        raise ValueError(f'Named OSM relation {relation_id} center is out of range; region snapshot and cursor retained')
+    return lon,lat
+
 def validate_previous_snapshot(previous, path):
     if not isinstance(previous, dict) or not isinstance(previous.get('routes'), list):
         raise SystemExit(f'Invalid OSM catalog snapshot at {path}; previous snapshot retained')
@@ -150,6 +160,12 @@ def validate_previous_snapshot(previous, path):
             raise SystemExit(f'Invalid OSM fetchedAt at index {index} ({route_id}); previous snapshot retained')
         if 'lastSeenCycle' in route and not isinstance(route['lastSeenCycle'],str):
             raise SystemExit(f'Invalid OSM reconciliation marker at index {index} ({route_id}); previous snapshot retained')
+        if 'pbfSources' in route:
+            sources=route['pbfSources']
+            if (not isinstance(sources,list)
+                or any(not isinstance(source,str) or not re.fullmatch(r'[a-z0-9][a-z0-9/_-]{0,99}',source) for source in sources)
+                or len(set(sources))!=len(sources)):
+                raise SystemExit(f'Invalid OSM PBF source provenance at index {index} ({route_id}); previous snapshot retained')
 
 @serialized_catalog_run
 def main():
@@ -217,10 +233,9 @@ def main():
                 if not isinstance(rid_value,int) or isinstance(rid_value,bool) or rid_value<=0:raise ValueError('Invalid OSM relation identity')
                 tags=item.get('tags',{});center=item.get('center',{})
                 if not isinstance(tags,dict) or not isinstance(center,dict):raise ValueError('Invalid OSM relation metadata')
-                if not isinstance(tags.get('name'),str) or not tags['name'].strip():continue
-                lon,lat=center.get('lon'),center.get('lat')
-                if not all(isinstance(v,(int,float)) and not isinstance(v,bool) and math.isfinite(v) for v in (lon,lat)):continue
-                if abs(lon)>180 or abs(lat)>90:raise ValueError('OSM relation center is out of range')
+                coordinates=named_relation_center(tags,center,rid_value)
+                if coordinates is None:continue
+                lon,lat=coordinates
                 rid=f'osm-relation-{rid_value}';observed=classify_region(region,lon,lat)
                 # Keep the first region from the deterministic preferred order
                 # when a relation lies in overlapping discovery rectangles.
@@ -230,6 +245,7 @@ def main():
                 chosen=old_region if old_region in DISCOVERY_REGIONS or old_region in ('hong-kong','macao') else observed
                 old_status=old.get('status') if old and isinstance(old.get('status'),str) else '待核验'
                 row={'id':rid,'name':tags.get('name:zh') or tags['name'],'originalName':tags['name'],'region':chosen,'center':[lon,lat], 'sourceUrl':f'https://www.openstreetmap.org/relation/{rid_value}','sourceTags':{k:v for k,v in tags.items() if k in ('distance','ascent','descent','network','operator','website','description','access','ref')},'fetchedAt':now,'status':old_status}
+                if old and isinstance(old.get('pbfSources'),list):row['pbfSources']=old['pbfSources']
                 if active_cycle:row['lastSeenCycle']=active_cycle
                 staged[rid]=row
             records.update(staged);counts[region]=len(staged)
@@ -246,9 +262,11 @@ def main():
         if index<len(ordered_regions)-1:time.sleep(3)
     snapshot=dict(previous);snapshot.update({'schemaVersion':1,'lastUpdateAttemptAt':now,'sourceBudget':budget,'sourceCursors':cursors,'failures':failures})
     if counts:
-        snapshot.update({'generatedAt':now,'license':'ODbL-1.0','attribution':'© OpenStreetMap contributors','licenseUrl':'https://www.openstreetmap.org/copyright','coverage':counts,'routes':sorted(records.values(),key=lambda r:r['id'])})
+        # These are records returned by this incremental refresh, not a count
+        # of all catalog records in a region or a measure of geographic coverage.
+        snapshot.update({'generatedAt':now,'license':'ODbL-1.0','attribution':'© OpenStreetMap contributors','licenseUrl':'https://www.openstreetmap.org/copyright','lastRefreshCounts':counts,'coverage':counts,'routes':sorted(records.values(),key=lambda r:r['id'])})
     dest.parent.mkdir(parents=True,exist_ok=True);temp=dest.with_suffix('.tmp');temp.write_text(json.dumps(snapshot,ensure_ascii=False,separators=(',',':'),allow_nan=False)+'\n');os.replace(temp,dest)
-    result={'catalogCount':len(records),'coverage':counts,'sourceCursors':cursors,'failures':len(failures),'sourceBudget':budget}
+    result={'catalogCount':len(records),'lastRefreshCounts':counts,'coverage':counts,'sourceCursors':cursors,'failures':len(failures),'sourceBudget':budget}
     print(json.dumps(result,ensure_ascii=False))
     if not counts:raise SystemExit('No OSM regions refreshed; query budget and failure state saved without advancing source watermarks')
 if __name__=='__main__': main()

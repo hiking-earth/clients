@@ -2,8 +2,8 @@
 """AFCD official hiking trail discovery with source attribution and bounded geometry.
 Official geometry is displayed as source reference, never a live permission to hike.
 """
-from afcd_pair import offline_bytes
-import datetime as dt,hashlib,json,math,pathlib,urllib.parse,urllib.request
+from afcd_pair import offline_bytes,validated_route_lines
+import datetime as dt,hashlib,json,pathlib,urllib.parse,urllib.request
 ROOT=pathlib.Path(__file__).resolve().parents[1];TARGET=ROOT/'shared/data/catalog/hk-afcd.json'
 BASE='https://portal.csdi.gov.hk/server/rest/services/common/afcd_rcd_1665568199103_4360/FeatureServer/0'
 ATTR='香港特别行政区政府 · 渔农自然护理署 · DATA.GOV.HK'
@@ -35,18 +35,13 @@ else:raise SystemExit('Incomplete source; previous catalog retained')
 if not features:raise SystemExit('Empty source; previous catalog retained')
 now=dt.datetime.now(dt.timezone.utc).isoformat();routes=[];offline=[]
 for feature in features:
- a=feature['attributes'];paths=feature.get('geometry',{}).get('paths',[])
- if not paths:continue
- lines=[]
- for path in paths:
-  if len(path)<2 or not all(len(p)>=2 and all(isinstance(v,(int,float)) and math.isfinite(v) for v in p[:2]) and abs(p[0])<=180 and abs(p[1])<=90 for p in path):raise ValueError('invalid official WGS84 geometry')
-  # Bound reference rendering and offline storage, preserving segment endpoints.
-  step=max(1,math.ceil(len(path)/150));line=[p[:2] for p in path[::step]]
-  if line[-1]!=path[-1][:2]:line.append(path[-1][:2])
-  lines.append(line)
+ a=feature['attributes'];identifier='hk-afcd-'+str(a['OBJECTID'])
+ name=next((value for value in (a.get('TRAIL_NAME_TC'),a.get('TRAIL_NAME_EN')) if isinstance(value,str) and value.strip()),None)
+ if name is None:continue
+ geometry=feature.get('geometry');paths=geometry.get('paths') if isinstance(geometry,dict) else None
+ try:lines=validated_route_lines(paths,a['OBJECTID'])
+ except ValueError as exc:raise SystemExit(f'Invalid named AFCD route geometry; previous catalog retained: {exc}') from exc
  points=[p for line in lines for p in line];center=[sum(p[i] for p in points)/len(points) for i in [0,1]]
- identifier='hk-afcd-'+str(a['OBJECTID']);name=a.get('TRAIL_NAME_TC') or a.get('TRAIL_NAME_EN')
- if not name:continue
  section=str(a.get('SECTION_NO') or '0');name+=(' · 第'+section+'段') if section!='0' else ''
  try:distance=float(a.get('MEASURE_LEN') or '')/1000
  except ValueError:distance=None

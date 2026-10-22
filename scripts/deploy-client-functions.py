@@ -84,6 +84,14 @@ backup.mkdir(parents=True, exist_ok=False)
 os.chmod(backup, 0o700)
 allowed = {folder.name for folder in (ROOT / 'app/cloudfunctions').iterdir() if folder.is_dir()}
 config = json.loads((ROOT / 'app/cloudbaserc.json').read_text())
+identity_helpers = [
+    ROOT / 'app/cloudfunctions/login/identity-ownership.js',
+    ROOT / 'app/cloudfunctions/client-api/identity-ownership.js',
+]
+if any(not path.is_file() for path in identity_helpers):
+    raise SystemExit('Identity ownership helper missing from a standalone cloud-function package; no functions were updated.')
+if len({hashlib.sha256(path.read_bytes()).digest() for path in identity_helpers}) != 1:
+    raise SystemExit('Standalone identity ownership helpers differ; synchronize them before deployment.')
 configured_rows = config.get('functions', [])
 if not isinstance(configured_rows, list) or any(not isinstance(item, dict) or not isinstance(item.get('name'), str) for item in configured_rows):
     raise SystemExit('Invalid CloudBase function configuration; no functions were updated.')

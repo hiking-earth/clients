@@ -106,26 +106,25 @@ def collect():
             trail_use = clean_text(attrs.get('TRLUSE'))
             if attrs.get('PUBLICDISPLAY') != 'Public Map Display' or not trail_use or not any(term in trail_use.lower() for term in ('hiker', 'pedestrian')):
                 raise ValueError('NPS page returned a record outside the public hiking/pedestrian filter')
+            name = clean_text(attrs.get('TRLNAME')) or clean_text(attrs.get('TRLALTNAME'))
+            unit = clean_text(attrs.get('UNITNAME')) or clean_text(attrs.get('UNITCODE')) or '美国国家公园'
+            if not name:
+                # A unit name plus object ID is not an official trail name.
+                withheld['unnamed-source-feature'] = withheld.get('unnamed-source-feature', 0) + 1
+                continue
             paths = feature.get('geometry', {}).get('paths') if isinstance(feature.get('geometry'), dict) else None
             if not isinstance(paths, list) or not paths:
-                withheld['missing-line-geometry'] = withheld.get('missing-line-geometry', 0) + 1
-                continue
+                raise ValueError(f'NPS named trail {object_id} has missing line geometry')
             if len(paths) > 100:
-                withheld['geometry-over-budget'] = withheld.get('geometry-over-budget', 0) + 1
-                continue
+                raise ValueError(f'NPS named trail {object_id} has too many geometry parts')
             try:
                 reference_paths = [simplify(path) for path in paths]
-            except ValueError:
-                withheld['invalid-line-geometry'] = withheld.get('invalid-line-geometry', 0) + 1
-                continue
+            except ValueError as error:
+                raise ValueError(f'NPS named trail {object_id} has invalid line geometry') from error
             points = [point for path in reference_paths for point in path]
             if len(points) > 15000:
                 withheld['geometry-over-budget'] = withheld.get('geometry-over-budget', 0) + 1
                 continue
-            name = clean_text(attrs.get('TRLNAME')) or clean_text(attrs.get('TRLALTNAME'))
-            unit = clean_text(attrs.get('UNITNAME')) or clean_text(attrs.get('UNITCODE')) or '美国国家公园'
-            if not name:
-                name = f'{unit}未命名步道 {object_id}'
             center = [round(sum(point[index] for point in points) / len(points), 6) for index in (0, 1)]
             routes.append({
                 'id': f'nps-trail-{object_id}',
