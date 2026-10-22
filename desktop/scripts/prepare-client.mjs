@@ -15,3 +15,5 @@ if (result.status !== 0) process.exit(result.status || 1);
 const target = path.join(root, 'desktop', 'client-dist');
 rmSync(target, { recursive: true, force: true }); mkdirSync(target, { recursive: true });
 cpSync(path.join(root, 'app', 'dist', 'build', 'h5'), target, { recursive: true });
+
+cpSync(path.join(root, 'shared', 'models', 'gear'), path.join(target, 'models', 'gear'), { recursive: true });
