@@ -9,7 +9,9 @@ def export(root,config):
     fingerprint=hashlib.sha256(json.dumps(configured,sort_keys=True).encode()).hexdigest()
     expected={row["id"]:row for row in configured}
     state=json.loads((root/'batch.json').read_text())
-    if not isinstance(state,dict) or state.get('schemaVersion')!=1 or not isinstance(state.get('regions'),dict) or not 1<=len(state['regions'])<=32:
+    if (not isinstance(state,dict) or type(state.get('schemaVersion')) is not int
+            or state.get('schemaVersion')!=1 or not isinstance(state.get('regions'),dict)
+            or not 1<=len(state['regions'])<=32):
         raise ValueError('invalid batch inventory')
     if state.get('configSha256')!=fingerprint or set(state['regions'])!=set(expected):raise ValueError('batch does not cover configured regions')
     build=state.get('build')
@@ -20,7 +22,10 @@ def export(root,config):
         stem=ident+'-'+build.removesuffix('.pmtiles')
         record=json.loads((root/(stem+'.json')).read_text())
         pack=root/(stem+'.pmtiles')
-        if not isinstance(record,dict) or not isinstance(record.get('upstream'),dict) or record.get('id')!=ident or record.get('file')!=pack.name or record['upstream'].get('build')!=build:raise ValueError('map identity mismatch')
+        if (not isinstance(record,dict) or type(record.get('schemaVersion')) is not int
+                or record.get('schemaVersion')!=1 or not isinstance(record.get('upstream'),dict)
+                or record.get('id')!=ident or record.get('file')!=pack.name
+                or record['upstream'].get('build')!=build):raise ValueError('map identity mismatch')
         region=expected[ident]
         global_overview=region.get('scope')=='global-overview'
         if record.get('bounds')!=list(batch.builder.parse_bounds(region['bbox'],global_overview=global_overview)) or record.get('minZoom')!=region['minZoom'] or record.get('maxZoom')!=region['maxZoom'] or record.get('name')!=region['name'] or record.get('scope')!=region.get('scope'):raise ValueError('map region mismatch')

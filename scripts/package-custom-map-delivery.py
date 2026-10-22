@@ -2,6 +2,8 @@
 """Package complete, checked custom map output for durable public distribution."""
 import argparse, hashlib, json, pathlib, re, zipfile
 
+MAX_ARCHIVE_BYTES=192*1024*1024
+
 def package(source, target):
     if (source/'catalog.json').is_symlink():raise ValueError('Linked catalog rejected')
     rows=json.loads((source/'catalog.json').read_text())
@@ -17,7 +19,9 @@ def package(source, target):
     inventory=source/'source-inventory.json'
     if inventory.is_symlink() or not inventory.is_file():raise ValueError('Source inventory missing')
     provenance=json.loads(inventory.read_text())
-    if not isinstance(provenance,dict) or provenance.get('schemaVersion')!=1 or provenance.get('accessVerified') is not False or provenance.get('terrainIncluded') is not False:raise ValueError('Invalid source inventory')
+    if (not isinstance(provenance,dict) or type(provenance.get('schemaVersion')) is not int
+            or provenance.get('schemaVersion')!=1 or provenance.get('accessVerified') is not False
+            or provenance.get('terrainIncluded') is not False):raise ValueError('Invalid source inventory')
     records=provenance.get('maps')
     if not isinstance(records,list) or len(records)!=len(rows):raise ValueError('Incomplete source inventory')
     by_name={record.get('file'):record for record in records if isinstance(record,dict)}
@@ -26,13 +30,17 @@ def package(source, target):
         record=by_name[row['name']]
         if any(record.get(key)!=row.get(key) for key in ['bytes','sha256','license','attribution','bounds']) or record.get('name')!=row.get('label') or record.get('license')!='ODbL-1.0 Produced Work' or not record.get('sourcePolicy'):raise ValueError('Source inventory attribution or digest mismatch')
     total=sum(row['bytes'] for row in rows)
-    if total>500_000_000 or provenance.get('bytes')!=total:raise ValueError('Distribution total mismatch')
+    if total>MAX_ARCHIVE_BYTES or provenance.get('bytes')!=total:raise ValueError('Distribution total mismatch')
     if target.exists():raise ValueError('Delivery output already exists')
     with zipfile.ZipFile(target,'x',zipfile.ZIP_DEFLATED) as archive:
         for name in sorted(names|{'catalog.json','source-inventory.json'}):archive.write(source/name,name)
     with zipfile.ZipFile(target) as archive:
         if archive.testzip() is not None:raise ValueError('Delivery archive integrity failed')
-    return {'maps':len(rows),'bytes':target.stat().st_size,'sha256':hashlib.sha256(target.read_bytes()).hexdigest(),'published':False}
+    archive_bytes=target.stat().st_size
+    if archive_bytes>MAX_ARCHIVE_BYTES:
+        target.unlink()
+        raise ValueError('Delivery archive exceeds the 192 MiB client import limit')
+    return {'maps':len(rows),'bytes':archive_bytes,'sha256':hashlib.sha256(target.read_bytes()).hexdigest(),'published':False}
 
 if __name__=='__main__':
     parser=argparse.ArgumentParser();parser.add_argument('--input',required=True,type=pathlib.Path);parser.add_argument('--output',required=True,type=pathlib.Path)
