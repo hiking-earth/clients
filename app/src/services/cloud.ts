@@ -6,7 +6,7 @@
  */
 import { hasPrivacyConsent } from "@/services/privacy";
 import { CLOUD_ENV } from "@shared/constants";
-import { accountApiConfigured, accountRequest, accountSession } from '@/services/account';
+import { accountApiConfigured, accountRequest, accountSession } from '@/services/account-core';
 
 declare const wx: any;
 

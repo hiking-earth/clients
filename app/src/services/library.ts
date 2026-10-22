@@ -1,4 +1,4 @@
-import { accountSession } from './account';
+import { accountSession } from './account-core';
 
 // Automatic and user-triggered cloud operations share the same in-process
 // queue so a manual restore cannot race an automatic save (or vice versa).
