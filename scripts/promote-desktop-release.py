@@ -2,13 +2,17 @@
 """Publish a verified desktop candidate only after the unified acceptance gate."""
 import argparse
 import json
+import os
 import pathlib
 import re
 import subprocess
 import sys
 import tempfile
 from urllib.parse import unquote, urlsplit
-from release_acceptance import require_iphone_acceptance, require_platform_evidence
+from release_acceptance import (require_iphone_acceptance, require_platform_evidence,
+                                has_schema_version_1, require_source_manifest_version,
+                                require_desktop_package_version, REQUIRED_RELEASE_PLATFORMS,
+                                require_client_version, parse_client_version)
 
 REPO = "hiking-earth/clients"
 PLATFORMS = {
@@ -17,7 +21,6 @@ PLATFORMS = {
     "darwin-x86_64": ".app.tar.gz",
     "linux-x86_64": ".AppImage",
 }
-REQUIRED_ACCEPTANCE = ["android", "h5", "weixin", "web", "windows", "macos", "macos-aarch64", "macos-x86_64", "linux"]
 DESKTOP_REPORT_KEYS = {
     "windows-x86_64": "windows",
     "darwin-aarch64": "macos-aarch64",
@@ -34,11 +37,59 @@ def stop(message):
     raise SystemExit(message)
 
 
-def require_version_advance(version, pages):
-    """Do not move the stable updater channel backwards or republish its version."""
+def merge_desktop_download_manifest(stable, version, platforms):
+    if not has_schema_version_1(stable) or not isinstance(stable.get("ready"), bool):
+        stop("Existing stable manifest is invalid; preserve it and repair manually")
+    candidate = require_client_version(version)
+    current = parse_client_version(stable.get("version"))
+    if current is None:
+        stop("Existing stable manifest version is invalid; preserve it and repair manually")
+    if candidate < current:
+        stop("Desktop download manifest cannot move behind the stable app version")
+    if not isinstance(platforms, dict) or set(platforms) != set(DESKTOP_REPORT_KEYS.values()):
+        stop("Complete verified desktop download metadata is required")
+    return {
+        **stable,
+        "desktop": {
+            "version": version,
+            "platforms": platforms,
+        },
+    }
+
+
+def stage_stable_manifest(path, stable):
+    """Durably prepare the local manifest before changing the public release."""
+    payload = json.dumps(stable, ensure_ascii=False, indent=2) + "\n"
+    temporary_path = None
+    try:
+        with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", newline="\n",
+                                         dir=path.parent, prefix=path.name + ".",
+                                         suffix=".tmp", delete=False) as stream:
+            temporary_path = pathlib.Path(stream.name)
+            os.chmod(temporary_path, path.stat().st_mode & 0o777)
+            stream.write(payload)
+            stream.flush()
+            os.fsync(stream.fileno())
+        return temporary_path
+    except Exception:
+        if temporary_path is not None:
+            temporary_path.unlink(missing_ok=True)
+        raise
+
+
+def prepare_stable_manifest(path, version, platforms):
+    """Validate and durably stage the manifest without replacing its current version."""
+    stable = json.loads(path.read_text(encoding="utf-8"))
+    updated = merge_desktop_download_manifest(stable, version, platforms)
+    return stage_stable_manifest(path, updated)
+
+
+def require_version_advance(version, pages, already_published_tag=None):
+    """Advance stable versions, except a retry of the exact already-published tag."""
     if not isinstance(pages, list) or any(not isinstance(page, list) for page in pages):
         stop("Published release inventory is invalid")
-    candidate = tuple(map(int, version.split(".")))
+    candidate = require_client_version(version)
+    matching_tag_count = 0
     for page in pages:
         for release in page:
             if not isinstance(release, dict):
@@ -48,11 +99,19 @@ def require_version_advance(version, pages):
             if release.get("draft") is not False or release.get("prerelease") is not False:
                 stop("Published release status is ambiguous")
             tag = release.get("tag_name")
-            if not isinstance(tag, str) or not re.fullmatch(r"v\d+\.\d+\.\d+", tag):
+            prior = parse_client_version(tag[1:]) if isinstance(tag, str) and tag.startswith('v') else None
+            if prior is None:
                 stop("Published stable release has no comparable semantic version")
-            prior = tuple(map(int, tag[1:].split(".")))
-            if candidate <= prior:
+            if candidate < prior:
                 stop("Desktop stable version must advance beyond every published stable release")
+            if candidate == prior:
+                if tag != already_published_tag:
+                    stop("Desktop stable version must advance beyond every published stable release; this version already belongs to another published release")
+                matching_tag_count += 1
+    if matching_tag_count > 1:
+        stop("Published release inventory contains duplicate candidate versions")
+    if already_published_tag is not None and matching_tag_count != 1:
+        stop("Published release inventory does not contain the exact candidate tag")
 
 
 def main():
@@ -60,7 +119,7 @@ def main():
     parser.add_argument("tag", help="Existing desktop candidate tag, for example v0.2.1")
     parser.add_argument("--acceptance-report", required=True, type=pathlib.Path)
     args = parser.parse_args()
-    if not re.fullmatch(r"v\d+\.\d+\.\d+", args.tag):
+    if not isinstance(args.tag, str) or not args.tag.startswith('v') or parse_client_version(args.tag[1:]) is None:
         stop("Expected a stable semantic-version tag such as v0.2.1")
 
     report = json.loads(args.acceptance_report.read_text())
@@ -69,21 +128,29 @@ def main():
     source_commit = report.get("sourceCommit")
     version = args.tag[1:]
     platforms = report["platforms"]
-    if report.get("schemaVersion") != 1 or report.get("complete") is not True:
+    if not has_schema_version_1(report) or report.get("complete") is not True:
         stop("Complete unified acceptance report required; candidate remains draft")
     if not re.fullmatch(r"[a-f0-9]{40}", str(source_commit or "")):
         stop("Acceptance report must pin the complete source commit")
     if report.get("version") != version:
         stop("Acceptance version differs from requested desktop release")
+    if type(report.get("versionCode")) is not int:
+        stop("Acceptance report must include the native integer versionCode")
+    root = pathlib.Path(__file__).resolve().parents[1]
+    native_manifest = json.loads((root / "app/src/manifest.json").read_text(encoding="utf-8"))
+    require_source_manifest_version(native_manifest, version, report["versionCode"])
+    tauri_config = json.loads((root / "desktop/src-tauri/tauri.conf.json").read_text(encoding="utf-8"))
+    require_desktop_package_version(tauri_config, version)
     if any(not isinstance(platforms.get(name), dict) or platforms[name].get("status") != "passed"
-           for name in REQUIRED_ACCEPTANCE):
+           for name in REQUIRED_RELEASE_PLATFORMS):
         stop("Unified acceptance is incomplete; desktop release remains draft")
-    require_platform_evidence(platforms, REQUIRED_ACCEPTANCE)
+    require_platform_evidence(platforms, REQUIRED_RELEASE_PLATFORMS)
     require_iphone_acceptance(platforms)
 
     release = gh_json(f"repos/{REPO}/releases/tags/{args.tag}")
-    if release.get("draft") is not True or release.get("prerelease") is not False:
-        stop("Expected an unpublished, non-prerelease candidate")
+    if type(release.get("draft")) is not bool or release.get("prerelease") is not False:
+        stop("Expected a draft or already-published non-prerelease candidate")
+    already_published = release["draft"] is False
     commit = gh_json(f"repos/{REPO}/commits/{args.tag}").get("sha")
     if commit != source_commit:
         stop("Candidate tag does not resolve to the accepted source commit")
@@ -100,6 +167,7 @@ def main():
     if "latest.json" not in by_name:
         stop("Verified desktop latest.json is missing; candidate remains draft")
 
+    verified_downloads = {}
     with tempfile.TemporaryDirectory(prefix="hiking-desktop-release-") as temporary:
         work = pathlib.Path(temporary)
         subprocess.run(["gh", "release", "download", args.tag, "--repo", REPO,
@@ -141,29 +209,48 @@ def main():
             signature_file = work / signature_name
             if signature_file.read_text().strip() != entry["signature"].strip():
                 stop(f"Updater signature differs from the signed release asset for {platform}")
-            verified = subprocess.run(["node", "scripts/verify-desktop-updater.mjs", str(work / artifact_name)],
+            verified = subprocess.run(["node", str(root / "scripts/verify-desktop-updater.mjs"), str(work / artifact_name)],
                                       check=True, capture_output=True, text=True)
             verification = json.loads(verified.stdout)
             if (verification.get("signatureVerified") is not True
                     or verification.get("sha256") != expected_sha
                     or verification.get("size") != artifact_meta.get("size")):
                 stop(f"Release asset differs from the updater artifact accepted for {report_key}")
+            verified_downloads[report_key] = {
+                "url": entry["url"],
+                "sha256": expected_sha,
+                "size": artifact_meta["size"],
+            }
 
         inventory = gh_json(f"repos/{REPO}/releases?per_page=100", "--paginate", "--slurp")
-        require_version_advance(version, inventory)
-        published = gh_json(f"repos/{REPO}/releases/{release['id']}", "-X", "PATCH",
-                            "-F", "draft=false", "-f", "make_latest=true")
-        if published.get("draft") is not False or published.get("tag_name") != args.tag:
-            stop("GitHub did not confirm publication; inspect release state before retrying")
-        published_assets = {a.get("name"): a for a in published.get("assets", [])}
-        for platform in PLATFORMS:
-            entry = manifest["platforms"][platform]
-            name = unquote(urlsplit(entry["url"]).path.rsplit("/", 1)[-1])
-            if published_assets.get(name, {}).get("browser_download_url") != entry["url"]:
-                stop(f"Published updater URL differs for {platform}; inspect release before retrying")
-        latest = gh_json(f"repos/{REPO}/releases/latest")
-        if latest.get("tag_name") != args.tag:
-            stop("Release published, but GitHub latest channel does not point to the accepted tag")
+        require_version_advance(version, inventory, args.tag if already_published else None)
+        # Validate and durably stage every local manifest change before the
+        # irreversible GitHub publication request. A bad stable.json or a
+        # local disk write failure must leave the candidate as a draft.
+        stable_path = root / "shared/releases/stable.json"
+        stable_before = stable_path.read_bytes()
+        staged_stable_path = prepare_stable_manifest(stable_path, version, verified_downloads)
+        try:
+            patch_args = ("-f", "make_latest=true") if already_published else ("-F", "draft=false", "-f", "make_latest=true")
+            published = gh_json(f"repos/{REPO}/releases/{release['id']}", "-X", "PATCH", *patch_args)
+            if published.get("draft") is not False or published.get("tag_name") != args.tag:
+                stop("GitHub did not confirm publication; inspect release state before retrying")
+            published_assets = {a.get("name"): a for a in published.get("assets", [])}
+            for platform in PLATFORMS:
+                entry = manifest["platforms"][platform]
+                name = unquote(urlsplit(entry["url"]).path.rsplit("/", 1)[-1])
+                if published_assets.get(name, {}).get("browser_download_url") != entry["url"]:
+                    stop(f"Published updater URL differs for {platform}; inspect release before retrying")
+            latest = gh_json(f"repos/{REPO}/releases/latest")
+            if latest.get("tag_name") != args.tag:
+                stop("Release published, but GitHub latest channel does not point to the accepted tag")
+            if stable_path.read_bytes() != stable_before:
+                stop("Stable manifest changed during promotion; inspect the published release and reconcile manually")
+            os.replace(staged_stable_path, stable_path)
+            staged_stable_path = None
+        finally:
+            if staged_stable_path is not None:
+                staged_stable_path.unlink(missing_ok=True)
     print(f"Published verified desktop release {args.tag} from {source_commit}")
 
 

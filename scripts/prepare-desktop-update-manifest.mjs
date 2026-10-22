@@ -8,7 +8,8 @@ if(!metadataFile||!directory||!output||!/^[a-f0-9]{40}$/.test(sourceCommit||''))
 const release=JSON.parse(readFileSync(metadataFile,'utf8'));
 const config=JSON.parse(readFileSync(new URL('../desktop/src-tauri/tauri.conf.json',import.meta.url),'utf8'));
 if(release.draft!==true||release.target_commitish!==sourceCommit||!Array.isArray(release.assets))throw new Error('Expected draft release pinned to source commit');
-if(typeof release.tag_name!=='string'||!/^[-a-zA-Z0-9_.]+$/.test(release.tag_name))throw new Error('Invalid stable release tag');
+const clientVersion=typeof config.version==='string'&&/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/.exec(config.version);
+if(!clientVersion||!clientVersion.slice(1).every(part=>Number.isSafeInteger(Number(part)))||release.tag_name!==`v${config.version}`)throw new Error('Release tag must match the client-supported Tauri version');
 const platforms={};
 const specs=[
  ['windows-x86_64','.msi',()=>true],
