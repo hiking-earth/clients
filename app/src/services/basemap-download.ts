@@ -1,3 +1,4 @@
+import {PUBLIC_MAP_DISTRIBUTION} from './basemap-catalog';
 export interface BasemapDownload {name:string;url:string;bytes:number;sha256:string}
 export function validateBasemapDownload(value:BasemapDownload,origin:string):URL{
  if(!value||!/^[a-z0-9-]{1,80}\.pmtiles$/.test(value.name)||!Number.isSafeInteger(value.bytes)||value.bytes<127||value.bytes>64*1024*1024||!/^[a-f0-9]{64}$/.test(value.sha256))throw new Error('地图下载清单无效');
@@ -27,7 +28,7 @@ export async function downloadBasemap(value:BasemapDownload,origin:string,signal
 }
 
 export async function downloadDesktopBasemap(value:BasemapDownload,request:(name:string,bytes:number)=>Promise<ArrayBuffer>):Promise<File>{
- validateBasemapDownload(value,'https://hiking-earth.nanyu20050927.chatgpt.site/client-app/');
+ validateBasemapDownload(value,PUBLIC_MAP_DISTRIBUTION);
  const buffer=await request(value.name,value.bytes);
  if(Object.prototype.toString.call(buffer)!=='[object ArrayBuffer]'||buffer.byteLength!==value.bytes)throw new Error('地图大小与清单不一致');
  const digest=await crypto.subtle.digest('SHA-256',buffer);

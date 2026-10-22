@@ -1,3 +1,4 @@
+import {PUBLIC_MAP_DISTRIBUTION} from './basemap-catalog';
 import {verifyBasemapDigest} from './basemap-digest';
 import {fileRangeReader,type BinaryFileManager} from './basemap-file-reader';
 export type MapDownloadPack={name:string;url:string;bytes:number;sha256:string};
@@ -6,7 +7,7 @@ export interface MapDownloadApi{
  getFileInfo(options:{filePath:string;success:(result:{size:number})=>void;fail:()=>void}):void;
  getFileSystemManager():BinaryFileManager;
 }
-const BASE='https://hiking-earth.nanyu20050927.chatgpt.site/client-app/';
+const BASE=PUBLIC_MAP_DISTRIBUTION;
 export async function downloadWechatBasemap(api:MapDownloadApi,pack:MapDownloadPack,progress?:(bytes:number,stage:'download'|'verify')=>void){
  if(!pack||!/^[a-z0-9-]{1,80}\.pmtiles$/.test(pack.name)||pack.url!==`static/offline-maps/${pack.name}`||!Number.isSafeInteger(pack.bytes)||pack.bytes<127||pack.bytes>64*1024*1024||!/^[a-f0-9]{64}$/.test(pack.sha256))throw new Error('地图下载清单无效');
  const signal={aborted:false};let task:ReturnType<MapDownloadApi['downloadFile']>|undefined;

@@ -8,7 +8,7 @@ fn acquire() -> Result<Permit, String> {
         .map_err(|_| "地图网络请求正在进行，请稍后重试".to_string())?;
     Ok(Permit)
 }
-const BASE: &str = "https://hiking-earth.nanyu20050927.chatgpt.site/client-app/static/offline-maps/";
+const BASE: &str = "https://hiking-earth.hiking-earth.workers.dev/client-app/static/offline-maps/";
 const MAX_MAP: u64 = 64 * 1024 * 1024;
 fn valid_name(name: &str) -> bool {
     let Some(stem) = name.strip_suffix(".pmtiles") else { return false; };
