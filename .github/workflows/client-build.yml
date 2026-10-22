@@ -12,6 +12,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   build:
+    if: ${{ vars.CLIENT_BUILD_READY == 'true' }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -33,7 +34,7 @@ jobs:
       - name: Check client types and photo lifecycle regressions
         run: |
           npm --prefix app run type-check
-          node --test scripts/tests/photo-selection.test.cjs scripts/tests/gear-backend.test.cjs
+          node --test app/tests/desktop-location.test.cjs app/tests/privacy-location.test.cjs scripts/tests/photo-selection.test.cjs scripts/tests/gear-backend.test.cjs
       - name: Build candidate
         working-directory: app
         env:

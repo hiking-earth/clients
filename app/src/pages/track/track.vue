@@ -25,6 +25,7 @@
 
     <text v-if="!tracksValid" class="privacy-note">本机轨迹列表格式异常，已停用新记录、导入和保存，防止覆盖原始定位资料。现有有效记录仅供查看；请勿清理应用数据。</text>
     <text v-if="backgroundCacheWarning" class="privacy-note">{{ backgroundCacheWarning }}</text>
+    <text v-if="desktopClient" class="privacy-note">桌面端支持系统定位与轨迹记录。请先开启应用和系统定位权限；电脑可能使用 Wi-Fi 或外接 GPS，精度由系统决定，未报告的精度不会补造。请保持窗口在前台，休眠期间不会持续记录。</text>
     <button :disabled="!tracksValid" @click="openImport">导入 GPX</button>
     <view v-if="state==='idle'&&unassignedDraft" class="privacy-note"><text>发现一条匿名或未记录账号归属的旧轨迹草稿，默认隐藏。</text><button @click="claimLegacyDraft">确认归属后恢复草稿</button></view>
     <text v-if="hiddenTrackCount" class="privacy-note">另有 {{ hiddenTrackCount }} 条其他账号或未归属轨迹在本机隐藏。需要转存时请到“我的 → 云同步全部轨迹”逐步确认。</text>
@@ -53,11 +54,16 @@ import { onUnmounted, ref } from "vue";
 import { onShow, onHide } from "@dcloudio/uni-app";
 import { haversineM } from "@shared/api/navigation-core";
 import type { TrackPoint, TrackRecord } from "@shared/types/track";
-import { startLocationUpdates, stopLocationUpdates } from "@/services/location";
+import { startLocationUpdates, stopLocationUpdates, getLocationError, onLocationFailure } from "@/services/location";
+import { isDesktop } from '@/services/desktop';
 import { onPrivacyChange } from "@/services/privacy";
 import { listTracks, listCurrentOwnerTracks, saveTrack, loadDraft, saveDraft, clearDraft, currentTrackOwner, currentLocalTrackOwner, hasUnassignedDraft, claimUnassignedDraft, trackStorageValid } from "@/services/tracks";
 
 const state = ref<"idle" | "recording" | "paused">("idle");
+const desktopClient = isDesktop();
+const unsubscribeLocationFailure = onLocationFailure(message => {
+  if (state.value === 'recording') { pause(); uni.showToast({ title: message, icon: 'none' }); }
+});
 const points = ref<TrackPoint[]>([]);
 const distanceM = ref(0);
 const ascentM = ref(0);
@@ -194,7 +200,7 @@ async function begin() {
   try{ok=await startLocationUpdates(onPoint);}catch{uni.showToast({title:'定位启动失败，请重试',icon:'none'});}finally{starting=false;}
   if (disposed || epoch !== generation) { stopLocationUpdates(onPoint); return; }
   if (!ok) {
-    uni.showToast({ title: "请启用隐私设置中的定位并授权", icon: "none" });
+    uni.showToast({ title: getLocationError() || "请启用隐私设置中的定位并授权", icon: "none" });
     return;
   }
   if (!startedAt) { startedAt = Date.now(); recordOwner = currentTrackOwner() || 'anonymous'; }
@@ -299,7 +305,7 @@ const unsubscribeAccount = onAccountChange(() => {
 onUnmounted(() => {
   disposed = true;
   generation++;
-  unsubscribePrivacy(); unsubscribeAccount();
+  unsubscribePrivacy(); unsubscribeAccount(); unsubscribeLocationFailure();
   if (state.value !== "idle") pause();
   if (timer) clearInterval(timer);
 });
@@ -314,17 +320,17 @@ onUnmounted(() => {
 .stat-k { font-size: 10px; color: var(--he-color-muted); }
 .controls { display: flex; gap: 12px; margin-top: 12px; }
 .btn { flex: 1; border-radius: 499.5px; font-size: 15px; font-weight: 600; }
-.btn.start { background: var(--he-color-accent); color: var(--he-color-background); }
-.btn.pause { background: #ffd166; color: var(--he-color-background); }
-.btn.stop { background: #ff7b72; color: var(--he-color-background); }
+.btn.start { background: var(--he-color-accent); color: var(--he-color-on-accent); }
+.btn.pause { background: var(--he-color-warning); color: var(--he-color-on-warning); }
+.btn.stop { background: var(--he-color-danger); color: var(--he-color-on-accent); }
 .hint { display: block; margin-top: 8px; font-size: 11px; color: var(--he-color-muted); text-align: center; }
 .list { flex: 1; padding: 0 16px; box-sizing: border-box; }
 .group-title { font-size: 12px; color: var(--he-color-muted); margin: 8px 0; }
-.card { display: flex; align-items: center; background: var(--he-color-panel); border-radius: 10px; padding: 14px 12px; margin-bottom: 8px; }
+.card { display: flex; align-items: center; background: var(--he-color-panel); border-radius: var(--he-card-radius, 16px); padding: 14px 12px; margin-bottom: 8px; }
 .card-l { flex: 1; display: flex; flex-direction: column; gap: 4px; }
 .card-name { font-size: 15px; font-weight: 600; color: var(--he-color-text); }
 .card-meta { font-size: 11px; color: var(--he-color-muted); }
 .synced { font-size: 10px; color: var(--he-color-accent); }
 .empty { color: var(--he-color-muted); font-size: 12px; text-align: center; padding: 24px 0; }
-.privacy-note { display:block; margin:8px 16px; padding:10px; border-radius:8px; background:var(--he-color-surface); color:#ffd166; font-size:11px; line-height:1.6; }
+.privacy-note { display:block; margin:8px 16px; padding:10px; border-radius:8px; background:var(--he-color-surface); color:var(--he-color-warning); font-size:11px; line-height:1.6; }
 </style>

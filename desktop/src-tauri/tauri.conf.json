@@ -43,9 +43,10 @@
     ],
     "category": "Travel",
     "shortDescription": "徒步地球桌面端",
-    "longDescription": "本地完整客户端：路线发现、轨迹导入导出、账号、组队与社区。",
+    "longDescription": "完整客户端：路线发现、系统定位、导航与轨迹记录、GPX导入导出、账号、组队与社区。",
     "macOS": {
-      "signingIdentity": "-"
+      "signingIdentity": "-",
+      "infoPlist": "Info.plist"
     },
     "windows": {
       "wix": {

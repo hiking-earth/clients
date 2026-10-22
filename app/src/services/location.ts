@@ -2,6 +2,8 @@
 import type { TrackPoint } from "@shared/types/track";
 import { HeadingFilter } from "@shared/api/navigation-core";
 import { hasPrivacyConsent, onPrivacyChange } from "@/services/privacy";
+import { isDesktop } from '@/services/desktop';
+import { watchDesktopLocation } from '@/services/desktop-location';
 
 declare const plus: any;
 let nativeWatch: number | undefined;
@@ -18,6 +20,13 @@ let generation = 0;
 let pollTimer: ReturnType<typeof setInterval> | undefined;
 let pending: Promise<boolean> | undefined;
 let settle: ((ok: boolean) => void) | undefined;
+let stopDesktop: (() => void) | undefined;
+let locationError = '';
+const failureListeners = new Set<(message: string) => void>();
+export function getLocationError(): string { return locationError; }
+export function onLocationFailure(cb: (message: string) => void): () => void {
+  failureListeners.add(cb); return () => { failureListeners.delete(cb); };
+}
 
 function allowed(purpose: Purpose): boolean {
   return hasPrivacyConsent("location") && (purpose !== "team" || hasPrivacyConsent("teamLocation"));
@@ -28,7 +37,7 @@ function deliver(res: any) {
   const point: TrackPoint = {
     latitude: res.latitude, longitude: res.longitude,
     altitude: optional(res.altitude), speed: optional(res.speed,true),
-    accuracy: optional(res.horizontalAccuracy ?? res.accuracy,true), timestamp: Date.now(),
+    accuracy: optional(res.horizontalAccuracy ?? res.accuracy,true), timestamp: optional(res.timestamp,true) ?? Date.now(),
   };
   locations.forEach((purpose, cb) => { if (allowed(purpose)) { try { cb({...point}); } catch { /* One view must not interrupt other subscribers. */ } } });
 }
@@ -42,6 +51,8 @@ const compassListener = (res: any) => {
 function shutdown() {
   generation++;
   running = false;
+  stopDesktop?.();
+  stopDesktop = undefined;
   // #ifdef APP-PLUS
   if (nativeWatch !== undefined) { try { plus.geolocation.clearWatch(nativeWatch); } catch { /* Internal revocation still completes. */ } }
   nativeWatch = undefined;
@@ -57,6 +68,7 @@ function shutdown() {
 
 export async function startLocationUpdates(cb: LocationCallback, purpose: Purpose = "navigation"): Promise<boolean> {
   if (!allowed(purpose)) return false;
+  locationError = '';
   locations.set(cb, purpose);
   if (running) return true;
   if (!pending) {
@@ -91,6 +103,21 @@ export async function startLocationUpdates(cb: LocationCallback, purpose: Purpos
         }); } catch { finish(false); }
       };
       try {
+      // #ifdef H5
+      if (isDesktop()) {
+        stopDesktop = watchDesktopLocation(res => {
+          if (!valid()) return;
+          if (!running) finish(true);
+          deliver(res);
+        }, message => {
+          if (!valid()) return;
+          locationError = message;
+          finish(false); locations.clear(); shutdown();
+          failureListeners.forEach(cb => { try { cb(message); } catch { /* Isolate views. */ } });
+        });
+        return;
+      }
+      // #endif
       // #ifdef APP-PLUS
       nativeWatch = plus.geolocation.watchPosition((res: any) => {
         if (!valid()) return;

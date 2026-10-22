@@ -59,6 +59,7 @@
 </template>
 
 <script setup lang="ts">
+import { HE_PALETTE } from '@shared/design/palette';
 import { activeOfflineLayer,restoreOfflineLayers } from '@/services/offline';
 
 import RouteMap from '@/components/RouteMap.vue';
@@ -74,7 +75,7 @@ import {
   arrowDeg, bearingDeg, formatDistance, haversineM, nextWaypoint, offRouteDistanceM,
 } from "@shared/api/navigation-core";
 import { MAP } from "@shared/constants";
-import { startCompass, stopCompass, startLocationUpdates, stopLocationUpdates } from "@/services/location";
+import { startCompass, stopCompass, startLocationUpdates, stopLocationUpdates, getLocationError } from "@/services/location";
 import { getCurrentOwnerTrack, currentTrackOwner } from "@/services/tracks";
 import { callCloud } from "@/services/cloud";
 import { onPrivacyChange } from "@/services/privacy";
@@ -191,7 +192,7 @@ let disposed = false;
 async function boot() {
   if (!(await startLocationUpdates(onLocation)) || disposed) {
     stopLocationUpdates(onLocation);
-    if (!disposed) uni.showToast({ title: "请启用隐私设置中的定位并授权", icon: "none" });
+    if (!disposed) uni.showToast({ title: getLocationError() || "请启用隐私设置中的定位并授权", icon: "none" });
     return;
   }
   uni.setKeepScreenOn?.({ keepScreenOn: true });
@@ -272,7 +273,7 @@ const mapMarkers = computed(() => {
 const mapPolyline = computed(() => [
   {
     points: path.value.map(toMapPoint),
-    color: "#b8f36b", width: 4, arrowLine: true,
+    color: HE_PALETTE.accent, width: 4, arrowLine: true,
   },
 ]);
 
@@ -288,7 +289,7 @@ async function triggerSos() {
   if (!savedTeamId) { try { const raw=uni.getStorageSync("he_team");const cached=typeof raw==='string'?JSON.parse(raw||'null'):raw;const id=cached?.teamId??cached?.id;savedTeamId=typeof id==='string'?id:''; } catch {} }
   const confirmed = await new Promise<boolean>((resolve) => uni.showModal({
     title: "上传求助位置？",
-    content: savedTeamId ? "将当前位置保存到云端，并在队友打开组队页面时显示求助信号。没有短信或系统推送，不会联系救援机构；紧急情况请直接拨打当地求救电话。" : "将当前位置保存到云端求助记录。当前没有队伍，不会通知联系人或救援机构；紧急情况请直接拨打当地求救电话。",
+    content: savedTeamId ? "将当前位置和导航求助说明保存到云端；有效队友打开组队页面时可见，信号只显示最近1小时。正常情况下记录在24–30小时内由定时清理删除；任务异常时可能延迟。没有短信或系统推送，也不会联系救援机构；紧急情况请直接拨打当地求救电话。" : "将当前位置和导航求助说明保存到云端求助记录；当前没有队伍，无人接收。正常情况下记录在24–30小时内由定时清理删除；任务异常时可能延迟。没有短信或系统推送，也不会联系救援机构；紧急情况请直接拨打当地求救电话。",
     success: (result) => resolve(result.confirm === true), fail: () => resolve(false),
   }));
   if (!confirmed||owner!==currentTrackOwner()||token!==accountSession()?.token) return;
@@ -296,7 +297,7 @@ async function triggerSos() {
     teamId: savedTeamId, latitude: p.latitude, longitude: p.longitude, message: `导航「${navTitle.value}」中触发`,
   });
   if (res.ok) {
-    uni.showModal({ title: "SOS 已上报", content: savedTeamId ? "求助记录已保存，队友打开组队页面时可见。没有后台推送或救援接警，请直接电话求助。" : "求助记录已保存，但当前无人接收。请直接电话求助。", showCancel: false });
+    uni.showModal({ title: "SOS 已上报", content: savedTeamId ? "求助记录已保存，队友打开组队页面时可见；信号仅显示最近1小时。正常情况下，记录会在24–30小时内由定时任务删除，任务异常时可能延迟。没有后台推送或救援接警，请直接电话求助。" : "求助记录已保存，但当前无人接收。正常情况下，记录会在24–30小时内由定时任务删除，任务异常时可能延迟；请直接电话求助。", showCancel: false });
   } else {
     uni.showToast({ title: "上报失败：" + res.errMsg, icon: "none" });
   }
@@ -340,20 +341,20 @@ onUnmounted(() => {
 .dist { font-size: 40px; font-weight: 700; color: var(--he-color-text); }
 .bearing { font-size: 15px; color: var(--he-color-muted); }
 .wp { font-size: 11px; color: var(--he-color-muted); }
-.offroute { position: absolute; bottom: 20px; padding: 8px 16px; background: rgba(255, 154, 98, 0.15); color: #ff9a62; border-radius: 499.5px; font-size: 13px; }
-.finished-banner { position: absolute; bottom: 20px; padding: 8px 16px; background: rgba(184, 243, 107, 0.15); color: var(--he-color-accent); border-radius: 499.5px; font-size: 13px; }
-.nofix { position: absolute; top: 16px; font-size: 12px; color: #ffd166; }
+.offroute { position: absolute; bottom: 20px; padding: 8px 16px; background: rgba(var(--he-color-caution-rgb), 0.15); color: var(--he-color-caution); border-radius: 499.5px; font-size: 13px; }
+.finished-banner { position: absolute; bottom: 20px; padding: 8px 16px; background: rgba(var(--he-color-accent-rgb), 0.15); color: var(--he-color-accent); border-radius: 499.5px; font-size: 13px; }
+.nofix { position: absolute; top: 16px; font-size: 12px; color: var(--he-color-warning); }
 
 .map-wrap { flex: 1; position: relative; }
 .map { width: 100%; height: 100%; }
 .map-h5-tip { display: flex; align-items: center; justify-content: center; height: 100%; color: var(--he-color-muted); font-size: 13px; padding: 0 32px; text-align: center; }
-.map-hud { position: absolute; left: 16px; right: 16px; bottom: 16px; display: flex; justify-content: space-between; background: rgba(15, 20, 27, 0.85); border-radius: 8px; padding: 10px 12px; font-size: 13px; color: var(--he-color-text); }
-.hud-warn { color: #ff9a62; }
+.map-hud { position: absolute; left: 16px; right: 16px; bottom: 16px; display: flex; justify-content: space-between; background: var(--he-overlay, rgba(5, 12, 18, 0.84)); border: 1px solid var(--he-overlay-border, rgba(255, 255, 255, 0.12)); border-radius: 8px; padding: 10px 12px; font-size: 13px; color: var(--he-color-text); backdrop-filter: blur(12px); }
+.hud-warn { color: var(--he-color-caution); }
 
 .hud { display: flex; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); gap: 8px; }
 .hud-cell { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; background: var(--he-color-panel); border-radius: 8px; padding: 10px 0; }
 .hud-v { font-size: 14px; font-weight: 600; color: var(--he-color-text); }
 .hud-k { font-size: 10px; color: var(--he-color-muted); }
-.hud-cell.sos { background: rgba(255, 123, 114, 0.12); }
-.sos-v { color: #ff7b72; }
+.hud-cell.sos { background: rgba(var(--he-color-danger-rgb), 0.12); }
+.sos-v { color: var(--he-color-danger); }
 </style>

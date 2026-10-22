@@ -12,7 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 WORKFLOW = ROOT / '.github/workflows/route-catalog-update.yml'
 SCRIPT_COMMAND = re.compile(
     r'(?m)^\s*(?:run:\s*)?python3?\s+'
-    r'(?P<path>scripts/[A-Za-z0-9_.-]+\.py)(?=\s|$)'
+    r'(?P<path>scripts/[A-Za-z0-9_./-]+\.py)(?=\s|$)'
 )
 INLINE_PYTHON = re.compile(
     r"(?m)^\s*python3?\s+-\s+<<(?P<quote>['\"]?)(?P<tag>[A-Za-z_][A-Za-z0-9_]*)\1\s*$"

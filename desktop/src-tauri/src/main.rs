@@ -1,6 +1,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 use std::{fs, io::Read};
 mod map_network;
+mod location;
 const MAX_GPX: u64 = 5 * 1024 * 1024;
 const MAX_LOCAL_BACKUP: u64 = 25 * 1024 * 1024;
 
@@ -83,7 +84,8 @@ fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_updater::Builder::new().build())
         .manage(PendingUpdate::default())
-        .invoke_handler(tauri::generate_handler![choose_gpx, save_gpx, save_local_text, check_app_update, install_app_update, restart_app, map_network::map_catalog, map_network::map_download])
+        .manage(location::DesktopLocation::default())
+        .invoke_handler(tauri::generate_handler![choose_gpx, save_gpx, save_local_text, check_app_update, install_app_update, restart_app, map_network::map_catalog, map_network::map_download, location::desktop_location_start, location::desktop_location_read, location::desktop_location_stop])
         .run(tauri::generate_context!())
         .expect("运行徒步地球桌面端失败");
 }

@@ -40,10 +40,14 @@ function setup(extra = {}) {
       compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 },
     }).outputText;
     const requireLocal = name => {
-      if (!name.startsWith('@/') && !name.startsWith('@shared/')) return require(name);
-      const target = name.startsWith('@/') ? 'src/' + name.slice(2) : '../shared/' + name.slice(8);
-      const p = path.resolve(__dirname, '..', target);
-      return load(fs.existsSync(p + '.ts') ? p + '.ts' : path.join(p, 'index.ts'));
+      if (!name.startsWith('@/') && !name.startsWith('@shared/') && !name.startsWith('.')) return require(name);
+      const target = name.startsWith('@/') ? path.resolve(__dirname, '..', 'src/' + name.slice(2))
+        : name.startsWith('@shared/') ? path.resolve(__dirname, '..', '../shared/' + name.slice(8))
+          : path.resolve(path.dirname(file), name);
+      const resolved = [target, target + '.ts', target + '.js', path.join(target, 'index.ts')]
+        .find(candidate => fs.existsSync(candidate) && fs.statSync(candidate).isFile());
+      if (!resolved) throw new Error(`Cannot resolve local test module: ${name} from ${file}`);
+      return load(resolved);
     };
     vm.runInContext(`(function(require,module,exports){${code}\n})`, context)(requireLocal, mod, mod.exports);
     return mod.exports;
@@ -96,11 +100,17 @@ test('App/H5 must not fabricate successful login, sync or SOS', async () => {
 });
 test('cloud rejects business errors and revoked uploads before transport', async () => {
   let calls = 0;
-  const h = setup({ wx: { cloud: { init() {}, async callFunction() { calls++; return { result: { errMsg: 'invalid track' } }; } } } });
+  const h = setup({ wx: { cloud: { init() {}, async callFunction() { calls++; return { result: { errMsg: 'invalid catalog' } }; } } } });
   const cloud = h.load('src/services/cloud.ts');
   assert.equal((await cloud.callCloud('track-sync')).ok, false); assert.equal(calls, 0);
   h.privacy.setPrivacyConsent('trackCloudSync', true);
-  const result = await cloud.callCloud('track-sync'); assert.equal(result.ok, false); assert.equal(result.errMsg, 'invalid track');
+  const protectedUpload = await cloud.callCloud('track-sync');
+  assert.equal(protectedUpload.ok, false);
+  assert.match(protectedUpload.errMsg, /请先登录徒步地球账号/);
+  assert.equal(calls, 0, 'personal track uploads stay behind the unified-account gate');
+  const result = await cloud.callCloud('catalog-feed');
+  assert.equal(result.ok, false); assert.equal(result.errMsg, 'invalid catalog');
+  assert.equal(calls, 1, 'business errors from an allowed public cloud call are still rejected');
 });
 
 test('location subscriber failure does not block another view', async () => {
