@@ -366,10 +366,10 @@ jobs:
           git commit -m 'data: refresh sourced hiking discovery catalogs'
           # Preserve source/doc commits added while the collectors were running.
           # A concurrent data conflict stops publication rather than overwriting it.
-          git pull --rebase origin codex/mobile-privacy-controls
+          git pull --rebase origin main
           expected_commit=$(git rev-parse HEAD)
           git push
-          remote_commit=$(git ls-remote origin refs/heads/codex/mobile-privacy-controls | cut -f1)
+          remote_commit=$(git ls-remote origin refs/heads/main | cut -f1)
           test "$remote_commit" = "$expected_commit" || { echo "Catalog branch readback mismatch: expected $expected_commit, received $remote_commit" >&2; exit 1; }
           echo "Verified catalog source commit on origin: $remote_commit"
       - name: Publish validated pages to production read branch
