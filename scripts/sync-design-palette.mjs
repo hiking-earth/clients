@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const palette = JSON.parse(readFileSync(path.join(root, 'shared/design/palette.json'), 'utf8'));
-const keys = ['background', 'panel', 'surface', 'text', 'muted', 'accent', 'border'];
+const keys = ['background', 'panel', 'surface', 'text', 'muted', 'accent', 'border', 'onAccent', 'warning', 'caution', 'danger', 'info', 'routeMarker', 'routeMarkerSelected', 'onWarning', 'onCaution', 'warningText', 'mapOcean', 'mapWood', 'mapGrass', 'mapIce', 'mapSand', 'mapLand', 'mapWater', 'mapBuilding', 'mapRoadTrunk', 'mapRoadPrimary', 'mapRoad', 'mapBoundary', 'mapLabel', 'mapRoadLabel'];
 for (const key of keys) {
   if (typeof palette[key] !== 'string' || !/^#[\da-f]{6}$/i.test(palette[key])) {
     throw new Error(`Invalid shared palette value: ${key}`);
@@ -17,8 +17,15 @@ for (const key of overlayKeys) {
     throw new Error(`Invalid shared overlay value: ${key}`);
   }
 }
-const layoutKeys = ['homeTopbarHeight', 'homeTopbarRadius', 'homeBrandMarkSize', 'homePanelWidth',
-  'homeMobileTopbarHeight', 'homeMobileTopbarRadius', 'homeMobileBrandMarkSize'];
+const rgbKeys = ['accent', 'warning', 'caution', 'danger', 'info'];
+const rgbVars = Object.fromEntries(rgbKeys.map(key => {
+  const match = palette[key].match(/^#([\da-f]{2})([\da-f]{2})([\da-f]{2})$/i);
+  if (!match) throw new Error(`Invalid shared ${key} color`);
+  return [key, match.slice(1).map(value => parseInt(value, 16)).join(', ')];
+}));
+const layoutKeys = ['homeTopbarHeight', 'homeTopbarRadius', 'homeBrandMarkSize', 'homePanelWidth', 'homePanelRadius',
+  'homeMobileTopbarHeight', 'homeMobileTopbarRadius', 'homeMobileBrandMarkSize',
+  'controlRadiusSm', 'controlRadius', 'inputRadius', 'cardRadius'];
 for (const key of layoutKeys) {
   if (typeof palette[key] !== 'string' || !/^\d+(?:\.\d+)?px$/.test(palette[key])) {
     throw new Error(`Invalid shared layout value: ${key}`);
@@ -27,33 +34,30 @@ for (const key of layoutKeys) {
 const css = `/* Generated from shared/design/palette.json by scripts/sync-design-palette.mjs. */
 :root, page {
 ${[
-  ...keys.map(key => `  --he-color-${key}: ${palette[key]};`),
+  ...keys.map(key => `  --he-color-${key.replace(/[A-Z]/g, letter => `-${letter.toLowerCase()}`)}: ${palette[key]};`),
+  ...Object.entries(rgbVars).map(([key, value]) => `  --he-color-${key.replace(/[A-Z]/g, letter => `-${letter.toLowerCase()}`)}-rgb: ${value};`),
   ...overlayKeys.map(key => `  --he-${key.replace(/[A-Z]/g, letter => `-${letter.toLowerCase()}`)}: ${palette[key]};`),
   ...layoutKeys.map(key => `  --he-${key.replace(/[A-Z]/g, letter => `-${letter.toLowerCase()}`)}: ${palette[key]};`),
 ].join('\n')}
 }
 `;
 const scss = `// Generated from shared/design/palette.json by scripts/sync-design-palette.mjs.
-${keys.map(key => `$he-color-${key}: ${palette[key]};`).join('\n')}
+${keys.map(key => `$he-color-${key.replace(/[A-Z]/g, letter => `-${letter.toLowerCase()}`)}: ${palette[key]};`).join('\n')}
+${layoutKeys.map(key => `$he-${key.replace(/[A-Z]/g, letter => `-${letter.toLowerCase()}`)}: ${palette[key]};`).join('\n')}
+`;
+const typescript = `/* Generated from shared/design/palette.json by scripts/sync-design-palette.mjs. */
+export const HE_PALETTE = Object.freeze(${JSON.stringify(Object.fromEntries(keys.map(key => [key, palette[key]])), null, 2)} as const);
 `;
 writeFileSync(path.join(root, 'shared/design/palette.css'), css);
 writeFileSync(path.join(root, 'shared/design/palette.scss'), scss);
-const webAppDirectory = path.join(root, 'web/app');
-if (existsSync(webAppDirectory)) {
-  writeFileSync(path.join(webAppDirectory, 'palette.css'), css);
-  writeFileSync(path.join(webAppDirectory, 'theme-color.ts'),
-    `/* Generated from shared/design/palette.json by scripts/sync-design-palette.mjs. */\nexport const WEB_THEME_COLOR = '${palette.background}';\n`);
+writeFileSync(path.join(root, 'shared/design/palette.ts'), typescript);
+for (const pagesPath of [
+  path.join(root, 'app/src/pages.json'),
+]) {
+  if (!existsSync(pagesPath)) continue;
+  const pages = JSON.parse(readFileSync(pagesPath, 'utf8'));
+  pages.globalStyle = { ...pages.globalStyle, navigationBarBackgroundColor: palette.background, backgroundColor: palette.background };
+  pages.tabBar = { ...pages.tabBar, color: palette.muted, selectedColor: palette.accent, backgroundColor: palette.panel };
+  writeFileSync(pagesPath, `${JSON.stringify(pages, null, 2)}\n`);
 }
-const webManifestPath = path.join(root, 'web/public/manifest.webmanifest');
-if (existsSync(webManifestPath)) {
-  const manifest = JSON.parse(readFileSync(webManifestPath, 'utf8'));
-  manifest.background_color = palette.background;
-  manifest.theme_color = palette.background;
-  writeFileSync(webManifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
-}
-const pagesPath = path.join(root, 'app/src/pages.json');
-const pages = JSON.parse(readFileSync(pagesPath, 'utf8'));
-pages.globalStyle = { ...pages.globalStyle, navigationBarBackgroundColor: palette.background, backgroundColor: palette.background };
-pages.tabBar = { ...pages.tabBar, color: palette.muted, selectedColor: palette.accent, backgroundColor: palette.panel };
-writeFileSync(pagesPath, `${JSON.stringify(pages, null, 2)}\n`);
-process.stdout.write(`Generated client and web palette assets${existsSync(webManifestPath) ? ', including PWA browser chrome colors' : ''} from the shared palette.\n`);
+process.stdout.write('Generated client palette assets; website preparation uses its own pinned client source.\n');
