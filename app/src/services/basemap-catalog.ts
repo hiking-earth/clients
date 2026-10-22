@@ -1,5 +1,5 @@
 import {browserReportsOffline} from './network-state';
-export const PUBLIC_MAP_DISTRIBUTION='https://hiking-earth.nanyu20050927.chatgpt.site/client-app/';
+export const PUBLIC_MAP_DISTRIBUTION='https://hiking-earth.hiking-earth.workers.dev/client-app/';
 export function mapDistributionBase(desktop:boolean,localBase:string):string{return desktop?PUBLIC_MAP_DISTRIBUTION:localBase;}
 export interface MapCatalogPack {name:string;label:string;url:string;bytes:number;sha256:string;attribution:string;license:string;bounds?:number[]}
 export function validateMapCatalog(value:unknown):MapCatalogPack[]{

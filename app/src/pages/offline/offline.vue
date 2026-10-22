@@ -121,8 +121,8 @@ function removeNativeMap(id:string){if(busy.value)return;uni.showModal({title:'�
 // #ifdef MP-WEIXIN
 import WechatBasemap from '@/components/WechatBasemap.vue';
 import bundledWechatMaps from '@/data/basemap-packs.json';
-import {createMapCatalog as createWechatCatalog,requestMapCatalog as requestWechatCatalog} from '@/services/basemap-catalog';
-const wechatCatalog=createWechatCatalog(bundledWechatMaps,()=>requestWechatCatalog('https://hiking-earth.nanyu20050927.chatgpt.site/client-app/'));
+import {createMapCatalog as createWechatCatalog,requestMapCatalog as requestWechatCatalog,PUBLIC_MAP_DISTRIBUTION as WECHAT_MAP_DISTRIBUTION} from '@/services/basemap-catalog';
+const wechatCatalog=createWechatCatalog(bundledWechatMaps,()=>requestWechatCatalog(WECHAT_MAP_DISTRIBUTION));
 const wechatAvailableMaps=ref(wechatCatalog.snapshot());
 const visibleWechatMaps=computed(()=>mapLocation.value?mapsCoveringLocation(wechatAvailableMaps.value,mapLocation.value.latitude,mapLocation.value.longitude):wechatAvailableMaps.value);
 onShow(async()=>{try{wechatAvailableMaps.value=await wechatCatalog.refresh();}catch{message.value='地图目录暂时无法更新，保留已有目录';}});
