@@ -108,6 +108,10 @@ def collect():
         walking.append((identity, props, feature.get('geometry')))
 
     for identity, props, geometry in walking:
+        name = clean(props.get('name'), 160)
+        if not name:
+            withheld['unnamed-source-feature'] = withheld.get('unnamed-source-feature', 0) + 1
+            continue
         kind = geometry.get('type') if isinstance(geometry, dict) else None
         coords = geometry.get('coordinates') if isinstance(geometry, dict) else None
         if kind == 'LineString':
@@ -118,18 +122,15 @@ def collect():
             withheld['unsupported-geometry'] = withheld.get('unsupported-geometry', 0) + 1
             continue
         if not isinstance(raw_paths, list) or not raw_paths or len(raw_paths) > 100:
-            withheld['invalid-path-count'] = withheld.get('invalid-path-count', 0) + 1
-            continue
+            raise ValueError(f'Victorian named walking track {identity} has an invalid path count')
         try:
             paths = [simplify(path) for path in raw_paths]
-        except ValueError:
-            withheld['invalid-line-geometry'] = withheld.get('invalid-line-geometry', 0) + 1
-            continue
+        except ValueError as error:
+            raise ValueError(f'Victorian named walking track {identity} has invalid line geometry') from error
         points = [point for path in paths for point in path]
         if len(points) > 15000:
             withheld['geometry-over-budget'] = withheld.get('geometry-over-budget', 0) + 1
             continue
-        name = clean(props.get('name'), 160) or f'维多利亚州步道 {identity}'
         tags = {
             'assetClass': clean(props.get('asset_class')),
             'maintainedBy': clean(props.get('maintained_by')),

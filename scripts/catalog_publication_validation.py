@@ -4,8 +4,11 @@ This validates source records and provenance only. It never grants trail access,
 turns a discovery row into a navigable route, or substitutes for human review.
 """
 from datetime import date, datetime, timedelta, timezone
+import json
 import re
 from urllib.parse import urlparse
+from official_content_policy import (feed_review_matches, feed_review_snapshot,
+                                     validate_official_source_registry)
 
 
 DISCOVERY_IDS = {
@@ -28,6 +31,8 @@ DISCOVERY_IDS = {
     'usgs-trails': re.compile(r'^usgs-trail-[1-9][0-9]*$'),
     'victoria-recreation-tracks': re.compile(r'^vic-recreation-track-[A-Za-z0-9._-]{1,80}$'),
     'queensland-qpws-trails': re.compile(r'^queensland-qpws-[1-9][0-9]*$'),
+    'taiwan-trails': re.compile(r'^taiwan-trail-[A-Za-z0-9_-]{1,100}$'),
+    'korea-durunubi-trails': re.compile(r'^korea-durunubi-[0-9]{1,20}$'),
     'swisstopo-wanderwege': re.compile(r'^swiss-trail-[a-f0-9]{24}$'),
 }
 PENDING_STATUS = '待核验'
@@ -38,12 +43,43 @@ APPROVED_SOURCE_ENDPOINTS = {
     'usgs-trails': 'https://partnerships.nationalmap.gov/arcgis/rest/services/USGSTrails/MapServer/0',
     'victoria-recreation-tracks': 'https://opendata.maps.vic.gov.au/geoserver/wfs',
     'queensland-qpws-trails': 'https://spatial-gis.information.qld.gov.au/arcgis/rest/services/Environment/ParksTerrestrialProtectedAreas/MapServer/5',
+    'taiwan-trails': 'https://media.taiwan.net.tw/XMLReleaseAll_public/v2.0/Zh_tw/Trail-json.zip',
     'swisstopo-wanderwege': 'https://data.geo.admin.ch/ch.swisstopo.swisstlm3d-wanderwege/swisstlm3d-wanderwege/swisstlm3d-wanderwege_2056_5728.gpkg.zip',
 }
 OSM_REFRESH_COUNT_REGIONS = frozenset({
     'asia', 'china', 'europe', 'north-america', 'japan', 'oceania',
-    'south-america', 'africa', 'south-asia', 'hong-kong', 'macao',
+    'south-america', 'africa', 'central-america', 'antarctica',
+    'south-asia', 'hong-kong', 'macao',
 })
+MAX_CATALOG_BYTES = 96 * 1024 * 1024
+MAX_ROUTE_COUNTS = {
+    'osm': 200000,
+    'usfs': 60000,
+    'hk': 1000,
+    'nzdoc': 2500,
+    'parkscanada': 2500,
+    'nsw-npws': 6000,
+    'england': 1000,
+    'wales': 500,
+    'japan-tokai': 10,
+    'scotland-argyll': 2000,
+    'ni-midulster': 1000,
+    'norfolk-prow': 10000,
+    'cambridgeshire-prow': 6000,
+    'nps-public-trails': 20000,
+    'usgs-trails': 150000,
+    'victoria-recreation-tracks': 2000,
+    'queensland-qpws-trails': 10000,
+    'taiwan-trails': 500,
+    'korea-durunubi-trails': 500,
+    'swisstopo-wanderwege': 20000,
+}
+MAX_REFERENCE_PATHS = 150
+MAX_REFERENCE_POINTS_PER_PATH = 151
+MAX_REFERENCE_POINTS_PER_ROUTE = 15000
+MAX_NEWS_CATALOG_BYTES = 4 * 1024 * 1024
+MAX_NEWS_ITEMS = 500
+MAX_NEWS_SOURCES = 50
 
 
 def _validate_osm_refresh_counts(data):
@@ -95,11 +131,17 @@ def _center(value, label):
 
 
 def _reference_paths(value, label):
-    if not isinstance(value, list) or not value:
+    if not isinstance(value, list) or not value or len(value) > MAX_REFERENCE_PATHS:
         raise ValueError(f'{label}: reference paths must be a non-empty list')
+    total_points = 0
     for path_index, path in enumerate(value):
         if not isinstance(path, list) or len(path) < 2:
             raise ValueError(f'{label}: reference path {path_index} needs at least two points')
+        if len(path) > MAX_REFERENCE_POINTS_PER_PATH:
+            raise ValueError(f'{label}: reference path {path_index} exceeds the point budget')
+        total_points += len(path)
+        if total_points > MAX_REFERENCE_POINTS_PER_ROUTE:
+            raise ValueError(f'{label}: reference geometry exceeds the per-route point budget')
         for point_index, point in enumerate(path):
             _center(point, f'{label}: reference path {path_index} point {point_index}')
 
@@ -108,11 +150,20 @@ def validate_route_catalog(source, data, now=None):
     """Validate one approved OSM or government trail-discovery catalog."""
     if source not in DISCOVERY_IDS:
         raise ValueError(f'unsupported discovery source: {source}')
-    if not isinstance(data, dict) or data.get('schemaVersion') != 1:
+    if (not isinstance(data, dict) or type(data.get('schemaVersion')) is not int
+            or data.get('schemaVersion') != 1):
         raise ValueError(f'{source}: unsupported catalog schema')
     rows = data.get('routes')
     if not isinstance(rows, list):
         raise ValueError(f'{source}: routes must be a list')
+    if len(rows) > MAX_ROUTE_COUNTS[source]:
+        raise ValueError(f'{source}: route count exceeds the approved catalog budget')
+    try:
+        catalog_bytes = len(json.dumps(data, ensure_ascii=False, separators=(',', ':')).encode('utf-8'))
+    except (TypeError, ValueError, UnicodeEncodeError) as error:
+        raise ValueError(f'{source}: catalog is not safely serializable') from error
+    if catalog_bytes > MAX_CATALOG_BYTES:
+        raise ValueError(f'{source}: catalog exceeds the {MAX_CATALOG_BYTES}-byte publication budget')
     swiss_segment_ids = set()
     swiss_segment_total = 0
     japan_track_total = 0
@@ -149,6 +200,12 @@ def validate_route_catalog(source, data, now=None):
         raise ValueError('cambridgeshire-prow: catalog source URL differs from the approved county WFS layer')
     if source == 'nps-public-trails' and expected_source_url != APPROVED_SOURCE_ENDPOINTS[source]:
         raise ValueError('nps-public-trails: catalog source URL differs from the approved NPS layer')
+    if source == 'taiwan-trails' and (expected_source_url != APPROVED_SOURCE_ENDPOINTS[source]
+            or data.get('datasetUrl') != 'https://data.gov.tw/dataset/41653'):
+        raise ValueError('taiwan-trails: catalog URLs differ from the approved official dataset')
+    if source == 'korea-durunubi-trails' and (expected_source_url != 'https://apis.data.go.kr/B551011/Durunubi/courseList'
+            or data.get('datasetUrl') != 'https://www.data.go.kr/data/15101974/openapi.do'):
+        raise ValueError('korea-durunubi-trails: catalog URLs differ from the approved official dataset')
     expected_provenance = {
         'osm': ('ODbL-1.0', '© OpenStreetMap contributors', 'https://www.openstreetmap.org/copyright'),
         'usfs': ('USDA source terms; retain attribution and source metadata', 'USDA Forest Service', 'https://data.fs.usda.gov/geodata/edw/datasets.php?xmlKeyword=recreation'),
@@ -167,6 +224,8 @@ def validate_route_catalog(source, data, now=None):
         'usgs-trails': ('USGS public-domain aggregate; source originator retained', 'U.S. Geological Survey National Digital Trails. USGS public-domain aggregate; the original source originator is retained for each record.', 'https://www.usgs.gov/national-digital-trails/how-access-or-view-usgs-trails-dataset'),
         'victoria-recreation-tracks': ('Creative Commons Attribution 4.0 International', 'Contains Victorian Government data from Recreation Tracks, Department of Energy, Environment and Climate Action. Licensed under CC BY 4.0.', 'https://creativecommons.org/licenses/by/4.0/'),
         'queensland-qpws-trails': ('Creative Commons Attribution 4.0 International', 'Contains Queensland Government data from Queensland Parks and Wildlife Service (QPWS) Estate access. © The State of Queensland (Department of Environment and Science) 2020. Licensed under CC BY 4.0.', 'https://creativecommons.org/licenses/by/4.0/'),
+        'taiwan-trails': ('Open Government Data License, version 1.0', 'Source: Taiwan Tourism Administration, Ministry of Transportation and Communications, Trail dataset (Tourism Data Standard v2.1). Released under the Open Government Data License, version 1.0.', 'https://data.gov.tw/license'),
+        'korea-durunubi-trails': ('DATA.GO.KR 이용허락범위 제한 없음', 'Source: Korea Tourism Organization, DuruNubi Korea Dulle Trail API. Reuse scope: no restrictions, per DATA.GO.KR dataset 15101974.', 'https://www.data.go.kr/data/15101974/openapi.do'),
         'swisstopo-wanderwege': ('swisstopo Open Government Data (OGD): free reuse, redistribution, adaptation and commercial use with source attribution; fair-use limits apply to services.', 'Federal Office of Topography swisstopo (SwissTLM3D hiking trails).', 'https://www.swisstopo.admin.ch/de/nutzungsbedingungen-kostenlose-geodaten-und-geodienste'),
     }[source]
     actual_provenance = tuple(data.get(field) for field in ('license', 'attribution', 'licenseUrl'))
@@ -295,8 +354,9 @@ def validate_route_catalog(source, data, now=None):
         if identity in seen:
             raise ValueError(f'{label}: duplicate source record ID {identity}')
         seen.add(identity)
-        for field in ('name', 'region'):
-            if not isinstance(row.get(field), str) or not row[field].strip():
+        for field, max_length in (('name', 512), ('region', 256)):
+            if (not isinstance(row.get(field), str) or not row[field].strip()
+                    or len(row[field]) > max_length):
                 raise ValueError(f'{label}: {field} is required')
         _center(row.get('center'), label)
         row_source = row.get('sourceUrl')
@@ -323,8 +383,55 @@ def validate_route_catalog(source, data, now=None):
         status = row.get('status')
         if status not in (None, PENDING_STATUS):
             raise ValueError(f'{label}: discovery catalog cannot publish status {status!r}')
-        if source in ('hk', 'nzdoc', 'parkscanada', 'nsw-npws', 'england', 'wales', 'scotland-argyll', 'ni-midulster', 'norfolk-prow', 'cambridgeshire-prow', 'nps-public-trails', 'usgs-trails', 'victoria-recreation-tracks', 'queensland-qpws-trails', 'swisstopo-wanderwege'):
+        if source in ('hk', 'nzdoc', 'parkscanada', 'nsw-npws', 'england', 'wales', 'japan-tokai', 'scotland-argyll', 'ni-midulster', 'norfolk-prow', 'cambridgeshire-prow', 'nps-public-trails', 'usgs-trails', 'victoria-recreation-tracks', 'queensland-qpws-trails', 'taiwan-trails', 'swisstopo-wanderwege', 'korea-durunubi-trails'):
             _reference_paths(row.get('referencePaths'), label)
+        if source == 'korea-durunubi-trails':
+            tags = row.get('sourceTags')
+            allowed = {'courseCode', 'routeCode', 'distanceKm', 'durationMinutes', 'difficulty', 'cycle', 'sourceModifiedAt', 'gpxReferenceUrl', 'sourcePointCount'}
+            if (row.get('region', '').startswith('韩国·') is False or status != PENDING_STATUS
+                    or not isinstance(tags, dict) or set(tags) != allowed
+                    or not isinstance(tags.get('courseCode'), str) or re.fullmatch(r'T_CRS_MNG[0-9]{1,20}', tags['courseCode']) is None
+                    or not isinstance(tags.get('routeCode'), str) or re.fullmatch(r'T_THEME_MNG[0-9]{1,20}', tags['routeCode']) is None
+                    or any(tags.get(key) is not None and (not isinstance(tags[key], str) or len(tags[key]) > 1200)
+                           for key in ('difficulty', 'cycle', 'sourceModifiedAt', 'gpxReferenceUrl'))
+                    or not isinstance(tags.get('gpxReferenceUrl'), str)
+                    or not tags['gpxReferenceUrl'].startswith('https://www.durunubi.kr/editImgUp.do?filePath=/data/koreamobility/')
+                    or not tags['gpxReferenceUrl'].lower().endswith('.gpx')
+                    or not isinstance(tags.get('distanceKm'), (int, float)) or isinstance(tags.get('distanceKm'), bool)
+                    or not 0 < tags['distanceKm'] <= 1000
+                    or not isinstance(tags.get('durationMinutes'), int) or isinstance(tags.get('durationMinutes'), bool)
+                    or not 0 < tags['durationMinutes'] <= 100000
+                    or not isinstance(tags.get('sourcePointCount'), int) or isinstance(tags.get('sourcePointCount'), bool)
+                    or not 2 <= tags['sourcePointCount'] <= 100000
+                    or not isinstance(data.get('sourceFeatureCount'), int) or not 0 <= data['sourceFeatureCount'] <= 500
+                    or not isinstance(data.get('catalogRouteCount'), int) or data['catalogRouteCount'] != len(rows)
+                    or not isinstance(data.get('withheldRecords'), int) or data['withheldRecords'] < 0
+                    or data['sourceFeatureCount'] != data['catalogRouteCount'] + data['withheldRecords']
+                    or not isinstance(data.get('withheldReasons'), dict)
+                    or any(not isinstance(value, int) or isinstance(value, bool) or value < 0 for value in data['withheldReasons'].values())
+                    or sum(data['withheldReasons'].values()) != data['withheldRecords']
+                    or not isinstance(data.get('routeStatusPolicy'), str) or len(data['routeStatusPolicy']) > 1200):
+                raise ValueError(f'{label}: invalid DuruNubi source provenance, pending status, or geometry')
+        if source == 'taiwan-trails':
+            tags = row.get('sourceTags')
+            allowed = {'sourceServiceStatus', 'sourcePublicAccess', 'sourceFreeAccess', 'sourcePermitStop', 'sourceTrailClass'}
+            if (not row.get('region', '').startswith('台湾') or status != PENDING_STATUS
+                    or not isinstance(tags, dict) or set(tags) != allowed
+                    or any(value is not None and (not isinstance(value, str) or len(value) > 300) for value in tags.values())
+                    or not isinstance(data.get('sourcePublishedAt'), str)
+                    or not isinstance(data.get('sourceUpdateIntervalSeconds'), int)
+                    or data['sourceUpdateIntervalSeconds'] != 86400
+                    or not isinstance(data.get('sourceFeatureCount'), int) or not 0 < data['sourceFeatureCount'] <= 500
+                    or not isinstance(data.get('catalogRouteCount'), int) or data['catalogRouteCount'] != len(rows)
+                    or not isinstance(data.get('withheldRecords'), int) or data['withheldRecords'] < 0
+                    or data['sourceFeatureCount'] != data['catalogRouteCount'] + data['withheldRecords']
+                    or not isinstance(data.get('withheldReasons'), dict)
+                    or sum(data['withheldReasons'].values()) != data['withheldRecords']
+                    or not isinstance(data.get('routeStatusPolicy'), str) or len(data['routeStatusPolicy']) > 1200
+                    or len(row.get('referencePaths', [])) > 150
+                    or any(len(path) > 151 for path in row.get('referencePaths', []))
+                    or sum(len(path) for path in row.get('referencePaths', [])) > 15000):
+                raise ValueError(f'{label}: invalid Taiwan source provenance, pending status, or geometry budget')
         if source == 'japan-tokai':
             tags = row.get('sourceTags')
             paths = row.get('referencePaths')
@@ -411,7 +518,7 @@ def validate_route_catalog(source, data, now=None):
             if (row.get('region') != '澳大利亚·维多利亚州' or status != PENDING_STATUS
                     or not isinstance(tags, dict) or set(tags) != allowed or tags.get('walkingActivity') != 'Y'
                     or any(value is not None and (not isinstance(value, str) or len(value) > 300) for value in tags.values())
-                    or len(row.get('referencePaths', [])) > 100
+                    or len(row.get('referencePaths', [])) > 150
                     or any(len(path) > 151 for path in row.get('referencePaths', []))):
                 raise ValueError(f'{label}: invalid Victorian walking source metadata or geometry budget')
         if source == 'queensland-qpws-trails':
@@ -424,7 +531,7 @@ def validate_route_catalog(source, data, now=None):
                     or tags.get('sourceSubcategory') != 'Tracks and Trails'
                     or tags.get('sourceId') != identity.removeprefix('queensland-qpws-')
                     or any(value is not None and (not isinstance(value, str) or len(value) > 300) for value in tags.values())
-                    or len(row.get('referencePaths', [])) > 100
+                    or len(row.get('referencePaths', [])) > 150
                     or any(len(path) > 151 for path in row.get('referencePaths', []))):
                 raise ValueError(f'{label}: invalid Queensland walking source metadata or geometry budget')
         if source == 'cambridgeshire-prow':
@@ -439,7 +546,7 @@ def validate_route_catalog(source, data, now=None):
             allowed = {'sourceId', 'pathClass', 'primaryRight', 'parish', 'linkCode', 'section', 'administrativeUnit'}
             if (not isinstance(tags, dict) or set(tags) != allowed
                     or any(value is not None and (not isinstance(value, str) or len(value) > 300) for value in tags.values())
-                    or len(row.get('referencePaths', [])) > 100
+                    or len(row.get('referencePaths', [])) > 150
                     or any(len(path) > 151 for path in row.get('referencePaths', []))):
                 raise ValueError(f'{label}: invalid Norfolk route source fields or geometry budget')
         if source == 'cambridgeshire-prow':
@@ -451,7 +558,7 @@ def validate_route_catalog(source, data, now=None):
                     or tags.get('lengthKm') is not None
                     and (isinstance(tags['lengthKm'], bool) or not isinstance(tags['lengthKm'], (int, float))
                          or not 0 <= tags['lengthKm'] <= 1000)
-                    or len(row.get('referencePaths', [])) > 100
+                    or len(row.get('referencePaths', [])) > 150
                     or any(len(path) > 151 for path in row.get('referencePaths', []))):
                 raise ValueError(f'{label}: invalid Cambridgeshire route source fields or geometry budget')
         if source == 'nzdoc':
@@ -479,28 +586,58 @@ def validate_route_catalog(source, data, now=None):
 
 def validate_news_catalog(data, now=None):
     """Validate curated metadata-only official-news links and their source hosts."""
-    if not isinstance(data, dict) or data.get('schemaVersion') != 1:
+    if (not isinstance(data, dict) or type(data.get('schemaVersion')) is not int
+            or data.get('schemaVersion') != 1):
         raise ValueError('news: unsupported catalog schema')
     rows = data.get('items')
     sources = data.get('sources')
     if not isinstance(rows, list) or not isinstance(sources, list):
         raise ValueError('news: items and sources must be lists')
+    if len(rows) > MAX_NEWS_ITEMS or len(sources) > MAX_NEWS_SOURCES:
+        raise ValueError('news: catalog exceeds the approved item or source budget')
+    validate_official_source_registry({'schemaVersion': 1, 'sources': sources})
+    try:
+        catalog_bytes = len(json.dumps(data, ensure_ascii=False, separators=(',', ':')).encode('utf-8'))
+    except (TypeError, ValueError, UnicodeEncodeError) as error:
+        raise ValueError('news: catalog is not safely serializable') from error
+    if catalog_bytes > MAX_NEWS_CATALOG_BYTES:
+        raise ValueError(f'news: catalog exceeds the {MAX_NEWS_CATALOG_BYTES}-byte publication budget')
     current_time = now or datetime.now(timezone.utc)
     generated_at = _timestamp(data.get('generatedAt'), 'news catalog')
     if generated_at > current_time + timedelta(minutes=5):
         raise ValueError('news: catalog generatedAt is in the future')
     if current_time - generated_at > timedelta(days=90):
         raise ValueError('news: catalog snapshot freshness has expired')
+    collection_status = data.get('collectionStatus')
+    if collection_status is not None:
+        if not isinstance(collection_status, dict):
+            raise ValueError('news: collection status must be an object')
+        state = collection_status.get('state')
+        attempted = collection_status.get('attemptedSourceCount')
+        failed = collection_status.get('failedSourceCount')
+        reviewed_at = _timestamp(collection_status.get('reviewedAt'), 'news collection review')
+        if (type(attempted) is not int or attempted < 0
+                or type(failed) is not int or not 0 <= failed <= attempted
+                or collection_status.get('cachedItemsRevalidated') is not True
+                or reviewed_at != generated_at):
+            raise ValueError('news: collection status fields are invalid')
+        expected_state = ('success' if failed == 0 else
+                          'all-attempted-sources-failed' if attempted and failed == attempted else 'partial')
+        if state != expected_state:
+            raise ValueError('news: collection status does not match its source outcomes')
     today = current_time.date()
     source_by_id = {}
     for source in sources:
         if not isinstance(source, dict) or not isinstance(source.get('id'), str):
             raise ValueError('news: invalid source definition')
         identity = source['id']
+        if not identity.strip() or len(identity) > 128:
+            raise ValueError('news: source ID is empty or exceeds its length budget')
         if identity in source_by_id:
             raise ValueError(f'news: duplicate source definition {identity}')
         hosts = source.get('articleHosts')
-        if not isinstance(hosts, list) or not hosts or any(not isinstance(host, str) or not host.strip() for host in hosts):
+        if (not isinstance(hosts, list) or not hosts or len(hosts) > 32
+                or any(not isinstance(host, str) or not host.strip() or len(host) > 253 for host in hosts)):
             raise ValueError(f'news: source {identity} has no explicit article host allowlist')
         source_by_id[identity] = (source, {host.lower().rstrip('.') for host in hosts})
     seen = set()
@@ -512,8 +649,9 @@ def validate_news_catalog(data, now=None):
         if not isinstance(identity, str) or not identity.strip() or identity in seen:
             raise ValueError(f'{label}: missing or duplicate ID')
         seen.add(identity)
-        for field in ('title', 'region', 'sourceId', 'sourceLabel'):
-            if not isinstance(row.get(field), str) or not row[field].strip():
+        for field, max_length in (('title', 512), ('region', 256), ('sourceId', 128), ('sourceLabel', 256)):
+            if (not isinstance(row.get(field), str) or not row[field].strip()
+                    or len(row[field]) > max_length):
                 raise ValueError(f'{label}: {field} is required')
         if row.get('verified') is not True:
             raise ValueError(f'{label}: only explicitly verified metadata links may be published')
@@ -524,6 +662,8 @@ def validate_news_catalog(data, now=None):
         acceptance = source.get('feedAcceptance')
         if acceptance != 'accepted':
             raise ValueError(f'{label}: source {row["sourceId"]} feed has not been accepted')
+        if not feed_review_matches(source):
+            raise ValueError(f'{label}: source {row["sourceId"]} review configuration differs from the current feed')
         try:
             raw_verified_date = source['feedVerifiedAt']
             verified_date = date.fromisoformat(raw_verified_date)
@@ -535,13 +675,21 @@ def validate_news_catalog(data, now=None):
             raise ValueError(f'{label}: source {row["sourceId"]} feed verification date is in the future')
         if (today - verified_date).days > 90:
             raise ValueError(f'{label}: source {row["sourceId"]} feed verification has expired')
+        if any(not isinstance(row.get(field), str) or len(row[field]) > 2048 for field in ('url', 'sourceUrl')):
+            raise ValueError(f'{label}: article or feed URL exceeds its length budget')
         article_host = _https_host(row.get('url'), label)
         if article_host not in allowed_hosts:
             raise ValueError(f'{label}: article host is not allowed for source {row["sourceId"]}')
-        if _https_host(row.get('sourceUrl'), label) != _https_host(source.get('url'), f'news source {row["sourceId"]}'):
+        if row.get('sourceUrl') != source.get('url'):
             raise ValueError(f'{label}: feed URL does not match its source definition')
+        _https_host(row.get('sourceUrl'), label)
         published_at = _timestamp(row.get('publishedAt'), label)
         fetched_at = _timestamp(row.get('fetchedAt'), label)
+        future_tolerance = timedelta(minutes=5)
+        if published_at > current_time + future_tolerance:
+            raise ValueError(f'{label}: publication timestamp is in the future')
+        if fetched_at > current_time + future_tolerance:
+            raise ValueError(f'{label}: metadata fetch timestamp is in the future')
         if current_time - published_at > timedelta(days=90):
             raise ValueError(f'{label}: publication has expired')
         if current_time - fetched_at > timedelta(days=90):

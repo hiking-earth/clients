@@ -2,8 +2,17 @@
 from collections import Counter
 from datetime import date, datetime, timezone
 import re
+from official_content_policy import feed_review_matches, valid_https_evidence_url
 
 MAX_FEED_VERIFICATION_AGE_DAYS = 90
+
+
+def news_publication_status(candidate_validated, collector_outcome):
+    """Separate a successful feed collection from production publication eligibility."""
+    if candidate_validated is True:
+        return {'state': 'candidate-validated', 'reason': None}
+    reason = 'catalog-validation-failed' if collector_outcome == 'success' else 'collector-failed'
+    return {'state': 'previous-production-snapshot-retained', 'reason': reason}
 
 
 def news_source_status(source, state, record_count, now=None):
@@ -12,6 +21,18 @@ def news_source_status(source, state, record_count, now=None):
     last_error = state.get('lastError')
     last_success = state.get('lastSuccess')
     collection_status = 'failed' if last_error else 'available' if last_success else 'pending'
+    withheld_count = state.get('lastWithheldCount')
+    if isinstance(withheld_count, bool) or not isinstance(withheld_count, int) or withheld_count < 0:
+        withheld_count = None
+    expired_count = state.get('lastExpiredCount')
+    if isinstance(expired_count, bool) or not isinstance(expired_count, int) or expired_count < 0:
+        expired_count = None
+    raw_reasons = state.get('lastWithheldReasons')
+    withheld_reasons = (sorted(set(reason for reason in raw_reasons
+                                   if isinstance(reason, str) and 0 < len(reason) <= 120))[:32]
+                        if isinstance(raw_reasons, list) else [])
+    if expired_count and 'publication-expired' not in withheld_reasons:
+        withheld_reasons = sorted([*withheld_reasons, 'publication-expired'])
 
     acceptance = source.get('feedAcceptance')
     verified_at = source.get('feedVerifiedAt')
@@ -19,6 +40,10 @@ def news_source_status(source, state, record_count, now=None):
         feed_status, feed_verified = 'legacy-no-explicit-acceptance', None
     elif acceptance != 'accepted':
         feed_status, feed_verified = 'not-accepted', False
+    elif not source.get('licenseEvidenceUrl'):
+        feed_status, feed_verified = 'license-evidence-required', False
+    elif not valid_https_evidence_url(source.get('licenseEvidenceUrl')):
+        feed_status, feed_verified = 'invalid-license-evidence', False
     else:
         try:
             verified_date = date.fromisoformat(verified_at)
@@ -33,6 +58,8 @@ def news_source_status(source, state, record_count, now=None):
                 feed_status, feed_verified = 'future-verification-date', False
             elif age > MAX_FEED_VERIFICATION_AGE_DAYS:
                 feed_status, feed_verified = 'verification-expired', False
+            elif not feed_review_matches(source):
+                feed_status, feed_verified = 'review-configuration-changed', False
             else:
                 feed_status, feed_verified = 'current', True
 
@@ -41,6 +68,9 @@ def news_source_status(source, state, record_count, now=None):
         'status': collection_status,
         'records': record_count,
         'lastCollectedCount': state.get('lastCollectedCount'),
+        'lastWithheldCount': withheld_count,
+        'lastExpiredCount': expired_count,
+        'lastWithheldReasons': withheld_reasons,
         'lastAttempt': state.get('lastAttempt'),
         'lastSuccess': last_success,
         'feedAcceptance': acceptance,
@@ -53,10 +83,11 @@ def news_source_status(source, state, record_count, now=None):
 def pbf_refresh_status(report, now=None):
     """Summarize one regional PBF refresh without implying access verification."""
     now = now or datetime.now(timezone.utc)
-    if not isinstance(report, dict) or report.get('schemaVersion') != 1:
+    if (not isinstance(report, dict) or type(report.get('schemaVersion')) is not int
+            or report.get('schemaVersion') != 1):
         raise ValueError('unsupported PBF refresh report')
     region = report.get('region')
-    if region not in {'africa', 'asia', 'europe', 'south-america', 'oceania', 'north-america', 'china', 'japan'}:
+    if region not in {'africa', 'asia', 'europe', 'south-america', 'oceania', 'north-america', 'central-america', 'antarctica', 'china', 'japan'}:
         raise ValueError('unsupported PBF refresh region')
 
     source_rows = report.get('sources')
@@ -68,6 +99,12 @@ def pbf_refresh_status(report, now=None):
             continue
         latest[row['sourceId']] = row
     counts = Counter(row.get('result', 'unknown') for row in latest.values())
+    reconciliation_changes = [
+        change
+        for row in latest.values()
+        for change in (row.get('reconciliationChanges') if isinstance(row.get('reconciliationChanges'), list) else [])
+        if isinstance(change, dict) and change.get('action') in {'source-released', 'catalog-removed'}
+    ]
     runs = report.get('runs') if isinstance(report.get('runs'), list) else []
     last_run = report.get('lastRun') if isinstance(report.get('lastRun'), dict) else (runs[-1] if runs and isinstance(runs[-1], dict) else {})
     source_timestamps = []
@@ -92,6 +129,9 @@ def pbf_refresh_status(report, now=None):
         'lastRunFailureCount': last_run.get('failureCount', report.get('failureCount')),
         'latestSourceCount': len(latest),
         'latestSourceResults': dict(sorted(counts.items())),
+        'reconciliationChangeCount': len(reconciliation_changes),
+        'reconciliationRemovedCount': sum(change['action'] == 'catalog-removed' for change in reconciliation_changes),
+        'reconciliationReleasedCount': sum(change['action'] == 'source-released' for change in reconciliation_changes),
         'oldestSourceTimestamp': min(source_timestamps).isoformat() if source_timestamps else None,
         'newestSourceTimestamp': max(source_timestamps).isoformat() if source_timestamps else None,
         'catalogDelta': last_run.get('catalogDelta') or report.get('catalogDelta'),
@@ -137,7 +177,7 @@ def pbf_catalog_coverage(catalog):
             'oldestSourceTimestamp': min(bucket['sourceTimestamps']).isoformat() if bucket['sourceTimestamps'] else None,
             'newestSourceTimestamp': max(bucket['sourceTimestamps']).isoformat() if bucket['sourceTimestamps'] else None,
             'latestImportedAt': max(bucket['importedAt']).isoformat() if bucket['importedAt'] else None,
-            'scheduledRefresh': region in {'africa', 'asia', 'europe', 'south-america', 'oceania', 'north-america', 'china', 'japan'},
+            'scheduledRefresh': region in {'africa', 'asia', 'europe', 'south-america', 'oceania', 'north-america', 'central-america', 'antarctica', 'china', 'japan'},
             'accessVerified': False,
             'navigableGeometryAdded': False,
         }
