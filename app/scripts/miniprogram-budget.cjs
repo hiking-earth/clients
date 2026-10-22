@@ -31,6 +31,9 @@ function inspectBudget(root) {
 module.exports = {inspectBudget};
 if (require.main === module) {
   const result = inspectBudget(path.resolve(process.argv[2] || 'dist/build/mp-weixin'));
-  console.log(JSON.stringify(result, null, 2));
+  const output = JSON.stringify(result, null, 2) + '\n';
+  const reportPath = process.argv[3];
+  if (reportPath) fs.writeFileSync(path.resolve(reportPath), output, {encoding: 'utf8', flag: 'wx'});
+  process.stdout.write(output);
   if (!result.passed) process.exitCode = 1;
 }
