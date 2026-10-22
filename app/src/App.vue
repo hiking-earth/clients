@@ -6,6 +6,7 @@ import { checkForUpdate } from '@/services/updates';
 import { startSync, setSyncForeground } from '@/services/sync';
 import { refreshRouteCatalog } from '@/services/route-catalog';
 import { stopBackgroundRecording } from '@/services/background';
+import { refreshScenicClock } from '@shared/content/scenic-clock';
 import { accountSession } from '@/services/account';
 import { onLaunch, onShow, onHide } from "@dcloudio/uni-app";
 let foregroundRefreshTimer:ReturnType<typeof setInterval>|undefined;
@@ -46,6 +47,7 @@ onLaunch(() => {
   void checkForUpdate();
 });
 onShow(() => {
+  refreshScenicClock();
   // #ifdef H5
   redirectToLogin();
   // #endif
