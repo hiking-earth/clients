@@ -5,18 +5,41 @@ cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database({ throwOnNotFound: false });
 exports.main = async event => {
   const OPENID = require('../../identity').currentIdentity();
-  const admins = String(process.env.HIKING_ADMIN_IDENTITIES || '').split(',').map(x => x.trim()).filter(Boolean);
-  if (!OPENID || !admins.includes(OPENID)) return { errMsg: '当前账号没有社区管理权限' };
+  if (!require('../owner-admin').isOwnerAdmin(OPENID)) return { errMsg: '当前账号没有社区管理权限' };
   if (event.action === 'list') {
-    const result = await db.collection('community_reports').where({ status: 'pending' }).orderBy('createdAt', 'asc').limit(50).get();
-    const reports = [];
-    for (const row of result.data) {
-      const post = (await db.collection('companion_posts').doc(row.postId).get()).data;
-      reports.push({ id: row._id, postId: row.postId, reason: row.reason, createdAt: row.createdAt,
-        post: post ? { title: post.title, content: post.content, nickname: post.nickname, status: post.status } : null });
+    const cursor = event.cursor === undefined ? { reports: null, posts: null } : event.cursor;
+    if (!cursor || typeof cursor !== 'object' || Array.isArray(cursor)
+      || cursor.reports !== null && (typeof cursor.reports !== 'string' || !cursor.reports || cursor.reports.length > 128)
+      || cursor.posts !== null && (typeof cursor.posts !== 'string' || !cursor.posts || cursor.posts.length > 128)) {
+      return { errMsg: '审核队列游标无效，请刷新后重试' };
     }
-    const pending = (await db.collection('companion_posts').where({ status: 'pending' }).orderBy('createdAt', 'asc').limit(50).get()).data;
-    return { reports, posts: pending.map(p => ({ id: p._id, title: p.title, content: p.content, nickname: p.nickname, createdAt: p.createdAt, version: p.joinVersion || 0 })) };
+    const pageSize = 20;
+    const reportCriteria = { status: 'pending' }, postCriteria = { status: 'pending' };
+    if (cursor.reports) reportCriteria._id = db.command.gt(cursor.reports);
+    if (cursor.posts) postCriteria._id = db.command.gt(cursor.posts);
+    const [reportResult, postResult] = await Promise.all([
+      db.collection('community_reports').where(reportCriteria).orderBy('_id', 'asc').limit(pageSize + 1).get(),
+      db.collection('companion_posts').where(postCriteria).orderBy('_id', 'asc').limit(pageSize + 1).get(),
+    ]);
+    const reportRows = reportResult.data || [], postRows = postResult.data || [];
+    const reportPage = reportRows.slice(0, pageSize), postPage = postRows.slice(0, pageSize);
+    const postIds = [...new Set(reportPage.map(row => row.postId).filter(id => typeof id === 'string' && id.length > 0 && id.length <= 128))];
+    const relatedPosts = postIds.length
+      ? (await db.collection('companion_posts').where({ _id: db.command.in(postIds) }).get()).data || []
+      : [];
+    const postById = new Map(relatedPosts.map(post => [post._id, post]));
+    const reports = reportPage.map(row => {
+      const post = postById.get(row.postId);
+      return { id: row._id, postId: row.postId, reason: row.reason, createdAt: row.createdAt,
+        post: post ? { title: post.title, content: post.content, nickname: post.nickname, status: post.status } : null };
+    });
+    return {
+      reports,
+      posts: postPage.map(p => ({ id: p._id, title: p.title, content: p.content, nickname: p.nickname, createdAt: p.createdAt, version: p.joinVersion || 0 })),
+      nextCursor: { reports: reportPage.length ? reportPage[reportPage.length - 1]._id : cursor.reports,
+        posts: postPage.length ? postPage[postPage.length - 1]._id : cursor.posts },
+      hasMore: { reports: reportRows.length > pageSize, posts: postRows.length > pageSize },
+    };
   }
   if (['approve', 'reject'].includes(event.action) && typeof event.postId === 'string') {
     return db.runTransaction(async tx => {

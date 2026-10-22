@@ -23,9 +23,12 @@ exports.main = async (event) => {
   if(routeId){const route=(await db.collection('route_reviews').doc(crypto.createHash('sha256').update(routeId).digest('hex')).get()).data;if(!route||route.status!=='开放中'||!Number.isFinite(route.expiresAt)||route.expiresAt<=Date.now())return {errMsg:'关联路线须先完成有效官方开放核验，或取消关联并说明待核验路线'};}
   // Unified accounts do not have a WeChat OpenID. Queue for authorized
   // review instead of pretending that WeChat-only checks succeeded.
-  const reviewPending = OPENID.startsWith("account:");
+  let reviewPending = OPENID.startsWith("account:");
   if (!reviewPending) try {
-    await cloud.openapi.security.msgSecCheck({ content: `${title}\n${content}` });
+    const check = await cloud.openapi.security.msgSecCheck({ openid: OPENID, scene: 3, version: 2, content: `${title}\n${content}` });
+    if (!check || check.errCode !== 0) return { errMsg: "内容未通过安全审核，请修改后再发" };
+    if(check.result?.suggest==='review')reviewPending=true;
+    else if(check.result?.suggest!=='pass')return {errMsg:"内容未通过安全审核，请修改后再发"};
   } catch (e) {
     return { errMsg: "内容未通过安全审核，请修改后再发" };
   }

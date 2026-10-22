@@ -5,8 +5,7 @@ cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database({ throwOnNotFound: false });
 exports.main = async event => {
   const { OPENID } = cloud.getWXContext();
-  const admins = String(process.env.HIKING_ADMIN_IDENTITIES || '').split(',').map(x => x.trim()).filter(Boolean);
-  if (!OPENID || !admins.includes(OPENID)) return { errMsg: '当前账号没有社区管理权限' };
+  if (!require('./owner-admin').isOwnerAdmin(OPENID)) return { errMsg: '当前账号没有社区管理权限' };
   if (event.action === 'list') {
     const result = await db.collection('community_reports').where({ status: 'pending' }).orderBy('createdAt', 'asc').limit(50).get();
     const reports = [];

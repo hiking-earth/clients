@@ -13,7 +13,11 @@ exports.main = async event => {
       if(afterCursor)criteria._id=db.command.gt(afterCursor);
       const result=await db.collection('tracks').where(criteria).orderBy('_id','asc').limit(20)
         .field({_id:true,trackId:true,name:true,distanceM:true,version:true,deleted:true}).get();
-      const tracks=result.data.filter(t=>t.deleted!==true).map(t=>({trackId:t.trackId,name:t.name,distanceM:t.distanceM,version:t.version??0}));
+      if(result.data.some(t=>t.deleted!==undefined&&typeof t.deleted!=='boolean'))return {errMsg:'云端轨迹删除状态无效'};
+      // The cursor endpoint is reserved for the authenticated auto-sync client.
+      // Return tombstones as metadata so another device can stop advertising a
+      // stale local copy as synchronized without exposing deleted track points.
+      const tracks=result.data.map(t=>({trackId:t.trackId,name:t.deleted===true?'':t.name,distanceM:t.deleted===true?0:t.distanceM,version:t.version??0,deleted:t.deleted===true}));
       return {tracks,hasMore:result.data.length===20,nextCursor:result.data.length?result.data[result.data.length-1]._id:null};
     }
     const page = Number.isInteger(event.page) && event.page >= 0 ? event.page : 0;

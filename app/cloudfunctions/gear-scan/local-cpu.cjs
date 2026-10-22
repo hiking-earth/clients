@@ -1,6 +1,23 @@
 const path=require('node:path');
 let detector,busy=false;
-const labels={backpack:['背包','背包'],handbag:['手提包','其他'],suitcase:['行李箱','其他'],bottle:['瓶状物（请确认用途）','饮食'],cup:['杯子','饮食'],bowl:['碗','饮食'],knife:['刀具','其他'],fork:['叉子','饮食'],spoon:['勺子','饮食'],'cell phone':['手机','导航'],umbrella:['雨伞','其他']};
+const labels={
+ backpack:['背包','背包'],handbag:['手提包（请确认用途）','其他'],suitcase:['行李箱（请确认用途）','其他'],
+ bench:['步道长椅/露营凳候选（请确认用途）','休息'],chair:['露营椅候选（请确认类型）','休息'],bed:['铺位/睡垫候选（请确认物品）','睡眠'],'dining table':['露营桌候选（请确认用途）','炊具'],
+ bottle:['瓶状物（请确认用途）','饮食'],cup:['杯子','饮食'],bowl:['碗','饮食'],knife:['刀具','工具'],fork:['叉子','饮食'],spoon:['勺子','饮食'],
+ book:['地图或手册候选（请确认内容）','导航'],clock:['手表或计时器候选（请确认类型）','导航'],scissors:['剪刀状工具候选（请确认用途）','工具'],toothbrush:['牙刷候选','卫生'],
+ 'cell phone':['手机','导航'],umbrella:['雨伞','其他'],
+ skis:['滑雪板候选','其他'],snowboard:['单板滑雪板候选','其他'],surfboard:['冲浪板候选','其他'],
+ skateboard:['滑板候选','其他'],'tennis racket':['球拍候选','其他'],'baseball bat':['球棒候选','其他'],
+ 'baseball glove':['手套候选','其他'],'sports ball':['球类装备候选','其他'],frisbee:['飞盘候选','其他'],kite:['风筝候选','其他']
+};
+function formatCandidates(predictions){
+ const best=new Map();
+ for(const prediction of predictions){
+  if(!labels[prediction.class]||!Number.isFinite(prediction.score)||prediction.score<0||prediction.score>1)continue;
+  if(prediction.score>(best.get(prediction.class)??-1))best.set(prediction.class,prediction.score);
+ }
+ return [...best.entries()].sort((a,b)=>b[1]-a[1]).map(([className,score])=>({name:`${labels[className][0]} · 候选 ${Math.round(score*100)}%`,category:labels[className][1]}));
+}
 function decodeImage(bytes){
  if(bytes[0]===255&&bytes[1]===216&&bytes[2]===255)return require('jpeg-js').decode(bytes,{useTArray:true,maxResolutionInMP:4,maxMemoryUsageInMB:64});
  const png=Buffer.from([137,80,78,71,13,10,26,10]);
@@ -23,7 +40,7 @@ exports.main=async event=>{
   for(let y=0;y<300;y++)for(let x=0;x<300;x++){const from=(Math.floor(y*decoded.height/300)*decoded.width+Math.floor(x*decoded.width/300))*4;rgb.set(decoded.data.subarray(from,from+3),(y*300+x)*3);}
   if(!detector){const tf=require('@tensorflow/tfjs-core');require('@tensorflow/tfjs-backend-cpu');detector=require('./cpu-detector.cjs').createCpuDetector({tf,coco:require('@tensorflow-models/coco-ssd'),modelDirectory:path.join(__dirname,'model')});}
   const predictions=await detector(rgb);
-  const items=predictions.filter(p=>labels[p.class]&&Number.isFinite(p.score)).map(p=>({name:`${labels[p.class][0]} · 候选 ${Math.round(p.score*100)}%`,category:labels[p.class][1]}));
-  return {items,missing:[],usage:[items.length?'请逐项确认图像检测候选；分数不是准确率或质量认证。':'未检测到支持类别，不表示照片中没有装备。','免费自托管模型仅支持部分通用物体，不能判断鞋服材质、性能或完整装备。','下列为通用一日徒步核对清单，不是从照片推断缺失；按路线天气和本人需求调整。'],plan:['饮用水及补给','适合路面的鞋袜','防雨及保暖层','离线轨迹及备用电源','急救用品','头灯','紧急联系方式'].map(name=>({name}))};
+  const items=formatCandidates(predictions);
+  return {provider:'cloud-cpu',items,missing:[],usage:[items.length?'请逐项确认图像检测候选；分数不是准确率或质量认证。':'未检测到支持类别，不表示照片中没有装备。','免费自托管模型只识别有限通用物体候选；徒步鞋靴、登山杖、帐篷、睡袋和药品没有专用类别，请结合路线装备清单手动核对。床类仅提供铺位/睡垫候选，不表示识别出睡袋。','模型不能判断衣物材质、装备性能或完整性。如已选择路线，清单按路线、出发日期和负重方式生成；天气只在可用的当日坐标预报范围内补充。'],plan:['饮用水及补给','适合路面的鞋袜','防雨及保暖层','离线轨迹及备用电源','急救用品','头灯','紧急联系方式'].map(name=>({name}))};
  }finally{busy=false;}
 };
