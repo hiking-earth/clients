@@ -14,7 +14,7 @@ import time
 from urllib.parse import urlsplit
 from urllib.request import Request, urlopen
 
-HOST = "download.geofabrik.de"
+HOSTS = {"download.geofabrik.de", "download.openstreetmap.fr"}
 USER_AGENT = "HikingEarthPbfFetcher/1.0 (+https://github.com/hiking-earth/clients)"
 MAX_BYTES = 20 * 1024 * 1024 * 1024
 MAX_CHECKSUM_BYTES = 4096
@@ -23,7 +23,7 @@ MAX_CHECKSUM_BYTES = 4096
 def valid_url(value):
     try:
         parsed = urlsplit(value)
-        return (parsed.scheme == "https" and parsed.hostname == HOST
+        return (parsed.scheme == "https" and parsed.hostname in HOSTS
                 and not parsed.username and not parsed.password
                 and parsed.port is None and not parsed.query and not parsed.fragment)
     except (TypeError, ValueError):
@@ -32,9 +32,10 @@ def valid_url(value):
 
 def request(url, headers=None):
     response = urlopen(Request(url, headers={"User-Agent": USER_AGENT, **(headers or {})}), timeout=45)
-    if not valid_url(response.geturl()):
+    if (not valid_url(response.geturl())
+            or urlsplit(response.geturl()).hostname != urlsplit(url).hostname):
         response.close()
-        raise ValueError("Geofabrik redirected outside its HTTPS download host")
+        raise ValueError("PBF source redirected outside the approved HTTPS extract hosts")
     return response
 
 
@@ -105,26 +106,30 @@ def fetch_chunk(url, fd, start, end, total, attempts):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--url", required=True, help="Pinned Geofabrik .osm.pbf URL")
+    parser.add_argument("--url", required=True, help="Pinned OSM .osm.pbf URL from an approved extract host")
     parser.add_argument("--output", required=True, type=Path)
-    parser.add_argument("--md5-url", help="Official Geofabrik .md5 sidecar; defaults to URL + .md5")
+    parser.add_argument("--md5-url", help="Provider MD5 sidecar; defaults to URL + .md5")
     parser.add_argument("--workers", type=int, default=6)
     parser.add_argument("--chunk-mib", type=int, default=8)
     parser.add_argument("--attempts", type=int, default=3, help="Attempts per range before preserving state and stopping")
+    parser.add_argument("--rounds", type=int, default=1,
+                        help="Split at most three per-range attempts across bounded rounds")
     parser.add_argument("--max-bytes", type=int, default=MAX_BYTES,
                         help="Reject larger extracts before allocating a partial download")
     args = parser.parse_args()
     if not valid_url(args.url) or not args.url.lower().endswith(".osm.pbf"):
-        parser.error("--url must be a pinned HTTPS .osm.pbf URL on download.geofabrik.de")
+        parser.error("--url must be a pinned HTTPS .osm.pbf URL on download.geofabrik.de or download.openstreetmap.fr")
     checksum_url = args.md5_url or (args.url + ".md5")
     if not valid_url(checksum_url):
-        parser.error("--md5-url must be HTTPS on download.geofabrik.de")
+        parser.error("--md5-url must be HTTPS on an approved extract host")
     if type(args.workers) is not int or not 1 <= args.workers <= 12:
         parser.error("--workers must be 1..12")
     if type(args.chunk_mib) is not int or not 1 <= args.chunk_mib <= 32:
         parser.error("--chunk-mib must be 1..32")
-    if type(args.attempts) is not int or not 1 <= args.attempts <= 5:
-        parser.error("--attempts must be 1..5")
+    if type(args.attempts) is not int or not 1 <= args.attempts <= 3:
+        parser.error("--attempts must be 1..3")
+    if type(args.rounds) is not int or not 1 <= args.rounds <= args.attempts:
+        parser.error("--rounds must be 1..attempts (at most 3)")
     if type(args.max_bytes) is not int or not 1 <= args.max_bytes <= MAX_BYTES:
         parser.error(f"--max-bytes must be 1..{MAX_BYTES}")
 
@@ -179,36 +184,42 @@ def main():
         fd = os.open(part, os.O_RDWR)
         try:
             count = (size + chunk_size - 1) // chunk_size
-            pending = []
-            for index in range(count):
-                start = index * chunk_size
-                end = min(start + chunk_size, size) - 1
-                known = chunks.get(str(index))
-                if isinstance(known, str) and re.fullmatch(r"[a-f0-9]{64}", known):
-                    existing = os.pread(fd, end - start + 1, start)
-                    if len(existing) == end - start + 1 and hashlib.sha256(existing).hexdigest() == known:
-                        continue
-                pending.append((index, start, end))
-            print(f"resume: {count - len(pending)}/{count} chunks; pending={len(pending)}", flush=True)
-            with concurrent.futures.ThreadPoolExecutor(max_workers=args.workers) as pool:
-                futures = {pool.submit(fetch_chunk, args.url, fd, start, end, size, args.attempts): (index, start, end)
-                           for index, start, end in pending}
-                completed = 0
-                try:
-                    for future in concurrent.futures.as_completed(futures):
-                        index, start, end = futures[future]
-                        try:
-                            chunks[str(index)] = future.result()
-                        except Exception as exc:
-                            print(f"range {index + 1}/{count} pending after retries: {exc}", flush=True)
+            for round_index in range(args.rounds):
+                pending = []
+                for index in range(count):
+                    start = index * chunk_size
+                    end = min(start + chunk_size, size) - 1
+                    known = chunks.get(str(index))
+                    if isinstance(known, str) and re.fullmatch(r"[a-f0-9]{64}", known):
+                        existing = os.pread(fd, end - start + 1, start)
+                        if len(existing) == end - start + 1 and hashlib.sha256(existing).hexdigest() == known:
                             continue
-                        completed += 1
+                    chunks.pop(str(index), None)
+                    pending.append((index, start, end))
+                if not pending:
+                    break
+                print(f"round {round_index + 1}/{args.rounds}: verified={count - len(pending)}/{count}; pending={len(pending)}", flush=True)
+                with concurrent.futures.ThreadPoolExecutor(max_workers=args.workers) as pool:
+                    futures = {pool.submit(fetch_chunk, args.url, fd, start, end, size, max(1, args.attempts // args.rounds)): (index, start, end)
+                               for index, start, end in pending}
+                    completed = 0
+                    try:
+                        for future in concurrent.futures.as_completed(futures):
+                            index, start, end = futures[future]
+                            try:
+                                chunks[str(index)] = future.result()
+                            except Exception as exc:
+                                print(f"range {index + 1}/{count} pending after retries: {exc}", flush=True)
+                                continue
+                            completed += 1
+                            state["chunks"] = chunks
+                            atomic_json(state_path, state)
+                            print(f"range {index + 1}/{count} saved ({completed}/{len(pending)} this round)", flush=True)
+                    finally:
                         state["chunks"] = chunks
                         atomic_json(state_path, state)
-                        print(f"range {index + 1}/{count} saved ({completed}/{len(pending)} this run)", flush=True)
-                finally:
-                    state["chunks"] = chunks
-                    atomic_json(state_path, state)
+                if len(chunks) < count and round_index + 1 < args.rounds:
+                    time.sleep(15 * (round_index + 1))
             os.fsync(fd)
         except BaseException:
             raise
