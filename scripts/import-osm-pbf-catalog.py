@@ -24,7 +24,8 @@ ROOT = Path(__file__).resolve().parents[1]
 DEST = ROOT / "shared/data/catalog/osm.json"
 REGIONS = (
     "china", "hong-kong", "macao", "europe", "north-america", "japan",
-    "oceania", "south-america", "africa", "south-asia", "asia",
+    "oceania", "south-america", "africa", "central-america", "antarctica",
+    "south-asia", "asia",
 )
 TAG_ALLOWLIST = (
     "distance", "ascent", "descent", "network", "operator", "website",
@@ -32,6 +33,7 @@ TAG_ALLOWLIST = (
 )
 MAX_IMPORT_BYTES = 20 * 1024 * 1024 * 1024
 MAX_CATALOG_RECORDS = 250_000
+MAX_RECONCILIATION_CHANGE_RECORDS = 10_000
 OSM_CATALOG_LOCK = SourceFileLoader(
     "hiking_osm_catalog_lock", str(Path(__file__).with_name("update-route-catalog.py"))
 ).load_module()
@@ -57,6 +59,38 @@ def valid_source_url(value):
         return False
 
 
+def validate_reconciliation_receipt(pbf, source_url, pbf_size, digest):
+    """Require the pinned downloader's complete, checksum-verified receipt before withdrawals."""
+    if not valid_source_url(source_url) or urlsplit(source_url).hostname not in {
+            "download.geofabrik.de", "download.openstreetmap.fr"}:
+        raise ValueError("Source reconciliation requires a pinned HTTPS extract URL on an approved host")
+    receipt_path = pbf.with_name(pbf.name + ".download.json")
+    try:
+        receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+        raise ValueError("Source reconciliation requires the verified downloader receipt; catalog left unchanged") from exc
+    if not isinstance(receipt, dict):
+        raise ValueError("Verified downloader receipt is malformed; catalog left unchanged")
+    receipt_bytes = receipt.get("bytes")
+    chunk_bytes = receipt.get("chunkBytes")
+    chunks = receipt.get("chunks")
+    if (receipt.get("schemaVersion") != 1
+            or receipt.get("downloadStatus") != "verified"
+            or receipt.get("url") != source_url
+            or type(receipt_bytes) is not int or receipt_bytes != pbf_size
+            or receipt.get("sha256") != digest
+            or not isinstance(receipt.get("md5"), str) or not re.fullmatch(r"[a-f0-9]{32}", receipt["md5"])
+            or not isinstance(receipt.get("verifiedAt"), str) or parse_timestamp(receipt["verifiedAt"]) is None
+            or type(chunk_bytes) is not int or chunk_bytes <= 0
+            or not isinstance(chunks, dict)):
+        raise ValueError("Downloader receipt does not attest this complete PBF snapshot; catalog left unchanged")
+    expected_count = (pbf_size + chunk_bytes - 1) // chunk_bytes
+    if (set(chunks) != {str(index) for index in range(expected_count)}
+            or any(not isinstance(value, str) or not re.fullmatch(r"[a-f0-9]{64}", value)
+                   for value in chunks.values())):
+        raise ValueError("Downloader receipt has incomplete chunk verification; catalog left unchanged")
+
+
 def parse_timestamp(value):
     if not isinstance(value, str):
         return None
@@ -74,6 +108,48 @@ def classify_region(region, lon, lat):
     if region == "china" and 113.48 <= lon <= 113.60 and 22.10 <= lat <= 22.26:
         return "macao"
     return region
+
+
+def valid_pbf_sources(value):
+    return (isinstance(value, list)
+            and all(isinstance(source, str) and re.fullmatch(r"[a-z0-9][a-z0-9/_-]{0,99}", source)
+                    for source in value)
+            and len(set(value)) == len(value))
+
+
+def reconciliation_change(identity, row, source_id, action):
+    match = re.fullmatch(r"osm-relation-([1-9][0-9]*)", identity)
+    if not match or action not in {"source-released", "catalog-removed"}:
+        raise ValueError("Cannot produce traceable evidence for an OSM reconciliation change")
+    return {
+        "routeId": identity,
+        "osmRelationId": int(match.group(1)),
+        "action": action,
+        "sourceId": source_id,
+        "sourceUrl": f"https://www.openstreetmap.org/relation/{match.group(1)}",
+        "previousName": row.get("name") if isinstance(row.get("name"), str) else None,
+        "previousRegion": row.get("region") if isinstance(row.get("region"), str) else None,
+        "previousStatus": row.get("status") if isinstance(row.get("status"), str) else None,
+        "previousFetchedAt": row.get("fetchedAt") if isinstance(row.get("fetchedAt"), str) else None,
+    }
+
+
+def append_reconciliation_change(changes, identity, row, source_id, action):
+    if len(changes) >= MAX_RECONCILIATION_CHANGE_RECORDS:
+        raise ValueError(
+            f"Reconciliation would change more than {MAX_RECONCILIATION_CHANGE_RECORDS} records; "
+            "catalog left unchanged so the change set can be reviewed in bounded batches")
+    changes.append(reconciliation_change(identity, row, source_id, action))
+
+
+def reject_empty_source_reconciliation(candidates, catalog_rows, source_id):
+    if candidates:
+        return
+    if any(isinstance(row.get("pbfSources"), list) and source_id in row["pbfSources"]
+           for row in catalog_rows):
+        raise ValueError(
+            "Complete extract contains no named hiking relations for a source with existing records; "
+            "catalog left unchanged for review")
 
 
 def valid_catalog(path):
@@ -96,7 +172,8 @@ def valid_catalog(path):
                 or row.get("sourceUrl") != f"https://www.openstreetmap.org/relation/{match.group(1)}"
                 or not isinstance(tags, dict) or any(not isinstance(key, str) or not isinstance(tag, str) for key, tag in tags.items())
                 or not isinstance(row.get("status"), str) or parse_timestamp(row.get("fetchedAt")) is None
-                or ("lastSeenCycle" in row and not isinstance(row["lastSeenCycle"], str))):
+                or ("lastSeenCycle" in row and not isinstance(row["lastSeenCycle"], str))
+                or ("pbfSources" in row and not valid_pbf_sources(row["pbfSources"]))):
             raise ValueError("Existing OSM catalog has an invalid route row; left unchanged")
         identities.add(identity)
     return value
@@ -108,6 +185,8 @@ def main():
     parser.add_argument("--region", required=True, choices=REGIONS, help="Existing app discovery-region key")
     parser.add_argument("--source-id", required=True, help="Stable extract ID, e.g. china/guangdong")
     parser.add_argument("--source-url", help="Optional HTTPS source URL for the extract")
+    parser.add_argument("--reconcile-source", action="store_true",
+                        help="Remove this complete extract's attribution from absent records; only applies when every candidate relation is complete")
     parser.add_argument("--catalog", type=Path, default=DEST, help="OSM discovery catalog JSON")
     args = parser.parse_args()
 
@@ -149,6 +228,8 @@ def main():
     source_ids = set()
     for item in imports:
         numeric_fields = ("bytes", "candidateRelations", "importedRelations", "skippedIncompleteRelations", "skippedNestedRelations")
+        if isinstance(item, dict) and "reconciliationComplete" in item:
+            numeric_fields += ("releasedRelations", "removedRelations", "protectedRelations")
         if (not isinstance(item, dict)
                 or not isinstance(item.get("sourceId"), str) or not re.fullmatch(r"[a-z0-9][a-z0-9/_-]{0,99}", item["sourceId"])
                 or item["sourceId"] in source_ids
@@ -159,15 +240,19 @@ def main():
                 or any(not isinstance(item.get(field), int) or isinstance(item.get(field), bool) or item[field] < 0 for field in numeric_fields)
                 or item["bytes"] <= 0 or item["bytes"] > MAX_IMPORT_BYTES
                 or item["importedRelations"] > item["candidateRelations"]
-                or item["skippedIncompleteRelations"] > item["candidateRelations"]):
+                or item["skippedIncompleteRelations"] > item["candidateRelations"]
+                or ("reconciliationComplete" in item and not isinstance(item["reconciliationComplete"], bool))):
             raise SystemExit("Existing PBF import provenance is invalid; catalog left unchanged")
         source_ids.add(item["sourceId"])
     existing_by_id = {row["id"]: row for row in snapshot["routes"]}
     digest = sha256_file(pbf)
-    if any(row.get("sourceId") == args.source_id and row.get("sha256") == digest
-           for row in imports if isinstance(row, dict)):
+    prior_import = next((row for row in imports if isinstance(row, dict)
+                         and row.get("sourceId") == args.source_id and row.get("sha256") == digest), None)
+    if prior_import and (not args.reconcile_source or "reconciliationComplete" in prior_import):
         print(json.dumps({"skipped": "same sourceId and PBF SHA-256 already imported", "sourceId": args.source_id}))
         return
+    if args.reconcile_source:
+        validate_reconciliation_receipt(pbf, args.source_url, pbf_size, digest)
     try:
         source_time = get_replication_header(str(pbf)).timestamp
         if source_time and source_time.tzinfo is None:
@@ -183,6 +268,8 @@ def main():
         candidates = {}
         ways_to_routes = defaultdict(list)
         rejected_nested = 0
+        rejected_nested_ids = set()
+        unnamed_route_ids = set()
 
         class RelationReader(osmium.SimpleHandler):
             def relation(self, relation):
@@ -190,8 +277,10 @@ def main():
                 tags = dict(relation.tags)
                 if tags.get("type") != "route" or tags.get("route") not in ("hiking", "foot"):
                     return
+                rid = relation.id
                 name = tags.get("name", "").strip()
                 if not name:
+                    unnamed_route_ids.add(rid)
                     return
                 way_ids = set()
                 has_nested = False
@@ -202,8 +291,8 @@ def main():
                         has_nested = True
                 if has_nested or not way_ids:
                     rejected_nested += 1
+                    rejected_nested_ids.add(rid)
                     return
-                rid = relation.id
                 candidates[rid] = {
                     "name": tags.get("name:zh", name).strip() or name,
                     "originalName": name,
@@ -224,8 +313,10 @@ def main():
             "phase": "scan-relations", "status": "complete", "candidates": len(candidates),
             "nestedRejected": rejected_nested, "elapsedSeconds": round(time.monotonic() - relation_scan_started, 1),
         }), flush=True)
-        if not candidates:
+        if not candidates and not (args.reconcile_source and rejected_nested == 0):
             raise ValueError("No named hiking/foot route relations with direct way members were found")
+        if args.reconcile_source:
+            reject_empty_source_reconciliation(candidates, snapshot["routes"], args.source_id)
 
         location_index = temp_dir / "node-locations.data"
 
@@ -295,6 +386,7 @@ def main():
         now = dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z")
         staged = {}
         incomplete = 0
+        incomplete_ids = set()
         for rid, row in candidates.items():
             west, south, east, north = row["bounds"]
             if (row["resolvedWays"] != row["expectedWays"]
@@ -302,11 +394,14 @@ def main():
                     or row["resolvedNodes"] != row["expectedNodes"]
                     or not all(math.isfinite(v) for v in (west, south, east, north))):
                 incomplete += 1
+                incomplete_ids.add(rid)
                 continue
             key = f"osm-relation-{rid}"
             old = existing_by_id.get(key)
             source_tags = dict(old.get("sourceTags", {})) if old else {}
             source_tags.update(row["tags"])
+            pbf_sources = set(old.get("pbfSources", [])) if old else set()
+            pbf_sources.add(args.source_id)
             old_region = old.get("region") if old else None
             region = old_region if old_region in REGIONS else classify_region(args.region, (west + east) / 2, (south + north) / 2)
             staged[key] = {
@@ -317,14 +412,49 @@ def main():
                 "center": [(west + east) / 2, (south + north) / 2],
                 "sourceUrl": f"https://www.openstreetmap.org/relation/{rid}",
                 "sourceTags": source_tags,
+                "pbfSources": sorted(pbf_sources),
                 "fetchedAt": now,
                 "status": old.get("status", "待核验") if old else "待核验",
             }
-        if not staged:
+        if not staged and not args.reconcile_source:
             raise ValueError("No reference-complete named route records; existing catalog left unchanged")
 
         merged = dict(existing_by_id)
         merged.update(staged)
+        reconciliation_complete = False
+        released_relations = 0
+        removed_relations = 0
+        protected_relations = 0
+        reconciliation_changes = []
+        if args.reconcile_source:
+            reconciliation_complete = True
+            protected_ids = {f"osm-relation-{rid}" for rid in incomplete_ids | rejected_nested_ids | unnamed_route_ids}
+            for identity, old in list(merged.items()):
+                if identity in staged:
+                    continue
+                source_ids = old.get("pbfSources")
+                if not isinstance(source_ids, list) or args.source_id not in source_ids:
+                    # Legacy records without source provenance cannot be
+                    # safely attributed to this extract and remain intact.
+                    continue
+                if identity in protected_ids:
+                    protected_relations += 1
+                    continue
+                remaining = [source_id for source_id in source_ids if source_id != args.source_id]
+                if remaining:
+                    append_reconciliation_change(
+                        reconciliation_changes, identity, old, args.source_id, "source-released")
+                    updated = dict(old)
+                    updated["pbfSources"] = remaining
+                    merged[identity] = updated
+                    released_relations += 1
+                else:
+                    append_reconciliation_change(
+                        reconciliation_changes, identity, old, args.source_id, "catalog-removed")
+                    del merged[identity]
+                    removed_relations += 1
+            if len(reconciliation_changes) != released_relations + removed_relations:
+                raise ValueError("OSM reconciliation change evidence does not match its counters; catalog left unchanged")
         if len(merged) > MAX_CATALOG_RECORDS:
             raise ValueError(f"Merged OSM catalog would exceed the {MAX_CATALOG_RECORDS}-record distribution limit")
         snapshot.update({
@@ -337,7 +467,7 @@ def main():
             "coverageNote": "OSM discovery records only; PBF member-node references were complete for imported relations. Bounds centers are not navigable tracks or access verification.",
         })
         imports = [row for row in imports if not (isinstance(row, dict) and row.get("sourceId") == args.source_id)]
-        imports.append({
+        import_record = {
             "sourceId": args.source_id,
             "region": args.region,
             "sourceUrl": args.source_url,
@@ -349,7 +479,15 @@ def main():
             "importedRelations": len(staged),
             "skippedIncompleteRelations": incomplete,
             "skippedNestedRelations": rejected_nested,
-        })
+        }
+        if args.reconcile_source:
+            import_record.update({
+                "reconciliationComplete": reconciliation_complete,
+                "releasedRelations": released_relations,
+                "removedRelations": removed_relations,
+                "protectedRelations": protected_relations,
+            })
+        imports.append(import_record)
         snapshot["pbfImports"] = imports[-200:]
 
         temporary_catalog = None
@@ -370,6 +508,11 @@ def main():
             "importedRelations": len(staged),
             "skippedIncompleteRelations": incomplete,
             "skippedNestedRelations": rejected_nested,
+            "reconciliationComplete": reconciliation_complete if args.reconcile_source else None,
+            "releasedRelations": released_relations if args.reconcile_source else None,
+            "removedRelations": removed_relations if args.reconcile_source else None,
+            "protectedRelations": protected_relations if args.reconcile_source else None,
+            "reconciliationChanges": reconciliation_changes if args.reconcile_source else None,
             "catalogCount": len(merged),
             "catalog": str(catalog_path),
         }, ensure_ascii=False))

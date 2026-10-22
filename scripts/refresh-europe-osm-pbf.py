@@ -12,44 +12,47 @@ from pathlib import Path
 import subprocess
 import sys
 import tempfile
+from pbf_reconciliation import parse_importer_result
 
 ROOT = Path(__file__).resolve().parents[1]
 DOWNLOADER = ROOT / 'scripts/download-geofabrik-pbf.py'
 IMPORTER = ROOT / 'scripts/import-osm-pbf-catalog.py'
 CATALOG = ROOT / 'shared/data/catalog/osm.json'
-MAX_SOURCE_BYTES = 900_000_000
+MAX_SOURCE_BYTES = 1_000_000_000
 
 # Direct, non-aggregate country/territory extracts only. The overlapping Alps,
 # DACH, Britain-and-Ireland, Great Britain and UK aggregates are excluded.
 # Large country extracts use their official non-overlapping children. French
 # overseas territories are intentionally handled as separate global regions.
-# Germany/nordrhein-westfalen was measured at 914,531,009 bytes and is excluded
-# from the 900,000,000-byte free-runner limit.
+# Geofabrik lists Nordrhein-Westfalen as 872 MiB (about 914 MB decimal), so the
+# Europe-only one-billion-byte cap includes it while still bounding each file.
 COUNTRIES = (
-    'albania', 'andorra', 'belarus', 'belgium', 'bosnia-herzegovina',
+    'albania', 'andorra', 'austria', 'azores', 'belarus', 'belgium', 'bosnia-herzegovina',
     'bulgaria', 'croatia', 'cyprus', 'denmark', 'estonia', 'faroe-islands',
-    'georgia', 'greece', 'guernsey-jersey', 'hungary',
+    'finland', 'georgia', 'greece', 'guernsey-jersey', 'hungary', 'iceland',
     'ireland-and-northern-ireland', 'isle-of-man', 'kosovo', 'latvia',
     'liechtenstein', 'lithuania', 'luxembourg', 'macedonia', 'malta',
-    'moldova', 'monaco', 'montenegro', 'romania', 'serbia', 'slovakia',
-    'turkey', 'ukraine',
+    'moldova', 'monaco', 'montenegro', 'portugal', 'romania', 'serbia',
+    'slovakia', 'slovenia', 'sweden', 'switzerland', 'turkey', 'ukraine',
 )
 SOURCES = {slug: f'https://download.geofabrik.de/europe/{slug}-latest.osm.pbf'
            for slug in COUNTRIES}
 SUBREGIONS = {
     'germany': (
-        'baden-wuerttemberg', 'bayern', 'berlin', 'brandenburg', 'bremen',
+        'baden-wuerttemberg', 'bayern', 'brandenburg',
         'hamburg', 'hessen', 'mecklenburg-vorpommern', 'niedersachsen',
+        'nordrhein-westfalen',
         'rheinland-pfalz', 'saarland', 'sachsen', 'sachsen-anhalt',
         'schleswig-holstein', 'thueringen',
     ),
     'france': (
         'alsace', 'aquitaine', 'auvergne', 'basse-normandie', 'bourgogne',
         'bretagne', 'centre', 'champagne-ardenne', 'corse', 'franche-comte',
-        'haute-normandie', 'ile-de-france', 'languedoc-roussillon', 'limousin',
-        'lorraine', 'midi-pyrenees', 'nord-pas-de-calais', 'pays-de-la-loire',
+        'guadeloupe', 'guyane', 'haute-normandie', 'ile-de-france',
+        'languedoc-roussillon', 'limousin', 'lorraine', 'martinique',
+        'mayotte', 'midi-pyrenees', 'nord-pas-de-calais', 'pays-de-la-loire',
         'picardie', 'poitou-charentes', 'provence-alpes-cote-d-azur',
-        'rhone-alpes',
+        'reunion', 'rhone-alpes',
     ),
     'spain': (
         'andalucia', 'aragon', 'asturias', 'cantabria', 'castilla-la-mancha',
@@ -58,8 +61,10 @@ SUBREGIONS = {
         'navarra', 'pais-vasco', 'valencia',
     ),
     'russia': (
-        'central-fed-district', 'crimean-fed-district', 'far-eastern-fed-district',
-        'kaliningrad', 'north-caucasus-fed-district',
+        # Geofabrik marks Kaliningrad as a potentially overlapping special
+        # extract and says Crimea is already included in the Ukraine PBF.
+        'central-fed-district', 'far-eastern-fed-district',
+        'north-caucasus-fed-district',
         'northwestern-fed-district', 'siberian-fed-district', 'south-fed-district',
         'ural-fed-district', 'volga-fed-district',
     ),
@@ -78,6 +83,35 @@ SUBREGIONS = {
         'lubuskie', 'malopolskie', 'mazowieckie', 'opolskie', 'podkarpackie',
         'podlaskie', 'pomorskie', 'slaskie', 'swietokrzyskie',
         'warminsko-mazurskie', 'wielkopolskie', 'zachodniopomorskie',
+    ),
+    # Official Geofabrik children are disjoint; parent country extracts are
+    # deliberately not included for these source sets.
+    'italy': ('centro', 'isole', 'nord-est', 'nord-ovest', 'sud'),
+    'norway': (
+        'nord-norge', 'ostlandet', 'sorlandet', 'svalbard-janmayen',
+        'trondelag', 'vestlandet',
+    ),
+    # Great Britain is split at the official Geofabrik leaf level. England's
+    # parent extract exceeds the free single-file cap, so use its listed areas.
+    'united-kingdom': (
+        'scotland', 'wales',
+        'england/bedfordshire', 'england/berkshire', 'england/bristol',
+        'england/buckinghamshire', 'england/cambridgeshire', 'england/cheshire',
+        'england/cornwall', 'england/cumbria', 'england/derbyshire',
+        'england/devon', 'england/dorset', 'england/durham',
+        'england/east-sussex', 'england/east-yorkshire-with-hull',
+        'england/essex', 'england/gloucestershire', 'england/greater-london',
+        'england/greater-manchester', 'england/hampshire',
+        'england/herefordshire', 'england/hertfordshire', 'england/isle-of-wight',
+        'england/kent', 'england/lancashire', 'england/leicestershire',
+        'england/lincolnshire', 'england/merseyside', 'england/norfolk',
+        'england/north-yorkshire', 'england/northamptonshire',
+        'england/northumberland', 'england/nottinghamshire', 'england/oxfordshire',
+        'england/rutland', 'england/shropshire', 'england/somerset',
+        'england/south-yorkshire', 'england/staffordshire', 'england/suffolk',
+        'england/surrey', 'england/tyne-and-wear', 'england/warwickshire',
+        'england/west-midlands', 'england/west-sussex', 'england/west-yorkshire',
+        'england/wiltshire', 'england/worcestershire',
     ),
 }
 for country, regions in SUBREGIONS.items():
@@ -125,6 +159,8 @@ def main():
                         help='Refresh one source; repeat to select several. Defaults to all bounded sources.')
     parser.add_argument('--source-set', choices=('all', 'subregions', *SUBREGIONS), default='all',
                         help='Refresh all sources, one country subdivision set, or all subdivisions.')
+    parser.add_argument('--batch-size', type=int,
+                        help='Refresh up to this many least-recently-attempted sources; incompatible with explicit selection.')
     parser.add_argument('--downloader-python', default=sys.executable)
     parser.add_argument('--importer-python', default=sys.executable)
     parser.add_argument('--output-dir', type=Path,
@@ -134,6 +170,8 @@ def main():
     output_dir.mkdir(parents=True, exist_ok=True)
     if args.source and args.source_set != 'all':
         parser.error('--source and --source-set cannot be combined')
+    if args.batch_size is not None and (not 1 <= args.batch_size <= 25 or args.source or args.source_set != 'all'):
+        parser.error('--batch-size must be 1–25 and cannot be combined with --source or --source-set')
     if args.source:
         selected = args.source
     elif args.source_set == 'all':
@@ -142,6 +180,22 @@ def main():
         selected = [source for source in SOURCES if '/' in source]
     else:
         selected = [source for source in SOURCES if source.startswith(args.source_set + '/')]
+    if args.batch_size is not None:
+        latest_attempt = {}
+        for prior_path in sorted((ROOT / 'docs/release').glob('osm-europe-pbf-refresh-*.json')):
+            try:
+                prior = json.loads(prior_path.read_text(encoding='utf-8'))
+            except (OSError, json.JSONDecodeError):
+                continue
+            for row in prior.get('sources', []):
+                if not isinstance(row, dict) or not isinstance(row.get('sourceId'), str):
+                    continue
+                stamp = row.get('startedAt')
+                if isinstance(stamp, str) and stamp > latest_attempt.get(row['sourceId'], ''):
+                    latest_attempt[row['sourceId']] = stamp
+        selected = sorted(SOURCES, key=lambda slug: (
+            latest_attempt.get(f'europe/{slug}', ''), slug
+        ))[:args.batch_size]
     before_catalog = catalog_state()
     report_path = ROOT / 'docs/release' / f'osm-europe-pbf-refresh-{dt.datetime.now(dt.timezone.utc):%Y-%m-%d}.json'
     old_sources, old_runs = [], []
@@ -174,10 +228,10 @@ def main():
         try:
             run([args.downloader_python, str(DOWNLOADER), '--url', url,
                  '--output', str(pbf), '--max-bytes', str(MAX_SOURCE_BYTES),
-                 '--workers', '4', '--chunk-mib', '8', '--attempts', '3'])
+                 '--workers', '2', '--chunk-mib', '8', '--attempts', '3'])
             imported = imported_record(source_id)
             checkpoint = pbf.with_name(pbf.name + '.download.json')
-            if imported and imported.get('sha256') and checkpoint.is_file():
+            if imported and imported.get('sha256') and 'reconciliationComplete' in imported and checkpoint.is_file():
                 check = json.loads(checkpoint.read_text(encoding='utf-8'))
                 if imported['sha256'] == check.get('sha256'):
                     row.update({'result': 'unchanged', 'import': imported})
@@ -185,9 +239,15 @@ def main():
                     for suffix in ('', '.download.json', '.lock'):
                         (Path(str(pbf) + suffix) if suffix else pbf).unlink(missing_ok=True)
                     continue
-            run([args.importer_python, str(IMPORTER), '--pbf', str(pbf),
-                 '--region', 'europe', '--source-id', source_id, '--source-url', url])
-            row.update({'result': 'imported', 'import': imported_record(source_id)})
+            import_output = run([args.importer_python, str(IMPORTER), '--pbf', str(pbf),
+                                 '--region', 'europe', '--source-id', source_id, '--source-url', url,
+                                 '--reconcile-source'])
+            import_result = parse_importer_result(import_output)
+            reconciliation_changes = import_result['reconciliationChanges']
+            row.update({'result': 'imported', 'import': imported_record(source_id),
+                        'reconciliationEvidenceVersion': 1,
+                        'reconciliationObservedAt': utc_now(),
+                        'reconciliationChanges': reconciliation_changes})
             for suffix in ('', '.download.json', '.lock'):
                 (Path(str(pbf) + suffix) if suffix else pbf).unlink(missing_ok=True)
         except Exception as error:
