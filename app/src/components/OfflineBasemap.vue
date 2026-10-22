@@ -27,7 +27,7 @@ function drawLabels(current:LibreMap){
   if(candidates.length>=4608)break layers;
  }
  const size=current.getCanvas();const labels=placeMapLabels(candidates,size.clientWidth,Math.max(1,size.clientHeight-35));const signature=JSON.stringify(labels);if(signature===labelSignature)return;clearLabels();labelSignature=signature;
- for(const label of labels){const coordinate=coordinates.get(JSON.stringify([label.text,label.x,label.y]));if(!coordinate)continue;const element=document.createElement('span');element.textContent=label.text;element.style.cssText='font:12px system-ui,sans-serif;color:#e8eee7;background:#0b151b;padding:2px 4px;border-radius:3px;white-space:nowrap;pointer-events:none';markers.push(new Marker({element,anchor:'center'}).setLngLat(coordinate).addTo(current));}
+ for(const label of labels){const coordinate=coordinates.get(JSON.stringify([label.text,label.x,label.y]));if(!coordinate)continue;const element=document.createElement('span');element.textContent=label.text;element.style.cssText='font:12px system-ui,sans-serif;color:var(--he-color-map-label);background:var(--he-color-panel);padding:2px 4px;border-radius:3px;white-space:nowrap;pointer-events:none';markers.push(new Marker({element,anchor:'center'}).setLngLat(coordinate).addTo(current));}
  }catch{clearLabels();message.value='部分地名读取失败，道路底图仍可查看。';}
 }
 function clear(){clearLabels();map?.remove();map=undefined;if(key)releaseOfflineArchive(key);key='';}
@@ -49,4 +49,4 @@ watch(()=>props.file,async file=>{
 },{immediate:true});
 onUnmounted(()=>{disposed=true;generation++;clear();});
 </script>
-<style scoped>.hint{display:block;color:#aab9c5;font-size:13px;line-height:1.7;margin:12px 0}.basemap{height:420px;width:100%;border-radius:12px;overflow:hidden}</style>
+<style scoped>.hint{display:block;color:var(--he-color-muted);font-size:13px;line-height:1.7;margin:12px 0}.basemap{height:420px;width:100%;border-radius:12px;overflow:hidden}</style>

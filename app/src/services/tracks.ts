@@ -8,6 +8,37 @@ import { accountSession } from "@/services/account";
 import { hasPrivacyConsent } from "@/services/privacy";
 import { callCloud } from "@/services/cloud";
 
+let trackCloudQueue: Promise<void> = Promise.resolve();
+let trackCloudOperationActive = false;
+let trackCloudOperationWaiting = 0;
+function trackCloudLockRelease(unlock: () => void): () => void {
+  let released = false;
+  return () => {
+    if (released) return;
+    released = true;
+    trackCloudOperationActive = false;
+    unlock();
+  };
+}
+export async function acquireTrackCloudLock(): Promise<() => void> {
+  const previous = trackCloudQueue;
+  let unlock!: () => void;
+  trackCloudQueue = new Promise<void>(resolve => { unlock = resolve; });
+  trackCloudOperationWaiting++;
+  await previous;
+  trackCloudOperationWaiting--;
+  trackCloudOperationActive = true;
+  return trackCloudLockRelease(unlock);
+}
+/** Synchronous account migration must defer if any cloud-track operation is active or queued. */
+export function tryAcquireTrackCloudLock(): (() => void) | null {
+  if (trackCloudOperationActive || trackCloudOperationWaiting > 0) return null;
+  let unlock!: () => void;
+  trackCloudQueue = new Promise<void>(resolve => { unlock = resolve; });
+  trackCloudOperationActive = true;
+  return trackCloudLockRelease(unlock);
+}
+
 const KEY = "he_tracks_v1";
 
 /** The current account identity used to bind a new local track. */
@@ -92,6 +123,43 @@ export function listTracks(): TrackRecord[] {
   }
 }
 
+/** Reassign local tracks only after the server has verified and completed an account merge. */
+export function mergeVerifiedAccountTracks(sourceOwners: string[], targetOwner: string, lockHeld = false): boolean {
+  if (!targetOwner || !Array.isArray(sourceOwners) || sourceOwners.length > 100
+      || sourceOwners.some(owner => typeof owner !== 'string' || !owner || owner.length > 128)) return false;
+  const releaseCloud = lockHeld ? null : tryAcquireTrackCloudLock();
+  if (!lockHeld && !releaseCloud) return false;
+  try {
+    const raw = uni.getStorageSync(KEY);
+    const current = raw === undefined || raw === null || raw === '' ? [] : parseTrackStore(raw);
+    if (!current) return false;
+    const owners = new Set(sourceOwners.filter(owner => owner !== targetOwner));
+    const migratedIds = new Set<string>();
+    const next = current.map(track => {
+      const localOwner = track.localOwner;
+      if (typeof localOwner !== 'string' || !owners.has(localOwner)) return track;
+      migratedIds.add(track.id);
+      return { ...track, localOwner: targetOwner,
+        ...(track.cloudOwner && owners.has(track.cloudOwner) ? { cloudOwner: targetOwner } : {}) };
+    });
+    if (!migratedIds.size) return true;
+
+    // Track sync exclusions are per account and stored separately from the
+    // track record. Carry a source opt-out to the verified target identity
+    // before changing ownership; never turn private tracks into auto uploads.
+    const excluded = new Set<string>(readTrackSyncExclusions(targetOwner));
+    for (const owner of owners) {
+      for (const id of readTrackSyncExclusions(owner)) if (migratedIds.has(id)) excluded.add(id);
+    }
+    const nextExcluded = [...excluded];
+    if(nextExcluded.length>MAX_TRACK_SYNC_EXCLUSIONS)return false;
+    writeTrackSyncExclusions(targetOwner,nextExcluded);
+    writeTrackStore(next);
+    return true;
+  } catch { return false; }
+  finally { releaseCloud?.(); }
+}
+
 export function getTrack(id: string): TrackRecord | null {
   return listTracks().find((t) => t.id === id) ?? null;
 }
@@ -131,12 +199,15 @@ export function deleteTrack(id: string): void {
 
 const trackUploads = new Set<string>();
 export type TrackUploadResult = { ok: true } | { ok: false; errMsg: string };
-export async function uploadTrackToCloud(track:TrackRecord,options:{restoreDeleted?:boolean;transferAccount?:boolean}={}):Promise<TrackUploadResult>{
+export async function uploadTrackToCloud(track:TrackRecord,options:{restoreDeleted?:boolean;transferAccount?:boolean;lockHeld?:boolean}={}):Promise<TrackUploadResult>{
+  const releaseCloud = options.lockHeld ? undefined : await acquireTrackCloudLock();
+  try {
   if(!trackStorageValid())return {ok:false,errMsg:'本机轨迹资料格式异常，云同步已停止以保留原始资料；请勿清理应用数据'};
   if(!hasPrivacyConsent('trackCloudSync'))return {ok:false,errMsg:'未启用轨迹云备份授权'};
   if(track.state!=='finished'||!validRecord(track))return {ok:false,errMsg:'仅可同步格式有效的已完成轨迹'};
   if(trackUploads.has(track.id))return {ok:false,errMsg:'该轨迹正在同步'};
   const session=accountSession();
+  if(session?.mergedIdentities?.length)return {ok:false,errMsg:'账号资料仍在安全合并，完成后再同步轨迹'};
   const identity=currentTrackOwner();
   const token=session?.token||'';
   if(!identity)return {ok:false,errMsg:'请先登录统一账号'};
@@ -157,6 +228,7 @@ export async function uploadTrackToCloud(track:TrackRecord,options:{restoreDelet
     if(JSON.stringify(getTrack(track.id))!==JSON.stringify(track))return {ok:false,errMsg:'同步期间本机轨迹已变化，云端回执未应用到本机'};
     markSynced(track.id,response.data.version,identity);return {ok:true};
   }catch{return {ok:false,errMsg:'云端未确认轨迹同步，轨迹仍保留待重试'};}finally{trackUploads.delete(track.id);}
+  } finally { releaseCloud?.(); }
 }
 
 export function markSynced(id: string, cloudVersion:number, cloudOwner:string): void {
@@ -235,16 +307,52 @@ function validRecord(t: any): t is TrackRecord {
 }
 
 // A local deletion remains local, including when automatic cloud restore runs.
+const MAX_TRACK_SYNC_EXCLUSIONS=100_000;
+function readTrackSyncExclusions(owner:string):string[] {
+  if(typeof owner!=='string'||owner.length>128)throw new Error('轨迹同步隐私设置账号无效');
+  const raw=uni.getStorageSync(`he_track_sync_excluded:${owner}`);
+  if(raw===undefined||raw===null||raw==='')return [];
+  if(!Array.isArray(raw)||raw.length>MAX_TRACK_SYNC_EXCLUSIONS||Object.keys(raw).length!==raw.length
+    ||Array.from({length:raw.length},(_,index)=>Object.prototype.hasOwnProperty.call(raw,index)).some(present=>!present)
+    ||raw.some(item=>typeof item!=='string'||!item||item.length>128)||new Set(raw).size!==raw.length)
+    throw new Error('轨迹同步隐私设置格式异常，已保留原始记录；请勿清理应用数据');
+  return raw;
+}
+function writeTrackSyncExclusions(owner:string,next:string[]):void {
+  if(typeof owner!=='string'||owner.length>128||!Array.isArray(next)||next.length>MAX_TRACK_SYNC_EXCLUSIONS
+    ||Object.keys(next).length!==next.length
+    ||Array.from({length:next.length},(_,index)=>Object.prototype.hasOwnProperty.call(next,index)).some(present=>!present)
+    ||next.some(item=>typeof item!=='string'||!item||item.length>128)||new Set(next).size!==next.length)
+    throw new Error('轨迹同步隐私设置无效，未修改本机记录');
+  const key=`he_track_sync_excluded:${owner}`;
+  const raw=uni.getStorageSync(key);
+  readTrackSyncExclusions(owner);
+  const previous=raw===undefined||raw===null||raw===''?raw:[...(raw as string[])];
+  const desired=[...next];
+  try{
+    uni.setStorageSync(key,desired);
+    const saved=readTrackSyncExclusions(owner);
+    if(saved.length!==desired.length||saved.some((item,index)=>item!==desired[index]))
+      throw new Error('轨迹同步隐私设置写入回读不一致');
+  }catch(error){
+    try{if(previous===undefined||previous===null||previous==='')uni.removeStorageSync(key);else uni.setStorageSync(key,previous);}catch{/* Preserve the original failure and never reinterpret it as consent. */}
+    throw error;
+  }
+}
 export function trackAutoSyncExcluded(id:string):boolean {
   const owner=currentTrackOwner();
-  const items=uni.getStorageSync(`he_track_sync_excluded:${owner}`);
-  return Array.isArray(items)&&items.includes(id);
+  return readTrackSyncExclusions(owner).includes(id);
 }
 export function setTrackAutoSyncExcluded(id:string,value:boolean,ownerOverride?:string):void {
   const owner=ownerOverride??currentTrackOwner();
-  const key=`he_track_sync_excluded:${owner}`;const raw=uni.getStorageSync(key);
-  const items=new Set<string>(Array.isArray(raw)?raw:[]);
-  if(value)items.add(id);else items.delete(id);uni.setStorageSync(key,[...items]);
+  if(typeof owner!=='string'||owner.length>128||typeof id!=='string'||!id||id.length>128||typeof value!=='boolean')
+    throw new Error('轨迹同步隐私设置无效，未修改本机记录');
+  const items=readTrackSyncExclusions(owner);
+  const nextItems=new Set<string>(items);
+  if(value)nextItems.add(id);else nextItems.delete(id);
+  const next=[...nextItems];
+  if(next.length>MAX_TRACK_SYNC_EXCLUSIONS)throw new Error('轨迹同步隐私设置数量超出安全上限，未修改本机记录');
+  writeTrackSyncExclusions(owner,next);
 }
 export function hasRecordingDraft():boolean {
   try {const track=readOwnedDraft(currentLocalTrackOwner());return validRecord(track)&&track.localOwner===currentLocalTrackOwner()&&track.state==='recording';}catch{return false;}

@@ -66,5 +66,9 @@ export type GuideItem = {
   image: string;
   /** 第三方跳转链接（淘宝/京东联盟等） */
   link: string;
+  /** 商家/联盟来源标记；只有官方授权接口返回的来源才能标为对应平台。 */
+  sourcePlatform?: "taobao" | "jd" | "pdd" | "xianyu" | "other" | "unknown";
   priceHint?: string;
+  /** 可选的商品/推广信息有效期；到期后公开列表自动隐藏。 */
+  expiresAt?: number;
 };

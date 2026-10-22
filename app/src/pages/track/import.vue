@@ -61,6 +61,6 @@ function chooseWechatFile() {
 .title { display: block; font-size: 18px; }
 .hint { display: block; color: var(--he-color-muted); margin: 12px 0; }
 .source { background: var(--he-color-panel); padding: 12px; box-sizing: border-box; width: 100%; height: 225px; margin: 12px 0; }
-.error { display: block; color: #ff7b72; margin: 8px 0; }
-button { background: var(--he-color-accent); color: var(--he-color-background); }
+.error { display: block; color: var(--he-color-danger); margin: 8px 0; }
+button { background: var(--he-color-accent); color: var(--he-color-on-accent); }
 </style>

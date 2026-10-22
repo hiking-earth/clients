@@ -1,5 +1,5 @@
-import {PUBLIC_MAP_DISTRIBUTION} from './basemap-catalog';
 import {verifyBasemapDigest} from './basemap-digest';
+import {PUBLIC_MAP_DISTRIBUTION} from './basemap-catalog';
 import {fileRangeReader,type BinaryFileManager} from './basemap-file-reader';
 export type MapDownloadPack={name:string;url:string;bytes:number;sha256:string};
 export interface MapDownloadApi{

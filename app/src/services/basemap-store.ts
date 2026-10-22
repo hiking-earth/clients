@@ -1,6 +1,7 @@
 import {openLocalBasemap} from './local-basemap';
+import {OFFLINE_MAP_STORAGE_BUDGET_BYTES} from './offline-map-limits';
 export interface SavedBasemap {id:string;name:string;bytes:number;savedAt:number;blob:Blob}
-export const BASEMAP_BUDGET=192*1024*1024;
+export const BASEMAP_BUDGET=OFFLINE_MAP_STORAGE_BUDGET_BYTES;
 export function basemapStorageBytes(rows:SavedBasemap[]):number{
  if(!Array.isArray(rows)||rows.length>4096)throw new Error('地图目录损坏，请保留原包');
  const ids=new Set<string>();let total=0;

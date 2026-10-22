@@ -5,9 +5,9 @@
       <view class="avatar">{{ nickname.slice(0, 1) }}</view>
       <view class="acc-info">
         <text class="nick">{{ nickname }}</text>
-        <text class="acc-sub">{{ openid ? '已登录，可使用云端功能' : '登录后可用云同步、组队与社区' }}</text>
+        <text class="acc-sub">{{ openid ? '已登录统一账号，可使用云端功能' : legacyIdentityPending ? '检测到旧版微信身份；请重新登录并关联到统一账号' : '登录后可用云同步、组队与社区' }}</text>
       </view>
-      <button v-if="!openid" class="login" @click="login">登录</button>
+      <button v-if="!openid" class="login" @click="login">{{ legacyIdentityPending ? '关联微信账号' : '登录' }}</button>
     </view>
     <!-- #ifdef MP-WEIXIN -->
     <view class="group"><view class="row" @click="go('/pages/account/qr-confirm')"><text class="row-icon">▣</text><text class="row-name">扫码登录网页或桌面</text><text class="row-go">›</text></view></view>
@@ -48,12 +48,15 @@
       <view class="row" @click="go('/pages/my/privacy')">
         <text class="row-icon">🔒</text><text class="row-name">隐私设置</text><text class="row-go">›</text>
       </view>
+      <view class="row" @click="go('/pages/my/terms')">
+        <text class="row-icon">📄</text><text class="row-name">使用规则与户外安全</text><text class="row-go">›</text>
+      </view>
       <view class="row" @click="about">
         <text class="row-icon">ℹ️</text><text class="row-name">关于徒步地球</text><text class="row-go">›</text>
       </view>
     </view>
 
-    <view v-if="openid" class="group"><view class="row" @click="showOperations=!showOperations"><text class="row-name">运营工具</text><text class="row-sub">需管理员权限</text><text class="row-go">›</text></view><view v-if="showOperations"><button @click="go('/pages/guide/manage')">导购资料管理</button><button @click="go('/pages/my/route-review')">官方路线审核</button></view></view>
+    <view v-if="openid" class="group"><view class="row" @click="showOperations=!showOperations"><text class="row-name">运营工具</text><text class="row-sub">服务器按管理员身份授权</text><text class="row-go">›</text></view><view v-if="showOperations"><text class="operations-hint">路线风险、路线开放资料、商品来源及社区举报均需你人工核对后处理；自动筛查不会直接授予路线通行或导航许可。</text><button @click="go('/pages/my/route-review')">路线风险与官方资料审核</button><button @click="go('/pages/moderation/moderation')">社区内容与举报审核</button><button @click="go('/pages/guide/manage')">导购来源与有效期管理</button></view></view>
     <view class="ver">徒步地球客户端 v{{ APP_VERSION }} · 全端客户端</view>
   </scroll-view>
 </template>
@@ -69,6 +72,7 @@ import { exchangeMiniProgramWeChat } from '@/services/wechat-login';
 import { APP_VERSION } from '@/services/version';
 
 const openid = ref("");
+const legacyIdentityPending = ref(false);
 const showOperations=ref(false);
 const nickname = ref("未登录");
 const unsynced = ref(0);
@@ -80,11 +84,13 @@ onShow(() => {
   unsynced.value = listTracks().filter((t) => trackNeedsManualBackup(t)).length;
   const session = accountSession();
   const saved = uni.getStorageSync("he_openid");
-  openid.value = ''; nickname.value = '未登录';
+  openid.value = ''; nickname.value = '未登录'; legacyIdentityPending.value = false;
   if (session) { openid.value = session.openid; nickname.value = session.nickname; }
   // #ifdef MP-WEIXIN
   else if (saved && saved !== "local-mock-user" && !String(saved).startsWith("account:")) {
-    openid.value = saved;
+    // Retain the legacy identity so trusted login can resolve/migrate it, but
+    // never present a local identifier as an authenticated unified session.
+    legacyIdentityPending.value = true;
     nickname.value = "山友";
   }
   // #endif
@@ -95,10 +101,11 @@ async function login() {
   try {
     const session = await exchangeMiniProgramWeChat();
     if (accountSession()) throw new Error('账号已改变，请确认当前账号后重试');
-    saveAccount(session);
+    const localReady=saveAccount(session);
     openid.value = session.openid;
     nickname.value = session.nickname;
-    uni.showToast({ title: "登录成功", icon: "success" });
+    if(localReady)uni.showToast({ title: "登录成功", icon: "success" });
+    else uni.showModal({title:'登录已完成',content:'账号已登录；部分本机旧资料暂未合并，应用会保留提示并重试。',showCancel:false});
   } catch (error) { uni.showToast({ title: error instanceof Error ? error.message : '微信登录失败', icon: 'none' }); }
   // #endif
   // #ifndef MP-WEIXIN
@@ -188,7 +195,7 @@ function about() {
 .avatar, .login { flex-shrink: 0; }
 .nick { font-size: 16px; font-weight: 600; color: var(--he-color-text); }
 .acc-sub { font-size: 11px; color: var(--he-color-muted); }
-.login { padding: 0 20px; height: 32px; line-height: 32px; background: var(--he-color-accent); color: var(--he-color-background); font-size: 13px; font-weight: 600; border-radius: 499.5px; }
+.login { padding: 0 20px; height: 32px; line-height: 32px; background: var(--he-color-accent); color: var(--he-color-on-accent); font-size: 13px; font-weight: 600; border-radius: 499.5px; }
 .group { margin-top: 14px; background: var(--he-color-panel); border-radius: 10px; overflow: hidden; }
 .row { display: flex; align-items: center; padding: 14px 12px; border-bottom: 0.5px solid var(--he-color-surface); }
 .row:last-child { border-bottom: none; }
@@ -196,5 +203,6 @@ function about() {
 .row-name { flex: 1; font-size: 14px; color: var(--he-color-text); }
 .row-sub { font-size: 11px; color: var(--he-color-muted); margin-right: 6px; }
 .row-go { font-size: 16px; color: var(--he-color-muted); }
+.operations-hint { display: block; padding: 12px; color: var(--he-color-muted); font-size: 11px; line-height: 1.6; }
 .ver { margin-top: 24px; text-align: center; font-size: 10px; color: var(--he-color-muted); }
 </style>

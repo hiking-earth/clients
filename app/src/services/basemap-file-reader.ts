@@ -2,7 +2,7 @@
 export interface BinaryFileManager {
  readFile(options:{filePath:string;position:number;length:number;success:(result:{data:unknown})=>void;fail:()=>void}):void;
 }
-export function isLocalMapPath(path:unknown):path is string{
+export function isLocalMapPath(path:unknown):boolean{
  return typeof path==='string'&&path.length>0&&path.length<=1024&&!/[\x00-\x1f?#]/.test(path)&&!path.split('/').includes('..')&&(!/^https?:\/\//i.test(path)||/^http:\/\/(?:usr|tmp|store)\//.test(path));
 }
 export function fileRangeReader(manager:BinaryFileManager,filePath:string,bytes:number){

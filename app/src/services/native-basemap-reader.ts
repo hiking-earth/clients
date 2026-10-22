@@ -1,9 +1,19 @@
 import {fileRangeReader,type BinaryFileManager} from './basemap-file-reader';
+import {OFFLINE_MAP_STORAGE_BUDGET_BYTES} from './offline-map-limits';
 interface NativeFile {size:number;slice(start:number,end:number):NativeFile;close():void}
-interface NativeReader {result:string;onload:(()=>void)|null;onerror:(()=>void)|null;onabort:(()=>void)|null;readAsDataURL(file:NativeFile):void;abort():void}
+interface NativeReader {result:string|ArrayBuffer;onload:(()=>void)|null;onerror:(()=>void)|null;onabort:(()=>void)|null;readAsDataURL(file:NativeFile):void;readAsArrayBuffer(file:NativeFile):void;abort():void}
 export interface NativeMapIO {
  resolveLocalFileSystemURL(path:string,success:(entry:{file(success:(file:NativeFile)=>void,fail:()=>void):void})=>void,fail:()=>void):void;
  FileReader:new()=>NativeReader;
+}
+export async function nativeArchiveSize(io:NativeMapIO,path:string):Promise<number>{
+ return new Promise((resolve,reject)=>{try{io.resolveLocalFileSystemURL(path,entry=>entry.file(file=>{const size=file.size;try{file.close();}catch{}if(!Number.isSafeInteger(size)||size<22||size>OFFLINE_MAP_STORAGE_BUDGET_BYTES)reject(new Error('地图压缩包须小于192 MiB'));else resolve(size);},()=>reject(new Error('地图压缩包无法读取'))),()=>reject(new Error('地图压缩包无法读取')));}catch{reject(new Error('地图压缩包无法读取'));}});
+}
+export function readNativeArchiveChunk(io:NativeMapIO,path:string,offset:number,length:number):Promise<Uint8Array>{
+ if(typeof path!=='string'||!path.startsWith('file:')||path.length>2048||!Number.isSafeInteger(offset)||offset<0||!Number.isSafeInteger(length)||length<1||length>1024*1024) return Promise.reject(new Error('地图压缩包读取范围无效'));
+ return new Promise((resolve,reject)=>{let finished=false,reader:NativeReader|undefined,file:NativeFile|undefined,part:NativeFile|undefined;const clean=()=>{clearTimeout(timer);try{part?.close();}catch{}try{file?.close();}catch{}try{reader?.abort();}catch{}};const fail=()=>{if(finished)return;finished=true;clean();reject(new Error('地图压缩包读取失败'));};const timer=setTimeout(fail,20000);
+  try{io.resolveLocalFileSystemURL(path,entry=>{if(finished)return;try{entry.file(value=>{if(finished){try{value.close();}catch{}return;}file=value;try{if(offset+length>value.size)throw new Error('range');part=value.slice(offset,offset+length);reader=new io.FileReader();reader.onerror=fail;reader.onabort=fail;reader.onload=()=>{if(finished)return;try{const data=reader!.result;if(!(data instanceof ArrayBuffer)||data.byteLength!==length)throw new Error('short');finished=true;clean();resolve(new Uint8Array(data));}catch{fail();}};reader.readAsArrayBuffer(part);}catch{fail();}},()=>fail());}catch{fail();}},()=>fail());}catch{fail();}
+ });
 }
 /** HTML5+ range adapter; never reads the whole pack as base64. */
 export function nativeMapRangeReader(io:NativeMapIO,path:string,bytes:number,decode:(base64:string)=>ArrayBuffer){
