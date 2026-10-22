@@ -17,14 +17,29 @@ parser.add_argument('--cloudbase-cli', required=True)
 parser.add_argument('--node', default='node')
 parser.add_argument('--env', default='cloud1-d9g4fl3fu2491914f')
 parser.add_argument('--backup-dir', required=True)
+parser.add_argument('--command-timeout', type=int, default=180,
+                    help='Per-CLI-command timeout in seconds (1..900); timeout is not proof that the remote update failed')
 parser.add_argument('--functions', nargs='+', default=None,
                     help='Functions to deploy; defaults to every cloudbaserc.json function except init-db')
 args = parser.parse_args()
+if not 1 <= args.command_timeout <= 900:
+    parser.error('--command-timeout must be between 1 and 900 seconds')
 base = [args.node, args.cloudbase_cli]
 
 
 def run(command):
-    return subprocess.run(command, cwd=ROOT / 'app', capture_output=True, text=True)
+    try:
+        return subprocess.run(command, cwd=ROOT / 'app', capture_output=True, text=True,
+                              timeout=args.command_timeout)
+    except subprocess.TimeoutExpired as error:
+        # Keep any login/transport output in the caller's private diagnostics,
+        # never print it. An update may have reached the remote service, so a
+        # timeout must remain a failed attempted mutation and enter rollback.
+        def decoded(value):
+            return value.decode('utf-8', errors='replace') if isinstance(value, bytes) else (value or '')
+        return subprocess.CompletedProcess(
+            command, 124, decoded(error.stdout), decoded(error.stderr)
+            + '\nCLI command timed out; remote state may be uncertain. Preserve backups and source readback.\n')
 
 
 def source_files(folder):
