@@ -1,6 +1,6 @@
 import {callCloud} from './cloud';
 import {ROUTES,onRouteCatalogChange} from './route-catalog';
-import type {RouteStatus} from '@shared/types/route';
+import {reviewedRouteStatus,type RouteStatus} from '@shared/types/route';
 type Review={routeId:string;status:RouteStatus;sourceUrl:string;summary:string;riskNotice:string;checkedAt:string;expiresAt:number;version:number;track?:{sourceUrl:string;license:string;path:[number,number][]}|null};
 const KEY='he_route_reviews_v1';
 const seedIds=new Set(ROUTES.map(route=>route.id));
@@ -14,7 +14,7 @@ function applyReviews(){
  // Restore the last source baseline first. A removed review must not leave an
  // earlier open status or licensed track attached to the route.
  for(const route of ROUTES){const base=originals.get(route.id);if(base)Object.assign(route,base);}
- for(const route of ROUTES){if(route.status!=='待核验'&&route.status!=='永久关闭'&&(!Number.isFinite(route.openingExpiresAt)||route.openingExpiresAt!<=Date.now())){route.status='待核验';route.openingExpiresAt=0;}}
+ for(const route of ROUTES){const status=reviewedRouteStatus(route.status,route.openingExpiresAt);if(status!==route.status){route.status=status;route.openingExpiresAt=0;}}
  const byId=new Map(ROUTES.map(route=>[route.id,route]));
  for(const review of reviews){const route=byId.get(review.routeId);if(!route)continue;
   if(!originals.has(route.id))originals.set(route.id,{status:route.status,summary:route.summary,archive:route.archive,path:route.path,trackMode:route.trackMode,openingExpiresAt:route.openingExpiresAt});

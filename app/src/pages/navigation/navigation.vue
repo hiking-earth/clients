@@ -74,12 +74,12 @@ function goTeam() {
 .intro-sub { display: block; margin-top: 4px; font-size: 12px; color: var(--he-color-muted); }
 .list { flex: 1; padding: 0 16px; box-sizing: border-box; }
 .group-title { font-size: 12px; color: var(--he-color-muted); margin: 12px 0 8px; }
-.card { display: flex; align-items: center; background: var(--he-color-panel); border-radius: 10px; padding: 14px 12px; margin-bottom: 8px; }
+.card { display: flex; align-items: center; background: var(--he-color-panel); border-radius: var(--he-card-radius, 16px); padding: 14px 12px; margin-bottom: 8px; }
 .card-l { flex: 1; display: flex; flex-direction: column; gap: 4px; }
 .card-name { font-size: 15px; font-weight: 600; color: var(--he-color-text); }
 .card-meta { font-size: 11px; color: var(--he-color-muted); }
 .go { font-size: 18px; color: var(--he-color-accent); }
-.team-entry { display: flex; align-items: center; background: rgba(184, 243, 107, 0.1); border: 0.5px solid rgba(184, 243, 107, 0.3); border-radius: 10px; padding: 14px 12px; margin: 8px 0 4px; }
+.team-entry { display: flex; align-items: center; background: rgba(var(--he-color-accent-rgb), 0.1); border: 0.5px solid rgba(var(--he-color-accent-rgb), 0.3); border-radius: 10px; padding: 14px 12px; margin: 8px 0 4px; }
 .team-l { flex: 1; display: flex; flex-direction: column; gap: 4px; }
 .team-t { font-size: 15px; font-weight: 600; color: var(--he-color-text); }
 .team-s { font-size: 11px; color: var(--he-color-muted); }

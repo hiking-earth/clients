@@ -1,6 +1,10 @@
 export function chooseTextFile(success: (text: string) => void, cancel: () => void, fail: (message: string) => void): void {
   HikingFiles.choose(success, cancel, fail);
 }
+export function chooseBinaryFile(success: (path: string) => void, cancel: () => void, fail: (message: string) => void): void {
+  HikingFiles.chooseBinary(success, cancel, fail);
+}
+export function removeBinaryFile(path: string): boolean { return HikingFiles.removeBinary(path); }
 export function saveTextFile(name: string, text: string, mimeType: string, success: () => void, cancel: () => void, fail: (message: string) => void): void {
   HikingFiles.save(name, text, mimeType, success, cancel, fail);
 }

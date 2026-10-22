@@ -11,7 +11,12 @@ type Release={schemaVersion:1;ready:boolean;version:string;versionCode:number;no
 let release:Release|null=null;let nextCheckAt=0;let failures=0;let miniManagerBound=false;
 function checkedSuccessfully(){failures=0;nextCheckAt=Date.now()+6*60*60*1000;}
 function checkFailed(){release=null;updateState.available=false;updateState.version='';updateState.notes='';failures++;nextCheckAt=Date.now()+Math.min(6*60*60*1000,15*60*1000*2**Math.min(failures-1,5));}
-function newer(version:string,current:string):boolean {const a=version.split('.').map(Number),b=current.split('.').map(Number);for(let i=0;i<3;i++){if(a[i]!==b[i])return a[i]>b[i];}return false;}
+function versionParts(value:unknown):[number,number,number]|null{
+  if(typeof value!=='string'||!/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/.test(value))return null;
+  const parts=value.split('.').map(Number);
+  return parts.length===3&&parts.every(Number.isSafeInteger)?parts as [number,number,number]:null;
+}
+function newer(version:string,current:string):boolean {const a=versionParts(version),b=versionParts(current);if(!a||!b)return false;for(let i=0;i<3;i++){if(a[i]!==b[i])return a[i]>b[i];}return false;}
 function artifactUrl(url:string):boolean {return /^https:\/\/github\.com\/hiking-earth\/clients\/releases\/download\/[^/]+\/[^?#]+$/.test(url);}
 function platformArtifactAvailable(candidate:Release):boolean {
   // #ifdef APP-PLUS
@@ -25,7 +30,8 @@ function platformArtifactAvailable(candidate:Release):boolean {
 }
 function nativeVersion():string {
   // #ifdef APP-PLUS
-  return plus.runtime.version || APP_VERSION;
+  const runtimeVersion=plus.runtime.version;
+  return typeof runtimeVersion==='string'&&versionParts(runtimeVersion)?runtimeVersion:APP_VERSION;
   // #endif
   return APP_VERSION;
 }
@@ -61,7 +67,7 @@ export async function checkForUpdate(force=false):Promise<void> {
     // #endif
     const data=MANIFEST?await new Promise<unknown>((resolve,reject)=>uni.request({url:MANIFEST,timeout:15000,success:r=>r.statusCode===200?resolve(r.data):reject(new Error('发布清单暂不可用')),fail:()=>reject(new Error('无法连接更新服务'))})):await publicSnapshot('release');
     const r=data as Release;
-    if(r?.schemaVersion!==1 || typeof r.ready!=='boolean' || !/^\d+\.\d+\.\d+$/.test(r.version) || !Number.isSafeInteger(r.versionCode) || r.versionCode<=0 || typeof r.notes!=='string' || r.notes.length>12000)throw new Error('发布清单无效');
+    if(r?.schemaVersion!==1 || typeof r.ready!=='boolean' || !versionParts(r.version) || !Number.isSafeInteger(r.versionCode) || r.versionCode<=0 || typeof r.notes!=='string' || r.notes.length>12000)throw new Error('发布清单无效');
     const android=r.android;const ios=r.ios;
     if(android && (!artifactUrl(android!.url) || !/^[a-f0-9]{64}$/.test(android!.sha256) || !Number.isSafeInteger(android!.size) || android!.size<=0 || android!.size>200*1024*1024))throw new Error('安装包信息无效');
     if(ios && !/^https:\/\/(apps\.apple\.com|testflight\.apple\.com)\//.test(ios!.url))throw new Error('iOS更新入口无效');

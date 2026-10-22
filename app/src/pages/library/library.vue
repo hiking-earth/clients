@@ -25,7 +25,7 @@
       <text v-else class="hint">格式异常，暂不能安全恢复；原始备份仍保留，请勿清理应用数据。</text>
       <button :disabled="busy || !libraryValid || !archive.valid" @click="confirmDeletedArchiveImport(archive)">合并到当前本机资料</button>
     </view>
-    <text class="heading">云端资料</text><button :disabled="busy || !owner || !libraryValid" @click="push">保存收藏与行程到当前账号</button><button :disabled="busy || !owner || !libraryValid" @click="pull">恢复当前账号的收藏与行程</button><text v-if="!owner" class="hint">登录后可使用云端资料。</text><text class="hint">{{ message }}</text>
+    <text class="heading">云端资料</text><button :disabled="busy || !owner || !libraryValid || accountMergePending" @click="push">保存收藏与行程到当前账号</button><button :disabled="busy || !owner || !libraryValid || accountMergePending" @click="pull">恢复当前账号的收藏与行程</button><text v-if="accountMergePending" class="hint">账号资料仍在安全合并；完成后即可使用云端保存与恢复。</text><text v-else-if="!owner" class="hint">登录后可使用云端资料。</text><text class="hint">{{ message }}</text>
   </scroll-view>
 </template>
 <script setup lang="ts">
@@ -36,13 +36,14 @@ import { ROUTES } from '@/services/route-catalog';
 import RouteSearchPicker from '@/components/RouteSearchPicker.vue';
 import { acquireLibraryCloudLock, currentLibraryStorageValid, readLibrary, writeLibrary, toggleFavorite, libraryVersion, setLibraryVersion, validCloudLibrary, libraryOwner, legacyLibraryBackupStatus, importLegacyLibrary, listDeletedLibraryArchives, importDeletedLibraryArchive } from '@/services/library';
 import type { DeletedLibraryArchive, Library } from '@/services/library';
-import { onAccountChange } from '@/services/account';
+import { accountSession, onAccountChange } from '@/services/account';
 import { callCloud } from '@/services/cloud';
 const library = ref(readLibrary()), selected = ref(''), date = ref(''), notes = ref(''), message = ref(''), busy = ref(false);
 const initialLegacy = legacyLibraryBackupStatus();
 const owner = ref(libraryOwner()), libraryValid = ref(currentLibraryStorageValid()), legacy = ref(initialLegacy.library), legacyInvalid = ref(initialLegacy.invalid), deletedArchives = ref(listDeletedLibraryArchives());
+const accountMergePending = ref(!!accountSession()?.mergedIdentities?.length);
 let loadedOwner = owner.value;
-function refreshLibrary() { owner.value = libraryOwner(); loadedOwner = owner.value; libraryValid.value = currentLibraryStorageValid(); library.value = readLibrary(); const legacyState = legacyLibraryBackupStatus(); legacy.value = legacyState.library; legacyInvalid.value = legacyState.invalid; deletedArchives.value = listDeletedLibraryArchives(); }
+function refreshLibrary() { owner.value = libraryOwner(); loadedOwner = owner.value; accountMergePending.value=!!accountSession()?.mergedIdentities?.length; libraryValid.value = currentLibraryStorageValid(); library.value = readLibrary(); const legacyState = legacyLibraryBackupStatus(); legacy.value = legacyState.library; legacyInvalid.value = legacyState.invalid; deletedArchives.value = listDeletedLibraryArchives(); }
 onShow(refreshLibrary);
 // A foreground sync may finish after this page has already read its local copy.
 watch(() => syncState.lastSuccess, refreshLibrary);
@@ -85,6 +86,7 @@ function confirmDeletedArchiveImport(archive: DeletedLibraryArchive) {
 }
 async function push() {
   if (busy.value || !libraryValid.value) return; busy.value = true;
+  if(accountSession()?.mergedIdentities?.length){accountMergePending.value=true;busy.value=false;message.value='账号资料仍在安全合并，完成后再保存云端资料';return;}
   const requestOwner = libraryOwner();
   if (!requestOwner) { busy.value = false; message.value = '请先登录统一账号'; return; }
   if (!sameOwner()) { busy.value = false; return; }
@@ -93,18 +95,20 @@ async function push() {
   try {
     releaseCloud = await acquireLibraryCloudLock();
     if (requestOwner !== libraryOwner() || !sameOwner()) return;
+    if(accountSession()?.mergedIdentities?.length){accountMergePending.value=true;message.value='账号资料仍在安全合并，未保存云端资料';return;}
     if (!currentLibraryStorageValid()) { libraryValid.value = false; message.value = '本机收藏或行程资料格式异常，已停止云端保存以免上传不完整资料'; return; }
     const snapshot=JSON.parse(JSON.stringify(readLibrary())) as Library;
     const version=libraryVersion();
     const result = await callCloud<{ version: number }>('library-manage', { action: 'save', ...snapshot, version });
     if (requestOwner !== libraryOwner()) return;
-    if (result.ok && result.data) { if(!Number.isSafeInteger(result.data.version)||result.data.version!==version+1){message.value='云端版本响应无效，请重新同步';return;} setLibraryVersion(result.data.version,snapshot); message.value = '云端资料已保存'; } else message.value = result.errMsg || '保存失败';
+    if (result.ok && result.data) { if(!Number.isSafeInteger(result.data.version)||result.data.version!==version+1){message.value='云端版本响应无效，请重新同步';return;} setLibraryVersion(result.data.version,snapshot); message.value = !currentLibraryStorageValid() ? '云端已保存提交时的资料；本机资料随后异常，已停止覆盖，请保留应用数据' : JSON.stringify(readLibrary())===JSON.stringify(snapshot) ? '云端资料已保存' : '云端已保存提交时的资料；本机随后有新改动，请再次保存'; } else message.value = result.errMsg || '保存失败';
   } catch (e: any) { if(requestOwner===libraryOwner())message.value=e?.message || '云端保存未完成，请稍后重试'; } finally { releaseCloud?.(); busy.value = false; }
 }
 function pull() {
   if (!libraryValid.value) return;
   uni.showModal({ title: '恢复云端资料', content: '用当前账号的云端收藏与行程替换本机资料。', success: async choice => {
     if (!choice.confirm || busy.value) return; busy.value = true;
+    if(accountSession()?.mergedIdentities?.length){accountMergePending.value=true;busy.value=false;message.value='账号资料仍在安全合并，完成后再恢复云端资料';return;}
     const requestOwner = libraryOwner();
     if (!requestOwner) { busy.value = false; message.value = '请先登录统一账号'; return; }
     if (!sameOwner()) { busy.value = false; return; }
@@ -112,6 +116,7 @@ function pull() {
     try {
       releaseCloud = await acquireLibraryCloudLock();
       if (requestOwner !== libraryOwner() || !sameOwner()) return;
+      if(accountSession()?.mergedIdentities?.length){accountMergePending.value=true;message.value='账号资料仍在安全合并，未恢复云端资料';return;}
       if (!currentLibraryStorageValid()) { libraryValid.value = false; message.value = '本机收藏或行程资料格式异常，已停止恢复以保留原始资料'; return; }
       const original=JSON.stringify(readLibrary());
       const result = await callCloud<Library & { version: number }>('library-manage', { action: 'get' });
@@ -124,5 +129,5 @@ function pull() {
 }
 </script>
 <style scoped>
-.page{height:100vh;box-sizing:border-box;padding:24px 20px;background:var(--he-color-background);color:var(--he-color-text)}.title{display:block;font-size:24px;font-weight:700}.hint{display:block;margin:12px 0;color:var(--he-color-muted);font-size:13px;line-height:1.7}.heading{display:block;font-weight:600;margin:20px 0 12px}.card{background:var(--he-color-panel);padding:16px;border-radius:12px;margin-bottom:12px}.input{background:var(--he-color-surface);padding:12px;box-sizing:border-box;width:100%;margin:12px 0;border-radius:8px}.date-input{height:44px;min-height:44px}.date-input :deep(.uni-input-input){height:44px;min-height:44px}button{font-size:14px;margin:10px 0;background:var(--he-color-accent);color:var(--he-color-background)}
+.page{height:100vh;box-sizing:border-box;padding:24px 20px;background:var(--he-color-background);color:var(--he-color-text)}.title{display:block;font-size:24px;font-weight:700}.hint{display:block;margin:12px 0;color:var(--he-color-muted);font-size:13px;line-height:1.7}.heading{display:block;font-weight:600;margin:20px 0 12px}.card{background:var(--he-color-panel);padding:16px;border-radius: var(--he-card-radius, 16px);margin-bottom:12px}.input{background:var(--he-color-surface);padding:12px;box-sizing:border-box;width:100%;margin:12px 0;border-radius: var(--he-input-radius, 13px);}.date-input{height:44px;min-height:44px}.date-input :deep(.uni-input-input){height:44px;min-height:44px}button{font-size:14px;margin:10px 0;background:var(--he-color-accent);color:var(--he-color-on-accent)}
 </style>

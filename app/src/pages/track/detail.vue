@@ -25,6 +25,7 @@
 </template>
 
 <script setup lang="ts">
+import { HE_PALETTE } from '@shared/design/palette';
 import { saveNativeGpx } from '@/services/files';
 import { activeOfflineLayer,restoreOfflineLayers } from '@/services/offline';
 
@@ -78,7 +79,7 @@ const polyline = computed(() => {
     if (!segments.length || p.segmentStart) segments.push([]);
     segments[segments.length - 1].push(toMapPoint(p));
   }
-  return segments.filter(s => s.length >= 2).map(points => ({ points, color: "#b8f36b", width: 4, arrowLine: true }));
+  return segments.filter(s => s.length >= 2).map(points => ({ points, color: HE_PALETTE.accent, width: 4, arrowLine: true }));
 });
 
 const markers = computed(() => {
@@ -189,7 +190,7 @@ onUnload(unsubscribeAccount);
 .map-h5-tip { margin: 8px 16px; height: 190px; display: flex; align-items: center; justify-content: center; background: var(--he-color-panel); border-radius: 10px; color: var(--he-color-muted); font-size: 12px; text-align: center; padding: 0 24px; }
 .actions { margin-top: auto; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 8px; }
 .btn { border-radius: 499.5px; font-size: 14px; background: var(--he-color-surface); color: var(--he-color-text); }
-.btn.primary { background: var(--he-color-accent); color: var(--he-color-background); font-weight: 600; }
-.btn.danger { color: #ff7b72; }
-.warning { display:block; margin:8px 16px; padding:10px; color:#ffd166; background:#3a2e17; border-radius:6px; line-height:1.6; }
+.btn.primary { background: var(--he-color-accent); color: var(--he-color-on-accent); font-weight: 600; }
+.btn.danger { color: var(--he-color-danger); }
+.warning { display:block; margin:8px 16px; padding:10px; color:var(--he-color-warning); background:rgba(var(--he-color-warning-rgb),.12); border-radius:6px; line-height:1.6; }
 </style>

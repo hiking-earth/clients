@@ -43,6 +43,13 @@ export type HikingRoute = {
   };
 };
 
+/** Expired non-permanent review statuses become unverified on every client. */
+export function reviewedRouteStatus(status: RouteStatus, expiresAt: unknown, now = Date.now()): RouteStatus {
+  if (status === "待核验" || status === "永久关闭") return status;
+  if (typeof expiresAt !== "number" || !Number.isFinite(expiresAt) || expiresAt <= now) return "待核验";
+  return status;
+}
+
 export const STATUS_COLORS: Record<RouteStatus, string> = {
   "开放中": "#b8f36b",
   "即将开放": "#65c7ff",
@@ -51,9 +58,13 @@ export const STATUS_COLORS: Record<RouteStatus, string> = {
   "待核验": "#ffd166",
 };
 
-/** 路线是否允许进入导航（与上游规则一致：关闭/不展示轨迹的路线禁用导航） */
+/** 只有当前开放且有未过期核验记录的有效轨迹才能进入导航。 */
 export function isNavigable(route: HikingRoute): boolean {
   if (route.status !== "开放中" || (!Number.isFinite(route.openingExpiresAt) || route.openingExpiresAt! <= Date.now())) return false;
-  if (!route.trackMode || route.trackMode === "不展示轨迹" || route.trackMode === "认知示意") return false;
-  return route.path.length >= 2;
+  if (route.trackMode !== "已核验轨迹" || !Array.isArray(route.path) || route.path.length < 2) return false;
+  return route.path.every((point) =>
+    Array.isArray(point) && point.length === 2 &&
+    Number.isFinite(point[0]) && point[0] >= -180 && point[0] <= 180 &&
+    Number.isFinite(point[1]) && point[1] >= -90 && point[1] <= 90
+  );
 }

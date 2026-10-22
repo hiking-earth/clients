@@ -3,17 +3,34 @@ import { accountSession } from './account';
 // Automatic and user-triggered cloud operations share the same in-process
 // queue so a manual restore cannot race an automatic save (or vice versa).
 let libraryCloudQueue: Promise<void> = Promise.resolve();
-export async function acquireLibraryCloudLock(): Promise<() => void> {
-  const previous = libraryCloudQueue;
-  let unlock!: () => void;
-  libraryCloudQueue = new Promise<void>(resolve => { unlock = resolve; });
-  await previous;
+let libraryCloudOperationActive = false;
+let libraryCloudOperationWaiting = 0;
+function lockRelease(unlock: () => void): () => void {
   let released = false;
   return () => {
     if (released) return;
     released = true;
+    libraryCloudOperationActive = false;
     unlock();
   };
+}
+export async function acquireLibraryCloudLock(): Promise<() => void> {
+  const previous = libraryCloudQueue;
+  let unlock!: () => void;
+  libraryCloudQueue = new Promise<void>(resolve => { unlock = resolve; });
+  libraryCloudOperationWaiting++;
+  await previous;
+  libraryCloudOperationWaiting--;
+  libraryCloudOperationActive = true;
+  return lockRelease(unlock);
+}
+/** Account migration is synchronous, so it must fail closed instead of racing a queued cloud operation. */
+export function tryAcquireLibraryCloudLock(): (() => void) | null {
+  if (libraryCloudOperationActive || libraryCloudOperationWaiting > 0) return null;
+  let unlock!: () => void;
+  libraryCloudQueue = new Promise<void>(resolve => { unlock = resolve; });
+  libraryCloudOperationActive = true;
+  return lockRelease(unlock);
 }
 
 export type TripPlan = { id: string; routeId: string; date: string; notes: string; packed: boolean };
@@ -42,10 +59,10 @@ function parseLibrary(raw: unknown): Library | null {
     const data = typeof raw === 'string' ? JSON.parse(raw || '{}') : raw;
     if (!data || typeof data !== 'object' || Array.isArray(data)) return null;
     return {
-      favorites: Array.isArray((data as any).favorites) ? (data as any).favorites.filter((v: unknown) => typeof v === 'string' && v.length <= 128).slice(0, 200) : [],
+      favorites: Array.isArray((data as any).favorites) ? (data as any).favorites.filter((v: unknown) => typeof v === 'string' && v.length <= 128).slice(0, 400) : [],
       plans: Array.isArray((data as any).plans) ? (data as any).plans.filter((p: any) => p && typeof p.id === 'string' && p.id.length <= 128
         && typeof p.routeId === 'string' && p.routeId.length <= 128 && typeof p.notes === 'string' && p.notes.length <= 2000
-        && typeof p.date === 'string' && typeof p.packed === 'boolean').slice(0, 100) : [],
+        && typeof p.date === 'string' && typeof p.packed === 'boolean').slice(0, 200) : [],
     };
   } catch { return null; }
 }
@@ -55,7 +72,7 @@ function parseLibraryStrict(raw: unknown): Library | null {
     if (!data || typeof data !== 'object' || Array.isArray(data)
       || Object.keys(data).some(key => !['favorites', 'plans'].includes(key))
       || !Array.isArray((data as any).favorites) || !Array.isArray((data as any).plans)
-      || (data as any).favorites.length > 200 || (data as any).plans.length > 100) return null;
+      || (data as any).favorites.length > 400 || (data as any).plans.length > 200) return null;
     const favorites = (data as any).favorites;
     const plans = (data as any).plans;
     const validDate = (value: unknown) => typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value)
@@ -115,7 +132,7 @@ function quarantineLegacyLibrary(): void {
     const existing = readStrictAt(QUARANTINE_KEY);
     if (!existing) return;
     const merged = mergeLibraries(existing, parsed, 'legacy-import');
-    if (merged.favorites.length > 200 || merged.plans.length > 100) return;
+    if (merged.favorites.length > 400 || merged.plans.length > 200) return;
     const serialized = JSON.stringify(merged);
     uni.setStorageSync(QUARANTINE_KEY, serialized);
     if (JSON.stringify(parseLibraryStrict(uni.getStorageSync(QUARANTINE_KEY))) !== serialized) return;
@@ -139,6 +156,38 @@ export function currentLibraryStorageValid(): boolean {
 export function readLibrary(): Library {
   quarantineLegacyLibrary();
   return readAt(scopedKey(libraryOwner()));
+}
+/** Merge only identities returned by the verified server-side account merge. */
+export function mergeVerifiedAccountLibraries(sourceOwners: string[], targetOwner: string, lockHeld = false): boolean {
+  if (!targetOwner || !Array.isArray(sourceOwners) || sourceOwners.length > 100
+      || sourceOwners.some(owner => typeof owner !== 'string' || !owner || owner.length > 128)) return false;
+  const releaseCloud = lockHeld ? null : tryAcquireLibraryCloudLock();
+  if (!lockHeld && !releaseCloud) return false;
+  try {
+    const owners = [...new Set(sourceOwners)].filter(owner => owner !== targetOwner);
+    const targetKey = scopedKey(targetOwner), target = readStrictAt(targetKey);
+    if (!target) return false;
+    let merged = target;
+    const sourceKeys: string[] = [];
+    for (const owner of owners) {
+      const key = scopedKey(owner), raw = uni.getStorageSync(key);
+      if (raw === undefined || raw === null || raw === '') continue;
+      const incoming = parseLibraryStrict(raw);
+      if (!incoming) return false;
+      merged = mergeLibraries(merged, incoming, `verified-merge:${targetOwner}:${owner}`);
+      sourceKeys.push(key);
+    }
+    if (merged.favorites.length > 400 || merged.plans.length > 200) return false;
+    const serialized = JSON.stringify(merged);
+    uni.setStorageSync(targetKey, serialized);
+    if (JSON.stringify(parseLibraryStrict(uni.getStorageSync(targetKey))) !== serialized) return false;
+    for (const key of sourceKeys) {
+      uni.removeStorageSync(key);
+      if (uni.getStorageSync(key) !== undefined && uni.getStorageSync(key) !== null && uni.getStorageSync(key) !== '') return false;
+    }
+    return true;
+  } catch { return false; }
+  finally { releaseCloud?.(); }
 }
 export function writeLibrary(data: Library): void {
   quarantineLegacyLibrary();
@@ -171,7 +220,7 @@ export function importLegacyLibrary(): { favorites: number; plans: number } {
   const current = readStrictAt(scopedKey(libraryOwner()));
   if (!current) throw new Error('当前本机资料格式异常，旧备份仍保留，请先导出或修复当前资料');
   const merged = mergeLibraries(current, legacy, 'legacy-import');
-  if (merged.favorites.length > 200 || merged.plans.length > 100) throw new Error('合并后收藏或行程超过本机上限，请先整理当前资料');
+  if (merged.favorites.length > 400 || merged.plans.length > 200) throw new Error('合并后收藏或行程超过本机上限，请先整理当前资料');
   const targetKey = scopedKey(libraryOwner()), serialized = JSON.stringify(merged);
   uni.setStorageSync(targetKey, serialized);
   if (JSON.stringify(parseLibraryStrict(uni.getStorageSync(targetKey))) !== serialized) throw new Error('本机保存回读不一致，旧备份仍保留');
@@ -201,7 +250,7 @@ export function importDeletedLibraryArchive(id: string): { favorites: number; pl
   const targetKey = scopedKey(libraryOwner()), current = readStrictAt(targetKey);
   if (!current) throw new Error('当前本机资料格式异常，恢复备份仍保留');
   const merged = mergeLibraries(current, archived, `deleted:${id}`);
-  if (merged.favorites.length > 200 || merged.plans.length > 100) throw new Error('合并后超过本机容量上限；请先整理当前资料，备份仍保留');
+  if (merged.favorites.length > 400 || merged.plans.length > 200) throw new Error('合并后超过本机容量上限；请先整理当前资料，备份仍保留');
   const serialized = JSON.stringify(merged);
   uni.setStorageSync(targetKey, serialized);
   if (JSON.stringify(parseLibraryStrict(uni.getStorageSync(targetKey))) !== serialized) throw new Error('本机恢复回读不一致，备份仍保留');
@@ -238,7 +287,7 @@ export function archiveDeletedAccountLibrary(owner: string): { status: 'archived
     const existing = readStrictAt(archiveKey);
     if (!existing) return { status: 'failed', favorites: 0, plans: 0, metadataCleaned: false };
     const merged = mergeLibraries(existing, source, `deleted:${stableHash(owner)}`);
-    if (merged.favorites.length > 200 || merged.plans.length > 100) return { status: 'failed', favorites: 0, plans: 0, metadataCleaned: false };
+    if (merged.favorites.length > 400 || merged.plans.length > 200) return { status: 'failed', favorites: 0, plans: 0, metadataCleaned: false };
     const serialized = JSON.stringify(merged);
     uni.setStorageSync(archiveKey, serialized);
     if (JSON.stringify(parseLibraryStrict(uni.getStorageSync(archiveKey))) !== serialized) return { status: 'failed', favorites: 0, plans: 0, metadataCleaned: false };
@@ -251,25 +300,44 @@ export function archiveDeletedAccountLibrary(owner: string): { status: 'archived
 export function toggleFavorite(id: string): boolean {
   const data = readLibrary(), exists = data.favorites.includes(id);
   data.favorites = exists ? data.favorites.filter(x => x !== id) : [...data.favorites, id];
-  if (data.favorites.length > 200) throw new Error('最多收藏200条路线');
+  if (data.favorites.length > 400) throw new Error('最多收藏400条路线');
   writeLibrary(data); return !exists;
 }
 export function libraryVersion(): number { return Number(uni.getStorageSync(`he_library_version:${libraryOwner()}`) || 0); }
+/** Serialize library content with stable field order for sync baselines. */
+export function librarySnapshot(snapshot: Library): string {
+  const parsed = parseLibraryStrict(snapshot);
+  if (!parsed) throw new Error('本机云资料格式无效');
+  return JSON.stringify({
+    favorites: parsed.favorites,
+    plans: parsed.plans.map(plan => ({ id: plan.id, routeId: plan.routeId, date: plan.date, notes: plan.notes, packed: plan.packed })),
+  });
+}
 export function setLibraryVersion(version: number, snapshot: Library = readLibrary()): void {
   const owner = libraryOwner();
   if (!owner) throw new Error('请先登录统一账号');
-  uni.setStorageSync(`he_library_version:${owner}`, version);
-  uni.setStorageSync(`he_library_baseline:${owner}`, JSON.stringify(snapshot));
+  if (!Number.isSafeInteger(version) || version < 0) throw new Error('云资料版本无效，本机同步进度未更新');
+  const baseline = librarySnapshot(snapshot);
+  const versionKey = `he_library_version:${owner}`;
+  const baselineKey = `he_library_baseline:${owner}`;
+  // Persist the snapshot first and use the version as the commit marker. If
+  // either write is interrupted, the next sync must not mistake partial local
+  // metadata for a confirmed cloud state.
+  uni.setStorageSync(baselineKey, baseline);
+  if (uni.getStorageSync(baselineKey) !== baseline) throw new Error('同步基线保存回读不一致，本机同步进度未确认');
+  uni.setStorageSync(versionKey, version);
+  if (Number(uni.getStorageSync(versionKey)) !== version || uni.getStorageSync(baselineKey) !== baseline)
+    throw new Error('云资料版本保存回读不一致，本机同步进度未确认');
 }
 
 /** Validate a cloud snapshot before replacing any local library data. */
 export function validCloudLibrary(value: unknown): value is Library & { version: number } {
   const row = value as any;
   return !!row && Number.isSafeInteger(row.version) && row.version >= 0
-    && Array.isArray(row.favorites) && row.favorites.length <= 200
+    && Array.isArray(row.favorites) && row.favorites.length <= 400
     && row.favorites.every((id: unknown) => typeof id === 'string' && id.length > 0 && id.length <= 128)
     && new Set(row.favorites).size === row.favorites.length
-    && Array.isArray(row.plans) && row.plans.length <= 100
+    && Array.isArray(row.plans) && row.plans.length <= 200
     && row.plans.every((plan: any) => !!plan && typeof plan.id === 'string' && plan.id.length <= 128
       && plan.id.length > 0 && typeof plan.routeId === 'string' && plan.routeId.length > 0 && plan.routeId.length <= 128
       && typeof plan.notes === 'string' && plan.notes.length <= 2000 && typeof plan.packed === 'boolean'

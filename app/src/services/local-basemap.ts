@@ -1,5 +1,6 @@
 import { PMTiles, TileType, type Source } from 'pmtiles';
 import type { StyleSpecification } from 'maplibre-gl';
+import { HE_PALETTE } from '@shared/design/palette';
 const MAX_PACK=64*1024*1024,MAX_RANGE=8*1024*1024;
 export function decodeBasemapMetadata(bytes:Uint8Array):Record<string,unknown>{
  if(bytes.byteLength>256*1024)throw new Error('地图元数据超过容量限制');
@@ -11,7 +12,7 @@ export function decodeBasemapMetadata(bytes:Uint8Array):Record<string,unknown>{
 export type LocalRangeReader=(offset:number,length:number)=>Promise<ArrayBuffer>;
 /** Local-only archive adapter. No URL fallback and no network access. */
 export async function openLocalBasemap(id:string,bytes:number,read:LocalRangeReader){
- if(!/^[a-z0-9-]{1,96}$/.test(id)||!Number.isSafeInteger(bytes)||bytes<127||bytes>MAX_PACK)throw new Error('离线地图包信息无效或超过64 MB');
+ if(!/^[a-z0-9-]{1,96}$/.test(id)||!Number.isSafeInteger(bytes)||bytes<127||bytes>MAX_PACK)throw new Error('离线地图包信息无效或超过64 MiB');
  const key=`offline-basemap-${id}`;
  const source:Source={getKey:()=>key,getBytes:async(offset,length,signal)=>{
   if(signal?.aborted)throw new Error('地图读取已取消');
@@ -36,14 +37,14 @@ export async function openLocalBasemap(id:string,bytes:number,read:LocalRangeRea
 export function localBasemapStyle(key:string):StyleSpecification{
  if(!/^offline-basemap-[a-z0-9-]{1,96}$/.test(key))throw new Error('离线地图标识无效');
  return {version:8,sources:{basemap:{type:'vector',url:`pmtiles://${key}`,attribution:'© OpenStreetMap contributors · Protomaps'}},layers:[
-  {id:'background',type:'background',paint:{'background-color':'#142024'}},
-  {id:'earth',type:'fill',source:'basemap','source-layer':'earth',paint:{'fill-color':'#24332a'}},
-  {id:'landuse',type:'fill',source:'basemap','source-layer':'landuse',paint:{'fill-color':'#304537','fill-opacity':0.7}},
-  {id:'water',type:'fill',source:'basemap','source-layer':'water',filter:['==',['geometry-type'],'Polygon'],paint:{'fill-color':'#193c56'}},
-  {id:'water-lines',type:'line',source:'basemap','source-layer':'water',filter:['==',['geometry-type'],'LineString'],paint:{'line-color':'#2f6684','line-width':1.2}},
-  {id:'buildings',type:'fill',source:'basemap','source-layer':'buildings',minzoom:12,paint:{'fill-color':'#607067','fill-opacity':0.55}},
-  {id:'roads',type:'line',source:'basemap','source-layer':'roads',paint:{'line-color':'#b8bc9e','line-width':['interpolate',['linear'],['zoom'],8,0.5,15,2.5]}},
-  {id:'paths',type:'line',source:'basemap','source-layer':'roads',filter:['==',['get','kind'],'path'],paint:{'line-color':'#b8f36b','line-width':1.5,'line-dasharray':[2,2]}},
-  {id:'boundaries',type:'line',source:'basemap','source-layer':'boundaries',paint:{'line-color':'#8b9794','line-width':0.8,'line-dasharray':[3,3]}},
+  {id:'background',type:'background',paint:{'background-color':HE_PALETTE.mapOcean}},
+  {id:'earth',type:'fill',source:'basemap','source-layer':'earth',paint:{'fill-color':HE_PALETTE.mapOcean}},
+  {id:'landuse',type:'fill',source:'basemap','source-layer':'landuse',paint:{'fill-color':['match',['get','kind'],'wood',HE_PALETTE.mapWood,'grass',HE_PALETTE.mapGrass,'ice',HE_PALETTE.mapIce,'sand',HE_PALETTE.mapSand,HE_PALETTE.mapLand],'fill-opacity':0.82}},
+  {id:'water',type:'fill',source:'basemap','source-layer':'water',filter:['==',['geometry-type'],'Polygon'],paint:{'fill-color':HE_PALETTE.mapWater}},
+  {id:'water-lines',type:'line',source:'basemap','source-layer':'water',filter:['==',['geometry-type'],'LineString'],paint:{'line-color':HE_PALETTE.mapWater,'line-width':1.2}},
+  {id:'buildings',type:'fill',source:'basemap','source-layer':'buildings',minzoom:12,paint:{'fill-color':HE_PALETTE.mapBuilding,'fill-opacity':0.64}},
+  {id:'roads',type:'line',source:'basemap','source-layer':'roads',paint:{'line-color':['match',['get','kind'],['motorway','trunk'],HE_PALETTE.mapRoadTrunk,['primary','secondary'],HE_PALETTE.mapRoadPrimary,['path','track'],HE_PALETTE.accent,HE_PALETTE.mapRoad],'line-width':['interpolate',['linear'],['zoom'],8,0.5,15,2.5]}},
+  {id:'paths',type:'line',source:'basemap','source-layer':'roads',filter:['in',['get','kind'],['literal',['path','track']]],paint:{'line-color':HE_PALETTE.accent,'line-width':1.5}},
+  {id:'boundaries',type:'line',source:'basemap','source-layer':'boundaries',paint:{'line-color':HE_PALETTE.mapBoundary,'line-width':0.8,'line-dasharray':[3,3]}},
  ]};
 }

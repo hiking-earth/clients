@@ -84,6 +84,12 @@
       }
     },
     {
+      "path": "pages/my/terms",
+      "style": {
+        "navigationBarTitleText": "使用规则与户外安全"
+      }
+    },
+    {
       "path": "pages/track/import",
       "style": {
         "navigationBarTitleText": "导入 GPX"

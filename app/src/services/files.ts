@@ -1,9 +1,28 @@
 // #ifdef APP-PLUS
-import { chooseTextFile, saveTextFile, verifyApk } from '@/uni_modules/hiking-files';
+import { chooseTextFile, chooseBinaryFile, removeBinaryFile, saveTextFile, verifyApk } from '@/uni_modules/hiking-files';
 // #endif
 // #ifdef H5
 import { isDesktop, saveDesktopText } from '@/services/desktop';
 // #endif
+const MAX_WECHAT_CLIPBOARD_BYTES = 300_000;
+
+function utf8ByteLength(text: string): number {
+  let bytes = 0;
+  for (let index = 0; index < text.length; index += 1) {
+    const code = text.charCodeAt(index);
+    if (code <= 0x7f) bytes += 1;
+    else if (code <= 0x7ff) bytes += 2;
+    else if (code >= 0xd800 && code <= 0xdbff
+      && index + 1 < text.length
+      && text.charCodeAt(index + 1) >= 0xdc00
+      && text.charCodeAt(index + 1) <= 0xdfff) {
+      bytes += 4;
+      index += 1;
+    } else bytes += 3;
+  }
+  return bytes;
+}
+
 export function chooseNativeText(): Promise<string | null> {
   return new Promise((resolve, reject) => {
     // #ifdef APP-PLUS
@@ -14,6 +33,27 @@ export function chooseNativeText(): Promise<string | null> {
     reject(new Error('当前平台不支持手机文件选择'));
     // #endif
   });
+}
+
+export function chooseNativeMapArchive(): Promise<string | null> {
+  return new Promise((resolve, reject) => {
+    // #ifdef APP-PLUS
+    try { chooseBinaryFile(resolve, () => resolve(null), message => reject(new Error(message))); }
+    catch { reject(new Error('当前安装包未包含地图压缩包选择能力')); }
+    // #endif
+    // #ifndef APP-PLUS
+    reject(new Error('当前平台不支持系统压缩包选择'));
+    // #endif
+  });
+}
+
+export function removeNativeMapArchive(path: string): boolean {
+  // #ifdef APP-PLUS
+  try { return removeBinaryFile(path); } catch { return false; }
+  // #endif
+  // #ifndef APP-PLUS
+  return false;
+  // #endif
 }
 
 export function saveNativeGpx(name: string, text: string): Promise<boolean> {
@@ -49,7 +89,7 @@ export function saveLocalTextFile(name: string, text: string, mimeType = 'text/p
     // #endif
     // #ifdef MP-WEIXIN
     try {
-      if (text.length > 300000) { reject(new Error('备份超过小程序剪贴板安全容量；请使用App或网页端保存原始文件')); return; }
+      if (utf8ByteLength(text) > MAX_WECHAT_CLIPBOARD_BYTES) { reject(new Error('备份超过小程序剪贴板安全容量；请使用App或网页端保存原始文件')); return; }
       uni.setClipboardData({ data: text, success: () => resolve(true), fail: () => reject(new Error('剪贴板无法容纳此备份；请使用App或网页端保存原始文件')) });
     } catch { reject(new Error('当前小程序无法复制完整备份；请使用App或网页端保存原始文件')); }
     // #endif

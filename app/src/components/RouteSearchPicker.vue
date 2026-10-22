@@ -52,12 +52,18 @@ const sources: { id: PublicCatalogSource; name: string }[] = [
   { id: 'nsw-npws', name: '新南威尔士州公园步道' },
   { id: 'england', name: 'Natural England 国家步道' },
   { id: 'wales', name: '威尔士国家步道' },
+  { id: 'japan-tokai', name: '日本·东海自然步道' },
   { id: 'scotland-argyll', name: '苏格兰阿盖尔-比特核心步道' },
   { id: 'ni-midulster', name: '北爱尔兰米德阿尔斯特公共通行权' },
   { id: 'norfolk-prow', name: '英格兰诺福克公共通行权' },
   { id: 'cambridgeshire-prow', name: '英格兰剑桥郡公共通行权' },
   { id: 'nps-public-trails', name: '美国国家公园步道（NPS）' },
+  { id: 'usgs-trails', name: '美国全国数字步道（USGS）' },
+  { id: 'swisstopo-wanderwege', name: '瑞士 swisstopo 官方徒步网络（待核验）' },
   { id: 'victoria-recreation-tracks', name: '澳大利亚·维多利亚州官方步道' },
+  { id: 'queensland-qpws-trails', name: '澳大利亚·昆士兰州官方步道' },
+  { id: 'taiwan-trails', name: '台湾观光署官方步道（待核验）' },
+  { id: 'korea-durunubi-trails', name: '韩国·DuruNubi 韩国环线步道（待核验）' },
 ];
 const sourceNames = sources.map(source => source.name);
 const sourceIndex = ref(0), query = ref(''), localQuery = ref(''), onlineMatches = ref<HikingRoute[]>([]), onlineMessage = ref(''), loading = ref(false), searched = ref(false), onlineHasMore = ref(false);
@@ -119,5 +125,5 @@ onBeforeUnmount(() => { generation++; if (localTimer) clearTimeout(localTimer); 
 </script>
 
 <style scoped>
-.route-picker{margin:10px 0;padding:12px;background:var(--he-color-surface);border-radius:10px}.selected{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.selected-name{font-weight:600;color:var(--he-color-text)}.selected-region,.selected-placeholder,.label,.message,.notice{color:var(--he-color-muted);font-size:12px}.selected button{margin-left:auto}.search{height:40px;margin-top:8px;padding:0 10px;background:var(--he-color-panel);border-radius:7px;color:var(--he-color-text)}.results{height:240px;margin-top:8px}.label{display:block;padding:8px 0}.result{padding:10px 8px;border-top:1px solid var(--he-color-border)}.result-name{display:block;color:var(--he-color-text)}.result-meta{display:block;margin-top:3px;color:var(--he-color-muted);font-size:11px}.online-tools{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0}.source{color:var(--he-color-accent);font-size:13px}.online-tools button{margin:0}.message,.notice{display:block;line-height:1.6;padding:6px 0}.notice{color:var(--he-color-warning)}
+.route-picker{margin:10px 0;padding:12px;background:var(--he-color-surface);border-radius:var(--he-card-radius, 16px)}.selected{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.selected-name{font-weight:600;color:var(--he-color-text)}.selected-region,.selected-placeholder,.label,.message,.notice{color:var(--he-color-muted);font-size:12px}.selected button{margin-left:auto}.search{height:40px;margin-top:8px;padding:0 10px;background:var(--he-color-panel);border-radius: var(--he-input-radius, 13px);color:var(--he-color-text)}.results{height:240px;margin-top:8px}.label{display:block;padding:8px 0}.result{padding:10px 8px;border-top:1px solid var(--he-color-border)}.result-name{display:block;color:var(--he-color-text)}.result-meta{display:block;margin-top:3px;color:var(--he-color-muted);font-size:11px}.online-tools{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0}.source{color:var(--he-color-accent);font-size:13px}.online-tools button{margin:0}.message,.notice{display:block;line-height:1.6;padding:6px 0}.notice{color:var(--he-color-warning)}
 </style>

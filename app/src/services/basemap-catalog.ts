@@ -2,6 +2,26 @@ import {browserReportsOffline} from './network-state';
 export const PUBLIC_MAP_DISTRIBUTION='https://hiking-earth.hiking-earth.workers.dev/client-app/';
 export function mapDistributionBase(desktop:boolean,localBase:string):string{return desktop?PUBLIC_MAP_DISTRIBUTION:localBase;}
 export interface MapCatalogPack {name:string;label:string;url:string;bytes:number;sha256:string;attribution:string;license:string;bounds?:number[]}
+/** Only compare our dated regional filenames; arbitrary imports are not versions. */
+export function findNewerMapPack(name:string,catalog:MapCatalogPack[],savedNames:readonly string[]=[]):MapCatalogPack|null{
+ const parse=(value:string)=>{
+  const match=/^([a-z0-9-]{1,71})-(\d{4})(\d{2})(\d{2})\.pmtiles$/.exec(value);
+  if(!match)return null;
+  const year=Number(match[2]),month=Number(match[3]),day=Number(match[4]);
+  const date=new Date(Date.UTC(year,month-1,day));
+  if(year<2000||date.getUTCFullYear()!==year||date.getUTCMonth()!==month-1||date.getUTCDate()!==day)return null;
+  return {region:match[1],date:date.getTime()};
+ };
+ const current=parse(name);if(!current)return null;
+ let selected:MapCatalogPack|null=null,latest=current.date;
+ for(const pack of catalog){
+  const candidate=parse(pack.name);
+  if(candidate&&candidate.region===current.region&&candidate.date>latest){
+   selected=pack;latest=candidate.date;
+  }
+ }
+ return selected&&!savedNames.includes(selected.name)?selected:null;
+}
 export function validateMapCatalog(value:unknown):MapCatalogPack[]{
  if(!Array.isArray(value)||!value.length||value.length>128)throw new Error('地图目录无效');
  const names=new Set<string>();let bytes=0;

@@ -5,6 +5,37 @@ import java.io.ByteArrayOutputStream
 import java.nio.ByteBuffer
 import java.nio.charset.CodingErrorAction
 object HikingFiles {
+    fun copyMapArchive(context: Context, uri: Uri): String {
+        val root = context.cacheDir.canonicalFile
+        val file = java.io.File(root, "he-map-import-${java.util.UUID.randomUUID()}.zip").canonicalFile
+        require(file.parentFile == root)
+        var total = 0L
+        try {
+            context.contentResolver.openInputStream(uri)?.use { input ->
+                java.io.FileOutputStream(file).use { output ->
+                    val buffer = ByteArray(1024 * 1024)
+                    while (true) {
+                        val count = input.read(buffer); if (count < 0) break
+                        total += count
+                        require(total <= 192L * 1024 * 1024) { "压缩包超过192 MiB" }
+                        output.write(buffer, 0, count)
+                    }
+                    output.fd.sync()
+                }
+            } ?: throw IllegalArgumentException("无法读取压缩包")
+            require(total >= 22L && file.length() == total)
+        } catch (error: Exception) { file.delete(); throw error }
+        return file.toURI().toString()
+    }
+
+    fun removeMapArchive(context: Context, path: String): Boolean {
+        return try {
+            val root = context.cacheDir.canonicalFile
+            val file = java.io.File(java.net.URI(path)).canonicalFile
+            file.parentFile == root && file.name.startsWith("he-map-import-") && file.name.endsWith(".zip") && (!file.exists() || file.delete())
+        } catch (_: Exception) { false }
+    }
+
     fun verifyApk(context: Context, path: String, expectedHash: String, expectedSize: Long): Boolean {
         val file = java.io.File(path).canonicalFile
         val roots = listOfNotNull(java.io.File(context.applicationInfo.dataDir), context.getExternalFilesDir(null), context.externalCacheDir)
