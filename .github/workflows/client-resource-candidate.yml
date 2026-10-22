@@ -44,6 +44,9 @@ jobs:
           VITE_PUBLIC_BASE: /client-app/
       - name: Record compiled resources and source commit
         run: python3 scripts/record-client-resource-candidate.py --directory app/dist/build/${{ matrix.platform }} --platform ${{ matrix.platform }} --expected-commit "$GITHUB_SHA" --output "$RUNNER_TEMP/client-resource-source.json"
+      - name: Match generated WeChat AppID to source
+        if: matrix.platform == 'mp-weixin'
+        run: node scripts/check-miniprogram-appid.cjs app/dist/build/mp-weixin
       - name: Inspect WeChat resource package budget
         if: matrix.platform == 'mp-weixin'
         run: node scripts/miniprogram-budget.cjs dist/build/mp-weixin "$RUNNER_TEMP/wechat-budget.json"
@@ -58,5 +61,6 @@ jobs:
             ${{ runner.temp }}/client-resource-source.json
             ${{ runner.temp }}/wechat-budget.json
             ${{ runner.temp }}/compiler-${{ matrix.platform }}.log
+          include-hidden-files: true
           if-no-files-found: warn
           retention-days: 14
