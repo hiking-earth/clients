@@ -8,8 +8,8 @@ export type TeamMember = {
   openid: string;
   nickname: string;
   avatarUrl?: string;
-  latitude: number;
-  longitude: number;
+  latitude: number | null;
+  longitude: number | null;
   updatedAt: number;
   isLeader: boolean;
 };
@@ -51,8 +51,10 @@ export type CompanionPost = {
   maxMembers: number;
   /** 已报名 openid 列表 */
   members: string[];
+  /** Public listing includes only the current user in members. */
+  memberCount?: number;
   createdAt: number;
-  status: "open" | "full" | "closed";
+  status: "open" | "full" | "closed" | "deleted" | "pending" | "hidden";
 };
 
 /** 装备导购条目（个人主体导购模式，跳第三方成交） */

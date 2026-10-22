@@ -34,7 +34,7 @@
       </view>
 
       <view class="notice">
-        提示：候选版路线轨迹多为「认知示意」级，导航仅作方向参考；高风险或未核验路线请以属地公告和实地路况为准。
+        内置路线目前多为认知示意，不提供沿线导航。你可以导入有可靠来源的连续 GPX 或使用自己的实录轨迹。
       </view>
     </scroll-view>
   </view>
@@ -43,15 +43,15 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import { onShow } from "@dcloudio/uni-app";
-import { ROUTES } from "@shared/data/routes.seed";
+import { ROUTES } from "@/services/route-catalog";
 import { isNavigable } from "@shared/types/route";
-import { listTracks } from "@/services/tracks";
+import { listCurrentOwnerTracks } from "@/services/tracks";
 import type { TrackRecord } from "@shared/types/track";
 
 const tracks = ref<TrackRecord[]>([]);
 
 onShow(() => {
-  tracks.value = listTracks().filter((t) => t.state === "finished" && t.points.length >= 2);
+  tracks.value = listCurrentOwnerTracks().filter((t) => t.state === "finished" && t.points.length >= 2 && !t.points.slice(1).some(p => p.segmentStart));
 });
 
 const navigableRoutes = computed(() => ROUTES.filter(isNavigable));
@@ -68,21 +68,21 @@ function goTeam() {
 </script>
 
 <style lang="scss" scoped>
-.page { display: flex; flex-direction: column; height: 100vh; background: #0f141b; }
-.intro { padding: 40rpx 32rpx 24rpx; }
-.intro-title { display: block; font-size: 44rpx; font-weight: 700; color: #eef4ea; }
-.intro-sub { display: block; margin-top: 8rpx; font-size: 24rpx; color: #8a97a5; }
-.list { flex: 1; padding: 0 32rpx; box-sizing: border-box; }
-.group-title { font-size: 24rpx; color: #5c6a78; margin: 24rpx 0 16rpx; }
-.card { display: flex; align-items: center; background: #151d27; border-radius: 20rpx; padding: 28rpx 24rpx; margin-bottom: 16rpx; }
-.card-l { flex: 1; display: flex; flex-direction: column; gap: 8rpx; }
-.card-name { font-size: 30rpx; font-weight: 600; color: #eef4ea; }
-.card-meta { font-size: 22rpx; color: #8a97a5; }
-.go { font-size: 36rpx; color: #b8f36b; }
-.team-entry { display: flex; align-items: center; background: rgba(184, 243, 107, 0.1); border: 1rpx solid rgba(184, 243, 107, 0.3); border-radius: 20rpx; padding: 28rpx 24rpx; margin: 16rpx 0 8rpx; }
-.team-l { flex: 1; display: flex; flex-direction: column; gap: 8rpx; }
-.team-t { font-size: 30rpx; font-weight: 600; color: #eef4ea; }
-.team-s { font-size: 22rpx; color: #8a97a5; }
-.empty { color: #5c6a78; font-size: 24rpx; padding: 24rpx 0; }
-.notice { margin: 32rpx 0 48rpx; padding: 24rpx; background: #1a2430; border-radius: 16rpx; font-size: 22rpx; color: #8a97a5; line-height: 1.7; }
+.page { display: flex; flex-direction: column; height: 100vh; background: var(--he-color-background); }
+.intro { padding: 20px 16px 12px; }
+.intro-title { display: block; font-size: 22px; font-weight: 700; color: var(--he-color-text); }
+.intro-sub { display: block; margin-top: 4px; font-size: 12px; color: var(--he-color-muted); }
+.list { flex: 1; padding: 0 16px; box-sizing: border-box; }
+.group-title { font-size: 12px; color: var(--he-color-muted); margin: 12px 0 8px; }
+.card { display: flex; align-items: center; background: var(--he-color-panel); border-radius: 10px; padding: 14px 12px; margin-bottom: 8px; }
+.card-l { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+.card-name { font-size: 15px; font-weight: 600; color: var(--he-color-text); }
+.card-meta { font-size: 11px; color: var(--he-color-muted); }
+.go { font-size: 18px; color: var(--he-color-accent); }
+.team-entry { display: flex; align-items: center; background: rgba(184, 243, 107, 0.1); border: 0.5px solid rgba(184, 243, 107, 0.3); border-radius: 10px; padding: 14px 12px; margin: 8px 0 4px; }
+.team-l { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+.team-t { font-size: 15px; font-weight: 600; color: var(--he-color-text); }
+.team-s { font-size: 11px; color: var(--he-color-muted); }
+.empty { color: var(--he-color-muted); font-size: 12px; padding: 12px 0; }
+.notice { margin: 16px 0 24px; padding: 12px; background: var(--he-color-surface); border-radius: 8px; font-size: 11px; color: var(--he-color-muted); line-height: 1.7; }
 </style>

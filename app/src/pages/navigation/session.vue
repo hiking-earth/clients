@@ -21,12 +21,12 @@
           <text class="mark-text" :class="{ cardinal: mark.cardinal }">{{ mark.label }}</text>
         </view>
         <!-- 目标箭头：类苹果查找 -->
-        <view class="arrow" :style="{ transform: `rotate(${arrowAngle}deg)` }">
+        <view v-if="hasFix && (!memberMode || memberPos)" class="arrow" :style="{ transform: `rotate(${arrowAngle}deg)` }">
           <view class="arrow-body"></view>
           <view class="arrow-head"></view>
         </view>
         <!-- 中心信息 -->
-        <view class="center">
+        <view v-if="hasFix && (!memberMode || memberPos)" class="center">
           <text class="dist">{{ formatDistance(targetDistance) }}</text>
           <text class="bearing">{{ Math.round(targetBearing) }}°</text>
           <text class="wp">{{ memberMode ? `与 ${memberName} 相向而行` : `路径点 ${waypointIndex + 1}/${path.length}` }}</text>
@@ -35,27 +35,13 @@
 
       <view v-if="offRoute && !memberMode" class="offroute">⚠ 已偏离轨迹 {{ Math.round(offRouteDist) }} m，请回到路线</view>
       <view v-if="finished" class="finished-banner">{{ memberMode ? '🎉 已会合' : '🎉 已到达终点' }}</view>
-      <view v-if="!hasFix" class="nofix">正在获取定位…请确认已授权位置权限</view>
+      <view v-if="!hasFix" class="nofix">正在获取定位…请先在“我的 → 隐私设置”启用导航定位，并按系统提示授权</view>
       <view v-else-if="memberMode && !memberPos" class="nofix">等待队友位置上报…</view>
     </view>
 
     <!-- 地图模式 -->
     <view v-else class="map-wrap">
-      <!-- #ifndef H5 -->
-      <map
-        v-if="mapCenter"
-        class="map"
-        :latitude="mapCenter.latitude"
-        :longitude="mapCenter.longitude"
-        :scale="mapScale"
-        :markers="mapMarkers"
-        :polyline="mapPolyline"
-        show-location
-      ></map>
-      <!-- #endif -->
-      <!-- #ifdef H5 -->
-      <view class="map-h5-tip">H5 预览未配置地图 key，真机/小程序内显示腾讯地图</view>
-      <!-- #endif -->
+      <RouteMap :layers="offlineLayer?.paths || []" :attribution="offlineLayer?.attribution || ''" :points="path" :position="position" :height="400" />
       <view class="map-hud">
         <text>距下一路径点 {{ formatDistance(targetDistance) }}</text>
         <text v-if="offRoute" class="hud-warn">偏航 {{ Math.round(offRouteDist) }} m</text>
@@ -73,17 +59,27 @@
 </template>
 
 <script setup lang="ts">
+import { HE_PALETTE } from '@shared/design/palette';
+import { activeOfflineLayer,restoreOfflineLayers } from '@/services/offline';
+
+import RouteMap from '@/components/RouteMap.vue';
+import { toMapPoint } from "@shared/api/coordinates";
+import { isNavigable } from "@shared/types/route";
 import { computed, onUnmounted, ref } from "vue";
-import { onLoad } from "@dcloudio/uni-app";
-import { ROUTES } from "@shared/data/routes.seed";
+import { onLoad,onShow } from "@dcloudio/uni-app";
+const offlineLayer = computed(()=>activeOfflineLayer());
+onShow(()=>{void restoreOfflineLayers();});
+import { ROUTES } from "@/services/route-catalog";
 import type { LatLng } from "@shared/api/navigation-core";
 import {
   arrowDeg, bearingDeg, formatDistance, haversineM, nextWaypoint, offRouteDistanceM,
 } from "@shared/api/navigation-core";
 import { MAP } from "@shared/constants";
-import { startCompass, stopCompass, startLocationUpdates, stopLocationUpdates } from "@/services/location";
-import { getTrack } from "@/services/tracks";
+import { startCompass, stopCompass, startLocationUpdates, stopLocationUpdates, getLocationError } from "@/services/location";
+import { getCurrentOwnerTrack, currentTrackOwner } from "@/services/tracks";
 import { callCloud } from "@/services/cloud";
+import { onPrivacyChange } from "@/services/privacy";
+import { accountSession, onAccountChange } from "@/services/account";
 import type { TrackPoint } from "@shared/types/track";
 
 /* ---------- 数据源：路线 / 我的轨迹 / 会合队友 ---------- */
@@ -96,6 +92,7 @@ const memberName = ref("");
 const memberPos = ref<LatLng | null>(null);
 const teamId = ref("");
 let memberTimer: ReturnType<typeof setInterval> | null = null;
+let sourceTrackId='';
 
 onLoad((q) => {
   if (q?.mode === "member") {
@@ -112,13 +109,14 @@ onLoad((q) => {
   }
   if (q?.routeId) {
     const r = ROUTES.find((x) => x.id === q.routeId);
-    if (r) {
+    if (r && isNavigable(r)) {
       navTitle.value = r.name;
       path.value = r.path.map(([longitude, latitude]) => ({ latitude, longitude }));
     }
   } else if (q?.trackId) {
-    const t = getTrack(q.trackId);
-    if (t) {
+    sourceTrackId=String(q.trackId);
+    const t = getCurrentOwnerTrack(sourceTrackId);
+    if (t && !t.points.slice(1).some(p => p.segmentStart)) {
       navTitle.value = t.name;
       path.value = t.points.map((p) => ({ latitude: p.latitude, longitude: p.longitude }));
     }
@@ -136,11 +134,12 @@ onLoad((q) => {
 });
 
 async function pollMember() {
-  const res = await callCloud<{ members: { openid: string; latitude: number; longitude: number }[] }>(
+  const res = await callCloud<{ members: { openid: string; latitude: number; longitude: number; updatedAt: number }[] }>(
     "team-locations", { teamId: teamId.value },
   );
   const m = res.data?.members?.find((x) => x.openid === memberId.value);
-  if (m) memberPos.value = { latitude: m.latitude, longitude: m.longitude };
+  memberPos.value = m && Number.isFinite(m.latitude) && Number.isFinite(m.longitude) && m.updatedAt > 0 && Date.now() - m.updatedAt <= 60000 ? { latitude: m.latitude, longitude: m.longitude } : null;
+  if (!memberPos.value) finished.value = false;
   // 会合模式下如果已有双方位置，立即刷新指向
   if (memberPos.value && position.value) updateMemberNav(position.value);
 }
@@ -150,6 +149,11 @@ const mode = ref<"arrow" | "map">("arrow");
 const heading = ref(0);
 const position = ref<TrackPoint | null>(null);
 const hasFix = computed(() => position.value !== null);
+const unsubscribePrivacy = onPrivacyChange(c => { if (!c.location) { position.value = null; finished.value = false; } });
+const unsubscribeAccount=onAccountChange(()=>{
+  position.value=null;memberPos.value=null;stopCompass(onHeading);stopLocationUpdates(onLocation);
+  if(sourceTrackId||memberMode.value){path.value=[];if(timer)clearInterval(timer);if(memberTimer)clearInterval(memberTimer);uni.navigateBack();}
+});
 const targetBearing = ref(0);
 const targetDistance = ref(0);
 const waypointIndex = ref(0);
@@ -183,10 +187,16 @@ const compassMarks = [
   ...[30, 60, 120, 150, 210, 240, 300, 330].map((deg) => ({ label: "·", deg, cardinal: false })),
 ];
 
-function boot() {
+const onHeading = (deg: number) => { heading.value = deg; };
+let disposed = false;
+async function boot() {
+  if (!(await startLocationUpdates(onLocation)) || disposed) {
+    stopLocationUpdates(onLocation);
+    if (!disposed) uni.showToast({ title: getLocationError() || "请启用隐私设置中的定位并授权", icon: "none" });
+    return;
+  }
   uni.setKeepScreenOn?.({ keepScreenOn: true });
-  startCompass((deg) => { heading.value = deg; });
-  startLocationUpdates(onLocation);
+  startCompass(onHeading);
   timer = setInterval(() => {
     const s = Math.floor((Date.now() - startedAt.value) / 1000);
     elapsedText.value = `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
@@ -245,7 +255,7 @@ function updateMemberNav(p: TrackPoint) {
 }
 
 /* ---------- 地图模式数据 ---------- */
-const mapCenter = computed(() => position.value ?? path.value[0] ?? null);
+const mapCenter = computed(() => { const p = position.value ?? path.value[0]; return p ? toMapPoint(p) : null; });
 const mapScale = computed(() => {
   if (targetDistance.value < 200) return 17;
   if (targetDistance.value < 1000) return 15;
@@ -253,16 +263,17 @@ const mapScale = computed(() => {
 });
 const mapMarkers = computed(() => {
   if (path.value.length === 0) return [];
-  const end = path.value[path.value.length - 1];
+  const end = toMapPoint(path.value[path.value.length - 1]);
+  const first = toMapPoint(path.value[0]);
   return [
-    { id: 1, latitude: path.value[0].latitude, longitude: path.value[0].longitude, title: "起点", width: 24, height: 24 },
+    { id: 1, latitude: first.latitude, longitude: first.longitude, title: "起点", width: 24, height: 24 },
     { id: 2, latitude: end.latitude, longitude: end.longitude, title: "终点", width: 24, height: 24 },
   ];
 });
 const mapPolyline = computed(() => [
   {
-    points: path.value.map((p) => ({ latitude: p.latitude, longitude: p.longitude })),
-    color: "#b8f36b", width: 4, arrowLine: true,
+    points: path.value.map(toMapPoint),
+    color: HE_PALETTE.accent, width: 4, arrowLine: true,
   },
 ]);
 
@@ -273,11 +284,20 @@ async function triggerSos() {
     uni.showToast({ title: "暂无定位，无法上报", icon: "none" });
     return;
   }
+  const owner=currentTrackOwner(),token=accountSession()?.token;
+  let savedTeamId = teamId.value;
+  if (!savedTeamId) { try { const raw=uni.getStorageSync("he_team");const cached=typeof raw==='string'?JSON.parse(raw||'null'):raw;const id=cached?.teamId??cached?.id;savedTeamId=typeof id==='string'?id:''; } catch {} }
+  const confirmed = await new Promise<boolean>((resolve) => uni.showModal({
+    title: "上传求助位置？",
+    content: savedTeamId ? "将当前位置和导航求助说明保存到云端；有效队友打开组队页面时可见，信号只显示最近1小时。正常情况下记录在24–30小时内由定时清理删除；任务异常时可能延迟。没有短信或系统推送，也不会联系救援机构；紧急情况请直接拨打当地求救电话。" : "将当前位置和导航求助说明保存到云端求助记录；当前没有队伍，无人接收。正常情况下记录在24–30小时内由定时清理删除；任务异常时可能延迟。没有短信或系统推送，也不会联系救援机构；紧急情况请直接拨打当地求救电话。",
+    success: (result) => resolve(result.confirm === true), fail: () => resolve(false),
+  }));
+  if (!confirmed||owner!==currentTrackOwner()||token!==accountSession()?.token) return;
   const res = await callCloud("sos-trigger", {
-    latitude: p.latitude, longitude: p.longitude, message: `导航「${navTitle.value}」中触发`,
+    teamId: savedTeamId, latitude: p.latitude, longitude: p.longitude, message: `导航「${navTitle.value}」中触发`,
   });
   if (res.ok) {
-    uni.showModal({ title: "SOS 已上报", content: "位置已发送给紧急联系人和队友（演示环境为本地记录）。", showCancel: false });
+    uni.showModal({ title: "SOS 已上报", content: savedTeamId ? "求助记录已保存，队友打开组队页面时可见；信号仅显示最近1小时。正常情况下，记录会在24–30小时内由定时任务删除，任务异常时可能延迟。没有后台推送或救援接警，请直接电话求助。" : "求助记录已保存，但当前无人接收。正常情况下，记录会在24–30小时内由定时任务删除，任务异常时可能延迟；请直接电话求助。", showCancel: false });
   } else {
     uni.showToast({ title: "上报失败：" + res.errMsg, icon: "none" });
   }
@@ -291,8 +311,11 @@ function quit() {
 }
 
 onUnmounted(() => {
-  stopCompass();
-  stopLocationUpdates();
+  disposed = true;
+  unsubscribePrivacy();
+  unsubscribeAccount();
+  stopCompass(onHeading);
+  stopLocationUpdates(onLocation);
   if (timer) clearInterval(timer);
   if (memberTimer) clearInterval(memberTimer);
   uni.setKeepScreenOn?.({ keepScreenOn: false });
@@ -300,38 +323,38 @@ onUnmounted(() => {
 </script>
 
 <style lang="scss" scoped>
-.page { display: flex; flex-direction: column; height: 100vh; background: #0f141b; }
-.topbar { display: flex; align-items: center; padding: 88rpx 32rpx 16rpx; }
-.quit { font-size: 28rpx; color: #8a97a5; width: 120rpx; }
-.title { flex: 1; text-align: center; font-size: 30rpx; font-weight: 600; color: #eef4ea; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.mode { width: 120rpx; text-align: right; font-size: 26rpx; color: #b8f36b; }
+.page { display: flex; flex-direction: column; height: 100vh; background: var(--he-color-background); }
+.topbar { display: flex; align-items: center; padding: 44px 16px 8px; }
+.quit { font-size: 14px; color: var(--he-color-muted); width: 60px; }
+.title { flex: 1; text-align: center; font-size: 15px; font-weight: 600; color: var(--he-color-text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mode { width: 60px; text-align: right; font-size: 13px; color: var(--he-color-accent); }
 
 .arrow-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
-.ring { position: relative; width: 600rpx; height: 600rpx; border-radius: 50%; border: 2rpx solid #1a2430; display: flex; align-items: center; justify-content: center; }
-.mark { position: absolute; left: 50%; top: 50%; margin: -20rpx 0 0 -20rpx; width: 40rpx; height: 40rpx; display: flex; align-items: center; justify-content: center; }
-.mark-text { font-size: 24rpx; color: #5c6a78; }
-.mark-text.cardinal { color: #aeb9c4; font-weight: 600; }
+.ring { position: relative; width: 300px; height: 300px; border-radius: 50%; border: 1px solid var(--he-color-surface); display: flex; align-items: center; justify-content: center; }
+.mark { position: absolute; left: 50%; top: 50%; margin: -10px 0 0 -10px; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; }
+.mark-text { font-size: 12px; color: var(--he-color-muted); }
+.mark-text.cardinal { color: var(--he-color-muted); font-weight: 600; }
 .arrow { position: absolute; left: 50%; top: 50%; width: 0; height: 0; transition: transform 0.15s linear; }
-.arrow-body { position: absolute; left: -14rpx; top: -220rpx; width: 28rpx; height: 160rpx; background: #b8f36b; border-radius: 14rpx; }
-.arrow-head { position: absolute; left: -44rpx; top: -280rpx; width: 0; height: 0; border-left: 44rpx solid transparent; border-right: 44rpx solid transparent; border-bottom: 72rpx solid #b8f36b; }
-.center { display: flex; flex-direction: column; align-items: center; gap: 8rpx; }
-.dist { font-size: 80rpx; font-weight: 700; color: #eef4ea; }
-.bearing { font-size: 30rpx; color: #8a97a5; }
-.wp { font-size: 22rpx; color: #5c6a78; }
-.offroute { position: absolute; bottom: 40rpx; padding: 16rpx 32rpx; background: rgba(255, 154, 98, 0.15); color: #ff9a62; border-radius: 999rpx; font-size: 26rpx; }
-.finished-banner { position: absolute; bottom: 40rpx; padding: 16rpx 32rpx; background: rgba(184, 243, 107, 0.15); color: #b8f36b; border-radius: 999rpx; font-size: 26rpx; }
-.nofix { position: absolute; top: 32rpx; font-size: 24rpx; color: #ffd166; }
+.arrow-body { position: absolute; left: -7px; top: -110px; width: 14px; height: 80px; background: var(--he-color-accent); border-radius: 7px; }
+.arrow-head { position: absolute; left: -22px; top: -140px; width: 0; height: 0; border-left: 22px solid transparent; border-right: 22px solid transparent; border-bottom: 36px solid var(--he-color-accent); }
+.center { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.dist { font-size: 40px; font-weight: 700; color: var(--he-color-text); }
+.bearing { font-size: 15px; color: var(--he-color-muted); }
+.wp { font-size: 11px; color: var(--he-color-muted); }
+.offroute { position: absolute; bottom: 20px; padding: 8px 16px; background: rgba(var(--he-color-caution-rgb), 0.15); color: var(--he-color-caution); border-radius: 499.5px; font-size: 13px; }
+.finished-banner { position: absolute; bottom: 20px; padding: 8px 16px; background: rgba(var(--he-color-accent-rgb), 0.15); color: var(--he-color-accent); border-radius: 499.5px; font-size: 13px; }
+.nofix { position: absolute; top: 16px; font-size: 12px; color: var(--he-color-warning); }
 
 .map-wrap { flex: 1; position: relative; }
 .map { width: 100%; height: 100%; }
-.map-h5-tip { display: flex; align-items: center; justify-content: center; height: 100%; color: #5c6a78; font-size: 26rpx; padding: 0 64rpx; text-align: center; }
-.map-hud { position: absolute; left: 32rpx; right: 32rpx; bottom: 32rpx; display: flex; justify-content: space-between; background: rgba(15, 20, 27, 0.85); border-radius: 16rpx; padding: 20rpx 24rpx; font-size: 26rpx; color: #eef4ea; }
-.hud-warn { color: #ff9a62; }
+.map-h5-tip { display: flex; align-items: center; justify-content: center; height: 100%; color: var(--he-color-muted); font-size: 13px; padding: 0 32px; text-align: center; }
+.map-hud { position: absolute; left: 16px; right: 16px; bottom: 16px; display: flex; justify-content: space-between; background: var(--he-overlay, rgba(5, 12, 18, 0.84)); border: 1px solid var(--he-overlay-border, rgba(255, 255, 255, 0.12)); border-radius: 8px; padding: 10px 12px; font-size: 13px; color: var(--he-color-text); backdrop-filter: blur(12px); }
+.hud-warn { color: var(--he-color-caution); }
 
-.hud { display: flex; padding: 24rpx 32rpx calc(24rpx + env(safe-area-inset-bottom)); gap: 16rpx; }
-.hud-cell { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6rpx; background: #151d27; border-radius: 16rpx; padding: 20rpx 0; }
-.hud-v { font-size: 28rpx; font-weight: 600; color: #eef4ea; }
-.hud-k { font-size: 20rpx; color: #5c6a78; }
-.hud-cell.sos { background: rgba(255, 123, 114, 0.12); }
-.sos-v { color: #ff7b72; }
+.hud { display: flex; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); gap: 8px; }
+.hud-cell { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; background: var(--he-color-panel); border-radius: 8px; padding: 10px 0; }
+.hud-v { font-size: 14px; font-weight: 600; color: var(--he-color-text); }
+.hud-k { font-size: 10px; color: var(--he-color-muted); }
+.hud-cell.sos { background: rgba(var(--he-color-danger-rgb), 0.12); }
+.sos-v { color: var(--he-color-danger); }
 </style>

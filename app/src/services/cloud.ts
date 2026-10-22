@@ -1,27 +1,29 @@
 /**
  * 云开发服务封装。
  * - 微信小程序内走 wx.cloud（免鉴权登录）
- * - H5 / App 端或云环境未配置时，自动降级为本地 mock（保证功能可演示）
- * 云环境 id 在 shared/constants CLOUD_ENV，占位待开通后替换。
+ * - H5 / App 通过配置的 HTTPS 网关使用统一账号；未配置时明确返回失败。
+ * 云环境 id 在 shared/constants CLOUD_ENV。
  */
+import { hasPrivacyConsent } from "@/services/privacy";
 import { CLOUD_ENV } from "@shared/constants";
+import { accountApiConfigured, accountRequest, accountSession } from '@/services/account';
 
 declare const wx: any;
 
-export type CloudResult<T> = { ok: boolean; data?: T; errMsg?: string };
+export type CloudResult<T> = { ok: boolean; data?: T; errMsg?: string; code?: string };
 
 let inited = false;
 
 export function cloudAvailable(): boolean {
   // #ifdef MP-WEIXIN
   try {
-    return typeof wx !== "undefined" && !!wx.cloud;
+    return typeof wx !== "undefined" && !!wx.cloud || accountApiConfigured();
   } catch {
     return false;
   }
   // #endif
   // #ifndef MP-WEIXIN
-  return false;
+  return accountApiConfigured();
   // #endif
 }
 
@@ -29,72 +31,70 @@ export function initCloud(): void {
   if (inited || !cloudAvailable()) return;
   // #ifdef MP-WEIXIN
   try {
-    wx.cloud.init({ env: CLOUD_ENV, traceUser: true });
+    wx.cloud.init({ env: CLOUD_ENV, traceUser: false });
     inited = true;
   } catch (e) {
-    console.warn("[cloud] init 失败，使用本地降级", e);
+    console.warn("[cloud] init 失败", e);
   }
   // #endif
 }
 
-/** 调云函数；不可用时走 mockHandlers 里的本地实现 */
+/** 调云函数；不可用或服务端返回错误时明确失败 */
 export async function callCloud<T = any>(name: string, data: Record<string, any> = {}): Promise<CloudResult<T>> {
+  const consent = { "track-sync": "trackCloudSync", "gear-scan": "gearImageUpload", "team-report": "teamLocation", "sos-trigger": "location" } as const;
+  const key = consent[name as keyof typeof consent];
+  if (key && !(name === "sos-trigger" && data.action === "resolve") && (!hasPrivacyConsent(key) || (name === "team-report" && !hasPrivacyConsent("location")))) {
+    return { ok: false, errMsg: "相关数据授权已关闭，请在隐私设置中启用。" };
+  }
+  // Personal cloud data and consent-gated uploads must go through the
+  // account API; never fall back to raw Mini Program OpenID identities.
+  // Social content is shared across clients, so its owner/team identity must
+  // also be the same verified unified account on every platform.
+  const accountOnly = new Set(["gear-scan", "track-sync", "track-manage", "team-report", "sos-trigger", "social-manage"]);
+  const session = accountSession();
+  if (accountOnly.has(name) && !session) {
+    return { ok: false, errMsg: "请先登录徒步地球账号，再使用需要账号保护的云端功能。" };
+  }
+  // A unified account takes precedence even inside the mini-program. Otherwise
+  // keep its original trusted WeChat context; identities are never client input.
+  if (session) return accountRequest<T>(name, data);
+  // #ifndef MP-WEIXIN
+  return accountRequest<T>(name, data);
+  // #endif
   initCloud();
   if (cloudAvailable() && inited) {
     // #ifdef MP-WEIXIN
     try {
       const res = await wx.cloud.callFunction({ name, data });
+      if (res.result?.errMsg || res.result?.error || res.result?.ok === false) {
+        return { ok: false, errMsg: String(res.result.errMsg || res.result.error || "服务未完成本次操作"), code: res.result.code === "TEAM_REQUEST_EXPIRED" ? res.result.code : undefined };
+      }
       return { ok: true, data: res.result as T };
     } catch (e: any) {
       return { ok: false, errMsg: e?.errMsg ?? String(e) };
     }
     // #endif
   }
-  const mock = mockHandlers[name];
-  if (mock) {
-    const data2 = await mock(data);
-    return { ok: true, data: data2 as T };
+  return { ok: false, errMsg: "当前平台尚未接通云服务，请使用微信小程序；本次操作未提交。" };
+}
+
+/** Call the trusted Mini Program login function even when a shared account session exists. */
+export async function callMiniProgramLogin<T = any>(data: Record<string, any>): Promise<CloudResult<T>> {
+  // #ifndef MP-WEIXIN
+  return { ok: false, errMsg: '请在微信小程序中使用此授权功能' };
+  // #endif
+  // #ifdef MP-WEIXIN
+  initCloud();
+  if (!inited) return { ok: false, errMsg: '微信云服务尚未连接，本次没有提交' };
+  try {
+    const response = await wx.cloud.callFunction({ name: 'login', data });
+    const result = response?.result;
+    if (!result || result.errMsg || result.error || result.ok === false) {
+      return { ok: false, errMsg: String(result?.errMsg || result?.error || '微信身份授权未完成') };
+    }
+    return { ok: true, data: result as T };
+  } catch {
+    return { ok: false, errMsg: '微信授权服务暂不可用，请稍后重试' };
   }
-  return { ok: false, errMsg: `云环境未配置且无本地降级：${name}` };
-}
-
-/* ---------------- 本地降级（mock） ---------------- */
-
-const mockHandlers: Record<string, (data: any) => Promise<any>> = {
-  login: async () => ({ openid: "local-mock-user", nickname: "本地用户" }),
-  "companion-list": async () => ({ posts: mockPosts() }),
-  "companion-create": async (d) => ({ id: `local-${Date.now()}`, ...d }),
-  "companion-join": async () => ({ joined: true }),
-  "team-create": async () => ({ teamId: `team-${Date.now()}`, inviteCode: String(Math.floor(100000 + Math.random() * 900000)) }),
-  "team-join": async () => ({ joined: true }),
-  "team-locations": async () => ({ members: [] }),
-  "sos-trigger": async () => ({ sosId: `sos-${Date.now()}` }),
-  "track-sync": async () => ({ synced: true }),
-  "guide-list": async () => ({ items: mockGuideItems() }),
-};
-
-function mockPosts() {
-  return [
-    {
-      id: "demo-1",
-      openid: "demo",
-      nickname: "山友·示例",
-      routeId: "wugongshan",
-      title: "武功山两日轻装约伴（示例）",
-      content: "计划周末石鼓寺上金顶，草甸露营一晚，求 2-3 人同行。本帖为本地演示数据。",
-      departDate: "2026-10-17",
-      maxMembers: 4,
-      members: ["demo"],
-      createdAt: Date.now(),
-      status: "open",
-    },
-  ];
-}
-
-function mockGuideItems() {
-  return [
-    { id: "g1", title: "中高帮防水徒步鞋（示例）", category: "鞋靴", summary: "未铺装路面优先防水防滑款，出行前磨合。导购链接待配置。", image: "", link: "", priceHint: "¥400-1200" },
-    { id: "g2", title: "20-30L 一日徒步背包（示例）", category: "背包", summary: "一日线 20L 起步，带水袋仓与腰封。导购链接待配置。", image: "", link: "", priceHint: "¥200-800" },
-    { id: "g3", title: "头灯 + 备用电池（示例）", category: "应急", summary: "夜路应急必备，勿只依赖手机手电。导购链接待配置。", image: "", link: "", priceHint: "¥50-300" },
-  ];
+  // #endif
 }

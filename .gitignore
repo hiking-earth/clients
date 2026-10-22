@@ -4,6 +4,7 @@ node_modules/
 
 # 构建产物
 app/dist/
+desktop/dist/
 desktop/src-tauri/target/
 desktop/src-tauri/gen/
 
@@ -19,3 +20,15 @@ desktop/src-tauri/gen/
 # 编辑器
 .idea/
 .vscode/
+
+# Generated bundled desktop frontend
+desktop/client-dist/
+
+# Separate website Git worktree; tracked in its own repository
+/web/
+
+/site-release/
+
+# Generated verified CPU recognition deployment assets
+/app/cloudfunctions/gear-scan/model/
+/app/cloudfunctions/gear-scan/cpu-detector.cjs

@@ -1,0 +1,168 @@
+#!/usr/bin/env python3
+"""Prepare deterministic public catalog pages. No network, build or feature tests.
+
+Raw source files remain the provenance record. Two immutable generations are
+retained so an in-flight client can finish reading its original snapshot.
+"""
+from afcd_pair import offline_bytes as afcd_offline_bytes
+import gzip
+import hashlib
+import json
+import os
+import argparse
+from pathlib import Path
+import shutil
+import tempfile
+from catalog_publication_validation import validate_news_catalog, validate_route_catalog
+from catalog_sources import PUBLIC_CATALOG_FILES
+
+ROOT = Path(__file__).resolve().parents[1]
+PAGE_SIZE = 400
+# Keep the last known production OSM generation available for explicit rollback.
+PROTECTED_GENERATIONS = {'osm': {'6eed0992ec765e5870be559ef92f8fe48769bfc5ea20e3256ef77f704ba55fdf'}}
+SOURCES = PUBLIC_CATALOG_FILES
+
+
+def encode(value):
+    return json.dumps(value, ensure_ascii=False, separators=(',', ':'), allow_nan=False).encode('utf-8')
+
+
+def atomic_write(path, data):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with tempfile.NamedTemporaryFile(dir=path.parent, delete=False) as handle:
+        handle.write(data)
+        temporary = Path(handle.name)
+    os.replace(temporary, path)
+
+
+def prepare(source_filter=None):
+    selected = {source: relative for source, relative in SOURCES.items() if source_filter is None or source in source_filter}
+    if source_filter is not None and set(source_filter) - set(SOURCES):
+        raise ValueError('unknown catalog source requested')
+    # A scoped source refresh must not repair or rewrite unrelated sources.
+    if source_filter is None or 'hk' in source_filter:
+        # Validate the pair before changing any public pointer or fallback file.
+        hk = json.loads((ROOT / 'shared/data/catalog/hk-afcd.json').read_bytes())
+        try:
+            offline_bytes = (ROOT / 'shared/data/offline/hk-afcd.json').read_bytes()
+            offline = json.loads(offline_bytes)
+        except (OSError, ValueError):
+            offline_bytes = b''
+            offline = {}
+        if not isinstance(offline, dict):offline = {}
+        expected_hash = hk.get('offlineSha256')
+        if expected_hash is not None and (expected_hash != hashlib.sha256(offline_bytes).hexdigest()
+                                        or offline.get('sourceGeneratedAt') != hk.get('generatedAt')):
+            repaired = afcd_offline_bytes(hk)
+            if hashlib.sha256(repaired).hexdigest() != expected_hash:
+                raise ValueError('Hong Kong offline reconstruction hash mismatch; publication stopped')
+            atomic_write(ROOT / 'shared/data/offline/hk-afcd.json', repaired)
+            offline = json.loads(repaired)
+            print('Recovered Hong Kong offline reference from authoritative catalog')
+        expected = {row['id']: row.get('referencePaths') for row in hk['routes']}
+        actual = {}
+        for feature in offline.get('geometry', {}).get('features', []):
+            identity = feature.get('properties', {}).get('sourceId')
+            if identity in actual:
+                raise ValueError('Duplicate Hong Kong offline source ID')
+            actual[identity] = feature.get('geometry', {}).get('coordinates')
+        if expected != actual:
+            repaired = afcd_offline_bytes(hk)
+            if expected_hash is not None and hashlib.sha256(repaired).hexdigest() != expected_hash:
+                raise ValueError('Hong Kong offline reconstruction hash mismatch; publication stopped')
+            atomic_write(ROOT / 'shared/data/offline/hk-afcd.json', repaired)
+            print('Recovered Hong Kong reference geometry from authoritative catalog')
+    pending = []
+    direct = {}
+    if source_filter is None:
+        for source, relative in {'release': 'releases/stable.json', 'offline-hk': 'data/offline/hk-afcd.json'}.items():
+            payload = (ROOT / 'shared' / relative).read_bytes()
+            if len(payload) > 16 * 1024 * 1024:
+                raise ValueError(f'{source}: direct snapshot exceeds memory budget')
+            direct[source] = payload
+    for source, relative in selected.items():
+        raw = (ROOT / 'shared' / relative).read_bytes()
+        data = json.loads(raw)
+        key = 'items' if source == 'news' else 'routes'
+        rows = data[key]
+        if data.get('schemaVersion') != 1 or not isinstance(rows, list) or len(rows) > 250000:
+            raise ValueError(f'{source}: unsupported catalog format or source record budget exceeded')
+        if source == 'news':
+            validate_news_catalog(data)
+        else:
+            validate_route_catalog(source, data)
+        snapshot = hashlib.sha256(raw).hexdigest()
+        folder = ROOT / 'shared/public-catalog' / source
+        protected = PROTECTED_GENERATIONS.get(source, set())
+        missing_protected = [generation for generation in protected if not (folder / generation).is_dir()]
+        if missing_protected:
+            raise ValueError(f'{source}: protected rollback generation missing: {missing_protected}')
+        previous = None
+        if (folder / 'manifest.json').exists():
+            pointer = json.loads((folder / 'manifest.json').read_bytes())
+            previous = pointer.get('snapshot')
+            if previous == snapshot:
+                previous = pointer.get('previousSnapshot')
+        version = folder / snapshot
+        hashes = []
+        # Even an empty catalog has a valid first page.
+        for page in range(max(1, (len(rows) + PAGE_SIZE - 1) // PAGE_SIZE)):
+            payload = encode(rows[page * PAGE_SIZE:(page + 1) * PAGE_SIZE])
+            if len(payload) > 4 * 1024 * 1024:
+                raise ValueError(f'{source}: page exceeds uncompressed memory budget')
+            hashes.append(hashlib.sha256(payload).hexdigest())
+            compressed = gzip.compress(payload, mtime=0)
+            if len(compressed) > 2 * 1024 * 1024:
+                raise ValueError(f'{source}: compressed page exceeds download budget')
+            atomic_write(version / f'page-{page:05d}.json.gz', compressed)
+        index = encode([[str(row.get('name', '')), str(row.get('region', '')), page, offset] for page in range(len(hashes)) for offset, row in enumerate(rows[page * PAGE_SIZE:(page + 1) * PAGE_SIZE])])
+        if len(index) > 32 * 1024 * 1024:
+            raise ValueError(f'{source}: search index exceeds memory budget')
+        packed_index = gzip.compress(index, mtime=0)
+        if len(packed_index) > 8 * 1024 * 1024:
+            raise ValueError(f'{source}: search index exceeds download budget')
+        atomic_write(version / 'index.json.gz', packed_index)
+        manifest = encode({'schemaVersion': 1, 'snapshot': snapshot, 'key': key,
+                          'total': len(rows), 'pageSize': PAGE_SIZE, 'previousSnapshot': previous,
+                          'metadata': {k: v for k, v in data.items() if k not in ('routes', 'items', 'failures', 'withheldItems')},
+                          'pages': hashes, 'indexHash': hashlib.sha256(index).hexdigest()})
+        if len(manifest) > 1024 * 1024:
+            raise ValueError(f'{source}: manifest exceeds metadata budget')
+        atomic_write(version / 'manifest.json', manifest)
+        retained = {snapshot, previous, *protected}
+        fallbacks = [
+            ROOT / 'app/cloudfunctions/catalog-feed/snapshots' / source,
+            ROOT / 'app/cloudfunctions/client-api/business/catalog-feed/snapshots' / source,
+        ]
+        for fallback in fallbacks:
+            fallback.mkdir(parents=True, exist_ok=True)
+        # Stage every retained immutable generation before exposing any pointer.
+        for fallback in fallbacks:
+            for generation in retained:
+                if generation and (folder / generation).is_dir():
+                    shutil.copytree(folder / generation, fallback / generation, dirs_exist_ok=True)
+        pending.append((source, folder, fallbacks, manifest, retained))
+        print(f'{source}: prepared {len(rows)} records / {len(hashes)} pages; {snapshot[:12]}')
+
+    # All sources and direct payload budgets passed before pointer publication.
+    # Separate source pointers are independent, not one filesystem transaction.
+    for source, folder, fallbacks, manifest, retained in pending:
+        atomic_write(folder / 'manifest.json', manifest)
+        for fallback in fallbacks:
+            atomic_write(fallback / 'manifest.json', manifest)
+        for base in (folder, *fallbacks):
+            for child in base.iterdir():
+                if child.is_dir() and len(child.name) == 64 and all(c in '0123456789abcdef' for c in child.name) and child.name not in retained:
+                    shutil.rmtree(child)
+        for fallback in fallbacks:
+            (fallback.parent / (source + '.json')).unlink(missing_ok=True)
+    for source, payload in direct.items():
+        for base in (ROOT / 'app/cloudfunctions/catalog-feed/snapshots', ROOT / 'app/cloudfunctions/client-api/business/catalog-feed/snapshots'):
+            atomic_write(base / (source + '.json'), payload)
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Prepare public route catalog snapshots.')
+    parser.add_argument('--source', action='append', choices=sorted(SOURCES), help='Prepare only this source; repeat for multiple sources.')
+    args = parser.parse_args()
+    prepare(set(args.source) if args.source else None)

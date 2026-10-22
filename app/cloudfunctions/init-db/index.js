@@ -1,9 +1,20 @@
-// init-db：一次性初始化数据库集合（6 个）。部署后手动调用一次即可，调用完成后可删除本函数。
+// init-db：一次性初始化数据库集合（7 个）。部署后手动调用一次即可，调用完成后可删除本函数。
 const cloud = require("wx-server-sdk");
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();
 
 const COLLECTIONS = [
+  "user_libraries",
+  "user_documents",
+  "route_reviews",
+  "team_messages",
+  "user_notifications",
+  "client_accounts",
+  "client_sessions",
+  "client_qr_logins",
+  "client_wechat_tickets",
+  "client_rate_limits",
+  "community_reports",
   "companion_posts",  // 约伴帖（机审后发布）
   "teams",            // 组队
   "team_members",     // 队员实时位置（敏感个人信息，覆盖更新不留历史）
