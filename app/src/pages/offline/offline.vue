@@ -1,6 +1,7 @@
 <template><scroll-view scroll-y class="page" :scroll-into-view="mapScrollTarget" scroll-with-animation>
   <text class="title">离线资料</text>
-<!-- #ifdef APP-PLUS || MP-WEIXIN --><TerrainPacksMobile /><!-- #endif -->
+<!-- #ifdef APP-PLUS --><TerrainPacksMobile @changed="refreshNativeMaps" /><!-- #endif -->
+<!-- #ifdef MP-WEIXIN --><TerrainPacksMobile @changed="refreshWechatMaps" /><!-- #endif -->
 <!-- #ifdef H5 --><TerrainPacks @changed="refreshBasemaps" /><!-- #endif --><text class="hint">本机轨迹可离线查看。本页可导入你有权使用的WGS84 GeoJSON道路或边界资料，不下载商业地图瓦片，不含地形高程。</text>
   <view v-for="layer in layers" :key="layer.id" class="card"><text class="title">{{ layer.name }}</text><text class="hint">{{ layer.attribution }} · {{ layer.license }} · {{ (layer.bytes/1024).toFixed(0) }} KB</text><button :disabled="busy" @click="activate(layer.id)">{{ active === layer.id ? '正在使用' : '用于轨迹与导航示意' }}</button><button :disabled="busy" @click="remove(layer.id)">删除资料</button></view>
   <TrackCanvas v-if="preview" :points="[]" :layers="preview.paths" :attribution="preview.attribution" />
@@ -33,6 +34,8 @@
 <script setup lang="ts">
 // #ifdef APP-PLUS || MP-WEIXIN
 import TerrainPacksMobile from '@/components/TerrainPacksMobile.vue';
+import {validateWechatMapInventory as terrainInventory} from '@/services/wechat-basemap-store';
+function platformTerrainBytes(platform:'native'|'wechat'){return terrainInventory(uni.getStorageSync(`he_${platform}_terrain_v1`)).reduce((n,r)=>n+r.bytes,0);}
 // #endif
 // #ifdef H5
 import TerrainPacks from '@/components/TerrainPacks.vue';
@@ -158,10 +161,11 @@ const nativeRead=(path:string,bytes:number)=>nativeMapRangeReader(nativeIO,path,
 const nativeStore=createNativeMapStore(nativeApi,(path,bytes)=>openNativeArchive(`native-${Date.now()}-${Math.random().toString(36).slice(2,10)}`,bytes,nativeRead(path,bytes)),'native');
 const nativeCatalog=createNativeCatalog(bundledNativeMaps,()=>requestNativeCatalog(PUBLIC_MAP_DISTRIBUTION));
 const nativeAvailableMaps=ref(nativeCatalog.snapshot()),nativeSavedMaps=ref<NativeMapView[]>([]),nativeBasemap=ref<{path:string;bytes:number}|null>(null),nativeInventoryReady=ref(false);
-const nativeSavedMapBytes=computed(()=>nativeInventoryReady.value?nativeSavedMaps.value.reduce((total,pack)=>total+pack.bytes,0):null);
+const nativeTerrainBytes=ref(0);
+const nativeSavedMapBytes=computed(()=>nativeInventoryReady.value?nativeSavedMaps.value.reduce((total,pack)=>total+pack.bytes,0)+nativeTerrainBytes.value:null);
 const visibleNativeMaps=computed(()=>mapLocation.value?mapsCoveringLocation(nativeAvailableMaps.value,mapLocation.value.latitude,mapLocation.value.longitude):nativeAvailableMaps.value);
 watch(nativeBasemap,file=>{if(file)void revealMap();});
-async function refreshNativeMaps(){try{nativeSavedMaps.value=await nativeStore.list();nativeInventoryReady.value=true;}catch(error){nativeInventoryReady.value=false;throw error;}}
+async function refreshNativeMaps(){try{nativeSavedMaps.value=await nativeStore.list();nativeTerrainBytes.value=platformTerrainBytes('native');nativeInventoryReady.value=true;}catch(error){nativeInventoryReady.value=false;throw error;}}
 onShow(async()=>{try{await refreshNativeMaps();}catch(e){message.value=e instanceof Error?e.message:'地图目录恢复失败';}try{nativeAvailableMaps.value=await nativeCatalog.refresh();}catch{message.value='地图目录暂时无法更新，保留已有目录';}});
 async function downloadNativeMap(pack:NativeDownloadPack){if(busy.value)return;mutating.value=true;try{
  const existing=await nativeStore.find(pack.name,pack.bytes);
@@ -217,10 +221,11 @@ import {fileRangeReader} from '@/services/basemap-file-reader';
 import {openLocalBasemap} from '@/services/local-basemap';
 const wechatSavedMaps=ref<WechatMapView[]>([]);
 const wechatInventoryReady=ref(false);
-const wechatSavedMapBytes=computed(()=>wechatInventoryReady.value?wechatSavedMaps.value.reduce((total,pack)=>total+pack.bytes,0):null);
+const wechatTerrainBytes=ref(0);
+const wechatSavedMapBytes=computed(()=>wechatInventoryReady.value?wechatSavedMaps.value.reduce((total,pack)=>total+pack.bytes,0)+wechatTerrainBytes.value:null);
 const wechatMapStore=createWechatMapStore(uni,(path,bytes)=>openLocalBasemap('wechat-validate',bytes,fileRangeReader(uni.getFileSystemManager(),path,bytes)));
 async function viewWechatBasemap(id:string){if(busy.value)return;mutating.value=true;message.value='正在读取已保存地图';try{const packs=await wechatMapStore.list();wechatSavedMaps.value=packs;wechatInventoryReady.value=true;const pack=packs.find(row=>row.id===id);if(!pack)throw new Error('地图不在本机目录中');if(!pack.available)throw new Error(pack.issue||'地图暂时无法读取，请保留原包');wechatBasemap.value={path:pack.path,bytes:pack.bytes};}catch(error){message.value=error instanceof Error?error.message:'地图读取失败';}finally{mutating.value=false;}}
-async function refreshWechatMaps(){try{wechatSavedMaps.value=await wechatMapStore.list();wechatInventoryReady.value=true;}catch(e){wechatInventoryReady.value=false;message.value=e instanceof Error?e.message:'地图目录恢复失败';}}
+async function refreshWechatMaps(){try{wechatSavedMaps.value=await wechatMapStore.list();wechatTerrainBytes.value=platformTerrainBytes('wechat');wechatInventoryReady.value=true;}catch(e){wechatInventoryReady.value=false;message.value=e instanceof Error?e.message:'地图目录恢复失败';}}
 onShow(refreshWechatMaps);
 async function importWechatMapRequestArchive(request:MapRequest){
  if(busy.value||!request.bytes||!request.sha256)return;
