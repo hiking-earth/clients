@@ -1,5 +1,7 @@
 <template><scroll-view scroll-y class="page" :scroll-into-view="mapScrollTarget" scroll-with-animation>
-  <text class="title">离线资料</text><text class="hint">本机轨迹可离线查看。本页可导入你有权使用的WGS84 GeoJSON道路或边界资料，不下载商业地图瓦片，不含地形高程。</text>
+  <text class="title">离线资料</text>
+<!-- #ifdef APP-PLUS || MP-WEIXIN --><TerrainPacksMobile /><!-- #endif -->
+<!-- #ifdef H5 --><TerrainPacks @changed="refreshBasemaps" /><!-- #endif --><text class="hint">本机轨迹可离线查看。本页可导入你有权使用的WGS84 GeoJSON道路或边界资料，不下载商业地图瓦片，不含地形高程。</text>
   <view v-for="layer in layers" :key="layer.id" class="card"><text class="title">{{ layer.name }}</text><text class="hint">{{ layer.attribution }} · {{ layer.license }} · {{ (layer.bytes/1024).toFixed(0) }} KB</text><button :disabled="busy" @click="activate(layer.id)">{{ active === layer.id ? '正在使用' : '用于轨迹与导航示意' }}</button><button :disabled="busy" @click="remove(layer.id)">删除资料</button></view>
   <TrackCanvas v-if="preview" :points="[]" :layers="preview.paths" :attribution="preview.attribution" />
   <!-- #ifdef H5 || MP-WEIXIN || APP-PLUS -->
@@ -29,6 +31,13 @@
   <text class="hint">格式：format=hiking-earth-offline-v1，name、attribution、license均必填，geometry为GeoJSON FeatureCollection；支持LineString/MultiLineString/Polygon/MultiPolygon。每份最多5 MB、50000点，总量8 MB。导入后不会上传。</text>
 </scroll-view></template>
 <script setup lang="ts">
+// #ifdef APP-PLUS || MP-WEIXIN
+import TerrainPacksMobile from '@/components/TerrainPacksMobile.vue';
+// #endif
+// #ifdef H5
+import TerrainPacks from '@/components/TerrainPacks.vue';
+import {listTerrain} from '@/services/terrain-store';
+// #endif
 import { HE_PALETTE } from '@shared/design/palette';
 import OfflineMapCapacity from '@/components/OfflineMapCapacity.vue';
 import OfflineMapUpdateNotice from '@/components/OfflineMapUpdateNotice.vue';
@@ -84,10 +93,11 @@ import {downloadBasemap,downloadDesktopBasemap,type BasemapDownload} from '@/ser
 async function downloadMapPack(pack:BasemapDownload){if(busy.value)return;mutating.value=true;message.value='正在核对本机地图版本';try{const rows=await listBasemaps();const existing=await findVerifiedSavedBasemap(rows,pack);if(existing){savedBasemaps.value=rows;basemapInventoryReady.value=true;basemapFile.value=existing.blob;message.value='本机已有相同版本，已校验并打开';return;}assertOfflineMapCapacity(rows.reduce((sum,row)=>sum+row.bytes,0),pack.bytes);message.value='正在下载并校验地图，请稍候';const file=isDesktop()?await downloadDesktopBasemap(pack,requestDesktopMapDownload):await downloadBasemap(pack,mapBase,undefined,bytes=>{message.value=`地图下载 ${(bytes/1048576).toFixed(2)} MiB`;});const saved=await saveBasemap(file);await refreshBasemaps();basemapFile.value=saved.blob;message.value='地图已校验并保存';}catch(e){message.value=e instanceof Error?e.message:'地图下载失败';}finally{mutating.value=false;}}
 import {listBasemaps,saveBasemap,deleteBasemap,type SavedBasemap} from '@/services/basemap-store';
 const basemapFile=ref<Blob|null>(null),savedBasemaps=ref<SavedBasemap[]>([]),basemapInventoryReady=ref(false);
-const savedBasemapBytes=computed(()=>basemapInventoryReady.value?savedBasemaps.value.reduce((total,pack)=>total+pack.bytes,0):null);
+const savedTerrainBytes=ref(0);
+const savedBasemapBytes=computed(()=>basemapInventoryReady.value?savedBasemaps.value.reduce((total,pack)=>total+pack.bytes,0)+savedTerrainBytes.value:null);
 function viewSavedBasemap(file:Blob){basemapFile.value=file;void revealMap();}
 watch(basemapFile,file=>{if(file)void revealMap();});
-async function refreshBasemaps(){try{savedBasemaps.value=await listBasemaps();basemapInventoryReady.value=true;}catch(e){basemapInventoryReady.value=false;message.value=e instanceof Error?e.message:'地图目录读取失败';}}
+async function refreshBasemaps(){try{const [maps,terrain]=await Promise.all([listBasemaps(),listTerrain()]);savedBasemaps.value=maps;savedTerrainBytes.value=terrain.reduce((n,r)=>n+r.bytes,0);basemapInventoryReady.value=true;}catch(e){basemapInventoryReady.value=false;message.value=e instanceof Error?e.message:'地图目录读取失败';}}
 onShow(refreshBasemaps);
 function chooseBasemap(){const input=document.createElement('input');input.type='file';input.accept='.pmtiles';input.onchange=async()=>{const file=input.files?.[0];if(!file||busy.value)return;mutating.value=true;try{const saved=await saveBasemap(file);await refreshBasemaps();basemapFile.value=saved.blob;message.value='地图包已保存到本机';}catch(e){message.value=e instanceof Error?e.message:'地图保存失败';}finally{mutating.value=false;}};input.click();}
 function removeBasemap(id:string){uni.showModal({title:'删除地图包',content:'仅删除本机副本，请保留原始地图文件。',success:async result=>{if(!result.confirm||busy.value)return;mutating.value=true;try{await deleteBasemap(id);basemapFile.value=null;await refreshBasemaps();}catch(e){message.value=e instanceof Error?e.message:'删除失败';}finally{mutating.value=false;}}});}
