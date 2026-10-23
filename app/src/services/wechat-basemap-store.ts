@@ -35,7 +35,7 @@ export function createWechatMapStore(api:SavedMapApi,validateFile:(path:string,b
   const rows=inventory(),peers=validateWechatMapInventory(api.getStorageSync(peerKey));if(kind==='terrain'&&bytes>33*1024*1024)throw new Error('地形包超过33 MiB');if(rows.length>=128||rows.reduce((n,r)=>n+r.bytes,0)+peers.reduce((n,r)=>n+r.bytes,0)+bytes>BUDGET)throw new Error('本机地图已满，请先删除不使用的地图包');
   await validateFile(path,bytes);
   const saved=await new Promise<string>((resolve,reject)=>api.saveFile({tempFilePath:path,success:r=>resolve(r.savedFilePath),fail:()=>reject(new Error(platform==='native'?'地图保存失败，请检查设备存储空间':'地图保存失败，可能已达到微信文件空间限制'))}));
-  if(rows.some(row=>row.path===saved))throw new Error('地图保存路径与已有文件冲突，请保留原包');
+  if([...rows,...peers].some(row=>row.path===saved))throw new Error('地图保存路径与已有文件冲突，请保留原包');
   if(!isLocalMapPath(saved)){
    // saveFile has already created a platform-managed file. If the platform
    // returns an unsafe path, try to remove that exact returned file instead
