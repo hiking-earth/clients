@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Build an opt-in bounded Terrarium ZIP candidate; never publish or overwrite."""
-import argparse,datetime,hashlib,json,math,pathlib,re,struct,time,urllib.error,urllib.request,zipfile
+import argparse,datetime,hashlib,json,math,pathlib,re,ssl,struct,time,urllib.error,urllib.request,zipfile
 BASE='https://elevation-tiles-prod.s3.amazonaws.com/terrarium/'
 LICENSE='https://github.com/tilezen/joerd/blob/master/docs/attribution.md'
 MAX_BYTES=32*1024*1024
@@ -28,8 +28,8 @@ def fetch_tile(z,x,y,deadline):
             return data
         except urllib.error.HTTPError as error:
             if error.code not in (408,429,500,502,503,504) or attempt==2:raise
-        except (urllib.error.URLError,TimeoutError):
-            if attempt==2:raise
+        except (urllib.error.URLError,TimeoutError) as error:
+            if isinstance(getattr(error,'reason',None),ssl.SSLCertVerificationError) or attempt==2:raise
         if time.monotonic()+2**attempt>=deadline:raise TimeoutError('Terrain retry exceeds time budget')
         time.sleep(2**attempt)
 
