@@ -18,10 +18,12 @@ export function validateWechatMapInventory(value:unknown):WechatMapPack[]{
  for(const row of value){if(!row||typeof row!=='object'||!/^wm-[a-z0-9-]{1,80}$/.test(row.id)||ids.has(row.id)||typeof row.name!=='string'||!row.name.trim()||row.name.length>120||typeof row.path!=='string'||!isLocalMapPath(row.path)||paths.has(row.path)||!Number.isSafeInteger(row.bytes)||row.bytes<127||row.bytes>MAX_PACK||!Number.isSafeInteger(row.savedAt)||row.savedAt<1)throw new Error('本机地图目录损坏，请保留原包');ids.add(row.id);paths.add(row.path);total+=row.bytes;}
  if(total>BUDGET)throw new Error('本机地图容量超过192 MiB');return value.map(row=>({...row}));
 }
-export function createWechatMapStore(api:SavedMapApi,validateFile:(path:string,bytes:number)=>Promise<unknown>,platform:'wechat'|'native'='wechat'){
- const storageKey=platform==='native'?'he_native_basemaps_v1':KEY;
- let tail:Promise<unknown>=Promise.resolve();
- function serial<T>(work:()=>Promise<T>):Promise<T>{const result=tail.then(work);tail=result.catch(()=>{});return result;}
+const platformTails=new Map<'wechat'|'native',Promise<unknown>>();
+export function createWechatMapStore(api:SavedMapApi,validateFile:(path:string,bytes:number)=>Promise<unknown>,platform:'wechat'|'native'='wechat',kind:'basemaps'|'terrain'='basemaps'){
+ const storageKey=`he_${platform}_${kind}_v1`;
+ const peerKey=`he_${platform}_${kind==='terrain'?'basemaps':'terrain'}_v1`;
+ // Serialize both stores on the same platform, so parallel imports share quota.
+ function serial<T>(work:()=>Promise<T>):Promise<T>{const result=(platformTails.get(platform)||Promise.resolve()).then(work);platformTails.set(platform,result.catch(()=>{}));return result;}
  const inventory=()=>validateWechatMapInventory(api.getStorageSync(storageKey));
  const size=(path:string)=>new Promise<number>((resolve,reject)=>api.getFileSystemManager().getFileInfo({filePath:path,success:r=>resolve(r.size),fail:error=>reject(new MapFileError('已保存地图文件不存在或无法读取',fileMissing(error)))}));
  const unlink=(path:string)=>new Promise<void>((resolve,reject)=>api.removeSavedFile({filePath:path,success:resolve,fail:error=>reject(new MapFileError('未能删除地图文件',fileMissing(error)))}));
@@ -30,10 +32,10 @@ export function createWechatMapStore(api:SavedMapApi,validateFile:(path:string,b
  list:()=>serial(async()=>{const views:WechatMapView[]=[];for(const row of inventory()){let issue='';try{if(await size(row.path)!==row.bytes)issue='文件大小变化，请保留原包';}catch(error){issue=error instanceof MapFileError&&error.missing?'文件已被清理，可删除目录记录后重新下载':'文件暂时无法读取，请保留原包';}views.push({...row,available:!issue,issue});}return views;}),
  save:(path:string,bytes:number,name:string)=>serial(async()=>{
   if(typeof name!=='string'||!name.trim()||name.length>120||!Number.isSafeInteger(bytes)||bytes<127||bytes>MAX_PACK)throw new Error('地图包无效或超过64 MiB');
-  const rows=inventory();if(rows.length>=128||rows.reduce((n,r)=>n+r.bytes,0)+bytes>BUDGET)throw new Error('本机地图已满，请先删除不使用的地图包');
+  const rows=inventory(),peers=validateWechatMapInventory(api.getStorageSync(peerKey));if(kind==='terrain'&&bytes>33*1024*1024)throw new Error('地形包超过33 MiB');if(rows.length>=128||rows.reduce((n,r)=>n+r.bytes,0)+peers.reduce((n,r)=>n+r.bytes,0)+bytes>BUDGET)throw new Error('本机地图已满，请先删除不使用的地图包');
   await validateFile(path,bytes);
   const saved=await new Promise<string>((resolve,reject)=>api.saveFile({tempFilePath:path,success:r=>resolve(r.savedFilePath),fail:()=>reject(new Error(platform==='native'?'地图保存失败，请检查设备存储空间':'地图保存失败，可能已达到微信文件空间限制'))}));
-  if(rows.some(row=>row.path===saved))throw new Error('地图保存路径与已有文件冲突，请保留原包');
+  if([...rows,...peers].some(row=>row.path===saved))throw new Error('地图保存路径与已有文件冲突，请保留原包');
   if(!isLocalMapPath(saved)){
    // saveFile has already created a platform-managed file. If the platform
    // returns an unsafe path, try to remove that exact returned file instead
